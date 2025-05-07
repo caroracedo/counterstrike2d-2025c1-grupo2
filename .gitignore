@@ -1,0 +1,54 @@
+# Build directories
+build/
+
+# Tag files
+tags.*
+
+# Prerequisites
+*.d
+
+# Compiled object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Fortran module files
+*.mod
+*.smod
+
+# Executable files
+*.exe
+*.out
+*.app
+# client
+# server
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE settings
+.vscode/
+.idea/
+
+# GDB history and dumps
+.gdbhistory
+*.gdb
