@@ -6,7 +6,7 @@
 
 #include "common/foo.h"
 
-using namespace SDL2pp;
+using SDL2pp;
 
 int main() try {
     // Initialize SDL library
