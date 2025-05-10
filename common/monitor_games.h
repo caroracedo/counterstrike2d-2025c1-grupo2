@@ -1,5 +1,5 @@
-#ifndef GAMES_MONITOR_H
-#define GAMES_MONITOR_H
+#ifndef MONITOR_GAMES_H
+#define MONITOR_GAMES_H
 
 #include <algorithm>
 #include <map>
@@ -16,13 +16,13 @@ private:
 
 public:
     /* Crear */
-    MonitorGame* create_game(const std::string& game_name) {
+    bool create_game(const std::string& game_name) {
         std::lock_guard<std::mutex> lock(mutex);
         if (games.count(game_name))
-            return nullptr;
+            return false;
         MonitorGame* game = new MonitorGame;
         games[game_name] = game;
-        return game;
+        return true;
     }
 
     /* Listar */
@@ -35,11 +35,19 @@ public:
     }
 
     /* Unirse */
-    MonitorGame* join_game(const std::string& game_name) {
+    bool join_game(const std::string& game_name) {
         std::lock_guard<std::mutex> lock(mutex);
         if (games.count(game_name))
-            return nullptr;
-        return games[game_name];
+            return false;
+        return games[game_name]->join();
+    }
+
+    /* Mover */
+    bool move_game(const std::string& game_name, Direction direction) {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (games.count(game_name))
+            return false;
+        return games[game_name]->move(direction);
     }
 
     /*
@@ -53,4 +61,4 @@ public:
     }
 };
 
-#endif  // GAMES_MONITOR_H
+#endif  // MONITOR_GAMES_H

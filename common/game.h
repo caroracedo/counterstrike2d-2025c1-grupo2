@@ -31,8 +31,7 @@ public:
                 x += 1;
                 break;
         }
-        // TODO: cambiar -> lo agregue para que cppcheck no tire error
-        return false;
+        return true;  // Como todavía no pensamos en dimensiones, esta operación no puede fallar
     }
 };
 

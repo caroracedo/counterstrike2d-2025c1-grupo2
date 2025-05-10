@@ -4,9 +4,9 @@
 #include <list>
 #include <utility>
 
-#include "../common_src/monitor_games.h"
-#include "../common_src/socket.h"
-#include "../common_src/thread.h"
+#include "../common/monitor_games.h"
+#include "../common/socket.h"
+#include "../common/thread.h"
 
 #include "client_manager.h"
 
