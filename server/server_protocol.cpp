@@ -90,8 +90,23 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 }
 
 ActionDTO ServerProtocol::receive_and_deserialize_move() {
-    // TODO: implementar
-    return {};
+    uint8_t direction;
+    if (!skt_manager.receive_byte(skt, direction)) {
+        return {};
+    }
+
+    switch (direction) {
+        case MOVE_UP_OPCODE:
+            return {ActionType::MOVE, Direction::UP};
+        case MOVE_DOWN_OPCODE:
+            return {ActionType::MOVE, Direction::DOWN};
+        case MOVE_LEFT_OPCODE:
+            return {ActionType::MOVE, Direction::LEFT};
+        case MOVE_RIGHT_OPCODE:
+            return {ActionType::MOVE, Direction::RIGHT};
+        default:
+            return {};
+    }
 }
 
 // Cerrar

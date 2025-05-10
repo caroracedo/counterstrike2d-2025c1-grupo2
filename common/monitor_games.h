@@ -1,11 +1,11 @@
 #ifndef GAMES_MONITOR_H
 #define GAMES_MONITOR_H
 
+#include <algorithm>
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "monitor_game.h"
 

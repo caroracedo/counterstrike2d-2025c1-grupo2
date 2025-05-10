@@ -3,10 +3,10 @@
 
 #include <string>
 
+#include "../common/action_DTO.h"
+#include "../common/main_menu_DTO.h"
 #include "../common/socket.h"
 #include "../common/socket_manager.h"
-#include "../common/main_menu_DTO.h"
-#include "../common/action_DTO.h"
 
 /*
 Clase que encapsula el protocolo de comunicación del Client con el Server.
@@ -16,7 +16,7 @@ class ClientProtocol {
 private:
     Socket skt;
     SocketManager skt_manager;
-    
+
     bool serialize_and_send_game_name(const uint8_t opcode, const std::string& game_name);
     bool serialize_and_send_opcode(const uint8_t opcode);
 
@@ -32,4 +32,4 @@ public:
     std::string receive_and_deserialize_games_names();
 };
 
-#endif // CLIENT_PROTOCOL_H
+#endif  // CLIENT_PROTOCOL_H

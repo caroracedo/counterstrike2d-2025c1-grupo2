@@ -2,6 +2,7 @@
 #define ACCEPTOR_H
 
 #include <list>
+#include <utility>
 
 #include "../common_src/monitor_games.h"
 #include "../common_src/socket.h"
@@ -24,7 +25,8 @@ private:
 
     void start_server_client() {
         Socket new_client_socket = server_socket.accept();
-        ClientManager* new_client_manager = new ClientManager(std::move(new_client_socket), monitor_games);
+        ClientManager* new_client_manager =
+                new ClientManager(std::move(new_client_socket), monitor_games);
         new_client_manager->start();
         client_managers_list.push_back(new_client_manager);
     }
@@ -33,7 +35,8 @@ public:
     /*
      * Constructor.
      **/
-    Acceptor(const char* port, MonitorGames& monitor_games) : server_socket(port), monitor_games(monitor_games) {}
+    Acceptor(const char* port, MonitorGames& monitor_games):
+            server_socket(port), monitor_games(monitor_games) {}
 
     /* Override */
     void run() override {
