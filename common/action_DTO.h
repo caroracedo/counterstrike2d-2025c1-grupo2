@@ -1,22 +1,22 @@
 #ifndef ACTION_DTO_H
 #define ACTION_DTO_H
 
-#include <string>
-
-enum class ActionType {CREATE, LIST, JOIN, UNKNOWN};
+enum class ActionType { MOVE, UNKNOWN };
+enum class Direction { UP, DOWN, LEFT, RIGHT, UNKNOWN };
 
 struct ActionDTO {
     ActionType type;
-    std::string game_name;
+    Direction direction;
 
-    ActionDTO() : type(ActionType::UNKNOWN), game_name() {}
+    // para unknown
+    ActionDTO(): type(ActionType::UNKNOWN), direction() {}
 
-    explicit ActionDTO(ActionType action_type) : 
-        type(action_type), game_name() {}
-    
-    ActionDTO(ActionType action_type, const std::string& game_name) : 
-        type(action_type), game_name(game_name) {}
+    // para feats futuros (ej: soltar bomba)
+    // ActionDTO(const ActionType& action) : type(action) {};
 
+    // para mover
+    ActionDTO(const ActionType& action, const Direction& direction):
+            type(action), direction(direction) {}
 };
 
-#endif // ACTION_DTO_H
+#endif  // ACTION_DTO_H

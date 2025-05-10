@@ -1,9 +1,13 @@
 #ifndef SERVER_PROTOCOL_H
 #define SERVER_PROTOCOL_H
 
+#include <string>
+#include <vector>
+
+#include "../common/action_DTO.h"
+#include "../common/main_menu_DTO.h"
 #include "../common/socket.h"
 #include "../common/socket_manager.h"
-#include "../common/action_DTO.h"
 
 /*
 Clase que encapsula el protocolo de comunicación del Server con el Client.
@@ -14,15 +18,19 @@ private:
     Socket skt;
     SocketManager skt_manager;
 
-    ActionDTO receive_and_deserialize_game(const ActionType& action_type);
-    ActionDTO receive_and_deserialize_list();
+    MainMenuDTO receive_and_deserialize_game_name(const Option& action_type);
+    ActionDTO receive_and_deserialize_move();
 
 public:
     explicit ServerProtocol(Socket&& skt);
+
+    MainMenuDTO receive_and_deserialize_main_menu_action();
+
+    void serialize_and_send_games_names(const std::vector<std::string>& names);
 
     ActionDTO receive_and_deserialize_action();
 
     void close();
 };
 
-#endif // SERVER_PROTOCOL_H
+#endif  // SERVER_PROTOCOL_H

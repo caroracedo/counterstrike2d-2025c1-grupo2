@@ -1,8 +1,11 @@
 #include "server_protocol.h"
 
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <arpa/inet.h>
 
 #include "../common/constants.h"
 
@@ -10,37 +13,40 @@ ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {}
 
 
 // Recibir
-ActionDTO ServerProtocol::receive_and_deserialize_action() {
+MainMenuDTO ServerProtocol::receive_and_deserialize_main_menu_action() {
     /*
-     * Se delega la tarea de recibir el tipo de acción al SocketManager
-     * Si este es válido, se traduce la acción completa a un ActionDTO y se devuelve
-     * Caso contrario, se devuelve un ActionDTO vacío
+     * Recibe comando del Main Menu (Create, Join, List) enviada por el Client
+     * En caso de ser un comando, devuelve un MainMenuDTO con campos necesarios completos
+     * Caso contrario, devuelve un MainMenuDTO vacío (option=UNKNOWN)
      */
     uint8_t opcode;
     if (!skt_manager.receive_byte(skt, opcode)) {
         return {};
     }
-    switch (opcode)
-    {
-    case CREATE_OPCODE:
-        return receive_and_deserialize_game(ActionType::CREATE);
-    case JOIN_OPCODE:
-        return receive_and_deserialize_game(ActionType::JOIN);
-    case LIST_OPCODE:
-        return ActionDTO(ActionType::LIST);
-    default:
-        return {};
+    switch (opcode) {
+        case CREATE_OPCODE:
+            return receive_and_deserialize_game_name(Option::CREATE);
+        case JOIN_OPCODE:
+            return receive_and_deserialize_game_name(Option::JOIN);
+        case LIST_OPCODE:
+            return MainMenuDTO(Option::LIST);
+        default:
+            return {};
     }
 }
 
-ActionDTO ServerProtocol::receive_and_deserialize_game(const ActionType& action_type) {
+MainMenuDTO ServerProtocol::receive_and_deserialize_game_name(const Option& action_type) {
+    /*
+     * Recibe el largo del nombre de la partida y el nombre
+     * Usado cuando el comando es Option::CREATE o Option::JOIN
+     */
     uint16_t size_game_name;
-    if (!skt_manager.receive_two_bytes(skt, size_game_name)){
+    if (!skt_manager.receive_two_bytes(skt, size_game_name)) {
         return {};
     }
 
     std::vector<uint8_t> game_name(size_game_name);
-    if (!skt_manager.receive_bytes(skt, game_name)){
+    if (!skt_manager.receive_bytes(skt, game_name)) {
         return {};
     }
 
@@ -48,6 +54,45 @@ ActionDTO ServerProtocol::receive_and_deserialize_game(const ActionType& action_
 }
 
 // Enviar
+void ServerProtocol::serialize_and_send_games_names(const std::vector<std::string>& names) {
+    /*
+     * Recibe un vector con los nombres de las partidas actuales y se las envía al Client
+     * con el formato adecuado.
+     */
+    std::ostringstream oss;
+    oss << "Partidas:";
+
+    for (const std::string& name: names) {
+        oss << "\n - " << name;
+    }
+    oss << "\n";
+    std::string matches = oss.str();
+
+    uint16_t size = htons(static_cast<uint16_t>(matches.size()));
+    skt_manager.send_two_bytes(skt, size);
+    skt_manager.send_text(skt, matches);
+}
+
+// Manejo de acciones
+ActionDTO ServerProtocol::receive_and_deserialize_action() {
+    uint8_t opcode;
+    if (!skt_manager.receive_byte(skt, opcode)) {
+        return {};
+    }
+
+    switch (opcode) {
+        case MOVE_OPCODE:
+            return receive_and_deserialize_move();
+
+        default:
+            return {};
+    }
+}
+
+ActionDTO ServerProtocol::receive_and_deserialize_move() {
+    // TODO: implementar
+    return {};
+}
 
 // Cerrar
 void ServerProtocol::close() { skt_manager.close(skt); }
