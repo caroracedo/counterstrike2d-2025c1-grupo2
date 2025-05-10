@@ -1,8 +1,25 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
-    foo.cpp
+    liberror.cpp
+    resolver.cpp 
+    resolvererror.cpp 
+    socket_manager.cpp 
+    socket.cpp 
+    
     PUBLIC
     # .h files
-    foo.h
+    action_DTO.h 
+    constants.h
+    game.h 
+    liberror.h 
+    main_menu_DTO.h 
+    monitor_game.h 
+    monitor_games.h 
+    queue.h 
+    resolver.h 
+    resolvererror.h 
+    socket_manager.h 
+    socket.h 
+    thread.h 
     )

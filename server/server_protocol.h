@@ -26,7 +26,7 @@ public:
 
     MainMenuDTO receive_and_deserialize_main_menu_action();
 
-    void serialize_and_send_games_names(const std::vector<std::string>& names);
+    bool serialize_and_send_games_names(const std::vector<std::string>& names);
 
     ActionDTO receive_and_deserialize_action();
 

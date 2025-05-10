@@ -33,8 +33,8 @@ bool ClientProtocol::serialize_and_send_game_name(const uint8_t opcode,
 
     std::vector<uint8_t> message;
     message.push_back(opcode);
-    message.push_back(static_cast<uint8_t>(length >> 8));    // High byte of length
-    message.push_back(static_cast<uint8_t>(length & 0xFF));  // Low byte of length
+    message.push_back(static_cast<uint8_t>(length >> 8));
+    message.push_back(static_cast<uint8_t>(length & 0xFF));
     message.insert(message.end(), game_name.begin(), game_name.end());
 
     return skt_manager.send_bytes(skt, message);

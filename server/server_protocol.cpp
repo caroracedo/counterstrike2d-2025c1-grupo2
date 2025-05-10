@@ -54,7 +54,7 @@ MainMenuDTO ServerProtocol::receive_and_deserialize_game_name(const Option& acti
 }
 
 // Enviar
-void ServerProtocol::serialize_and_send_games_names(const std::vector<std::string>& names) {
+bool ServerProtocol::serialize_and_send_games_names(const std::vector<std::string>& names) {
     /*
      * Recibe un vector con los nombres de las partidas actuales y se las envía al Client
      * con el formato adecuado.
@@ -69,8 +69,8 @@ void ServerProtocol::serialize_and_send_games_names(const std::vector<std::strin
     std::string matches = oss.str();
 
     uint16_t size = htons(static_cast<uint16_t>(matches.size()));
-    skt_manager.send_two_bytes(skt, size);
-    skt_manager.send_text(skt, matches);
+
+    return skt_manager.send_two_bytes(skt, size) && skt_manager.send_text(skt, matches);
 }
 
 // Manejo de acciones
