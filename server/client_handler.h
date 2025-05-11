@@ -73,9 +73,8 @@ private:
     bool do_move_action(const ActionDTO& action_dto) {
         if (!monitor_games.move_game(game_name, action_dto.direction))
             return false;
-        // Acá debería enviar el estado del juego
-        // return protocol.serialize_and_send_action({});
-        return true;
+        return protocol.serialize_and_send_move(
+                {ActionType::MOVE, monitor_games.get_position_game(game_name)});
     }
 
     void run_loop(std::function<bool()> action_loop) {
@@ -102,6 +101,7 @@ public:
     /* Override */
     void run() override {
         // Enfoque funcional, sacando código repetido
+        // Descomento para que me deje commitear
         run_loop([&]() {
             MainMenuDTO dto = protocol.receive_and_deserialize_main_menu_action();
             if (!do_main_menu_option(dto))
