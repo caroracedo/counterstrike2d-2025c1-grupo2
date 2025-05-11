@@ -15,6 +15,7 @@ public:
     bool receive_text(Socket& socket, std::string& text, const uint16_t& text_size);
 
     /* Enviar */
+    bool send_byte(Socket& socket, const uint8_t& byte);
     bool send_two_bytes(Socket& socket, const uint16_t& bytes);
     bool send_bytes(Socket& socket, const std::vector<uint8_t>& bytes);
     bool send_text(Socket& socket, const std::string& text);

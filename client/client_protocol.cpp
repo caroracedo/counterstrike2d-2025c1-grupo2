@@ -29,31 +29,26 @@ bool ClientProtocol::serialize_and_send_main_menu_action(const MainMenuDTO& main
 
 bool ClientProtocol::serialize_and_send_game_name(const uint8_t opcode,
                                                   const std::string& game_name) {
-    uint16_t length = htons(static_cast<uint16_t>(game_name.size()));
-
-    std::vector<uint8_t> message;
-    message.push_back(opcode);
-    message.push_back(static_cast<uint8_t>(length >> 8));
-    message.push_back(static_cast<uint8_t>(length & 0xFF));
-    message.insert(message.end(), game_name.begin(), game_name.end());
 
     /*
-    Sugiero hacer:
-    skt_manager.send_byte(game_name.size());
-    skt_manager.send_two_bytes(length);
-    std::vector<uint8_t> message(game_name.begin(), game_name.end());
-    Así no se manejan bits a mano
-    */
+     * Envía al Server el comando, el largo del nombre de la partida y el nombre
+     *  de la partida
+     */
+    uint16_t length = htons(static_cast<uint16_t>(game_name.size()));
 
-    return skt_manager.send_bytes(skt, message);
+    return (skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length) &&
+            skt_manager.send_text(skt, game_name));
 }
 
 bool ClientProtocol::serialize_and_send_opcode(const uint8_t opcode) {
-    return skt_manager.send_bytes(
-            skt, {opcode});  // Y acá send_byte así no se crea un vector para un solo elemento
+    return skt_manager.send_byte(skt, opcode);
 }
 
 bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
+    /**
+     * Envía al Server la acción seleccionada por el Client, pudiendo ser esta:
+     *  - Moverse en una dirección
+     */
     switch (action.type) {
         case ActionType::MOVE:
             return serialize_and_send_move(action.direction);
@@ -64,6 +59,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
 }
 
 bool ClientProtocol::serialize_and_send_move(const Direction direction) {
+    /*
+     * Envía al Server el comando MOVE y la dirección en la que se quiere mover
+     */
     uint8_t direction_opcode;
     switch (direction) {
         case Direction::UP:
@@ -82,8 +80,8 @@ bool ClientProtocol::serialize_and_send_move(const Direction direction) {
             return false;
     }
 
-    std::vector<uint8_t> message = {MOVE_OPCODE, direction_opcode};
-    return skt_manager.send_bytes(skt, message);
+    std::vector<uint8_t> movement = {MOVE_OPCODE, direction_opcode};
+    return skt_manager.send_bytes(skt, movement);
 }
 
 std::string ClientProtocol::receive_and_deserialize_games_names() {}
