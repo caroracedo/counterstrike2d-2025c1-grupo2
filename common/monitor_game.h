@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "action_DTO.h"
 #include "client_handler.h"  // Acá hay una dependencia circular, por qué en MonitorGame, no debería estar en cliente/servidor?
@@ -31,6 +32,12 @@ public:
         if (!game.move(direction))
             return false;
         return true;
+    }
+
+    /* Mover */
+    std::vector<uint8_t> get_position() {
+        std::unique_lock<std::mutex> lock(mutex);
+        return game.get_position();
     }
 
     /* Ingresar */

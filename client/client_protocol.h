@@ -2,8 +2,10 @@
 #define CLIENT_PROTOCOL_H
 
 #include <string>
+#include <vector>
 
 #include "../common/action_DTO.h"
+#include "../common/constants.h"
 #include "../common/main_menu_DTO.h"
 #include "../common/socket.h"
 #include "../common/socket_manager.h"
@@ -30,6 +32,20 @@ public:
     bool serialize_and_send_action(const ActionDTO& action);
 
     std::string receive_and_deserialize_games_names();
+
+    ActionDTO receive_and_deserialize_move() {
+        uint8_t size;
+        skt_manager.receive_byte(skt, size);
+
+        std::vector<uint8_t> buffer(size);
+        skt_manager.receive_bytes(skt, buffer);
+
+        if (buffer[0] != MOVE_OPCODE)
+            return {};
+
+        std::vector<uint8_t> position(buffer.begin() + 1, buffer.end());
+        return {ActionType::MOVE, position};
+    }
 };
 
 #endif  // CLIENT_PROTOCOL_H
