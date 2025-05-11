@@ -73,7 +73,7 @@ private:
     bool do_move_action(const ActionDTO& action_dto) {
         if (!monitor_games.move_game(game_name, action_dto.direction))
             return false;
-        return protocol.serialize_and_send_move(
+        return protocol.serialize_and_send_updated_position(
                 {ActionType::MOVE, monitor_games.get_position_game(game_name)});
     }
 
