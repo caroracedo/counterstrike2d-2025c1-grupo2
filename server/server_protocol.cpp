@@ -75,6 +75,11 @@ bool ServerProtocol::serialize_and_send_games_names(const std::vector<std::strin
 
 // Manejo de acciones
 ActionDTO ServerProtocol::receive_and_deserialize_action() {
+    /*
+     * Recibe el opcode de la acción enviada por el cliente y
+     * lo deserializa a un ActionDTO. Si no reconoce la acción,
+     * devuelve un ActionDTO vacío
+     */
     uint8_t opcode;
     if (!skt_manager.receive_byte(skt, opcode)) {
         return {};
@@ -90,6 +95,9 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 }
 
 ActionDTO ServerProtocol::receive_and_deserialize_move() {
+    /*
+     * Recibe el opcode de la dirección y lo deserializa a un ActionDTO.
+     */
     uint8_t direction;
     if (!skt_manager.receive_byte(skt, direction)) {
         return {};
@@ -107,6 +115,17 @@ ActionDTO ServerProtocol::receive_and_deserialize_move() {
         default:
             return {};
     }
+}
+
+bool ServerProtocol::serialize_and_send_updated_position(ActionDTO action_dto) {
+    /**
+     * Recibe un ActionDTO con la nueva posición del cliente y se lo envía
+     */
+    // TODO: Definir bien el tamaño del vector position -> alcanza con un uint8_t?
+    std::vector<uint8_t> data;
+    data.push_back(MOVE_OPCODE);
+    data.insert(data.end(), action_dto.position.begin(), action_dto.position.end());
+    return skt_manager.send_bytes(skt, data);
 }
 
 // Cerrar

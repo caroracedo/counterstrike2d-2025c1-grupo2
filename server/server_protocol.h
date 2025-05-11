@@ -31,13 +31,7 @@ public:
 
     ActionDTO receive_and_deserialize_action();
 
-    bool serialize_and_send_move(ActionDTO action_dto) {
-        std::vector<uint8_t> data;
-        data.push_back(1 + action_dto.position.size());
-        data.push_back(MOVE_OPCODE);
-        data.insert(data.end(), action_dto.position.begin(), action_dto.position.end());
-        return skt_manager.send_bytes(skt, data);
-    }
+    bool serialize_and_send_updated_position(ActionDTO action_dto);
 
     void close();
 };
