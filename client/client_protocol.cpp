@@ -37,11 +37,20 @@ bool ClientProtocol::serialize_and_send_game_name(const uint8_t opcode,
     message.push_back(static_cast<uint8_t>(length & 0xFF));
     message.insert(message.end(), game_name.begin(), game_name.end());
 
+    /*
+    Sugiero hacer:
+    skt_manager.send_byte(game_name.size());
+    skt_manager.send_two_bytes(length);
+    std::vector<uint8_t> message(game_name.begin(), game_name.end());
+    Así no se manejan bits a mano
+    */
+
     return skt_manager.send_bytes(skt, message);
 }
 
 bool ClientProtocol::serialize_and_send_opcode(const uint8_t opcode) {
-    return skt_manager.send_bytes(skt, {opcode});
+    return skt_manager.send_bytes(
+            skt, {opcode});  // Y acá send_byte así no se crea un vector para un solo elemento
 }
 
 bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {

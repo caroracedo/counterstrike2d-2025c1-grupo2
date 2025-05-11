@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "action_DTO.h"
-#include "client_manager.h"
+#include "client_handler.h"  // Acá hay una dependencia circular, por qué en MonitorGame, no debería estar en cliente/servidor?
 #include "game.h"
 #include "queue.h"
 
@@ -18,7 +18,7 @@ private:
     std::mutex mutex;
 
     // para poder hacer un broadcast
-    // std::set<ClientManager*> players;
+    // std::set<ClientHandler*> players;
 
     // queue con eventos que van mandando los clientes -> los eventos deberían indicar
     // qué cliente los envió para que el juego se actualice acorde

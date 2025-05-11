@@ -38,6 +38,14 @@ bool SocketManager::receive_text(Socket& socket, std::string& text, const uint16
 }
 
 /* Enviar */
+// bool SocketManager::send_byte(Socket& socket, const uint8_t& byte) {
+//     int sz = socket.sendall(&byte, sizeof(byte));
+//     if (sz != static_cast<int>(sizeof(byte)) || socket.is_stream_send_closed()) {
+//         return false;
+//     }
+//     return true;
+// }
+
 bool SocketManager::send_two_bytes(Socket& socket, const uint16_t& bytes) {
     uint16_t bytes_to_send = htons(bytes);
     int sz = socket.sendall(&bytes_to_send, sizeof(bytes_to_send));

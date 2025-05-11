@@ -1,6 +1,7 @@
-#ifndef CLIENT_MANAGER_H
-#define CLIENT_MANAGER_H
+#ifndef CLIENT_HANDLER_H
+#define CLIENT_HANDLER_H
 
+#include <functional>
 #include <string>
 #include <utility>
 
@@ -10,7 +11,7 @@
 
 #include "server_protocol.h"
 
-class ClientManager: public Thread {
+class ClientHandler: public Thread {
 private:
     ServerProtocol protocol;
     MonitorGames& monitor_games;
@@ -49,13 +50,12 @@ private:
         if (!monitor_games.create_game(main_menu_dto.game_name))
             return false;
         game_name = main_menu_dto.game_name;
-        // Acá debería enviar el estado del juego? Debería devolver booleano si salió todo bien o
-        // no? return protocol.serialize_and_send_games_names({});
+        // Acá debería enviar el estado del juego
+        // return protocol.serialize_and_send_games_names({});
         return true;
     }
 
     bool do_list_option(const MainMenuDTO& main_menu_dto) {
-        // Acá debería recibir un MainMenuDTO Debería devolver booleano si salió todo bien o no?
         // return protocol.serialize_and_send_games_names({Option::LIST,
         // monitor_games.list_games()});
         return true;
@@ -65,51 +65,66 @@ private:
         if (!monitor_games.join_game(main_menu_dto.game_name))
             return false;
         game_name = main_menu_dto.game_name;
-        // Acá debería enviar el estado del juego? Debería devolver booleano si salió todo bien o
-        // no? return protocol.serialize_and_send_games_names({});
+        // Acá debería enviar el estado del juego
+        // return protocol.serialize_and_send_games_names({});
         return true;
     }
 
     bool do_move_action(const ActionDTO& action_dto) {
         if (!monitor_games.move_game(game_name, action_dto.direction))
             return false;
-        // Acá debería enviar el estado del juego? Debería devolver booleano si salió todo bien o
-        // no? return protocol.serialize_and_send_action({});
-
+        // Acá debería enviar el estado del juego
+        // return protocol.serialize_and_send_action({});
         return true;
+    }
+
+    void run_loop(std::function<bool()> action_loop) {
+        while (should_keep_running()) {
+            try {
+                if (!action_loop()) {
+                    protocol.close();
+                    return;
+                }
+            } catch (...) {
+                protocol.close();
+                return;
+            }
+        }
     }
 
 public:
     /*
      * Constructor.
      **/
-    ClientManager(Socket&& client_socket, MonitorGames& monitor_games):
+    ClientHandler(Socket&& client_socket, MonitorGames& monitor_games):
             protocol(std::move(client_socket)), monitor_games(monitor_games) {}
 
     /* Override */
     void run() override {
-        // Mientras juego no esté creado
-        while (should_keep_running()) {
-            try {
-                MainMenuDTO main_menu_dto = protocol.receive_and_deserialize_main_menu_action();
-                if (!do_main_menu_option(main_menu_dto))
-                    break;
-            } catch (...) {
-                break;
-            }
-        }
-        // Cuando juego está creado
-        while (should_keep_running()) {
-            try {
-                ActionDTO action_dto = protocol.receive_and_deserialize_action();
-                if (!do_action(action_dto))
-                    break;
-            } catch (...) {
-                break;
-            }
-        }
+        // Enfoque funcional, sacando código repetido
+        run_loop([&]() {
+            MainMenuDTO dto = protocol.receive_and_deserialize_main_menu_action();
+            if (!do_main_menu_option(dto))
+                return false;
+            if (dto.option == Option::CREATE || dto.option == Option::JOIN)
+                return false;
+            return true;
+        });
+
+        run_loop([&]() {
+            ActionDTO dto = protocol.receive_and_deserialize_action();
+            return do_action(dto);
+        });
+
+        // Thread::stop;
         protocol.close();
     }
+
+    // Para el clear
+    // void hard_kill() {
+    //     Thread::stop;
+    //     protocol.close();
+    // }
 };
 
-#endif  // CLIENT_MANAGER_H
+#endif  // CLIENT_HANDLER_H
