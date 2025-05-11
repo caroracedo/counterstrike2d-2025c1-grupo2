@@ -23,6 +23,13 @@ private:
             default:
                 return false;
         }
+
+        /*
+        Esta función debería encolar el evento que se quiere realizar a la queue de GameMonitor
+        GameMonitor se tendría que encargar de desencolar eventos y updatear el mapa según
+        corresponda. La acción de encolar podría devolver el iterador, que a su vez se debería
+        enviar al cliente para que actualice la imagen segun corresponda
+        */
     }
 
     bool do_main_menu_option(const MainMenuDTO& main_menu_dto) {
@@ -68,6 +75,7 @@ private:
             return false;
         // Acá debería enviar el estado del juego? Debería devolver booleano si salió todo bien o
         // no? return protocol.serialize_and_send_action({});
+
         return true;
     }
 
