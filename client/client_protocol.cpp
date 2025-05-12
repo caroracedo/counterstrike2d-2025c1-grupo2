@@ -104,3 +104,22 @@ std::string ClientProtocol::receive_and_deserialize_games_names() {
     std::string games_names(buffer.begin(), buffer.end());
     return games_names;
 }
+
+ActionDTO ClientProtocol::receive_and_deserialize_move() {
+    uint16_t size;
+    if (!skt_manager.receive_two_bytes(skt, size)) {
+        return {};
+    }
+
+    std::vector<uint8_t> buffer(size);
+    if (!skt_manager.receive_bytes(skt, buffer)) {
+        return {};
+    }
+
+    if (buffer[0] != static_cast<uint8_t>(ActionType::MOVE)) {
+        return {};
+    }
+
+    std::vector<uint8_t> position(buffer.begin() + 1, buffer.end());
+    return {ActionType::MOVE, position};
+}
