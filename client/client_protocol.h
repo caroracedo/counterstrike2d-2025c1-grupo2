@@ -19,15 +19,14 @@ private:
     Socket skt;
     SocketManager skt_manager;
 
-    bool serialize_and_send_game_name(const uint8_t opcode, const std::string& game_name);
-    bool serialize_and_send_opcode(const uint8_t opcode);
-
-    bool serialize_and_send_move(const Direction direction);
+    bool serialize_and_send(const uint8_t opcode);
+    bool serialize_and_send(const uint8_t opcode, const std::string& data);
+    bool serialize_and_send(const uint8_t opcode, const std::vector<uint8_t>& data);
 
 public:
     explicit ClientProtocol(Socket&& skt);
 
-    bool serialize_and_send_main_menu_action(const MainMenuDTO& main_menu);
+    bool serialize_and_send_action(const MainMenuDTO& main_menu);
 
     bool serialize_and_send_action(const ActionDTO& action);
 
@@ -40,9 +39,9 @@ public:
         std::vector<uint8_t> buffer(size);
         skt_manager.receive_bytes(skt, buffer);
 
-        if (buffer[0] != MOVE_OPCODE)
+        if (buffer[0] != static_cast<uint8_t>(ActionType::MOVE)) {
             return {};
-
+        }
         std::vector<uint8_t> position(buffer.begin() + 1, buffer.end());
         return {ActionType::MOVE, position};
     }

@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum class Option { CREATE, LIST, JOIN, UNKNOWN };
+enum class Option : uint8_t { CREATE = 0x6E, LIST = 0x6C, JOIN = 0x6A, UNKNOWN = 0x00 };
 
 struct MainMenuDTO {
     Option option;
