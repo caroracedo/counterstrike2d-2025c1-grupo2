@@ -3,8 +3,14 @@
 
 #include <vector>
 
-enum class ActionType { MOVE, UNKNOWN };
-enum class Direction { UP, DOWN, LEFT, RIGHT, UNKNOWN };
+enum class ActionType : uint8_t { MOVE = 0x70, UNKNOWN };
+enum class Direction : uint8_t {
+    UP = 0x01,
+    DOWN = 0x02,
+    LEFT = 0x03,
+    RIGHT = 0x04,
+    UNKNOWN = 0x00
+};
 
 struct ActionDTO {
     ActionType type;

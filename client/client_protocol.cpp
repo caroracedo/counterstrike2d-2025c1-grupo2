@@ -10,38 +10,64 @@
 
 explicit ClientProtocol::ClientProtocol(Socket&& skt): skt(std::move(skt)) {}
 
-bool ClientProtocol::serialize_and_send_main_menu_action(const MainMenuDTO& main_menu) {
+/*
+************************************* ENVIO DE DATOS ************************************
+** FORMATO: opcode (1 byte) + size (2 bytes - big-endian) + data (size bytes)          **
+**     - opcode: el código de operación que indica la acción a realizar                **
+**     - size: el tamaño del mensaje a enviar, en bytes                                **
+**     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
+**         - En caso de no haber datos a enviar, se envía solo el opcode y el tamaño 0 **
+*****************************************************************************************
+*/
+
+bool ClientProtocol::serialize_and_send(const uint8_t opcode) {
+    /*
+     * Envía al Server el comando (1 byte) y el largo del mensaje (0) en big-endian (2 bytes)
+     */
+    uint16_t length = htons(static_cast<uint16_t>(0));
+
+    return skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length);
+}
+
+bool ClientProtocol::serialize_and_send(const uint8_t opcode, const std::vector<uint8_t>& data) {
+    /*
+     * Envía al Server el comando (1 byte), el largo del mensaje (2 bytes) en big-endian, y el
+     * mensaje (size bytes)
+     */
+    uint16_t length = htons(static_cast<uint16_t>(data.size()));
+
+    return (skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length) &&
+            skt_manager.send_bytes(skt, data));
+}
+
+bool ClientProtocol::serialize_and_send(const uint8_t opcode, const std::string& data) {
+    /*
+     * Envía al Server el comando (1 byte), el largo del mensaje (2 bytes) en big-endian, y el
+     * mensaje (size bytes)
+     */
+
+    std::vector<uint8_t> data_vector(data.begin(), data.end());
+    data_vector.push_back('\0');
+
+    return serialize_and_send(opcode, data_vector);
+}
+
+bool ClientProtocol::serialize_and_send_action(const MainMenuDTO& main_menu) {
     /*
      * Envía al Server el comando seleccionado por el Client, pudiendo ser este:
      * Create, Join, o List
      */
     switch (main_menu.option) {
+        uint8_t opcode = static_cast<uint8_t>(main_menu.option);
         case Option::CREATE:
-            return serialize_and_send_game_name(CREATE_OPCODE, main_menu.game_name);
+            return serialize_and_send(opcode, main_menu.game_name);
         case Option::JOIN:
-            return serialize_and_send_game_name(JOIN_OPCODE, main_menu.game_name);
+            return serialize_and_send(opcode, main_menu.game_name);
         case Option::LIST:
-            return serialize_and_send_opcode(LIST_OPCODE);
+            return serialize_and_send(opcode);
         default:
             return false;
     }
-}
-
-bool ClientProtocol::serialize_and_send_game_name(const uint8_t opcode,
-                                                  const std::string& game_name) {
-
-    /*
-     * Envía al Server el comando, el largo del nombre de la partida y el nombre
-     *  de la partida
-     */
-    uint16_t length = htons(static_cast<uint16_t>(game_name.size()));
-
-    return (skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length) &&
-            skt_manager.send_text(skt, game_name));
-}
-
-bool ClientProtocol::serialize_and_send_opcode(const uint8_t opcode) {
-    return skt_manager.send_byte(skt, opcode);
 }
 
 bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
@@ -50,38 +76,14 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
      *  - Moverse en una dirección
      */
     switch (action.type) {
-        case ActionType::MOVE:
-            return serialize_and_send_move(action.direction);
-
+        uint8_t opcode = static_cast<uint8_t>(action.type);
+        case ActionType::MOVE: {
+            std::vector<uint8_t> direction(static_cast<uint8_t>(action.direction));
+            return serialize_and_send(opcode, direction);
+        }
         default:
             return false;
     }
-}
-
-bool ClientProtocol::serialize_and_send_move(const Direction direction) {
-    /*
-     * Envía al Server el comando MOVE y la dirección en la que se quiere mover
-     */
-    uint8_t direction_opcode;
-    switch (direction) {
-        case Direction::UP:
-            direction_opcode = MOVE_UP_OPCODE;
-            break;
-        case Direction::DOWN:
-            direction_opcode = MOVE_DOWN_OPCODE;
-            break;
-        case Direction::LEFT:
-            direction_opcode = MOVE_LEFT_OPCODE;
-            break;
-        case Direction::RIGHT:
-            direction_opcode = MOVE_RIGHT_OPCODE;
-            break;
-        default:
-            return false;
-    }
-
-    std::vector<uint8_t> movement = {MOVE_OPCODE, direction_opcode};
-    return skt_manager.send_bytes(skt, movement);
 }
 
 std::string ClientProtocol::receive_and_deserialize_games_names() {
