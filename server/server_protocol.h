@@ -20,7 +20,7 @@ private:
     SocketManager skt_manager;
 
     MainMenuDTO receive_and_deserialize_string(const Option& action_type, const uint16_t& size);
-    ActionDTO receive_and_deserialize_move();
+    ActionDTO receive_and_deserialize_move(const uint16_t& size);
 
 public:
     explicit ServerProtocol(Socket&& skt);

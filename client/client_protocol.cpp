@@ -86,7 +86,15 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     }
 }
 
-std::string ClientProtocol::receive_and_deserialize_games_names() {
+/*
+*********************************** RECEPCIÓN DE DATOS **********************************
+** FORMATO: size (2 bytes - big-endian) + data (size bytes)                            **
+**     - size: el tamaño del mensaje a recibir, en bytes                               **
+**     - data: el mensaje a recibir, que puede ser un string o un vector de bytes      **
+*****************************************************************************************
+*/
+
+std::string ClientProtocol::receive_and_deserialize_string() {
     /*
      * Recibe del Server el mensaje con los nombres de las partidas actuales
      * y lo deserializa a un string.
@@ -96,30 +104,50 @@ std::string ClientProtocol::receive_and_deserialize_games_names() {
         return {};
     }
 
-    std::vector<uint8_t> buffer(size);
-    if (!skt_manager.receive_bytes(skt, buffer)) {
+    std::vector<uint8_t> data(size);
+    if (!skt_manager.receive_bytes(skt, data)) {
         return {};
     }
 
-    std::string games_names(buffer.begin(), buffer.end());
-    return games_names;
+    std::string text(data.begin(), data.end());
+    return text;
 }
 
-ActionDTO ClientProtocol::receive_and_deserialize_move() {
+std::vector<uint8_t> ClientProtocol::receive_and_deserialize_vector() {
     uint16_t size;
     if (!skt_manager.receive_two_bytes(skt, size)) {
         return {};
     }
 
-    std::vector<uint8_t> buffer(size);
-    if (!skt_manager.receive_bytes(skt, buffer)) {
+    std::vector<uint8_t> data(size);
+    if (!skt_manager.receive_bytes(skt, data)) {
         return {};
     }
 
-    if (buffer[0] != static_cast<uint8_t>(ActionType::MOVE)) {
-        return {};
-    }
-
-    std::vector<uint8_t> position(buffer.begin() + 1, buffer.end());
-    return {ActionType::MOVE, position};
+    return data;
 }
+
+std::string ClientProtocol::receive_and_deserialize_list() {
+    /*
+     * Recibe del Server el mensaje con los nombres de las partidas actuales
+     * y lo deserializa a un string.
+     */
+    return receive_and_deserialize_string();
+}
+
+ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
+    /*
+     * Recibe del Server la posición actualizada del jugador y la deserializa
+     * a un vector de bytes.
+     */
+    std::vector<uint8_t> data = receive_and_deserialize_vector();
+    if (data.empty()) {
+        return {};
+    }
+
+    return {static_cast<ActionType>(data[0]), std::vector<uint8_t>(data.begin() + 1, data.end())};
+}
+
+/**************************************** CIERRE ***************************************/
+
+void ClientProtocol::close() { skt_manager.close(skt); }

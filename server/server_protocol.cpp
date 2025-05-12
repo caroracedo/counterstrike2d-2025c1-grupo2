@@ -12,14 +12,14 @@
 ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {}
 
 /*
-************************************* ENVIO DE DATOS ************************************
-** FORMATO: size (2 bytes - big-endian) + data (size bytes)                            **
+*********************************** RECEPCIÓN DE DATOS **********************************
+** FORMATO: opcode (1 byte) + size (2 bytes - big-endian) + data (size bytes)          **
+**     - opcode: el código de operación que indica la acción a realizar                **
 **     - size: el tamaño del mensaje a enviar, en bytes                                **
 **     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
+**         - En caso de no haber datos a enviar, se envía solo el opcode y el tamaño 0 **
 *****************************************************************************************
 */
-
-// Recibir
 MainMenuDTO ServerProtocol::receive_and_deserialize_main_menu_action() {
     /*
      * Recibe comando del Main Menu (Create, Join, List) enviada por el Client
@@ -58,7 +58,53 @@ MainMenuDTO ServerProtocol::receive_and_deserialize_string(const Option& action_
     return {action_type, std::string(data.begin(), data.end())};
 }
 
-// Enviar
+ActionDTO ServerProtocol::receive_and_deserialize_action() {
+    /*
+     * Recibe el opcode de la acción enviada por el cliente y el largo del mensaje
+     * y lo deserializa a un ActionDTO. Si no reconoce la acción,
+     * devuelve un ActionDTO vacío
+     */
+    uint8_t type;
+    uint16_t size;
+    if (!skt_manager.receive_byte(skt, type) || !skt_manager.receive_two_bytes(skt, size)) {
+        return {};
+    }
+
+    switch (static_cast<ActionType>(type)) {
+        case ActionType::MOVE:
+            return receive_and_deserialize_move(ntohs(size));
+
+        default:
+            return {};
+    }
+}
+
+ActionDTO ServerProtocol::receive_and_deserialize_move(const uint16_t& size) {
+    /*
+     * Recibe el opcode de la dirección y lo deserializa a un ActionDTO.
+     */
+
+    uint8_t direction;
+    if (!skt_manager.receive_byte(skt, direction)) {
+        return {};
+    }
+
+    switch (static_cast<Direction>(direction)) {
+        case (Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT):
+            return {ActionType::MOVE, static_cast<Direction>(direction)};
+        default:
+            return {};
+    }
+}
+
+/*
+************************************* ENVIO DE DATOS ************************************
+** FORMATO: size (2 bytes - big-endian) + data (size bytes)                            **
+**     - size: el tamaño del mensaje a enviar, en bytes                                **
+**     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
+*****************************************************************************************
+*/
+
 bool ServerProtocol::serialize_and_send_games_names(const std::vector<std::string>& names) {
     /*
      * Recibe un vector con los nombres de las partidas actuales y se las envía al Client
@@ -83,57 +129,23 @@ bool ServerProtocol::serialize_and_send_games_names(const std::vector<std::strin
     return skt_manager.send_two_bytes(skt, size) && skt_manager.send_bytes(skt, data);
 }
 
-// Manejo de acciones
-ActionDTO ServerProtocol::receive_and_deserialize_action() {
-    /*
-     * Recibe el opcode de la acción enviada por el cliente y el largo del mensaje
-     * y lo deserializa a un ActionDTO. Si no reconoce la acción,
-     * devuelve un ActionDTO vacío
-     */
-    uint8_t opcode;
-    uint16_t size;
-    if (!skt_manager.receive_byte(skt, opcode) || !skt_manager.receive_two_bytes(skt, size)) {
-        return {};
-    }
-
-    switch (static_cast<ActionType>(opcode)) {
-        case ActionType::MOVE:
-            return receive_and_deserialize_move();
-
-        default:
-            return {};
-    }
-}
-
-ActionDTO ServerProtocol::receive_and_deserialize_move() {
-    /*
-     * Recibe el opcode de la dirección y lo deserializa a un ActionDTO.
-     */
-    uint8_t direction;
-    if (!skt_manager.receive_byte(skt, direction)) {
-        return {};
-    }
-
-    switch (static_cast<Direction>(direction)) {
-        case (Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT):
-            return {ActionType::MOVE, static_cast<Direction>(direction)};
-        default:
-            return {};
-    }
-}
 
 bool ServerProtocol::serialize_and_send_updated_position(ActionDTO action_dto) {
     /*
      * Envía al Client la posición actualizada del jugador
      */
 
-    std::vector<uint8_t> data = {static_cast<uint8_t>(action_dto.type),
-                                 static_cast<uint8_t>(action_dto.direction)};
+    // vector con el opcode de la acción y la posicion
+    std::vector<uint8_t> data;
+    data.push_back(static_cast<uint8_t>(action_dto.type));
+    data.insert(data.end(), action_dto.position.begin(), action_dto.position.end());
 
     uint16_t size = htons(static_cast<uint16_t>(data.size()));
 
     return skt_manager.send_two_bytes(skt, size) && skt_manager.send_bytes(skt, data);
 }
 
-// Cerrar
+
+/**************************************** CIERRE ***************************************/
+
 void ServerProtocol::close() { skt_manager.close(skt); }
