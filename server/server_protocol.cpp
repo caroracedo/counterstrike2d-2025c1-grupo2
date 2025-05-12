@@ -68,9 +68,14 @@ bool ServerProtocol::serialize_and_send_games_names(const std::vector<std::strin
     oss << "\n";
     std::string matches = oss.str();
 
-    uint16_t size = htons(static_cast<uint16_t>(matches.size()));
+    // Convertir el string matches a un vector de uint8_t
+    std::vector<uint8_t> data(matches.begin(), matches.end());
 
-    return skt_manager.send_two_bytes(skt, size) && skt_manager.send_text(skt, matches);
+    // Serializar el tamaño del vector (2 bytes en formato big-endian)
+    uint16_t size = htons(static_cast<uint16_t>(data.size()));
+
+    // Enviar primero el tamaño y luego el contenido del vector
+    return skt_manager.send_two_bytes(skt, size) && skt_manager.send_bytes(skt, data);
 }
 
 // Manejo de acciones

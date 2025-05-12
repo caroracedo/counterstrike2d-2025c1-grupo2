@@ -84,4 +84,21 @@ bool ClientProtocol::serialize_and_send_move(const Direction direction) {
     return skt_manager.send_bytes(skt, movement);
 }
 
-std::string ClientProtocol::receive_and_deserialize_games_names() {}
+std::string ClientProtocol::receive_and_deserialize_games_names() {
+    /*
+     * Recibe del Server el mensaje con los nombres de las partidas actuales
+     * y lo deserializa a un string.
+     */
+    uint16_t size;
+    if (!skt_manager.receive_two_bytes(skt, size)) {
+        return {};
+    }
+
+    std::vector<uint8_t> buffer(size);
+    if (!skt_manager.receive_bytes(skt, buffer)) {
+        return {};
+    }
+
+    std::string games_names(buffer.begin(), buffer.end());
+    return games_names;
+}
