@@ -32,19 +32,7 @@ public:
 
     std::string receive_and_deserialize_games_names();
 
-    ActionDTO receive_and_deserialize_move() {
-        uint8_t size;
-        skt_manager.receive_byte(skt, size);
-
-        std::vector<uint8_t> buffer(size);
-        skt_manager.receive_bytes(skt, buffer);
-
-        if (buffer[0] != static_cast<uint8_t>(ActionType::MOVE)) {
-            return {};
-        }
-        std::vector<uint8_t> position(buffer.begin() + 1, buffer.end());
-        return {ActionType::MOVE, position};
-    }
+    ActionDTO receive_and_deserialize_move();
 };
 
 #endif  // CLIENT_PROTOCOL_H
