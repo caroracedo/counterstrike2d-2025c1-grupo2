@@ -16,7 +16,7 @@ Se encarga del envío y recepción de mensajes.
 */
 class ClientProtocol {
 private:
-    Socket skt;
+    Socket& skt;
     SocketManager skt_manager;
 
     bool serialize_and_send(const uint8_t opcode);
@@ -31,7 +31,7 @@ private:
     std::vector<uint8_t> receive_and_deserialize_vector();
 
 public:
-    explicit ClientProtocol(Socket&& skt);
+    explicit ClientProtocol(Socket& skt);
 
     bool serialize_and_send_action(const MainMenuDTO& main_menu);
 
