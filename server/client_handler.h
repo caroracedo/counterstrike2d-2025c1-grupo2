@@ -13,6 +13,7 @@
 
 class ClientHandler: public Thread {
 private:
+    Socket client_socket;
     ServerProtocol protocol;
     MonitorGames& monitor_games;
     std::string game_name;
@@ -96,12 +97,12 @@ public:
      * Constructor.
      **/
     ClientHandler(Socket&& client_socket, MonitorGames& monitor_games):
-            protocol(std::move(client_socket)), monitor_games(monitor_games) {}
+            client_socket(std::move(client_socket)),
+            protocol(client_socket),
+            monitor_games(monitor_games) {}
 
     /* Override */
     void run() override {
-        // Enfoque funcional, sacando código repetido
-        // Descomento para que me deje commitear
         run_loop([&]() {
             MainMenuDTO dto = protocol.receive_and_deserialize_main_menu_action();
             if (!do_main_menu_option(dto))
@@ -116,15 +117,15 @@ public:
             return do_action(dto);
         });
 
-        // Thread::stop;
         protocol.close();
     }
 
-    // Para el clear
-    // void hard_kill() {
-    //     Thread::stop;
-    //     protocol.close();
-    // }
+    /* Matar Hilo */
+    void hard_kill() {
+        Thread::stop;
+        client_socket.shutdown(2);  // Cierra lectura y escritura
+        client_socket.close();
+    }
 };
 
 #endif  // CLIENT_HANDLER_H

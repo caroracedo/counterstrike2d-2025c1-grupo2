@@ -9,7 +9,7 @@
 
 #include "../common/constants.h"
 
-ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {}
+ServerProtocol::ServerProtocol(Socket& skt): skt(skt) {}
 
 /*
 *********************************** RECEPCIÓN DE DATOS **********************************

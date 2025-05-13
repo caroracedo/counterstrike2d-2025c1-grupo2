@@ -16,14 +16,14 @@ Se encarga del envío y recepción de mensajes.
 */
 class ServerProtocol {
 private:
-    Socket skt;
+    Socket& skt;
     SocketManager skt_manager;
 
     MainMenuDTO receive_and_deserialize_string(const Option& action_type, const uint16_t& size);
     ActionDTO receive_and_deserialize_move(const uint16_t& size);
 
 public:
-    explicit ServerProtocol(Socket&& skt);
+    explicit ServerProtocol(Socket& skt);
 
     MainMenuDTO receive_and_deserialize_main_menu_action();
 

@@ -8,7 +8,7 @@
 
 #include "../common/constants.h"
 
-explicit ClientProtocol::ClientProtocol(Socket&& skt): skt(std::move(skt)) {}
+explicit ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
 
 /*
 ************************************* ENVIO DE DATOS ************************************
