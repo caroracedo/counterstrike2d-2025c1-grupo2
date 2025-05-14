@@ -6,5 +6,6 @@ target_sources(taller_client
     PUBLIC
     # .h files
     client_protocol.h
-    client.h 
+    client.h
+    mock_handler.h
     )

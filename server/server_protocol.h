@@ -1,6 +1,7 @@
 #ifndef SERVER_PROTOCOL_H
 #define SERVER_PROTOCOL_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -10,30 +11,17 @@
 #include "../common/socket.h"
 #include "../common/socket_manager.h"
 
-/*
-Clase que encapsula el protocolo de comunicación del Server con el Client.
-Se encarga del envío y recepción de mensajes.
-*/
 class ServerProtocol {
 private:
     Socket& skt;
     SocketManager skt_manager;
 
-    MainMenuDTO receive_and_deserialize_string(const Option& action_type, const uint16_t& size);
-    ActionDTO receive_and_deserialize_move();
-
 public:
     explicit ServerProtocol(Socket& skt);
 
-    MainMenuDTO receive_and_deserialize_main_menu_action();
-
     ActionDTO receive_and_deserialize_action();
 
-    bool serialize_and_send_games_names(const std::vector<std::string>& names);
-
     bool serialize_and_send_updated_position(ActionDTO action_dto);
-
-    void close();
 };
 
 #endif  // SERVER_PROTOCOL_H

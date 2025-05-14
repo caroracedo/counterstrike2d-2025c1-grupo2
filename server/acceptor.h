@@ -3,9 +3,8 @@
 
 #include <list>
 #include <utility>
-#include <vector>
 
-#include "../common/monitor_games.h"
+#include "../common/monitor_game.h"
 #include "../common/socket.h"
 #include "../common/thread.h"
 
@@ -14,7 +13,7 @@
 class Acceptor: public Thread {
 private:
     Socket server_socket;
-    MonitorGames& monitor_games;
+    MonitorGame& monitor_game;
     std::list<ClientHandler*> client_handlers_list;
 
     void clear() {
@@ -41,8 +40,8 @@ public:
     /*
      * Constructor.
      **/
-    Acceptor(const char* port, MonitorGames& monitor_games):
-            server_socket(port), monitor_games(monitor_games) {}
+    Acceptor(const char* port, MonitorGame& monitor_game):
+            server_socket(port), monitor_game(monitor_game) {}
 
     /* Override */
     void run() override {
@@ -50,7 +49,7 @@ public:
             try {
                 Socket new_client_socket = server_socket.accept();
                 ClientHandler* new_client_handler =
-                        new ClientHandler(std::move(new_client_socket), monitor_games);
+                        new ClientHandler(std::move(new_client_socket), monitor_game);
                 reap();
                 client_handlers_list.push_back(new_client_handler);
                 new_client_handler->start();

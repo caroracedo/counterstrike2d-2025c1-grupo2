@@ -7,14 +7,14 @@
 
 class Server {
 private:
-    MonitorGames monitor_games;
+    MonitorGame monitor_game;
     Acceptor acceptor;
 
 public:
     /*
      * Constructor.
      **/
-    explicit Server(const char* port): acceptor(port, monitor_games) {}
+    explicit Server(const char* port): acceptor(port, monitor_game) {}
 
     /* Iniciar la comunicación */
     void initiate_communication() {
