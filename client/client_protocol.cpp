@@ -150,4 +150,5 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
 
 /**************************************** CIERRE ***************************************/
 
-// void ClientProtocol::close() { skt_manager.close(skt); } // El protocolo ya no tiene el ownership del socket
+// void ClientProtocol::close() { skt_manager.close(skt); } // El protocolo ya no tiene el ownership
+// del socket

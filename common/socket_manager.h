@@ -1,9 +1,9 @@
 #ifndef SOCKET_MANAGER_H
 #define SOCKET_MANAGER_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 #include "socket.h"
 
