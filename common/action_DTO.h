@@ -1,8 +1,8 @@
 #ifndef ACTION_DTO_H
 #define ACTION_DTO_H
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 enum class ActionType : uint8_t { MOVE = 0x70, UNKNOWN };
 enum class Direction : uint8_t {
