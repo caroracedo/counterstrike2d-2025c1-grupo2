@@ -72,14 +72,14 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 
     switch (static_cast<ActionType>(type)) {
         case ActionType::MOVE:
-            return receive_and_deserialize_move(ntohs(size));
+            return receive_and_deserialize_move();
 
         default:
             return {};
     }
 }
 
-ActionDTO ServerProtocol::receive_and_deserialize_move(const uint16_t& size) {
+ActionDTO ServerProtocol::receive_and_deserialize_move() {
     /*
      * Recibe el opcode de la dirección y lo deserializa a un ActionDTO.
      */
@@ -90,7 +90,10 @@ ActionDTO ServerProtocol::receive_and_deserialize_move(const uint16_t& size) {
     }
 
     switch (static_cast<Direction>(direction)) {
-        case (Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT):
+        case Direction::UP:
+        case Direction::DOWN:
+        case Direction::LEFT:
+        case Direction::RIGHT:
             return {ActionType::MOVE, static_cast<Direction>(direction)};
         default:
             return {};

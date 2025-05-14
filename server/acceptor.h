@@ -28,7 +28,7 @@ private:
 
     void reap() {
         client_handlers_list.remove_if([](auto* client_handler) {
-            bool is_dead = client_handler->is_dead();
+            bool is_dead = !(client_handler->is_alive());
             if (is_dead) {
                 client_handler->join();
                 delete client_handler;

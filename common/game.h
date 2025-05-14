@@ -31,6 +31,8 @@ public:
             case Direction::RIGHT:
                 position[0] += 1;
                 break;
+            default:
+                return false;
         }
         return true;
     }

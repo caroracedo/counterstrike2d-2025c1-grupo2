@@ -29,7 +29,7 @@ public:
      * Constructor.
      **/
     explicit Client(const char* hostname, const char* servname):
-            client_socket(hostname, servname), protocol(client_socket) {}
+            client_socket(hostname, servname), protocol(this->client_socket) {}
 
     /* Iniciar la comunicación */
     void initiate_communication() {
@@ -111,7 +111,8 @@ public:
             // }
         } catch (...) {}  // Por el momento...
 
-        protocol.close();
+        client_socket.shutdown(2);  // Cierra lectura y escritura
+        client_socket.close();
     }
 };
 

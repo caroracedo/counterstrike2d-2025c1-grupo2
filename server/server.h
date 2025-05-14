@@ -14,7 +14,7 @@ public:
     /*
      * Constructor.
      **/
-    explicit Server(const char* port);
+    explicit Server(const char* port): acceptor(port, monitor_games) {}
 
     /* Iniciar la comunicación */
     void initiate_communication() {

@@ -39,7 +39,7 @@ private:
             case Option::CREATE:
                 return do_create_option(main_menu_dto);
             case Option::LIST:
-                return do_list_option(main_menu_dto);
+                return do_list_option();
             case Option::JOIN:
                 return do_join_option(main_menu_dto);
             default:
@@ -56,7 +56,7 @@ private:
         return true;
     }
 
-    bool do_list_option(const MainMenuDTO& main_menu_dto) {
+    bool do_list_option() {
         // return protocol.serialize_and_send_games_names({Option::LIST,
         // monitor_games.list_games()});
         return true;
@@ -82,11 +82,9 @@ private:
         while (should_keep_running()) {
             try {
                 if (!action_loop()) {
-                    protocol.close();
                     return;
                 }
             } catch (...) {
-                protocol.close();
                 return;
             }
         }
@@ -98,7 +96,7 @@ public:
      **/
     ClientHandler(Socket&& client_socket, MonitorGames& monitor_games):
             client_socket(std::move(client_socket)),
-            protocol(client_socket),
+            protocol(this->client_socket),
             monitor_games(monitor_games) {}
 
     /* Override */
@@ -116,13 +114,11 @@ public:
             ActionDTO dto = protocol.receive_and_deserialize_action();
             return do_action(dto);
         });
-
-        protocol.close();
     }
 
     /* Matar Hilo */
     void hard_kill() {
-        Thread::stop;
+        Thread::stop();
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
     }

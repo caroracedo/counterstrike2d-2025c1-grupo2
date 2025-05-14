@@ -8,7 +8,7 @@
 
 #include "../common/constants.h"
 
-explicit ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
+ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
 
 /*
 ************************************* ENVIO DE DATOS ************************************
@@ -57,8 +57,8 @@ bool ClientProtocol::serialize_and_send_action(const MainMenuDTO& main_menu) {
      * Envía al Server el comando seleccionado por el Client, pudiendo ser este:
      * Create, Join, o List
      */
+    uint8_t opcode = static_cast<uint8_t>(main_menu.option);
     switch (main_menu.option) {
-        uint8_t opcode = static_cast<uint8_t>(main_menu.option);
         case Option::CREATE:
             return serialize_and_send(opcode, main_menu.game_name);
         case Option::JOIN:
@@ -75,8 +75,8 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
      * Envía al Server la acción seleccionada por el Client, pudiendo ser esta:
      *  - Moverse en una dirección
      */
+    uint8_t opcode = static_cast<uint8_t>(action.type);
     switch (action.type) {
-        uint8_t opcode = static_cast<uint8_t>(action.type);
         case ActionType::MOVE: {
             std::vector<uint8_t> direction(static_cast<uint8_t>(action.direction));
             return serialize_and_send(opcode, direction);
@@ -150,4 +150,4 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
 
 /**************************************** CIERRE ***************************************/
 
-void ClientProtocol::close() { skt_manager.close(skt); }
+// void ClientProtocol::close() { skt_manager.close(skt); } // El protocolo ya no tiene el ownership del socket
