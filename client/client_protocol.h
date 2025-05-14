@@ -41,7 +41,7 @@ public:
 
     ActionDTO receive_and_deserialize_updated_position();
 
-    void close();
+    // void close();
 };
 
 #endif  // CLIENT_PROTOCOL_H

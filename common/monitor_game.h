@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "action_DTO.h"
-#include "client_handler.h"  // Acá hay una dependencia circular, por qué en MonitorGame, no debería estar en cliente/servidor?
+// #include "client_handler.h"  // Acá hay una dependencia circular, por qué en MonitorGame, no debería estar en cliente/servidor?
 #include "game.h"
 #include "queue.h"
 

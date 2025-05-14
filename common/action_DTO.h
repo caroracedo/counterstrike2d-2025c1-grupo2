@@ -2,6 +2,7 @@
 #define ACTION_DTO_H
 
 #include <vector>
+#include <cstdint>
 
 enum class ActionType : uint8_t { MOVE = 0x70, UNKNOWN };
 enum class Direction : uint8_t {
@@ -29,7 +30,7 @@ struct ActionDTO {
 
     // para que el cliente sepa donde está actualmente -- server -> cliente
     ActionDTO(const ActionType& action, const std::vector<uint8_t>& position):
-            type(action), position(position), direction() {}
+            type(action), direction(), position(position) {}
 };
 
 #endif  // ACTION_DTO_H
