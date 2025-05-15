@@ -26,8 +26,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     uint8_t opcode = static_cast<uint8_t>(action.type);
     switch (action.type) {
         case ActionType::MOVE: {
-            return (skt_manager.send_byte(skt, opcode) &&
-                    skt_manager.send_byte(skt, static_cast<uint8_t>(action.direction)));
+            std::vector<uint8_t> data = {opcode, static_cast<uint8_t>(action.direction)};
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
         }
         default:
             return false;
