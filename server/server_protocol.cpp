@@ -22,19 +22,22 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
      * y lo deserializa a un ActionDTO. Si no reconoce la acción,
      * devuelve un ActionDTO vacío
      */
-    uint8_t type_byte;
-    if (!skt_manager.receive_byte(skt, type_byte)) {
+    uint16_t size;
+    if (!skt_manager.receive_two_bytes(skt, size)) {
+        return {};
+    }
+    std::vector<uint8_t> data(size);
+    if (!skt_manager.receive_bytes(skt, data)) {
+        return {};
+    }
+    if (data.empty()) {
         return {};
     }
 
-    ActionType type = static_cast<ActionType>(type_byte);
+    ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
         case ActionType::MOVE:
-            uint8_t direction_byte;
-            if (!skt_manager.receive_byte(skt, direction_byte)) {
-                return {};
-            }
-            return {type, static_cast<Direction>(direction_byte)};
+            return {type, static_cast<Direction>(data[1])};
         default:
             return {};
     }
