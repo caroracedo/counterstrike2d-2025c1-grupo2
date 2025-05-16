@@ -16,7 +16,7 @@ enum class Direction : uint8_t {
 struct ActionDTO {
     ActionType type;
     Direction direction;
-    std::vector<uint8_t> position;
+    std::vector<uint16_t> position;
 
     // para unknown
     ActionDTO(): type(ActionType::UNKNOWN), direction(), position() {}
@@ -29,7 +29,7 @@ struct ActionDTO {
             type(action), direction(direction), position() {}
 
     // para que el cliente sepa donde está actualmente -- server -> cliente
-    ActionDTO(const ActionType& action, const std::vector<uint8_t>& position):
+    ActionDTO(const ActionType& action, const std::vector<uint16_t>& position):
             type(action), direction(), position(position) {}
 };
 

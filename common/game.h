@@ -1,6 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define MAX_POSITION 65535
+
+#include <cstdint>
 #include <set>
 #include <utility>
 #include <vector>
@@ -10,20 +13,18 @@
 
 class Game {
 private:
-    std::vector<uint8_t> position;
+    std::vector<uint16_t> position;
     std::set<Obstacle> obstacles;
 
 public:
     /*
      * Constructor.
      **/
-    Game(): position(2, 0), obstacles() {
-        initialize_obstacles();
-    }  // Vector con dos ceros: x = 0, y = 0
+    Game(): position(2, 0), obstacles() { initialize_obstacles(); }
 
     /* Mover */
     bool move(Direction direction) {
-        std::vector<uint8_t> new_position = position;
+        std::vector<uint16_t> new_position = position;
         switch (direction) {
             case Direction::UP:
                 if (position[1] == 0) {
@@ -32,7 +33,7 @@ public:
                 new_position[1] -= 1;
                 break;
             case Direction::DOWN:
-                if (position[1] == 255) {
+                if (position[1] == MAX_POSITION) {
                     return false;  // No se puede mover hacia abajo
                 }
                 new_position[1] += 1;
@@ -44,7 +45,7 @@ public:
                 new_position[0] -= 1;
                 break;
             case Direction::RIGHT:
-                if (position[0] == 255) {
+                if (position[0] == MAX_POSITION) {
                     return false;  // No se puede mover hacia la derecha
                 }
                 new_position[0] += 1;
@@ -61,9 +62,9 @@ public:
     }
 
     /* Getters */
-    std::vector<uint8_t> get_position() const { return position; }
+    std::vector<uint16_t> get_position() const { return position; }
 
-    bool no_collisions(std::vector<uint8_t> new_position) {
+    bool no_collisions(std::vector<uint16_t> new_position) {
         // Aasumimos que el jugador tiene dimensiones 1x1 por el momento
         // Verificamos si la nueva posición colisiona con algún obstáculo
         return !std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& obstacle) {
@@ -74,6 +75,7 @@ public:
 
     void initialize_obstacles() {
         // Inicializamos algunos obstáculos de ejemplo
+        obstacles.insert(Obstacle(0, 0));
         obstacles.insert(Obstacle(5, 5, 1, 2));
         obstacles.insert(Obstacle(10, 10, 3, 3));
         obstacles.insert(Obstacle(15, 15, 4, 8));

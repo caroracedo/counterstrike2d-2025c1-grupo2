@@ -59,5 +59,12 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
     if (data.empty()) {
         return {};
     }
-    return {static_cast<ActionType>(data[0]), std::vector<uint8_t>(data.begin() + 1, data.end())};
+    ActionType type = static_cast<ActionType>(data[0]);
+    std::vector<uint16_t> position;
+    // Deserializar de bytes a uint16_t (big-endian)
+    for (size_t i = 1; i + 1 < data.size(); i += 2) {
+        uint16_t value = (static_cast<uint16_t>(data[i]) << 8) | static_cast<uint16_t>(data[i + 1]);
+        position.push_back(value);
+    }
+    return {type, position};
 }
