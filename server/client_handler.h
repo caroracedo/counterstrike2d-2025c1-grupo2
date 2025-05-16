@@ -1,70 +1,47 @@
 #ifndef CLIENT_HANDLER_H
 #define CLIENT_HANDLER_H
 
-#include <functional>
-#include <string>
 #include <utility>
 
-#include "../common/monitor_games.h"
+#include "../common/queue.h"
 #include "../common/socket.h"
 #include "../common/thread.h"
 
 #include "server_protocol.h"
+#include "server_receiver.h"
+#include "server_sender.h"
 
 class ClientHandler: public Thread {
 private:
     Socket client_socket;
     ServerProtocol protocol;
-    MonitorGame& monitor_game;
-
-    bool do_action(const ActionDTO& action_dto) {
-        switch (action_dto.type) {
-            case ActionType::MOVE:
-                return do_move_action(action_dto);
-            default:
-                return false;
-        }
-    }
-
-    bool do_move_action(const ActionDTO& action_dto) {
-        if (!monitor_game.move(action_dto.direction))
-            return false;
-        return protocol.serialize_and_send_updated_position(
-                {ActionType::MOVE, monitor_game.get_position()});
-    }
-
-    void run_loop(std::function<bool()> action_loop) {
-        while (should_keep_running()) {
-            try {
-                if (!action_loop()) {
-                    return;
-                }
-            } catch (...) {
-                return;
-            }
-        }
-    }
+    ServerSender sender;
+    ServerReceiver receiver;
 
 public:
-    /*
-     * Constructor.
-     **/
-    ClientHandler(Socket&& client_socket, MonitorGame& monitor_game):
-            client_socket(std::move(client_socket)),
+    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue):
+            client_socket(std::move(socket)),
             protocol(this->client_socket),
-            monitor_game(monitor_game) {}
+            sender(protocol, send_queue),
+            receiver(protocol, recv_queue) {}
 
-    /* Override */
     void run() override {
-        run_loop([&]() { return do_action(protocol.receive_and_deserialize_action()); });
+        sender.start();
+        receiver.start();
+
+        sender.join();
+        receiver.join();
     }
 
-    /* Matar Hilo */
     void hard_kill() {
         Thread::stop();
+        sender.stop();
+        receiver.stop();
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
     }
+
+    bool is_alive() const override { return receiver.is_alive() || sender.is_alive(); }
 };
 
 #endif  // CLIENT_HANDLER_H
