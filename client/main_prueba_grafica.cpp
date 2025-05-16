@@ -2,14 +2,19 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
+#include "../common/action_DTO.h"
+#include "input_handler.h"
+
+
 using namespace SDL2pp;
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
-#define PLAYER_WIDTH 50
-#define PLAYER_HEIGHT 50
+#define PLAYER_WIDTH 32  
+#define PLAYER_HEIGHT 32
 #define PLAYER_SPEED 0.2f
-#define NUM_FRAMES 8
+// #define NUM_FRAMES 6
+
 
 int main(int argc, char* argv[]) {
     try {
@@ -20,23 +25,18 @@ int main(int argc, char* argv[]) {
 
         Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-        
         Surface cuerpo_surface("assets/gfx/player/ct1.bmp");
 
-    
-
         Texture cuerpo(renderer, cuerpo_surface.SetColorKey(true, 0));
-
-        Texture piernas(renderer, "assets/gfx/player/legs.bmp");
 
         float posX = SCREEN_WIDTH / 2.0f - PLAYER_WIDTH / 2.0f;
         float posY = SCREEN_HEIGHT / 2.0f - PLAYER_HEIGHT / 2.0f;
 
-        bool moving = false;
-        int run_phase = 0;
+        // bool moving = false;
+        // int run_phase = 0;
 
         unsigned int prev_ticks = SDL_GetTicks();
-
+        InputHandler ih;
         bool running = true;
         while (running) {
             unsigned int frame_ticks = SDL_GetTicks();
@@ -50,36 +50,31 @@ int main(int argc, char* argv[]) {
                     running = false;
                 }
             }
+            
+            // Obtener acción del jugador
+            ActionDTO action = ih.receive_and_parse_action();
 
-            const Uint8* keystates = SDL_GetKeyboardState(NULL);
-            moving = false;
+            // moving = false;
+            float delta = PLAYER_SPEED * frame_delta;
 
-            if (keystates[SDL_SCANCODE_W]) { posY -= PLAYER_SPEED * frame_delta; moving = true; }
-            if (keystates[SDL_SCANCODE_S]) { posY += PLAYER_SPEED * frame_delta; moving = true; }
-            if (keystates[SDL_SCANCODE_A]) { posX -= PLAYER_SPEED * frame_delta; moving = true; }
-            if (keystates[SDL_SCANCODE_D]) { posX += PLAYER_SPEED * frame_delta; moving = true; }
-
-            // Limitar dentro de pantalla
-            if (posX < 0) posX = 0;
-            if (posY < 0) posY = 0;
-            if (posX + PLAYER_WIDTH > SCREEN_WIDTH) posX = SCREEN_WIDTH - PLAYER_WIDTH;
-            if (posY + PLAYER_HEIGHT > SCREEN_HEIGHT) posY = SCREEN_HEIGHT - PLAYER_HEIGHT;
-
-            // Animación de piernas
-            run_phase = moving ? (frame_ticks / 100) % NUM_FRAMES : 0;
-
-            // Render
+            if (action.type == ActionType::MOVE) {
+                // moving = true;
+                switch (action.direction) {
+                    case Direction::UP:    posY -= delta; break;
+                    case Direction::DOWN:  posY += delta; break;
+                    case Direction::LEFT:  posX -= delta; break;
+                    case Direction::RIGHT: posX += delta; break;
+                    default: break;
+                }
+            }   
+            // if (moving) {
+            //     run_phase = (frame_ticks / 100) % NUM_FRAMES;
+            // } else {
+            //     run_phase = 0;
+            // }              
             renderer.SetDrawColor(255, 255, 255, 255);
             renderer.Clear();
 
-            // Dibujar piernas animadas
-            renderer.Copy(
-                piernas,
-                Rect(run_phase * 32, 0, 32, 64), // recorte del frame de animación
-                Rect(static_cast<int>(posX), static_cast<int>(posY + 32 / 2), 32, 64)
-            );
-
-            // Dibujar cuerpo por encima
             renderer.Copy(
                 cuerpo,
                 Rect(0, 32, 32, 32),  // Solo esta región de la imagen
