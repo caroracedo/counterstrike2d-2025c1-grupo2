@@ -1,10 +1,10 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+#include <cmath>
 
 #include "../common/action_DTO.h"
 #include "input_handler.h"
-
 
 using namespace SDL2pp;
 
@@ -13,8 +13,6 @@ using namespace SDL2pp;
 #define PLAYER_WIDTH 32  
 #define PLAYER_HEIGHT 32
 #define PLAYER_SPEED 0.2f
-// #define NUM_FRAMES 6
-
 
 int main(int argc, char* argv[]) {
     try {
@@ -26,18 +24,22 @@ int main(int argc, char* argv[]) {
         Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
         Surface cuerpo_surface("assets/gfx/player/ct1.bmp");
-
         Texture cuerpo(renderer, cuerpo_surface.SetColorKey(true, 0));
 
         float posX = SCREEN_WIDTH / 2.0f - PLAYER_WIDTH / 2.0f;
         float posY = SCREEN_HEIGHT / 2.0f - PLAYER_HEIGHT / 2.0f;
 
-        // bool moving = false;
-        // int run_phase = 0;
+        Surface mira_surface = Surface("assets/gfx/pointer.bmp");
+
+        mira_surface.SetColorKey(true, SDL_MapRGB(mira_surface.Get()->format, 255, 0, 255));
+
+        Texture mira(renderer, mira_surface);
 
         unsigned int prev_ticks = SDL_GetTicks();
         InputHandler ih;
+        SDL_ShowCursor(SDL_DISABLE);
         bool running = true;
+
         while (running) {
             unsigned int frame_ticks = SDL_GetTicks();
             unsigned int frame_delta = frame_ticks - prev_ticks;
@@ -53,12 +55,9 @@ int main(int argc, char* argv[]) {
             
             // Obtener acción del jugador
             ActionDTO action = ih.receive_and_parse_action();
-
-            // moving = false;
             float delta = PLAYER_SPEED * frame_delta;
 
             if (action.type == ActionType::MOVE) {
-                // moving = true;
                 switch (action.direction) {
                     case Direction::UP:    posY -= delta; break;
                     case Direction::DOWN:  posY += delta; break;
@@ -66,19 +65,42 @@ int main(int argc, char* argv[]) {
                     case Direction::RIGHT: posX += delta; break;
                     default: break;
                 }
-            }   
-            // if (moving) {
-            //     run_phase = (frame_ticks / 100) % NUM_FRAMES;
-            // } else {
-            //     run_phase = 0;
-            // }              
+            }
+
+            // Centro del jugador
+            float centerX = posX + PLAYER_WIDTH / 2.0f;
+            float centerY = posY + PLAYER_HEIGHT / 2.0f;
+
+            // Posición del mouse
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+
+            // Calcular ángulo hacia el mouse (ajustado si el sprite mira hacia arriba)
+            float dx = mouseX - centerX;
+            float dy = mouseY - centerY;
+            float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+
+            // Dibujar
             renderer.SetDrawColor(255, 255, 255, 255);
             renderer.Clear();
 
             renderer.Copy(
                 cuerpo,
-                Rect(0, 32, 32, 32),  // Solo esta región de la imagen
-                Rect(static_cast<int>(posX), static_cast<int>(posY), 32, 32)  // misma posición que las piernas
+                Rect(0, 32, 32, 32), // Frame estático, podés animar más tarde
+                Rect(static_cast<int>(posX), static_cast<int>(posY), 32, 32),
+                angle,
+                SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2},
+                SDL_FLIP_NONE
+            );
+
+            int mira_w = 46, mira_h = 46;
+
+            Rect src_cursor_rect(0, 0, mira_w, mira_h);
+
+            renderer.Copy(
+                mira,
+                src_cursor_rect,
+                Rect(mouseX - mira_w / 2, mouseY - mira_h / 2, mira_w, mira_h)
             );
 
             renderer.Present();
