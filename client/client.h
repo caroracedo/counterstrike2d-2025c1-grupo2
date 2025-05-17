@@ -28,20 +28,23 @@ public:
         sender.start();
         receiver.start();
 
-        try {
-            while (true) {
+        while (true) {
+            try {
                 to_server.push(mock_handler.receive_and_parse_action());
 
                 ActionDTO action_update;
-                if (from_server.try_pop(action_update)) {
-                    if (!mock_handler.send_action(action_update))
-                        break;
-                }
+                if (from_server.try_pop(action_update) && !mock_handler.send_action(action_update))
+                    break;
+            } catch (...) {
+                break;
             }
-        } catch (...) {}  // Por el momento...
+        }
 
         sender.stop();
         receiver.stop();
+        sender.join();
+        receiver.join();
+
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
     }

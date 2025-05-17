@@ -18,12 +18,16 @@ public:
     void run() override {
         while (should_keep_running()) {
             try {
-                ActionDTO response = send_queue.pop();
-                protocol.serialize_and_send_updated_position(response);
+                protocol.serialize_and_send_updated_position(send_queue.pop());
             } catch (...) {
                 break;
             }
         }
+    }
+
+    void stop() override {
+        Thread::stop();
+        send_queue.close();
     }
 };
 

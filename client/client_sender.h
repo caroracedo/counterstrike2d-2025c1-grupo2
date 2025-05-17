@@ -23,6 +23,11 @@ public:
             }
         }
     }
+
+    void stop() override {
+        Thread::stop();
+        queue.close();
+    }
 };
 
 #endif  // CLIENT_SENDER_H

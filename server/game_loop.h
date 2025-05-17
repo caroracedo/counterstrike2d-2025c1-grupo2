@@ -1,7 +1,7 @@
 #ifndef GAME_LOOP_H
 #define GAME_LOOP_H
 
-#include <vector>
+#include <list>
 
 #include "../common/action_DTO.h"
 #include "../common/monitor_game.h"
@@ -13,7 +13,7 @@ private:
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
-    std::vector<Queue<ActionDTO>*> send_queues;
+    std::list<Queue<ActionDTO>*> send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {

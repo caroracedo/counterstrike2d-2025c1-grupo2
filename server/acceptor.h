@@ -15,7 +15,7 @@ class Acceptor: public Thread {
 private:
     Socket server_socket;
     Queue<ActionDTO>& shared_recv_queue;
-    std::vector<Queue<ActionDTO>*>& client_send_queues;
+    std::list<Queue<ActionDTO>*>& client_send_queues;
     std::list<ClientHandler*> client_handlers_list;
 
     void clear() {
@@ -40,7 +40,7 @@ private:
 
 public:
     Acceptor(const char* port, Queue<ActionDTO>& shared_recv_queue,
-             std::vector<Queue<ActionDTO>*>& send_queues):
+             std::list<Queue<ActionDTO>*>& send_queues):
             server_socket(port),
             shared_recv_queue(shared_recv_queue),
             client_send_queues(send_queues) {}

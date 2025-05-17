@@ -18,8 +18,7 @@ public:
     void run() override {
         while (should_keep_running()) {
             try {
-                ActionDTO action = protocol.receive_and_deserialize_action();
-                recv_queue.push(action);
+                recv_queue.push(protocol.receive_and_deserialize_action());
             } catch (...) {
                 break;
             }

@@ -28,15 +28,16 @@ public:
     void run() override {
         sender.start();
         receiver.start();
-
-        sender.join();
-        receiver.join();
     }
 
     void hard_kill() {
         Thread::stop();
+
         sender.stop();
         receiver.stop();
+        sender.join();
+        receiver.join();
+
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
     }
