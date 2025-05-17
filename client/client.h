@@ -30,23 +30,26 @@ public:
 
         while (true) {
             try {
-                to_server.push(mock_handler.receive_and_parse_action());
+                ActionDTO action = mock_handler.receive_and_parse_action();
+                if (action.type == ActionType::UNKNOWN)
+                    break;
+                to_server.push(action);
 
-                ActionDTO action_update;
-                if (from_server.try_pop(action_update) && !mock_handler.send_action(action_update))
+                if (!mock_handler.send_action(
+                            from_server.pop()))  // TODO: Preguntar si se puede hacer con pop
                     break;
             } catch (...) {
                 break;
             }
         }
+        // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
+        client_socket.shutdown(2);  // Cierra lectura y escritura
+        client_socket.close();
 
         sender.stop();
         receiver.stop();
         sender.join();
         receiver.join();
-
-        client_socket.shutdown(2);  // Cierra lectura y escritura
-        client_socket.close();
     }
 };
 
