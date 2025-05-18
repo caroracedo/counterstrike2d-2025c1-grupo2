@@ -1,68 +1,87 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define MAX_POSITION 65535
+
+#include <cstdint>
+#include <set>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "action_DTO.h"
+#include "obstacle.h"
 
 class Game {
 private:
-    std::vector<uint8_t> position;
+    std::vector<uint16_t> position;
+    std::vector<Obstacle> obstacles;
 
 public:
     /*
      * Constructor.
      **/
-    Game(): position(2, 0) {}  // Vector con dos ceros: x = 0, y = 0
+    Game(): position(2, 0), obstacles() { initialize_obstacles(); }
 
     /* Mover */
     bool move(Direction direction) {
+        std::vector<uint16_t> new_position = position;
         switch (direction) {
             case Direction::UP:
-                position[1] += 1;
+                if (position[1] == 0) {
+                    return false;  // No se puede mover hacia arriba
+                }
+                new_position[1] -= 1;
                 break;
             case Direction::DOWN:
-                position[1] -= 1;
+                if (position[1] == MAX_POSITION) {
+                    return false;  // No se puede mover hacia abajo
+                }
+                new_position[1] += 1;
                 break;
             case Direction::LEFT:
-                position[0] -= 1;
+                if (position[0] == 0) {
+                    return false;  // No se puede mover hacia la izquierda
+                }
+                new_position[0] -= 1;
                 break;
             case Direction::RIGHT:
-                position[0] += 1;
+                if (position[0] == MAX_POSITION) {
+                    return false;  // No se puede mover hacia la derecha
+                }
+                new_position[0] += 1;
                 break;
             default:
                 return false;
         }
-        return true;
+        if (no_collisions(new_position)) {
+            position = new_position;
+            return true;
+        }
+
+        return false;
     }
 
     /* Getters */
-    std::vector<uint8_t> get_position() const { return position; }
+    std::vector<uint16_t> get_position() const { return position; }
+
+    bool no_collisions(std::vector<uint16_t> new_position) {
+        // Asumimos que el jugador tiene dimensiones 1x1 por el momento
+        // Verificamos si la nueva posición colisiona con algún obstáculo
+        return !std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& obstacle) {
+            return new_position[0] >= obstacle.x && new_position[0] < obstacle.x + obstacle.width &&
+                   new_position[1] >= obstacle.y && new_position[1] < obstacle.y + obstacle.height;
+        });
+    }
+
+    void initialize_obstacles() {
+        // Inicializamos algunos obstáculos de ejemplo
+        obstacles.push_back(Obstacle(1, 1));
+        obstacles.push_back(Obstacle(5, 5, 1, 2));
+        obstacles.push_back(Obstacle(10, 10, 3, 3));
+        obstacles.push_back(Obstacle(15, 15, 4, 8));
+    }
+
 };
 
 #endif  // GAME_H
-
-/*
-jugador -> juego.me_quiero_mover_para(direccion)
-juego.pop(eventos) -> juego.actualizar_logica() -> jugadores.avisar_actualizacion()
-jugador.recibir_actualizacion()
-jugador.graficar()
-*/
-
-/*
-jugador -> le dice al juego lo que quiere hacer -> juego.mover(tal direccion)
-juego -> lo hace y le envia a TODOS los jugadores lo que hizo
-queue : cada elemento es <id_jugador, evento(movimiento)>
-loop:
-    id, posicion = queue.pop()
-    juego.jugar_jugador(id, posicion)
-    broadcast
-*/
-
-/*
-client_handler -> hilo receptor, hilo enviador
-receptor tiene la queue con los eventos y el clienthandler hace "pop" de los eventos y se los manda
-al juego junto con un id del jugador receptor recibe el mensaje por socket con DTO queue
-client_handler procesa, actualiza la lógica
-*/

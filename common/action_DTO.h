@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-enum class ActionType : uint8_t { MOVE = 0x70, UNKNOWN };
+// TODO: crear ActionType::QUIT para verificar si se cerró por error o no
+enum class ActionType : uint8_t { MOVE = 0x70, QUIT=0x71, UNKNOWN=0xFF};
 enum class Direction : uint8_t {
     UP = 0x01,
     DOWN = 0x02,
@@ -16,10 +17,12 @@ enum class Direction : uint8_t {
 struct ActionDTO {
     ActionType type;
     Direction direction;
-    std::vector<uint8_t> position;
+    std::vector<uint16_t> position;
 
     // para unknown
     ActionDTO(): type(ActionType::UNKNOWN), direction(), position() {}
+
+    ActionDTO(const ActionType& action): type(action), direction(), position() {}
 
     // para feats futuros (ej: soltar bomba)
     // ActionDTO(const ActionType& action) : type(action) {};
@@ -29,7 +32,7 @@ struct ActionDTO {
             type(action), direction(direction), position() {}
 
     // para que el cliente sepa donde está actualmente -- server -> cliente
-    ActionDTO(const ActionType& action, const std::vector<uint8_t>& position):
+    ActionDTO(const ActionType& action, const std::vector<uint16_t>& position):
             type(action), direction(), position(position) {}
 };
 

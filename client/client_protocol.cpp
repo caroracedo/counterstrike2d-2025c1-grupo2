@@ -4,8 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include <arpa/inet.h>
-
 #include "../common/constants.h"
 
 ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
@@ -20,56 +18,6 @@ ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
 *****************************************************************************************
 */
 
-bool ClientProtocol::serialize_and_send(const uint8_t opcode) {
-    /*
-     * Envía al Server el comando (1 byte) y el largo del mensaje (0) en big-endian (2 bytes)
-     */
-    uint16_t length = htons(static_cast<uint16_t>(0));
-
-    return skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length);
-}
-
-bool ClientProtocol::serialize_and_send(const uint8_t opcode, const std::vector<uint8_t>& data) {
-    /*
-     * Envía al Server el comando (1 byte), el largo del mensaje (2 bytes) en big-endian, y el
-     * mensaje (size bytes)
-     */
-    uint16_t length = htons(static_cast<uint16_t>(data.size()));
-
-    return (skt_manager.send_byte(skt, opcode) && skt_manager.send_two_bytes(skt, length) &&
-            skt_manager.send_bytes(skt, data));
-}
-
-bool ClientProtocol::serialize_and_send(const uint8_t opcode, const std::string& data) {
-    /*
-     * Envía al Server el comando (1 byte), el largo del mensaje (2 bytes) en big-endian, y el
-     * mensaje (size bytes)
-     */
-
-    std::vector<uint8_t> data_vector(data.begin(), data.end());
-    data_vector.push_back('\0');
-
-    return serialize_and_send(opcode, data_vector);
-}
-
-bool ClientProtocol::serialize_and_send_action(const MainMenuDTO& main_menu) {
-    /*
-     * Envía al Server el comando seleccionado por el Client, pudiendo ser este:
-     * Create, Join, o List
-     */
-    uint8_t opcode = static_cast<uint8_t>(main_menu.option);
-    switch (main_menu.option) {
-        case Option::CREATE:
-            return serialize_and_send(opcode, main_menu.game_name);
-        case Option::JOIN:
-            return serialize_and_send(opcode, main_menu.game_name);
-        case Option::LIST:
-            return serialize_and_send(opcode);
-        default:
-            return false;
-    }
-}
-
 bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     /**
      * Envía al Server la acción seleccionada por el Client, pudiendo ser esta:
@@ -78,8 +26,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     uint8_t opcode = static_cast<uint8_t>(action.type);
     switch (action.type) {
         case ActionType::MOVE: {
-            std::vector<uint8_t> direction(static_cast<uint8_t>(action.direction));
-            return serialize_and_send(opcode, direction);
+            std::vector<uint8_t> data = {opcode, static_cast<uint8_t>(action.direction)};
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
         }
         default:
             return false;
@@ -94,61 +43,28 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
 *****************************************************************************************
 */
 
-std::string ClientProtocol::receive_and_deserialize_string() {
-    /*
-     * Recibe del Server el mensaje con los nombres de las partidas actuales
-     * y lo deserializa a un string.
-     */
-    uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size)) {
-        return {};
-    }
-
-    std::vector<uint8_t> data(size);
-    if (!skt_manager.receive_bytes(skt, data)) {
-        return {};
-    }
-
-    std::string text(data.begin(), data.end());
-    return text;
-}
-
-std::vector<uint8_t> ClientProtocol::receive_and_deserialize_vector() {
-    uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size)) {
-        return {};
-    }
-
-    std::vector<uint8_t> data(size);
-    if (!skt_manager.receive_bytes(skt, data)) {
-        return {};
-    }
-
-    return data;
-}
-
-std::string ClientProtocol::receive_and_deserialize_list() {
-    /*
-     * Recibe del Server el mensaje con los nombres de las partidas actuales
-     * y lo deserializa a un string.
-     */
-    return receive_and_deserialize_string();
-}
-
 ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
     /*
      * Recibe del Server la posición actualizada del jugador y la deserializa
      * a un vector de bytes.
      */
-    std::vector<uint8_t> data = receive_and_deserialize_vector();
+    uint16_t size;
+    if (!skt_manager.receive_two_bytes(skt, size)) {
+        return {};
+    }
+    std::vector<uint8_t> data(size);
+    if (!skt_manager.receive_bytes(skt, data)) {
+        return {};
+    }
     if (data.empty()) {
         return {};
     }
-
-    return {static_cast<ActionType>(data[0]), std::vector<uint8_t>(data.begin() + 1, data.end())};
+    ActionType type = static_cast<ActionType>(data[0]);
+    std::vector<uint16_t> position;
+    // Deserializar de bytes a uint16_t (big-endian)
+    for (size_t i = 1; i + 1 < data.size(); i += 2) {
+        uint16_t value = (static_cast<uint16_t>(data[i]) << 8) | static_cast<uint16_t>(data[i + 1]);
+        position.push_back(value);
+    }
+    return {type, position};
 }
-
-/**************************************** CIERRE ***************************************/
-
-// void ClientProtocol::close() { skt_manager.close(skt); } // El protocolo ya no tiene el ownership
-// del socket

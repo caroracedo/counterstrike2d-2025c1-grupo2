@@ -4,29 +4,25 @@
 #define QUIT_INPUT 'q'
 
 #include "acceptor.h"
+#include "game_loop.h"
 
 class Server {
 private:
-    MonitorGames monitor_games;
-    Acceptor acceptor;
+    GameLoop game_loop;
 
 public:
-    /*
-     * Constructor.
-     **/
-    explicit Server(const char* port): acceptor(port, monitor_games) {}
+    explicit Server(const char* port): game_loop(port) {}
 
-    /* Iniciar la comunicación */
     void initiate_communication() {
-        acceptor.start();
+        game_loop.start();
 
         char input;
         do {
             std::cin >> input;
         } while (input != QUIT_INPUT);
 
-        acceptor.stop();
-        acceptor.join();
+        game_loop.stop();
+        game_loop.join();
     }
 };
 

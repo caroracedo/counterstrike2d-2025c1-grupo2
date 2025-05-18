@@ -6,5 +6,8 @@ target_sources(taller_client
     PUBLIC
     # .h files
     client_protocol.h
-    client.h 
+    client.h
+    client_sender.h
+    client_receiver.h
+    input_handler.h
     )

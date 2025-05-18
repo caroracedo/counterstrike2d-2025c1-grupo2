@@ -1,12 +1,10 @@
+#ifndef MAIN_CPP
+#define MAIN_CPP
+
 #include <exception>
 #include <iostream>
 
-// #include <SDL2/SDL.h>
-// #include <SDL2pp/SDL2pp.hh>
-
 #include "client.h"
-
-// using SDL2pp;
 
 #define EXPECTED_ARGC 3
 
@@ -34,3 +32,5 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 }
+
+#endif
