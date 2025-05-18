@@ -8,4 +8,6 @@ target_sources(taller_client
     client_protocol.h
     client.h
     mock_handler.h
+    client_sender.h
+    client_receiver.h
     )
