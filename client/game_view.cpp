@@ -7,30 +7,17 @@
 
 GameView::GameView():  
     sdl(SDL_INIT_VIDEO),
-    window("game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
+    window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
     renderer(window, -1, SDL_RENDERER_ACCELERATED),
-    legs_sprites(nullptr),
-    body_sprites(nullptr),
-    crosshair_sprites(nullptr) {
-    load_sprites();
+    legs_sprites(Texture(renderer, Surface("assets/gfx/player/legs.bmp"))),
+    body_sprites(Texture(renderer, Surface("assets/gfx/player/body.bmp"))),
+    crosshair_sprites(Texture(renderer, Surface("assets/gfx/pointer.bmp"))) {
 }
 
 void GameView::run() try {
 
 } catch(std::exception &e){
 
-}
-
-void GameView::load_leg_sprites() {
-    legs_sprites = Texture(renderer, Surface("assets/gfx/player/legs.bmp"));
-}
-
-void GameView::load_body_postures() {
-    body_sprites = Texture(renderer, Surface("assets/gfx/player/body.bmp"));
-}
-
-void GameView::load_crosshair_sprites() {
-    crosshair_sprites = Texture(renderer, Surface("assets/gfx/pointer.bmp"));
 }
 
 
