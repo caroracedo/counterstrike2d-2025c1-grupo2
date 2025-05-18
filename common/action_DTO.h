@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-enum class ActionType : uint8_t { MOVE = 0x70, UNKNOWN };
+// TODO: crear ActionType::QUIT para verificar si se cerró por error o no
+enum class ActionType : uint8_t { MOVE = 0x70, QUIT=0x71, UNKNOWN=0xFF};
 enum class Direction : uint8_t {
     UP = 0x01,
     DOWN = 0x02,
@@ -20,6 +21,8 @@ struct ActionDTO {
 
     // para unknown
     ActionDTO(): type(ActionType::UNKNOWN), direction(), position() {}
+
+    ActionDTO(const ActionType& action): type(action), direction(), position() {}
 
     // para feats futuros (ej: soltar bomba)
     // ActionDTO(const ActionType& action) : type(action) {};

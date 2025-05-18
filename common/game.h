@@ -80,6 +80,9 @@ public:
         obstacles.insert(Obstacle(10, 10, 3, 3));
         obstacles.insert(Obstacle(15, 15, 4, 8));
     }
+
+    /* Getters */
+    std::vector<uint8_t> get_position() const { return position; }
 };
 
 #endif  // GAME_H

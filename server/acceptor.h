@@ -3,7 +3,6 @@
 
 #include <list>
 #include <utility>
-#include <vector>
 
 #include "../common/monitor_game.h"
 #include "../common/socket.h"
