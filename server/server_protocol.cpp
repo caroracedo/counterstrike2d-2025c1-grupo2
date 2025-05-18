@@ -59,6 +59,9 @@ bool ServerProtocol::serialize_and_send_updated_position(ActionDTO action_dto) {
     // vector con el opcode de la acción y la posicion
     std::vector<uint8_t> data;
     data.push_back(static_cast<uint8_t>(action_dto.type));
-    data.insert(data.end(), action_dto.position.begin(), action_dto.position.end());
+    for (uint16_t value: action_dto.position) {
+        data.push_back(static_cast<uint8_t>(value >> 8));    // byte alto
+        data.push_back(static_cast<uint8_t>(value & 0xFF));  // byte bajo
+    }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

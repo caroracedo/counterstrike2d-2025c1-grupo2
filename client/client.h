@@ -3,6 +3,8 @@
 
 #include <utility>
 
+#include "client_receiver.h"
+#include "client_sender.h"
 #include "client_protocol.h"
 #include "../common/action_DTO.h"
 #include "input_handler.h"
@@ -21,11 +23,44 @@ private:
     Socket client_socket;
     ClientProtocol protocol;
 
+    Queue<ActionDTO> to_server;
+    Queue<ActionDTO> from_server;
+
+    Sender sender;
+    Receiver receiver;
+
 public:
-    explicit Client(const char* hostname, const char* servname):
-            client_socket(hostname, servname), protocol(this->client_socket) {}
+    
 
     void initiate_communication() {
+        
+
+        while (true) {
+            try {
+                ActionDTO action = mock_handler.receive_and_parse_action();
+                if (action.type == ActionType::UNKNOWN)
+                    break;
+                to_server.push(action);
+
+                if (!mock_handler.send_action(
+                            from_server.pop()))  // TODO: Preguntar si se puede hacer con pop
+                    break;
+            } catch (...) {
+                break;
+            }
+        }
+
+public:
+    Client(const char* hostname, const char* servname):
+            client_socket(hostname, servname),
+            protocol(this->client_socket),
+            sender(protocol, to_server),
+            receiver(protocol, from_server) {}
+
+    void initiate_communication() {
+        sender.start();
+        receiver.start();
+        
         // Inicialización
         SDL sdl(SDL_INIT_VIDEO);
         Window window("Jugador compuesto", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -72,8 +107,14 @@ public:
             } catch (...) {}  // Por el momento...
         }
 
+         // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
+
+        sender.stop();
+        receiver.stop();
+        sender.join();
+        receiver.join();
     }
 };
 

@@ -6,4 +6,10 @@ target_sources(taller_server
     PUBLIC
     # .h files
     server_protocol.h
+    acceptor.h
+    client_handler.h
+    server_receiver.h
+    server_sender.h
+    server.h
+    game_loop.h
     )

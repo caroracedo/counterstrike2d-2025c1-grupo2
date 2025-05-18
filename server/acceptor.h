@@ -13,7 +13,8 @@
 class Acceptor: public Thread {
 private:
     Socket server_socket;
-    MonitorGame& monitor_game;
+    Queue<ActionDTO>& shared_recv_queue;
+    std::list<Queue<ActionDTO>*>& client_send_queues;
     std::list<ClientHandler*> client_handlers_list;
 
     void clear() {
@@ -26,30 +27,31 @@ private:
     }
 
     void reap() {
-        client_handlers_list.remove_if([](auto* client_handler) {
-            bool is_dead = !(client_handler->is_alive());
-            if (is_dead) {
+        client_handlers_list.remove_if([](ClientHandler* client_handler) {
+            if (!client_handler->is_alive()) {
                 client_handler->join();
                 delete client_handler;
+                return true;
             }
-            return is_dead;
+            return false;
         });
     }
 
 public:
-    /*
-     * Constructor.
-     **/
-    Acceptor(const char* port, MonitorGame& monitor_game):
-            server_socket(port), monitor_game(monitor_game) {}
+    Acceptor(const char* port, Queue<ActionDTO>& shared_recv_queue,
+             std::list<Queue<ActionDTO>*>& send_queues):
+            server_socket(port),
+            shared_recv_queue(shared_recv_queue),
+            client_send_queues(send_queues) {}
 
-    /* Override */
     void run() override {
         while (should_keep_running()) {
             try {
                 Socket new_client_socket = server_socket.accept();
-                ClientHandler* new_client_handler =
-                        new ClientHandler(std::move(new_client_socket), monitor_game);
+                Queue<ActionDTO>* send_queue = new Queue<ActionDTO>();
+                client_send_queues.push_back(send_queue);
+                ClientHandler* new_client_handler = new ClientHandler(
+                        std::move(new_client_socket), shared_recv_queue, *send_queue);
                 reap();
                 client_handlers_list.push_back(new_client_handler);
                 new_client_handler->start();
