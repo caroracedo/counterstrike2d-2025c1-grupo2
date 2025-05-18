@@ -5,6 +5,8 @@
 
 #include "../common/action_DTO.h"
 #include "input_handler.h"
+#include "player_view.h"
+
 
 using namespace SDL2pp;
 
@@ -25,6 +27,8 @@ int main(int argc, char* argv[]) {
 
         Surface cuerpo_surface("assets/gfx/player/ct1.bmp");
         Texture cuerpo(renderer, cuerpo_surface.SetColorKey(true, 0));
+        
+        PlayerView player_view(cuerpo);
 
         float posX = SCREEN_WIDTH / 2.0f - PLAYER_WIDTH / 2.0f;
         float posY = SCREEN_HEIGHT / 2.0f - PLAYER_HEIGHT / 2.0f;
@@ -80,18 +84,11 @@ int main(int argc, char* argv[]) {
             float dy = mouseY - centerY;
             float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
 
-            // Dibujar
+            // Dibujar fondo
             renderer.SetDrawColor(255, 255, 255, 255);
             renderer.Clear();
 
-            renderer.Copy(
-                cuerpo,
-                Rect(0, 32, 32, 32), // Frame estático, podés animar más tarde
-                Rect(static_cast<int>(posX), static_cast<int>(posY), 32, 32),
-                angle,
-                SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2},
-                SDL_FLIP_NONE
-            );
+            player_view.render(renderer,posX,posY,angle);
 
             int mira_w = 46, mira_h = 46;
 
