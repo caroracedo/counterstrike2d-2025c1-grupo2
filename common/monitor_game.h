@@ -28,7 +28,7 @@ public:
     }
 
     /* Mover */
-    std::vector<uint8_t> get_position() {
+    std::vector<uint16_t> get_position() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.get_position();
     }

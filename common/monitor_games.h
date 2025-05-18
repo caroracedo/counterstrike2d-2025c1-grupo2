@@ -24,7 +24,7 @@ public:
     }
 
     /* Getters */
-    std::vector<uint8_t> get_position_game(const std::string& game_name) {
+    std::vector<uint16_t> get_position_game(const std::string& game_name) {
         std::lock_guard<std::mutex> lock(mutex);
         if (!games.count(game_name))
             return {};

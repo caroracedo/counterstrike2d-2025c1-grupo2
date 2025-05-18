@@ -30,27 +30,6 @@ private:
     Receiver receiver;
 
 public:
-    
-
-    void initiate_communication() {
-        
-
-        while (true) {
-            try {
-                ActionDTO action = mock_handler.receive_and_parse_action();
-                if (action.type == ActionType::UNKNOWN)
-                    break;
-                to_server.push(action);
-
-                if (!mock_handler.send_action(
-                            from_server.pop()))  // TODO: Preguntar si se puede hacer con pop
-                    break;
-            } catch (...) {
-                break;
-            }
-        }
-
-public:
     Client(const char* hostname, const char* servname):
             client_socket(hostname, servname),
             protocol(this->client_socket),
@@ -92,12 +71,9 @@ public:
                     ih.update_graphics(action);
                     continue;
                 }
-                if (!protocol.serialize_and_send_action(action))
-                    break;
+                to_server.push(action);
                 
-                // Movimiento
-                
-                ActionDTO action_update = protocol.receive_and_deserialize_updated_position();
+                ActionDTO action_update = from_server.pop();
         
                 if (action_update.type == ActionType::UNKNOWN) {
                     continue;

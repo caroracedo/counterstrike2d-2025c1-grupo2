@@ -7,6 +7,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "action_DTO.h"
 #include "obstacle.h"
@@ -14,7 +15,7 @@
 class Game {
 private:
     std::vector<uint16_t> position;
-    std::set<Obstacle> obstacles;
+    std::vector<Obstacle> obstacles;
 
 public:
     /*
@@ -65,7 +66,7 @@ public:
     std::vector<uint16_t> get_position() const { return position; }
 
     bool no_collisions(std::vector<uint16_t> new_position) {
-        // Aasumimos que el jugador tiene dimensiones 1x1 por el momento
+        // Asumimos que el jugador tiene dimensiones 1x1 por el momento
         // Verificamos si la nueva posición colisiona con algún obstáculo
         return !std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& obstacle) {
             return new_position[0] >= obstacle.x && new_position[0] < obstacle.x + obstacle.width &&
@@ -75,14 +76,12 @@ public:
 
     void initialize_obstacles() {
         // Inicializamos algunos obstáculos de ejemplo
-        obstacles.insert(Obstacle(0, 0));
-        obstacles.insert(Obstacle(5, 5, 1, 2));
-        obstacles.insert(Obstacle(10, 10, 3, 3));
-        obstacles.insert(Obstacle(15, 15, 4, 8));
+        obstacles.push_back(Obstacle(1, 1));
+        obstacles.push_back(Obstacle(5, 5, 1, 2));
+        obstacles.push_back(Obstacle(10, 10, 3, 3));
+        obstacles.push_back(Obstacle(15, 15, 4, 8));
     }
 
-    /* Getters */
-    std::vector<uint8_t> get_position() const { return position; }
 };
 
 #endif  // GAME_H
