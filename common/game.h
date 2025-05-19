@@ -6,7 +6,12 @@
 #define BULLET_SIZE 8
 #define MOVE_DELTA 5
 
+#define PLAYER_SIZE 32
+#define BULLET_SIZE 8
+#define MOVE_DELTA 5
 
+
+#include <algorithm>
 #include <algorithm>
 #include <cstdint>
 #include <set>
@@ -35,10 +40,18 @@ private:
                     uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
                     new_position[1] = static_cast<uint16_t>(temp);
                 }
+                {
+                    uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
+                    new_position[1] = static_cast<uint16_t>(temp);
+                }
                 break;
             case Direction::DOWN:
                 if (position[1] == MAX_POS) {
                     return {false, position};  // No se puede mover hacia abajo
+                }
+                {
+                    uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
+                    new_position[1] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
                 }
                 {
                     uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
@@ -53,10 +66,18 @@ private:
                     uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
                     new_position[0] = static_cast<uint16_t>(temp);
                 }
+                {
+                    uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
+                    new_position[0] = static_cast<uint16_t>(temp);
+                }
                 break;
             case Direction::RIGHT:
                 if (position[0] == MAX_POS) {
                     return {false, position};  // No se puede mover hacia la derecha
+                }
+                {
+                    uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
+                    new_position[0] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
                 }
                 {
                     uint32_t temp = static_cast<uint32_t>(position[0]) + delta;

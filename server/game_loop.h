@@ -44,6 +44,7 @@ private:
             return false;
         for (auto* queue: send_queues) {
             queue->push({ActionType::SHOOT, result.second});
+
         }
         return true;
     }
