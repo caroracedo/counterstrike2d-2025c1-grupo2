@@ -25,7 +25,7 @@ public:
         return game.move(direction);
     }
 
-    bool shoot(Direction direction, WeaponDTO weapon) {
+    std::pair<bool, std::vector<uint16_t>> shoot(Direction direction, WeaponDTO weapon) {
         std::lock_guard<std::mutex> lock(mutex);
         return game.shoot(direction, weapon);
     }

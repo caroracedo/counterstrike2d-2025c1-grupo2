@@ -21,14 +21,15 @@ private:
     std::vector<uint16_t> position;
     std::vector<Obstacle> obstacles;
 
-    bool _move(Direction direction, uint16_t size, uint16_t delta) {
+    std::pair<bool, std::vector<uint16_t>> _move(Direction direction, uint16_t size,
+                                                 uint16_t delta) {
         std::vector<uint16_t> new_position = position;
         uint16_t MAX_POS = MAX_POSITION - size;  // Máxima posición permitida
 
         switch (direction) {
             case Direction::UP:
                 if (position[1] == 0) {
-                    return false;  // No se puede mover hacia arriba
+                    return {false, position};  // No se puede mover hacia arriba
                 }
                 {
                     uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
@@ -37,7 +38,7 @@ private:
                 break;
             case Direction::DOWN:
                 if (position[1] == MAX_POS) {
-                    return false;  // No se puede mover hacia abajo
+                    return {false, position};  // No se puede mover hacia abajo
                 }
                 {
                     uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
@@ -46,7 +47,7 @@ private:
                 break;
             case Direction::LEFT:
                 if (position[0] == 0) {
-                    return false;  // No se puede mover hacia la izquierda
+                    return {false, position};  // No se puede mover hacia la izquierda
                 }
                 {
                     uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
@@ -55,7 +56,7 @@ private:
                 break;
             case Direction::RIGHT:
                 if (position[0] == MAX_POS) {
-                    return false;  // No se puede mover hacia la derecha
+                    return {false, position};  // No se puede mover hacia la derecha
                 }
                 {
                     uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
@@ -63,15 +64,12 @@ private:
                 }
                 break;
             default:
-                return false;
+                return {false, position};
         }
 
         std::vector<uint16_t> max_position = get_max_position(position, new_position, size);
-        if (max_position == position) {
-            return false;  // No se puede mover
-        }
-        position = max_position;
-        return true;
+
+        return {max_position != position, max_position};
     }
 
 
@@ -162,9 +160,19 @@ public:
     Game(): position(2, 0), obstacles() { initialize_obstacles(); }
 
     /* Mover */
-    bool move(Direction direction) { return _move(direction, PLAYER_SIZE, MOVE_DELTA); }
+    bool move(Direction direction) {
+        std::pair<bool, std::vector<uint16_t>> result = _move(direction, PLAYER_SIZE, MOVE_DELTA);
+        if (result.first) {
+            position = result.second;
+            return true;  // Movimiento exitoso
+        }
+        return false;  // Movimiento fallido
+    }
 
-    bool shoot(Direction direction, WeaponDTO weapon) {
+    std::pair<bool, std::vector<uint16_t>> shoot(Direction direction, WeaponDTO weapon) {
+        if (weapon.range == 0) {
+            return {false, position};
+        }
         return _move(direction, BULLET_SIZE, weapon.range);
     }
 

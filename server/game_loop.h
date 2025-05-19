@@ -2,6 +2,8 @@
 #define GAME_LOOP_H
 
 #include <list>
+#include <utility>
+#include <vector>
 
 #include "../common/action_DTO.h"
 #include "../common/monitor_game.h"
@@ -36,10 +38,12 @@ private:
     }
 
     bool do_shoot_action(const ActionDTO& action_dto) {
-        if (!monitor_game.shoot(action_dto.direction, action_dto.weapon))
+        std::pair<bool, std::vector<uint16_t>> result =
+                monitor_game.shoot(action_dto.direction, action_dto.weapon);
+        if (!result.first)
             return false;
         for (auto* queue: send_queues) {
-            queue->push({ActionType::SHOOT, monitor_game.get_position()});
+            queue->push({ActionType::SHOOT, result.second});
         }
         return true;
     }
