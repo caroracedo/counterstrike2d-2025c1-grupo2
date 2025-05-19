@@ -38,14 +38,29 @@ private:
     }
 
     bool do_shoot_action(const ActionDTO& action_dto) {
+        std::vector<uint16_t> position =
+                action_dto.position.empty() ? monitor_game.get_position() : action_dto.position;
         std::pair<bool, std::vector<uint16_t>> result =
-                monitor_game.shoot(action_dto.direction, action_dto.weapon);
+                monitor_game.shoot(position, action_dto.direction, action_dto.weapon);
         if (!result.first)
             return false;
+
+        // Si la bala no llegó a destino aún, encolar el evento de nuevo con la posicion actualizada
+        uint16_t new_range = action_dto.weapon.range - MOVE_DELTA;
+        if (new_range > 0) {
+            WeaponDTO new_weapon = action_dto.weapon;
+            new_weapon.range = new_range;
+
+            ActionDTO new_action_dto(action_dto.direction, new_weapon);
+            new_action_dto.position = {result.second[0]};
+
+            recv_queue.push(new_action_dto);
+        }
+
         for (auto* queue: send_queues) {
             queue->push({ActionType::SHOOT, result.second});
-
         }
+
         return true;
     }
 

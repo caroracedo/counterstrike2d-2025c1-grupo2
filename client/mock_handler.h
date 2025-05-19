@@ -58,6 +58,7 @@ public:
             if (action_input == MOVE_INPUT)
                 return {ActionType::MOVE, direction};
             else
+                // por ahora solo se puede disparar con la Glock
                 return {direction, {WeaponType::GLOCK}};
         }
         return {};

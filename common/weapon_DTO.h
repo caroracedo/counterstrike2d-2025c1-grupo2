@@ -12,7 +12,7 @@ struct WeaponDTO {
     uint16_t ammo;
 
     // Constructor para armas
-    explicit WeaponDTO(WeaponType type, uint16_t damage, uint16_t range, uint16_t ammo):
+    WeaponDTO(WeaponType type, uint16_t damage, uint16_t range, uint16_t ammo):
             type(type), damage(damage), range(range), ammo(ammo) {}
 
     // Constructor para armas sin munición

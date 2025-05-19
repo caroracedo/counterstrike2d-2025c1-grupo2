@@ -12,7 +12,6 @@
 
 
 #include <algorithm>
-#include <algorithm>
 #include <cstdint>
 #include <set>
 #include <utility>
@@ -26,64 +25,45 @@ private:
     std::vector<uint16_t> position;
     std::vector<Obstacle> obstacles;
 
-    std::pair<bool, std::vector<uint16_t>> _move(Direction direction, uint16_t size,
+    std::pair<bool, std::vector<uint16_t>> _move(std::vector<uint16_t> position,
+                                                 Direction direction, uint16_t size,
                                                  uint16_t delta) {
         std::vector<uint16_t> new_position = position;
         uint16_t MAX_POS = MAX_POSITION - size;  // Máxima posición permitida
 
         switch (direction) {
-            case Direction::UP:
+            case Direction::UP: {
                 if (position[1] == 0) {
                     return {false, position};  // No se puede mover hacia arriba
                 }
-                {
-                    uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
-                    new_position[1] = static_cast<uint16_t>(temp);
-                }
-                {
-                    uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
-                    new_position[1] = static_cast<uint16_t>(temp);
-                }
+                uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
+                new_position[1] = static_cast<uint16_t>(temp);
                 break;
-            case Direction::DOWN:
+            }
+            case Direction::DOWN: {
                 if (position[1] == MAX_POS) {
                     return {false, position};  // No se puede mover hacia abajo
                 }
-                {
-                    uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
-                    new_position[1] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
-                }
-                {
-                    uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
-                    new_position[1] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
-                }
+                uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
+                new_position[1] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
                 break;
-            case Direction::LEFT:
+            }
+            case Direction::LEFT: {
                 if (position[0] == 0) {
                     return {false, position};  // No se puede mover hacia la izquierda
                 }
-                {
-                    uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
-                    new_position[0] = static_cast<uint16_t>(temp);
-                }
-                {
-                    uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
-                    new_position[0] = static_cast<uint16_t>(temp);
-                }
+                uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
+                new_position[0] = static_cast<uint16_t>(temp);
                 break;
-            case Direction::RIGHT:
+            }
+            case Direction::RIGHT: {
                 if (position[0] == MAX_POS) {
                     return {false, position};  // No se puede mover hacia la derecha
                 }
-                {
-                    uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
-                    new_position[0] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
-                }
-                {
-                    uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
-                    new_position[0] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
-                }
+                uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
+                new_position[0] = (temp > MAX_POS) ? MAX_POS : static_cast<uint16_t>(temp);
                 break;
+            }
             default:
                 return {false, position};
         }
@@ -182,7 +162,8 @@ public:
 
     /* Mover */
     bool move(Direction direction) {
-        std::pair<bool, std::vector<uint16_t>> result = _move(direction, PLAYER_SIZE, MOVE_DELTA);
+        std::pair<bool, std::vector<uint16_t>> result =
+                _move(position, direction, PLAYER_SIZE, MOVE_DELTA);
         if (result.first) {
             position = result.second;
             return true;  // Movimiento exitoso
@@ -190,11 +171,9 @@ public:
         return false;  // Movimiento fallido
     }
 
-    std::pair<bool, std::vector<uint16_t>> shoot(Direction direction, WeaponDTO weapon) {
-        if (weapon.range == 0) {
-            return {false, position};
-        }
-        return _move(direction, BULLET_SIZE, weapon.range);
+    std::pair<bool, std::vector<uint16_t>> shoot(const std::vector<uint16_t>& position,
+                                                 Direction direction, WeaponDTO weapon) {
+        return _move(position, direction, BULLET_SIZE, MOVE_DELTA);
     }
 
     /* Getters */

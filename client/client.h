@@ -41,11 +41,10 @@ public:
                 ActionDTO action = mock_handler.receive_and_parse_action();
                 if (action.type == ActionType::QUIT)
                     break;
-                if (action.type == ActionType::UNKNOWN) {
-                    mock_handler.update_graphics(action);
-                    continue;
+
+                if (action.type != ActionType::UNKNOWN) {
+                    to_server.push(action);
                 }
-                to_server.push(action);
 
                 ActionDTO action_update = from_server.pop();  // TODO: Preguntar pop
 
