@@ -19,6 +19,8 @@ private:
         switch (action_dto.type) {
             case ActionType::MOVE:
                 return do_move_action(action_dto);
+            case ActionType::SHOOT:
+                return do_shoot_action(action_dto);
             default:
                 return false;
         }
@@ -29,6 +31,15 @@ private:
             return false;
         for (auto* queue: send_queues) {
             queue->push({ActionType::MOVE, monitor_game.get_position()});
+        }
+        return true;
+    }
+
+    bool do_shoot_action(const ActionDTO& action_dto) {
+        if (!monitor_game.shoot(action_dto.direction, action_dto.weapon))
+            return false;
+        for (auto* queue: send_queues) {
+            queue->push({ActionType::SHOOT, monitor_game.get_position()});
         }
         return true;
     }
