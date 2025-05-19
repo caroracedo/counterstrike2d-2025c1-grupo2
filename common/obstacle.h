@@ -14,7 +14,8 @@ struct Obstacle {
     Obstacle(uint16_t x, uint16_t y, uint16_t height): x(x), y(y), height(height), width(height) {}
 
     // si definen alto y ancho, se considera un obstáculo de alto x ancho
-    Obstacle(uint16_t x, uint16_t y, uint16_t height, uint16_t width): x(x), y(y), height(height), width(width) {}
+    Obstacle(uint16_t x, uint16_t y, uint16_t height, uint16_t width):
+            x(x), y(y), height(height), width(width) {}
 
     Obstacle(const Obstacle& other):
             x(other.x), y(other.y), height(other.height), width(other.width) {}

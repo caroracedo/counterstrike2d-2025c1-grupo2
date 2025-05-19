@@ -38,6 +38,13 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1])};
+        case ActionType::SHOOT: {
+            if (data.size() < 4) {
+                return {};
+            }
+            uint16_t range = (static_cast<uint16_t>(data[2]) << 8) | static_cast<uint16_t>(data[3]);
+            return {static_cast<Direction>(data[1]), WeaponDTO(WeaponType::GLOCK, 0, range, 0)};
+        }
         default:
             return {};
     }

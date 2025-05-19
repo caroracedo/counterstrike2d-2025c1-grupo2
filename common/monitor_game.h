@@ -22,9 +22,12 @@ public:
     /* Mover */
     bool move(Direction direction) {
         std::lock_guard<std::mutex> lock(mutex);
-        if (!game.move(direction))
-            return false;
-        return true;
+        return game.move(direction);
+    }
+
+    bool shoot(Direction direction, WeaponDTO weapon) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.shoot(direction, weapon);
     }
 
     /* Mover */

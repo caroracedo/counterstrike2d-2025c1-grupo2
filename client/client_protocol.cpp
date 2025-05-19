@@ -22,11 +22,22 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     /**
      * Envía al Server la acción seleccionada por el Client, pudiendo ser esta:
      *  - Moverse en una dirección
+     *  - Disparar
      */
     uint8_t opcode = static_cast<uint8_t>(action.type);
     switch (action.type) {
         case ActionType::MOVE: {
             std::vector<uint8_t> data = {opcode, static_cast<uint8_t>(action.direction)};
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        case ActionType::SHOOT: {
+            if (action.weapon.ammo == 0) {
+                return false;
+            }
+            std::vector<uint8_t> data = {opcode, static_cast<uint8_t>(action.direction)};
+            data.push_back(static_cast<uint8_t>((action.weapon.range >> 8) & 0xFF));
+            data.push_back(static_cast<uint8_t>(action.weapon.range & 0xFF));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
         }
