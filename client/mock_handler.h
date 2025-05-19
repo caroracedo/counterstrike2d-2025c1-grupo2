@@ -9,6 +9,7 @@
 #include "../common/action_DTO.h"
 
 #define MOVE_INPUT "mover"
+#define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
 #define S_INPUT "s"
@@ -25,6 +26,10 @@ public:
         std::string action_input;
         if (!(iss >> action_input))
             return {};
+
+        if (action_input == QUIT_INPUT) {
+            return {ActionType::QUIT};
+        }
 
         if (action_input == MOVE_INPUT) {
             std::string direction_input;
@@ -44,11 +49,10 @@ public:
 
             return {ActionType::MOVE, direction};
         }
-
         return {};
     }
 
-    bool send_action(const ActionDTO& action_update) {
+    bool update_graphics(const ActionDTO& action_update) {
         if (action_update.type == ActionType::MOVE) {
             std::cout << '(' << static_cast<unsigned int>(action_update.position[0]) << ','
                       << static_cast<unsigned int>(action_update.position[1]) << ')' << std::endl;
