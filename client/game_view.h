@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+#include "player_view.h"
+#include "../common/action_DTO.h"
+#include "legs_view.h"
 
 using namespace SDL2pp;
 
@@ -12,13 +15,19 @@ private:
     Window window;
     Renderer renderer;
 
-    Texture legs_sprites;
     Texture body_sprites;
-    Texture crosshair_sprites;
+    Texture legs_sprites;   
+    
+    PlayerView player_view; 
+    LegsView legs_view;
+
+    Texture background;
+
 
 public:
     GameView();
-    void run();
+    void update(const ActionDTO& action);
+    void render();
 };
 
 #endif

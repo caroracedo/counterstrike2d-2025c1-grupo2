@@ -10,4 +10,7 @@ target_sources(taller_client
     client_sender.h
     client_receiver.h
     input_handler.h
+    game_view.cpp
+    legs_view.h
+    animation.h
     )
