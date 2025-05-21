@@ -56,10 +56,8 @@ public:
                 }
                 to_server.push(action);
                 
-                bool ok = from_server.try_pop(action_update);
-                if(ok){
-                    action_update.run();
-                }
+                ActionDTO action_update = from_server.pop();
+                
                 if (action_update.type == ActionType::UNKNOWN) {
                     continue;
                 }  
