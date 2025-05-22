@@ -13,4 +13,5 @@ target_sources(taller_client
     game_view.cpp
     legs_view.h
     animation.h
+    game_camera.cpp
     )

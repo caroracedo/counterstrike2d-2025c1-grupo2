@@ -4,6 +4,7 @@
 #include <SDL2pp/SDL2pp.hh>
 #include <cmath>
 #include "../common/constants.h"
+#include "game_camera.h"
 
 using namespace SDL2pp;
 
@@ -20,25 +21,38 @@ public:
         posY = y;
     }
 
-    void draw(Renderer& renderer) {
-        float centerX = posX + PLAYER_WIDTH / 2.0f;
-        float centerY = posY + PLAYER_HEIGHT / 2.0f;
+    float get_x() const {
+        return posX;
+    }
+    float get_y() const {
+        return posY;
+    }
+    
+    void draw(Renderer& renderer, GameCamera& camera) {
+        float screenX = posX - camera.get_x();
+        float screenY = posY - camera.get_y();
+
+        float centerX = screenX + PLAYER_WIDTH / 2.0f;
+        float centerY = screenY + PLAYER_HEIGHT / 2.0f;
 
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
+
         float dx = mouseX - centerX;
         float dy = mouseY - centerY;
+
         float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
 
         renderer.Copy(
             cuerpo,
             Rect(0, 0, PLAYER_HEIGHT, PLAYER_WIDTH),
-            Rect(static_cast<int>(posX), static_cast<int>(posY), PLAYER_WIDTH, PLAYER_HEIGHT),
+            Rect(static_cast<int>(screenX), static_cast<int>(screenY), PLAYER_WIDTH, PLAYER_HEIGHT),
             angle,
             SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2},
             SDL_FLIP_NONE
         );
     }
+
 };
 
 #endif

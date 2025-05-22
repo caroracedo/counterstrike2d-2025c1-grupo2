@@ -6,6 +6,7 @@
 #include "player_view.h"
 #include "../common/action_DTO.h"
 #include "legs_view.h"
+#include "game_camera.h"
 
 using namespace SDL2pp;
 
@@ -23,6 +24,9 @@ private:
 
     Texture background;
 
+    GameCamera camera; 
+
+    void calculate_fps(); //TODO: hacer
 
 public:
     GameView();

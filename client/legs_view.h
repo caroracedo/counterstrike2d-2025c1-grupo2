@@ -24,10 +24,13 @@ public:
     void update_animation() {
         walk_animation.update();
     }
+    
+    void draw(Renderer& renderer, GameCamera& camera) {
+        float screenX = posX - camera.get_x();
+        float screenY = posY - camera.get_y();
 
-    void draw(Renderer& renderer) {
-        float centerX = posX + 32 / 2.0f;
-        float centerY = posY + 32 / 2.0f;
+        float centerX = screenX + 32 / 2.0f;
+        float centerY = screenY + 32 / 2.0f;
 
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
@@ -35,7 +38,8 @@ public:
         float dy = mouseY - centerY;
         float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
 
-        walk_animation.draw(renderer, posX, posY, 40, 40, angle, SDL_Point{16, 16});
+        walk_animation.draw(renderer, screenX, screenY, 40, 40, angle, SDL_Point{16, 16});
     }
+
 };
 #endif
