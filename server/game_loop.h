@@ -25,8 +25,7 @@ private:
     }
 
     bool do_move_action(const ActionDTO& action_dto) {
-        if (!monitor_game.move(action_dto.direction))
-            return false;
+        monitor_game.move(action_dto.direction);
         for (auto* queue: send_queues) {
             queue->push({ActionType::MOVE, monitor_game.get_position()});
         }
