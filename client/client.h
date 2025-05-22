@@ -39,26 +39,23 @@ public:
         while (true) {
             try {
                 ActionDTO action = mock_handler.receive_and_parse_action();
-                if (action.type == ActionType::QUIT)
-                    break;
-                if (action.type == ActionType::UNKNOWN) {
-                    mock_handler.update_graphics(action);
-                    continue;
-                }
+                if (action.type == ActionType::QUIT || action.type == ActionType::UNKNOWN)
+                    break;  // Error o salir
                 to_server.push(action);
 
-                ActionDTO action_update = from_server.pop();  // TODO: Preguntar pop
 
-                if (action_update.type == ActionType::UNKNOWN)
-                    continue;
-                if (!mock_handler.update_graphics(action_update))
-                    break;
+                ActionDTO action_update;
+                while (from_server.try_pop(action_update)) {}  // Había dicho un while...
+                if (action_update.type == ActionType::UNKNOWN ||
+                    !mock_handler.update_graphics(action_update))
+                    break;  // Error
             } catch (...) {
                 break;
             }
         }
 
         // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
+        // Ahora sospecho que es por el try_pop
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
 

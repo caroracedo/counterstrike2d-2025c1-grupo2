@@ -18,17 +18,15 @@ private:
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
             case ActionType::MOVE:
-                return do_move_action(action_dto);
+                monitor_game.move(action_dto.direction);
+                break;
             default:
                 return false;
         }
-    }
-
-    bool do_move_action(const ActionDTO& action_dto) {
-        monitor_game.move(action_dto.direction);
-        for (auto* queue: send_queues) {
-            queue->push({ActionType::MOVE, monitor_game.get_position()});
-        }
+        // for (auto* queue: send_queues) {
+        //     // Acá debería mandar el estado del juego actualizado, sin importar el tipo de acción
+        //     queue->push({ActionType::UPDATE, monitor_game.get_objects_positions()});
+        // }
         return true;
     }
 
@@ -40,9 +38,8 @@ public:
 
         while (should_keep_running()) {
             ActionDTO action;
-            if (recv_queue.try_pop(action)) {
+            if (recv_queue.try_pop(action))
                 do_action(action);
-            }
         }
 
         acceptor.stop();

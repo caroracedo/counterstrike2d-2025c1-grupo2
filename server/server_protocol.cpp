@@ -7,32 +7,14 @@
 
 ServerProtocol::ServerProtocol(Socket& skt): skt(skt) {}
 
-/*
-*********************************** RECEPCIÓN DE DATOS **********************************
-** FORMATO: opcode (1 byte) + size (2 bytes - big-endian) + data (size bytes)          **
-**     - opcode: el código de operación que indica la acción a realizar                **
-**     - size: el tamaño del mensaje a enviar, en bytes                                **
-**     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
-**         - En caso de no haber datos a enviar, se envía solo el opcode y el tamaño 0 **
-*****************************************************************************************
-*/
 ActionDTO ServerProtocol::receive_and_deserialize_action() {
-    /*
-     * Recibe el opcode de la acción enviada por el cliente y el largo del mensaje
-     * y lo deserializa a un ActionDTO. Si no reconoce la acción,
-     * devuelve un ActionDTO vacío
-     */
+    // Esto se mantiene...
     uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size)) {
+    if (!skt_manager.receive_two_bytes(skt, size))
         return {};
-    }
     std::vector<uint8_t> data(size);
-    if (!skt_manager.receive_bytes(skt, data)) {
+    if (!skt_manager.receive_bytes(skt, data) || data.empty())
         return {};
-    }
-    if (data.empty()) {
-        return {};
-    }
 
     ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
@@ -43,25 +25,18 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
     }
 }
 
-/*
-************************************* ENVIO DE DATOS ************************************
-** FORMATO: size (2 bytes - big-endian) + data (size bytes)                            **
-**     - size: el tamaño del mensaje a enviar, en bytes                                **
-**     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
-*****************************************************************************************
-*/
-
-bool ServerProtocol::serialize_and_send_updated_position(ActionDTO action_dto) {
-    /*
-     * Envía al Client la posición actualizada del jugador
-     */
-
-    // vector con el opcode de la acción y la posicion
+bool ServerProtocol::serialize_and_send_updated_game(const ActionDTO& action_dto) {
+    // En el action_dto, me debería llegar un vector de objetos
+    // Si es así:
+    // if (action_dto.type != ActionType::UPDATE) {
+    //     return false;
+    // }
     std::vector<uint8_t> data;
-    data.push_back(static_cast<uint8_t>(action_dto.type));
-    for (uint16_t value: action_dto.position) {
-        data.push_back(static_cast<uint8_t>(value >> 8));    // byte alto
-        data.push_back(static_cast<uint8_t>(value & 0xFF));  // byte bajo
-    }
+    // for (uint16_t i = 0; i < action_dto.objects.size(); ++i) {
+    //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
+    //     data.push_back(int_to_hex_big_endian(action_dto.objects[i].position[0]));
+    //     data.push_back(int_to_hex_big_endian(action_dto.objects[i].position[1])); // Por el
+    //     momento 1x1
+    // }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

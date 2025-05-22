@@ -18,7 +18,7 @@ public:
     void run() override {
         while (should_keep_running()) {
             try {
-                protocol.serialize_and_send_updated_position(send_queue.pop());
+                protocol.serialize_and_send_updated_game(send_queue.pop());
             } catch (...) {
                 break;
             }

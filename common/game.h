@@ -3,16 +3,17 @@
 
 #define MAX_POSITION 65535
 
+#include <algorithm>
 #include <cstdint>
 #include <set>
 #include <utility>
 #include <vector>
-#include <algorithm>
 
 #include "action_DTO.h"
 #include "obstacle.h"
 
-class Game {
+class Game {  // Game sería (en este estado) un objeto (Jugador), deberíamos tener una clase Objeto
+              // tipo más formal? Porque ObjectDTO serviría para serializar y deserializar
 private:
     std::vector<uint16_t> position;
     std::vector<Obstacle> obstacles;
@@ -81,7 +82,6 @@ public:
         obstacles.push_back(Obstacle(10, 10, 3, 3));
         obstacles.push_back(Obstacle(15, 15, 4, 8));
     }
-
 };
 
 #endif  // GAME_H

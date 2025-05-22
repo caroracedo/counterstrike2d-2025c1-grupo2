@@ -1,10 +1,12 @@
 #ifndef INPUT_PARSER_H
 #define INPUT_PARSER_H
 
+#include <chrono>
 #include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include "../common/action_DTO.h"
 
@@ -58,6 +60,7 @@ public:
                       << static_cast<unsigned int>(action_update.position[1]) << ')' << std::endl;
             return true;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // Simular delay
         return false;
     }
 };
