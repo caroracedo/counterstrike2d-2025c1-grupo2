@@ -41,24 +41,23 @@ public:
                 ActionDTO action = mock_handler.receive_and_parse_action();
                 if (action.type == ActionType::QUIT)
                     break;
-                if (action.type == ActionType::UNKNOWN) {
-                    mock_handler.update_graphics(action);
-                    continue;
+                if (action.type != ActionType::UNKNOWN) {
+                    to_server.push(action);
                 }
-                to_server.push(action);
 
-                ActionDTO action_update = from_server.pop();  // TODO: Preguntar pop
+                ActionDTO action_update;
+                while (from_server.try_pop(action_update)) {}
 
-                if (action_update.type == ActionType::UNKNOWN)
-                    continue;
-                if (!mock_handler.update_graphics(action_update))
+                if (action_update.type == ActionType::UNKNOWN ||
+                    !mock_handler.update_graphics(action_update))
                     break;
+
+
             } catch (...) {
                 break;
             }
         }
 
-        // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
 

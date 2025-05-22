@@ -16,20 +16,23 @@ private:
     std::list<Queue<ActionDTO>*> send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
+        std::uint16_t id = 0;  // TODO: obtener el id del jugador que envió la acción
+        bool updated = false;
         switch (action_dto.type) {
             case ActionType::MOVE:
-                return do_move_action(action_dto);
+                // seria mas correcto hacer move_and_get_objects para evitar race con
+                updated = monitor_game.move(action_dto.direction, id);
+                break;
             default:
                 return false;
         }
-    }
-
-    bool do_move_action(const ActionDTO& action_dto) {
-        monitor_game.move(action_dto.direction);
-        for (auto* queue: send_queues) {
-            queue->push({ActionType::MOVE, monitor_game.get_position()});
+        if (updated) {
+            // Enviar la posición actualizada a todos los clientes
+            for (auto* queue: send_queues) {
+                queue->push({ActionType::UPDATE, monitor_game.get_objects()});
+            }
         }
-        return true;
+        return updated;
     }
 
 public:

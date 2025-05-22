@@ -20,15 +20,13 @@ private:
 
 public:
     /* Mover */
-    bool move(Direction direction) {
+    bool move(Direction direction, const uint16_t& id) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.move(direction);
+        return game.move(direction, id);
     }
-
-    /* Mover */
-    std::vector<uint16_t> get_position() {
+    std::vector<ObjectDTO> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.get_position();
+        return game.get_objects();
     }
 };
 

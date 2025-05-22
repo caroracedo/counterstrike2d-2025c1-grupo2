@@ -1,9 +1,11 @@
+#include <cmath>
 #include <iostream>
+
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
-#include <cmath>
 
 #include "../common/action_DTO.h"
+
 #include "input_handler.h"
 
 using namespace SDL2pp;
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]) {
         // Cargar recursos
         Surface cuerpo_surface("assets/gfx/player/ct1.bmp");
         Texture cuerpo(renderer, cuerpo_surface.SetColorKey(true, 0));
-        
+
         Surface piernas_surface("assets/gfx/player/legs.bmp");
         Texture piernas(renderer, piernas_surface);
 
@@ -50,12 +52,12 @@ int main(int argc, char* argv[]) {
 
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
-                if (event.type == SDL_QUIT || 
+                if (event.type == SDL_QUIT ||
                     (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
                     running = false;
                 }
             }
-            
+
             // Movimiento
             ActionDTO action_update = ih.receive_and_parse_action();
 
