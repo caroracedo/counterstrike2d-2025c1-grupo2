@@ -38,9 +38,9 @@ public:
         grid[new_player->position[0]][new_player->position[1]] = new_player;
     }
 
-    std::vector<ObjectDTO> move_object(int objectId, Direction dir) {
+    void move_object(int objectId, Direction dir) {
         if (id_players.find(objectId) == id_players.end())
-            return {};
+            return;
 
         ObjectDTO* obj = id_players[objectId];
         int x = obj->position[0];
@@ -61,32 +61,31 @@ public:
                 new_x++;
                 break;
             default:
-                return {};  // dirección inválida
+                return;  // dirección inválida
         }
 
         if (!is_valid(new_x, new_y))
-            return {};
+            return;
         if (grid[new_y][new_x] != nullptr)
-            return {};  // colisión
+            return;  // colisión
 
         // Mover
         grid[y][x] = nullptr;
         grid[new_y][new_x] = obj;
         obj->position[0] = new_x;
         obj->position[1] = new_y;
-        return get_objects();
     }
 
-    std::vector<ObjectDTO> get_objects() {
+    std::vector<ObjectDTO> get_snapshot() {
         std::vector<ObjectDTO> objects;
         for (const auto& [id, playerPtr]: id_players) {
             if (playerPtr != nullptr) {
-                objects.push_back(*playerPtr);  // <-- copiás el objeto, no el puntero
+                objects.push_back(*playerPtr);  // copia
             }
         }
         for (const auto& objPtr: other_objects) {
             if (objPtr != nullptr) {
-                objects.push_back(*objPtr);  // <-- copiás el objeto, no el puntero
+                objects.push_back(*objPtr);  // copia
             }
         }
         return objects;

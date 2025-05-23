@@ -26,22 +26,18 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
 
 ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
     uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size)) {
+    if (!skt_manager.receive_two_bytes(skt, size))
         return {};
-    }
     uint8_t type_code;
-    if (!skt_manager.receive_byte(skt, type_code)) {
+    if (!skt_manager.receive_byte(skt, type_code))
         return {};
-    }
     std::vector<uint8_t> data(size - 1);
-    if (!skt_manager.receive_bytes(skt, data) || data.empty()) {
+    if (!skt_manager.receive_bytes(skt, data) || data.empty())
         return {};
-    }
 
     ActionType type = static_cast<ActionType>(type_code);
-    if (type != ActionType::UPDATE) {
+    if (type != ActionType::UPDATE)
         return {};
-    }
     std::vector<ObjectDTO> objects = {};
     size_t i = 0;
     while (i < data.size()) {

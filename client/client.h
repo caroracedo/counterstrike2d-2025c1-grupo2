@@ -9,7 +9,9 @@
 #include "client_protocol.h"
 #include "client_receiver.h"
 #include "client_sender.h"
+#include "event_handler.h"
 #include "mock_handler.h"
+#include "update_handler.h"
 
 class Client {
 private:
@@ -33,28 +35,20 @@ public:
         sender.start();
         receiver.start();
 
+        // TODO: Capaz conviene no tenerlos como atributo, si solo se usan en esta función...
         MockHandler mock_handler;
+        std::atomic<bool> stop_flag = false;
+        EventHandler event_handler(to_server, mock_handler, stop_flag);
+        UpdateHandler update_handler(from_server, mock_handler, stop_flag);
 
-        while (true) {
-            try {
-                ActionDTO action = mock_handler.receive_and_parse_action();
-                if (action.type == ActionType::QUIT || action.type == ActionType::UNKNOWN)
-                    break;  // Error o salir
-                to_server.push(action);
+        // Cuando termina uno debería terminar todo...
+        event_handler.start();
+        update_handler.start();
 
+        event_handler.join();
+        update_handler.join();
 
-                ActionDTO action_update;
-                while (!from_server.try_pop(action_update)) {}
-                if (action_update.type == ActionType::UNKNOWN ||
-                    !mock_handler.update_graphics(action_update))
-                    break;  // Error
-            } catch (...) {
-                break;
-            }
-        }
-
-        // TODO: Raro tener que cerrar antes (en server no pasa)
-        client_socket.shutdown(2);  // Cierra lectura y escritura
+        client_socket.shutdown(2);
         client_socket.close();
 
         sender.stop();

@@ -22,9 +22,15 @@ public:
     MonitorGame(int width, int height): game(width, height) {}
 
     /* Mover */
-    std::vector<ObjectDTO> move_object(int id, Direction direction) {
+    void move_object(int id, Direction direction) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.move_object(id, direction);
+        game.move_object(id, direction);
+    }
+
+    /* Snapshot */
+    std::vector<ObjectDTO> get_snapshot() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.get_snapshot();
     }
 
     /* Agregar objeto */
