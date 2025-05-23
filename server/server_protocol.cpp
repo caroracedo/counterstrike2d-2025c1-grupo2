@@ -5,10 +5,9 @@
 #include <utility>
 #include <vector>
 
-ServerProtocol::ServerProtocol(Socket& skt): skt(skt) {}
+ServerProtocol::ServerProtocol(Socket& skt, int id): skt(skt), id(id) {}
 
 ActionDTO ServerProtocol::receive_and_deserialize_action() {
-    // Esto se mantiene...
     uint16_t size;
     if (!skt_manager.receive_two_bytes(skt, size))
         return {};
@@ -19,24 +18,22 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
     ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
         case ActionType::MOVE:
-            return {type, static_cast<Direction>(data[1])};
+            return {type, id, static_cast<Direction>(data[1])};  // Agrega el id del jugador...
         default:
             return {};
     }
 }
 
 bool ServerProtocol::serialize_and_send_updated_game(const ActionDTO& action_dto) {
-    // En el action_dto, me debería llegar un vector de objetos
-    // Si es así:
-    // if (action_dto.type != ActionType::UPDATE) {
-    //     return false;
-    // }
-    std::vector<uint8_t> data;
-    // for (uint16_t i = 0; i < action_dto.objects.size(); ++i) {
-    //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
-    //     data.push_back(int_to_hex_big_endian(action_dto.objects[i].position[0]));
-    //     data.push_back(int_to_hex_big_endian(action_dto.objects[i].position[1])); // Por el
-    //     momento 1x1
-    // }
+    if (action_dto.type != ActionType::UPDATE)
+        return false;
+
+    std::vector<uint8_t> data = {static_cast<uint8_t>(ActionType::UPDATE)};
+    for (uint16_t i = 0; i < action_dto.objects.size(); ++i) {
+        data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
+        push_hexa_to(int_to_hex_big_endian(action_dto.objects[i].position[0]), data);
+        push_hexa_to(int_to_hex_big_endian(action_dto.objects[i].position[1]), data);
+        data.push_back(static_cast<uint8_t>(action_dto.objects[i].id));
+    }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

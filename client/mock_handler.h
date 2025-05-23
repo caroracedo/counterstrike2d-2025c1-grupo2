@@ -30,7 +30,7 @@ public:
             return {};
 
         if (action_input == QUIT_INPUT) {
-            return {ActionType::QUIT};
+            return ActionDTO{ActionType::QUIT};  // No me dejaba compilar...
         }
 
         if (action_input == MOVE_INPUT) {
@@ -55,12 +55,17 @@ public:
     }
 
     bool update_graphics(const ActionDTO& action_update) {
-        if (action_update.type == ActionType::MOVE) {
-            std::cout << '(' << static_cast<unsigned int>(action_update.position[0]) << ','
-                      << static_cast<unsigned int>(action_update.position[1]) << ')' << std::endl;
+        if (action_update.type == ActionType::UPDATE) {
+            for (const auto& object: action_update.objects) {
+                if (object.type == ObjectType::PLAYER) {
+                    std::cout << "🧍" << '(' << static_cast<unsigned int>(object.position[0])
+                              << ',' << static_cast<unsigned int>(object.position[1]) << ')'
+                              << std::endl;
+                }
+            }
+            // TODO: Habría que simular delay...
             return true;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // Simular delay
         return false;
     }
 };

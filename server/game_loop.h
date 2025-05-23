@@ -8,6 +8,8 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
+#define MAX_POSITION 50
+
 class GameLoop: public Thread {
 private:
     MonitorGame monitor_game;
@@ -16,22 +18,25 @@ private:
     std::list<Queue<ActionDTO>*> send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
+        std::vector<ObjectDTO> game_update;
         switch (action_dto.type) {
             case ActionType::MOVE:
-                monitor_game.move(action_dto.direction);
+                game_update = monitor_game.move_object(action_dto.id, action_dto.direction);
+                for (auto* queue: send_queues) {
+                    queue->push({ActionType::UPDATE,
+                                 game_update});  // TODO: Mandar siempre el game_update?
+                }
                 break;
             default:
                 return false;
         }
-        // for (auto* queue: send_queues) {
-        //     // Acá debería mandar el estado del juego actualizado, sin importar el tipo de acción
-        //     queue->push({ActionType::UPDATE, monitor_game.get_objects_positions()});
-        // }
         return true;
     }
 
 public:
-    explicit GameLoop(const char* port): acceptor(port, recv_queue, send_queues) {}
+    explicit GameLoop(const char* port):
+            monitor_game(MAX_POSITION, MAX_POSITION),
+            acceptor(port, recv_queue, send_queues, monitor_game) {}
 
     void run() override {
         acceptor.start();

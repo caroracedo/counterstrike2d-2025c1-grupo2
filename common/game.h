@@ -1,86 +1,77 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MAX_POSITION 65535
-
-#include <algorithm>
-#include <cstdint>
-#include <set>
-#include <utility>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
-#include "action_DTO.h"
-#include "obstacle.h"
+#include "object_DTO.h"
 
-class Game {  // Game sería (en este estado) un objeto (Jugador), deberíamos tener una clase Objeto
-              // tipo más formal? Porque ObjectDTO serviría para serializar y deserializar
+class Game {  // Una implementación simple para testear
 private:
-    std::vector<uint16_t> position;
-    std::vector<Obstacle> obstacles;
+    std::vector<std::vector<ObjectDTO*>> grid;
+    std::unordered_map<int, ObjectDTO*> id_players;
+
+    bool is_valid(int x, int y) {
+        return y >= 0 && y < (int)grid.size() && x >= 0 && x < (int)grid[0].size();
+    }
 
 public:
-    /*
-     * Constructor.
-     **/
-    Game(): position(2, 0), obstacles() { initialize_obstacles(); }
+    Game(int width, int height) { grid.resize(height, std::vector<ObjectDTO*>(width, nullptr)); }
 
-    /* Mover */
-    bool move(Direction direction) {
-        std::vector<uint16_t> new_position = position;
-        switch (direction) {
+    void add_player(int id) {
+        ObjectDTO* new_player = new ObjectDTO(ObjectType::PLAYER, {0, 0}, id);
+        id_players[id] = new_player;
+        grid[new_player->position[0]][new_player->position[1]] = new_player;
+    }
+
+    std::vector<ObjectDTO> move_object(int objectId, Direction dir) {
+        if (id_players.find(objectId) == id_players.end())
+            return {};
+
+        ObjectDTO* obj = id_players[objectId];
+        int x = obj->position[0];
+        int y = obj->position[1];
+        int new_x = x, new_y = y;
+
+        switch (dir) {
             case Direction::UP:
-                if (position[1] == 0) {
-                    return false;  // No se puede mover hacia arriba
-                }
-                new_position[1] -= 1;
+                new_y--;
                 break;
             case Direction::DOWN:
-                if (position[1] == MAX_POSITION) {
-                    return false;  // No se puede mover hacia abajo
-                }
-                new_position[1] += 1;
+                new_y++;
                 break;
             case Direction::LEFT:
-                if (position[0] == 0) {
-                    return false;  // No se puede mover hacia la izquierda
-                }
-                new_position[0] -= 1;
+                new_x--;
                 break;
             case Direction::RIGHT:
-                if (position[0] == MAX_POSITION) {
-                    return false;  // No se puede mover hacia la derecha
-                }
-                new_position[0] += 1;
+                new_x++;
                 break;
             default:
-                return false;
-        }
-        if (no_collisions(new_position)) {
-            position = new_position;
-            return true;
+                return {};  // dirección inválida
         }
 
-        return false;
+        if (!is_valid(new_x, new_y))
+            return {};
+        if (grid[new_y][new_x] != nullptr)
+            return {};  // colisión
+
+        // Mover
+        grid[y][x] = nullptr;
+        grid[new_y][new_x] = obj;
+        obj->position[0] = new_x;
+        obj->position[1] = new_y;
+        return get_objects();
     }
 
-    /* Getters */
-    std::vector<uint16_t> get_position() const { return position; }
-
-    bool no_collisions(std::vector<uint16_t> new_position) {
-        // Asumimos que el jugador tiene dimensiones 1x1 por el momento
-        // Verificamos si la nueva posición colisiona con algún obstáculo
-        return !std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& obstacle) {
-            return new_position[0] >= obstacle.x && new_position[0] < obstacle.x + obstacle.width &&
-                   new_position[1] >= obstacle.y && new_position[1] < obstacle.y + obstacle.height;
-        });
-    }
-
-    void initialize_obstacles() {
-        // Inicializamos algunos obstáculos de ejemplo
-        obstacles.push_back(Obstacle(1, 1));
-        obstacles.push_back(Obstacle(5, 5, 1, 2));
-        obstacles.push_back(Obstacle(10, 10, 3, 3));
-        obstacles.push_back(Obstacle(15, 15, 4, 8));
+    std::vector<ObjectDTO> get_objects() {
+        std::vector<ObjectDTO> objects;
+        for (const auto& [id, playerPtr]: id_players) {
+            if (playerPtr != nullptr) {
+                objects.push_back(*playerPtr);  // <-- copiás el objeto, no el puntero
+            }
+        }
+        return objects;
     }
 };
 

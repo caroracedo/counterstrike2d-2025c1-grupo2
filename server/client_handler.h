@@ -17,13 +17,16 @@ private:
     ServerProtocol protocol;
     ServerSender sender;
     ServerReceiver receiver;
+    int id;
 
 public:
-    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue):
+    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue,
+                  int id):
             client_socket(std::move(socket)),
-            protocol(this->client_socket),
+            protocol(this->client_socket, id),
             sender(protocol, send_queue),
-            receiver(protocol, recv_queue) {}
+            receiver(protocol, recv_queue),
+            id(id) {}
 
     void run() override {
         sender.start();

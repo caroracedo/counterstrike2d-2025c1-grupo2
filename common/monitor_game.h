@@ -19,16 +19,18 @@ private:
     std::mutex mutex;
 
 public:
-    /* Mover */
-    bool move(Direction direction) {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.move(direction);
-    }
+    MonitorGame(int width, int height): game(width, height) {}
 
     /* Mover */
-    std::vector<uint16_t> get_position() {
+    std::vector<ObjectDTO> move_object(int id, Direction direction) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.get_position();
+        return game.move_object(id, direction);
+    }
+
+    /* Agregar objeto */
+    void add_player(int id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.add_player(id);
     }
 };
 

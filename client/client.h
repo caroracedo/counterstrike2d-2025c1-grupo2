@@ -35,7 +35,6 @@ public:
 
         MockHandler mock_handler;
 
-        // LoopClient
         while (true) {
             try {
                 ActionDTO action = mock_handler.receive_and_parse_action();
@@ -45,7 +44,7 @@ public:
 
 
                 ActionDTO action_update;
-                while (from_server.try_pop(action_update)) {}  // Había dicho un while...
+                while (!from_server.try_pop(action_update)) {}
                 if (action_update.type == ActionType::UNKNOWN ||
                     !mock_handler.update_graphics(action_update))
                     break;  // Error
@@ -54,8 +53,7 @@ public:
             }
         }
 
-        // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
-        // Ahora sospecho que es por el try_pop
+        // TODO: Raro tener que cerrar antes (en server no pasa)
         client_socket.shutdown(2);  // Cierra lectura y escritura
         client_socket.close();
 

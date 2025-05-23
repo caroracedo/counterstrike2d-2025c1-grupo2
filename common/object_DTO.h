@@ -4,11 +4,16 @@
 #include <cstdint>
 #include <vector>
 
-enum class ObjectType : uint8_t { PLAYER, BULLET, WALL, ITEM };
+enum class ObjectType : uint8_t { PLAYER, BULLET, OBSTACLE, ITEM };
 
 struct ObjectDTO {
     ObjectType type;
-    std::vector<uint16_t> position;
+    std::vector<int> position;
+    int id;
+
+    // Para el jugador por ahora... (por id)
+    ObjectDTO(ObjectType type, const std::vector<int>& position, int id):
+            type(type), position(position), id(id) {}
 };
 
 #endif  // OBJECT_DTO_H
