@@ -2,10 +2,10 @@
 #define GAME_H
 
 #define MATRIX_SIZE 100  // posición máxima en la matriz
-#define MOVE_STEP 1      // paso de movimiento
-#define CELL_SIZE 1      // tamaño de cada celda en la matriz
-#define PLAYER_SIZE 2    // tamaño del jugador
-#define BULLET_SIZE 1    // tamaño de la bala
+#define MOVE_STEP 5      // paso de movimiento
+#define CELL_SIZE 56     // tamaño de cada celda en la matriz
+#define PLAYER_SIZE 32   // tamaño del jugador
+#define BULLET_SIZE 8    // tamaño de la bala
 
 #include <algorithm>
 #include <cstdint>
@@ -21,180 +21,199 @@ class Game {
 private:
     std::vector<std::vector<std::vector<ObjectDTO>>> matrix;
     std::vector<ObjectDTO> objects;
+    enum class CollisionType { NONE, BULLET, OTHER };
 
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position) {
         return {position[0] / CELL_SIZE, position[1] / CELL_SIZE};
     }
 
+    std::vector<std::pair<uint16_t, uint16_t>> get_cells_within_radius(
+            const std::pair<uint16_t, uint16_t>& cell, uint16_t radius = 2) {
+        /*
+         *    Obtiene las celdas adyacentes a la celda dada dentro de un radio especificado.
+         */
+
+        std::vector<std::pair<uint16_t, uint16_t>> cells;
+        for (int dx = -static_cast<int>(radius); dx <= static_cast<int>(radius); ++dx) {
+            for (int dy = -static_cast<int>(radius); dy <= static_cast<int>(radius); ++dy) {
+                int nx = static_cast<int>(cell.first) + dx;
+                int ny = static_cast<int>(cell.second) + dy;
+                if (nx >= 0 && nx < MATRIX_SIZE && ny >= 0 && ny < MATRIX_SIZE) {
+                    cells.emplace_back(static_cast<uint16_t>(nx), static_cast<uint16_t>(ny));
+                }
+            }
+        }
+        return cells;
+    }
+
     std::set<ObjectDTO> get_adyacent_objects(const std::pair<uint16_t, uint16_t>& cell) {
         /*
-            TODO: mucho código repetido, ver si se puede refactorizar
-        */
+         *    Obtiene los objetos en las celdas adyacentes a la celda dada
+         */
+
+        // Vector con todas las celdas adyacentes y las adyacentes a estas
+        std::vector<std::pair<uint16_t, uint16_t>> adyacent_cells = get_cells_within_radius(cell);
 
         std::set<ObjectDTO> objects_set;
-        // agrego al set los objetos de la celda actual
-        auto& const cell_objects = matrix[cell.first][cell.second];
-        for (const auto& obj: cell_objects) {
-            objects_set.insert(obj);
-        }
-        // Agrego a objects_set los objetos en la celdas adyacentes
-        // celda de arriba
-        if (cell.first > 0) {
-            auto& cell_objects_up = matrix[cell.first - 1][cell.second];
-            objects_set.insert(cell_objects_up.begin(), cell_objects_up.end());
-        }
-        // celda de abajo
-        if (cell.first < MATRIX_SIZE - 1) {
-            auto& cell_objects_down = matrix[cell.first + 1][cell.second];
-            objects_set.insert(cell_objects_down.begin(), cell_objects_down.end());
-        }
-        // celda de izquierda
-        if (cell.second > 0) {
-            auto& cell_objects_left = matrix[cell.first][cell.second - 1];
-            objects_set.insert(cell_objects_left.begin(), cell_objects_left.end());
-        }
-        // celda de derecha
-        if (cell.second < MATRIX_SIZE - 1) {
-            auto& cell_objects_right = matrix[cell.first][cell.second + 1];
-            objects_set.insert(cell_objects_right.begin(), cell_objects_right.end());
-        }
-        // celda diagonal superior izquierda
-        if (cell.first > 0 && cell.second > 0) {
-            auto& cell_objects_diag_up_left = matrix[cell.first - 1][cell.second - 1];
-            objects_set.insert(cell_objects_diag_up_left.begin(), cell_objects_diag_up_left.end());
-        }
-        // celda diagonal superior derecha
-        if (cell.first > 0 && cell.second < MATRIX_SIZE - 1) {
-            auto& cell_objects_diag_up_right = matrix[cell.first - 1][cell.second + 1];
-            objects_set.insert(cell_objects_diag_up_right.begin(),
-                               cell_objects_diag_up_right.end());
-        }
-        // celda diagonal inferior izquierda
-        if (cell.first < MATRIX_SIZE - 1 && cell.second > 0) {
-            auto& cell_objects_diag_down_left = matrix[cell.first + 1][cell.second - 1];
-            objects_set.insert(cell_objects_diag_down_left.begin(),
-                               cell_objects_diag_down_left.end());
-        }
-        // celda diagonal inferior derecha
-        if (cell.first < MATRIX_SIZE - 1 && cell.second < MATRIX_SIZE - 1) {
-            auto& cell_objects_diag_down_right = matrix[cell.first + 1][cell.second + 1];
-            objects_set.insert(cell_objects_diag_down_right.begin(),
-                               cell_objects_diag_down_right.end());
+        // Recorro las celdas adyacentes
+        for (const auto& adyacent_cell: adyacent_cells) {
+            // Recorro los objetos de la celda adyacente
+            auto& const cell_objects = matrix[adyacent_cell.first][adyacent_cell.second];
+            for (const auto& obj: cell_objects) {
+                objects_set.insert(obj);
+            }
         }
 
         return objects_set;
     }
 
-    std::pair<bool, std::vector<uint16_t>> _move(Direction direction,
-                                                 std::vector<uint16_t> position, uint16_t size,
-                                                 uint16_t delta) {
+    std::vector<uint16_t> calculate_new_position(const std::vector<uint16_t>& position,
+                                                 Direction direction, uint16_t delta,
+                                                 uint16_t max_position) {
+        /*
+         *    Calcula la nueva posición del objeto en función de la dirección y el delta.
+         *    Si la nueva posición excede el tamaño máximo, se ajusta a la posición máxima.
+         *    Devuelve la nueva posición.
+         */
+
         std::vector<uint16_t> new_position = position;
-        uint16_t MAX_POSITION = MATRIX_SIZE * CELL_SIZE - size;
         switch (direction) {
             case Direction::UP:
-                if (position[1] == 0) {
-                    return {false, position};  // No se puede mover hacia arriba
-                }
-                uint32_t temp = (position[1] > delta) ? position[1] - delta : 0;
-                new_position[1] = static_cast<uint16_t>(temp);
+                new_position[1] = (position[1] > delta) ? position[1] - delta : 0;
                 break;
             case Direction::DOWN:
-                if (position[1] == MAX_POSITION) {
-                    return {false, position};  // No se puede mover hacia abajo
-                }
-                uint32_t temp = static_cast<uint32_t>(position[1]) + delta;
                 new_position[1] =
-                        (temp > MAX_POSITION) ? MAX_POSITION : static_cast<uint16_t>(temp);
+                        (position[1] + delta > max_position) ? max_position : position[1] + delta;
                 break;
             case Direction::LEFT:
-                if (position[0] == 0) {
-                    return {false, position};  // No se puede mover hacia la izquierda
-                }
-                uint32_t temp = (position[0] > delta) ? position[0] - delta : 0;
-                new_position[0] = static_cast<uint16_t>(temp);
+                new_position[0] = (position[0] > delta) ? position[0] - delta : 0;
                 break;
             case Direction::RIGHT:
-                if (position[0] == MAX_POSITION) {
-                    return {false, position};  // No se puede mover hacia la derecha
-                }
-                uint32_t temp = static_cast<uint32_t>(position[0]) + delta;
                 new_position[0] =
-                        (temp > MAX_POSITION) ? MAX_POSITION : static_cast<uint16_t>(temp);
+                        (position[0] + delta > max_position) ? max_position : position[0] + delta;
                 break;
             default:
-                return {false, position};
+                break;
+        }
+        return new_position;
+    }
+
+    std::pair<bool, std::vector<uint16_t>> _move(const uint16_t& id, Direction direction,
+                                                 std::vector<uint16_t> position, uint16_t size,
+                                                 uint16_t delta) {
+        /*
+         *    Realiza el movimiento del objeto en la dirección especificada.
+         *    Devuelve un par que indica si el movimiento fue exitoso y la nueva posición.
+         */
+
+        uint16_t MAX_POSITION = MATRIX_SIZE * CELL_SIZE - size;
+        std::vector<uint16_t> new_position =
+                calculate_new_position(position, direction, delta, MAX_POSITION);
+        if (new_position == position) {
+            return {false, position};  // No se movió
         }
 
         // Obtenemos la posición máxima que se puede mover sin colisionar
-        std::vector<uint16_t> max_position = get_max_position(position, new_position, size);
+        std::vector<uint16_t> max_position = get_max_position(id, position, new_position, size);
 
         return {max_position == position, max_position};
     }
 
-    std::vector<uint16_t> get_max_position(const std::vector<uint16_t>& old_position,
+    std::vector<uint16_t> get_max_position(const uint16_t& id,
+                                           const std::vector<uint16_t>& old_position,
                                            const std::vector<uint16_t>& new_position,
                                            const uint16_t& size) {
+        /*
+         *    Determina la posición máxima a la que se puede mover el objeto sin colisionar.
+         */
         std::vector<uint16_t> max_position = old_position;
         auto cell = get_cell_from_position(new_position);
         std::set<ObjectDTO> ady_objects = get_adyacent_objects(cell);
 
-        // Por cada posición entre la posición vieja y la nueva, verifico si hay objetos que
-        // colisionen
+        // Determinar dirección de movimiento
+        int dx = (new_position[0] > old_position[0]) ? 1 :
+                 (new_position[0] < old_position[0]) ? -1 :
+                                                       0;
+        int dy = (new_position[1] > old_position[1]) ? 1 :
+                 (new_position[1] < old_position[1]) ? -1 :
+                                                       0;
 
-        // Movimiento hacia arriba
-        for (uint16_t j = old_position[1]; j >= new_position[1]; --j) {
-            std::vector<uint16_t> test_position = {old_position[0], j};
-            if (collides(test_position, ady_objects, size)) {
-                break;
-            } else {
-                max_position = test_position;
-            }
-        }
+        // Solo se mueve en una dirección a la vez (asumido por el diseño)
+        uint16_t x = old_position[0];
+        uint16_t y = old_position[1];
 
-        // Movimiento hacia abajo
-        for (uint16_t j = old_position[1]; j <= new_position[1]; ++j) {
-            std::vector<uint16_t> test_position = {old_position[0], j};
-            if (collides(test_position, ady_objects, size)) {
+        while (x != new_position[0] || y != new_position[1]) {
+            uint16_t next_x = x + dx;
+            uint16_t next_y = y + dy;
+            std::vector<uint16_t> test_position = {next_x, next_y};
+            CollisionType collision = collides(test_position, ady_objects, size, id);
+            if (collision != CollisionType::NONE) {
+                // Si colisiona con una bala, permitimos estar en esa posición pero no avanzar más
+                if (collision == CollisionType::BULLET) {
+                    max_position = test_position;
+                }
                 break;
-            } else {
-                max_position = test_position;
             }
-        }
-
-        // Movimiento hacia la izquierda
-        for (uint16_t i = old_position[0]; i >= new_position[0]; --i) {
-            std::vector<uint16_t> test_position = {i, max_position[1]};
-            if (collides(test_position, ady_objects, size)) {
-                break;
-            } else {
-                max_position = test_position;
-            }
-        }
-
-        // Movimiento hacia la derecha
-        for (uint16_t i = old_position[0]; i <= new_position[0]; ++i) {
-            std::vector<uint16_t> test_position = {i, max_position[1]};
-            if (collides(test_position, ady_objects, size)) {
-                break;
-            } else {
-                max_position = test_position;
-            }
+            max_position = test_position;
+            x = next_x;
+            y = next_y;
         }
 
         return max_position;
     }
 
-    bool collides(std::vector<uint16_t> new_position, const std::set<ObjectDTO>& objects,
-                  const uint16_t& size) {
-        // Devuelve true si algún objeto colisiona con la nueva posición
-        return std::any_of(objects.begin(), objects.end(), [&](const ObjectDTO& obj) {
-            return new_position[0] < obj.position[0] + obj.width &&
-                   new_position[0] + size > obj.position[0] &&
-                   new_position[1] < obj.position[1] + obj.height &&
-                   new_position[1] + size > obj.position[1];
-        });
+    CollisionType collides(const std::vector<uint16_t>& new_position,
+                           const std::set<ObjectDTO>& objects, uint16_t size, uint16_t id) {
+        /*
+         *    Verifica si hay colisiones con otros objetos en la nueva posición.
+         *    Devuelve el tipo de colisión (BULLET, OTHER o NONE).
+         */
+
+        for (const auto& obj: objects) {
+            if (id == obj.id)
+                continue;  // No colisionar con uno mismo
+            bool overlap = new_position[0] < obj.position[0] + obj.width &&
+                           new_position[0] + size > obj.position[0] &&
+                           new_position[1] < obj.position[1] + obj.height &&
+                           new_position[1] + size > obj.position[1];
+            if (overlap) {
+                if (obj.type == ObjectType::BULLET)
+                    return CollisionType::BULLET;
+                else
+                    return CollisionType::OTHER;
+            }
+        }
+        return CollisionType::NONE;
     }
 
+
+    void update_object_in_matrix(const ObjectDTO& obj, const std::vector<uint16_t>& old_position) {
+        /*
+         *    Actualiza la posición del objeto en la matriz.
+         *    Elimina el objeto de la celda anterior y lo agrega a la nueva celda.
+         */
+
+        auto old_cell = get_cell_from_position(old_position);
+        auto new_cell = get_cell_from_position(obj.position);
+
+        // Quitar de la celda anterior
+        auto& old_vec = matrix[old_cell.first][old_cell.second];
+        old_vec.erase(std::remove_if(old_vec.begin(), old_vec.end(),
+                                     [id = obj.id](const ObjectDTO& o) { return o.id == id; }),
+                      old_vec.end());
+
+        // Chequear colisión en la nueva celda
+        CollisionType collision =
+                collides(obj.position, get_adyacent_objects(new_cell), obj.width, obj.id);
+
+        if (collision == CollisionType::BULLET) {
+            // No se agrega a la nueva celda: el objeto "desaparece" del mapa
+            return;
+        }
+
+        // Si no colisiona con bala, agregar a la nueva celda
+        matrix[new_cell.first][new_cell.second].push_back(obj);
+    }
 
 public:
     /*
@@ -207,28 +226,22 @@ public:
                            MATRIX_SIZE, std::vector<ObjectDTO>(MATRIX_SIZE, ObjectDTO()))) {}
 
     bool move(Direction direction, const uint16_t& id) {
-        // TODO: verificar que el id corresponda a un jugador y no a una bala u obstáculo
+        /*
+         *    Realiza el movimiento del jugador con el id especificado en la dirección dada.
+         */
 
-        auto it = std::find_if(objects.begin(), objects.end(),
-                               [id](const ObjectDTO& obj) { return obj.id == id; });
+        auto it = std::find_if(objects.begin(), objects.end(), [id](const ObjectDTO& obj) {
+            return obj.type == ObjectType::PLAYER && obj.id == id;
+        });
         if (it != objects.end()) {
             std::vector<uint16_t> old_position = it->position;
-            auto move_result = _move(direction, it->position, PLAYER_SIZE, MOVE_STEP);
+            auto move_result = _move(id, direction, it->position, PLAYER_SIZE, MOVE_STEP);
             if (move_result.first) {
-                // Quitar el objeto de la celda anterior
-                auto& old_cell = matrix[old_position[0]][old_position[1]];
-                old_cell.erase(std::remove_if(old_cell.begin(), old_cell.end(),
-                                              [id](const ObjectDTO& obj) { return obj.id == id; }),
-                               old_cell.end());
-
                 // Actualizar la posición del objeto
                 it->position = move_result.second;
 
-                // Calcular la nueva celda
-                auto new_cell = get_cell_from_position(it->position);
-
-                // Agregar el objeto a la nueva celda
-                matrix[new_cell.first][new_cell.second].push_back(*it);
+                // Actualizar la posición del objeto en la matriz
+                update_object_in_matrix(*it, old_position);
 
                 return true;
             }

@@ -12,6 +12,18 @@ struct ObjectDTO {
     std::uint16_t width;
     std::uint16_t height;
     uint16_t id;
+
+    bool operator<(const ObjectDTO& other) const {
+        if (id != other.id)
+            return id < other.id;
+        if (type != other.type)
+            return type < other.type;
+        if (position != other.position)
+            return position < other.position;
+        if (width != other.width)
+            return width < other.width;
+        return height < other.height;
+    }
 };
 
 #endif  // OBJECT_DTO_H
