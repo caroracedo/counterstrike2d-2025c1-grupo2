@@ -187,7 +187,7 @@ private:
     }
 
 
-    void update_object_in_matrix(const ObjectDTO& obj, const std::vector<uint16_t>& old_position) {
+    bool update_object_in_matrix(const ObjectDTO& obj, const std::vector<uint16_t>& old_position) {
         /*
          *    Actualiza la posición del objeto en la matriz.
          *    Elimina el objeto de la celda anterior y lo agrega a la nueva celda.
@@ -208,11 +208,27 @@ private:
 
         if (collision == CollisionType::BULLET) {
             // No se agrega a la nueva celda: el objeto "desaparece" del mapa
-            return;
+            return false;
         }
 
         // Si no colisiona con bala, agregar a la nueva celda
         matrix[new_cell.first][new_cell.second].push_back(obj);
+        return true;
+    }
+
+    void reap() {
+        objects.erase(std::remove_if(objects.begin(), objects.end(),
+                                     [this](const ObjectDTO& obj) {
+                                         auto cell = get_cell_from_position(obj.position);
+                                         const auto& cell_vec = matrix[cell.first][cell.second];
+                                         // Busca si el objeto está en la celda correspondiente de
+                                         // la matriz
+                                         return std::none_of(cell_vec.begin(), cell_vec.end(),
+                                                             [&obj](const ObjectDTO& o) {
+                                                                 return o.id == obj.id;
+                                                             });
+                                     }),
+                      objects.end());
     }
 
 public:
@@ -230,6 +246,9 @@ public:
          *    Realiza el movimiento del jugador con el id especificado en la dirección dada.
          */
 
+        // Recolectar objetos que no están en la matriz
+        reap();
+
         auto it = std::find_if(objects.begin(), objects.end(), [id](const ObjectDTO& obj) {
             return obj.type == ObjectType::PLAYER && obj.id == id;
         });
@@ -240,16 +259,18 @@ public:
                 // Actualizar la posición del objeto
                 it->position = move_result.second;
 
-                // Actualizar la posición del objeto en la matriz
-                update_object_in_matrix(*it, old_position);
-
-                return true;
+                // Actualizar la posición del objeto en la matriz -> si no lo puede actualizar
+                // es porque el objeto "murió" (colisionó con una bala)
+                return update_object_in_matrix(*it, old_position);
             }
         }
         return false;
     }
 
-    std::vector<ObjectDTO>& get_objects() { return objects; }
+    std::vector<ObjectDTO>& get_objects() {
+        reap();
+        return objects;
+    }
 };
 
 #endif  // GAME_H
