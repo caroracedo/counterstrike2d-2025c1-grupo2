@@ -11,13 +11,26 @@ class Game {  // Una implementación simple para testear
 private:
     std::vector<std::vector<ObjectDTO*>> grid;
     std::unordered_map<int, ObjectDTO*> id_players;
+    std::unordered_set<ObjectDTO*> other_objects;
 
     bool is_valid(int x, int y) {
         return y >= 0 && y < (int)grid.size() && x >= 0 && x < (int)grid[0].size();
     }
 
+    void add_obstacles() {
+        // Obstáculos recontra hardcodeados mal en diagonal
+        for (int i = 1; i < 5; ++i) {
+            ObjectDTO* new_obstacle = new ObjectDTO(ObjectType::OBSTACLE, {i, i});
+            other_objects.insert(new_obstacle);
+            grid[new_obstacle->position[0]][new_obstacle->position[1]] = new_obstacle;
+        }
+    }
+
 public:
-    Game(int width, int height) { grid.resize(height, std::vector<ObjectDTO*>(width, nullptr)); }
+    Game(int width, int height) {
+        grid.resize(height, std::vector<ObjectDTO*>(width, nullptr));
+        add_obstacles();
+    }
 
     void add_player(int id) {
         ObjectDTO* new_player = new ObjectDTO(ObjectType::PLAYER, {0, 0}, id);
@@ -69,6 +82,11 @@ public:
         for (const auto& [id, playerPtr]: id_players) {
             if (playerPtr != nullptr) {
                 objects.push_back(*playerPtr);  // <-- copiás el objeto, no el puntero
+            }
+        }
+        for (const auto& objPtr: other_objects) {
+            if (objPtr != nullptr) {
+                objects.push_back(*objPtr);  // <-- copiás el objeto, no el puntero
             }
         }
         return objects;

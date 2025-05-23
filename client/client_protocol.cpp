@@ -43,12 +43,22 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
         return {};
     }
     std::vector<ObjectDTO> objects = {};
-    for (size_t i = 0; i + 5 < data.size(); i += 6) {
+    size_t i = 0;
+    while (i < data.size()) {
+        ObjectType object_type = static_cast<ObjectType>(data[i]);
         std::vector<uint8_t> x(data.begin() + i + 1, data.begin() + i + 3);
         std::vector<uint8_t> y(data.begin() + i + 3, data.begin() + i + 5);
-        objects.push_back({static_cast<ObjectType>(data[i]),
-                           {hex_big_endian_to_int(x), hex_big_endian_to_int(y)},
-                           static_cast<int>(data[i + 5])});
+        std::vector<int> position = {hex_big_endian_to_int(x), hex_big_endian_to_int(y)};
+
+        // Esto es por el ID de los jugadores
+        if (object_type == ObjectType::PLAYER) {
+            int id = static_cast<int>(data[i + 5]);
+            objects.push_back({object_type, position, id});
+            i += 6;
+        } else {
+            objects.push_back({object_type, position});
+            i += 5;
+        }
     }
     return {ActionType::UPDATE, objects};
 }

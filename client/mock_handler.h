@@ -62,6 +62,10 @@ public:
                               << ',' << static_cast<unsigned int>(object.position[1]) << ')'
                               << std::endl;
                 }
+                if (object.type == ObjectType::OBSTACLE) {
+                    std::cout << "🗿" << '(' << static_cast<unsigned int>(object.position[0]) << ','
+                              << static_cast<unsigned int>(object.position[1]) << ')' << std::endl;
+                }
             }
             // TODO: Habría que simular delay...
             return true;
