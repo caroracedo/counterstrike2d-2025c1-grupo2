@@ -24,7 +24,13 @@ private:
     enum class CollisionType { NONE, BULLET, OTHER };
 
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position) {
-        return {position[0] / CELL_SIZE, position[1] / CELL_SIZE};
+        uint16_t x = position[0] / CELL_SIZE;
+        uint16_t y = position[1] / CELL_SIZE;
+        if (x >= MATRIX_SIZE)
+            x = MATRIX_SIZE - 1;
+        if (y >= MATRIX_SIZE)
+            y = MATRIX_SIZE - 1;
+        return {x, y};
     }
 
     std::vector<std::pair<uint16_t, uint16_t>> get_cells_within_radius(
@@ -58,7 +64,8 @@ private:
         // Recorro las celdas adyacentes
         for (const auto& adyacent_cell: adyacent_cells) {
             // Recorro los objetos de la celda adyacente
-            auto& const cell_objects = matrix[adyacent_cell.first][adyacent_cell.second];
+            std::vector<ObjectDTO> const cell_objects =
+                    matrix[adyacent_cell.first][adyacent_cell.second];
             for (const auto& obj: cell_objects) {
                 objects_set.insert(obj);
             }
@@ -109,6 +116,10 @@ private:
         uint16_t MAX_POSITION = MATRIX_SIZE * CELL_SIZE - size;
         std::vector<uint16_t> new_position =
                 calculate_new_position(position, direction, delta, MAX_POSITION);
+
+        std::cout << "\tIntentando mover de (" << position[0] << ", " << position[1] << ") a ("
+                  << new_position[0] << ", " << new_position[1] << ")" << std::endl;
+
         if (new_position == position) {
             return {false, position};  // No se movió
         }
@@ -116,7 +127,7 @@ private:
         // Obtenemos la posición máxima que se puede mover sin colisionar
         std::vector<uint16_t> max_position = get_max_position(id, position, new_position, size);
 
-        return {max_position == position, max_position};
+        return {max_position != position, max_position};
     }
 
     std::vector<uint16_t> get_max_position(const uint16_t& id,
@@ -151,7 +162,16 @@ private:
                 // Si colisiona con una bala, permitimos estar en esa posición pero no avanzar más
                 if (collision == CollisionType::BULLET) {
                     max_position = test_position;
+                } else {
+                    // Si colisiona con otro objeto, no se puede mover más
+                    std::cout << "\t\t************************************************"
+                              << std::endl;
+                    std::cout << "\t\t***********Colisión con otro objeto.************"
+                              << std::endl;
+                    std::cout << "\t\t************************************************"
+                              << std::endl;
                 }
+
                 break;
             }
             max_position = test_position;
@@ -168,6 +188,7 @@ private:
          *    Verifica si hay colisiones con otros objetos en la nueva posición.
          *    Devuelve el tipo de colisión (BULLET, OTHER o NONE).
          */
+
 
         for (const auto& obj: objects) {
             if (id == obj.id)
@@ -208,6 +229,9 @@ private:
 
         if (collision == CollisionType::BULLET) {
             // No se agrega a la nueva celda: el objeto "desaparece" del mapa
+            std::cout << "\t\t************************************************" << std::endl;
+            std::cout << "\t\t******Colisión con bala, objeto eliminado.******" << std::endl;
+            std::cout << "\t\t************************************************" << std::endl;
             return false;
         }
 
@@ -236,10 +260,9 @@ public:
      * Constructor.
      **/
 
-    Game():
-            matrix(MATRIX_SIZE,
-                   std::vector<std::vector<ObjectDTO>>(
-                           MATRIX_SIZE, std::vector<ObjectDTO>(MATRIX_SIZE, ObjectDTO()))) {}
+    Game(): matrix(MATRIX_SIZE, std::vector<std::vector<ObjectDTO>>(MATRIX_SIZE)) {
+        initialize_demo_objects();
+    }
 
     bool move(Direction direction, const uint16_t& id) {
         /*
@@ -254,7 +277,8 @@ public:
         });
         if (it != objects.end()) {
             std::vector<uint16_t> old_position = it->position;
-            auto move_result = _move(id, direction, it->position, PLAYER_SIZE, MOVE_STEP);
+            std::pair<bool, std::vector<uint16_t>> move_result =
+                    _move(id, direction, it->position, PLAYER_SIZE, MOVE_STEP);
             if (move_result.first) {
                 // Actualizar la posición del objeto
                 it->position = move_result.second;
@@ -263,6 +287,8 @@ public:
                 // es porque el objeto "murió" (colisionó con una bala)
                 return update_object_in_matrix(*it, old_position);
             }
+        } else {
+            std::cout << "No se encontró el objeto con ID: " << id << std::endl;
         }
         return false;
     }
@@ -270,6 +296,74 @@ public:
     std::vector<ObjectDTO>& get_objects() {
         reap();
         return objects;
+    }
+
+
+    /********************************************************************************************
+     ************************************ FUNCIONES PARA TESTEAR ********************************
+     ********************************************************************************************/
+    void initialize_demo_objects() {
+        // Jugador en (10, 10)
+        ObjectDTO player;
+        player.type = ObjectType::PLAYER;
+        player.position = {10, 10};
+        player.width = PLAYER_SIZE;
+        player.height = PLAYER_SIZE;
+        player.id = 1;
+        objects.push_back(player);
+        auto cell = get_cell_from_position(player.position);
+        matrix[cell.first][cell.second].push_back(player);
+
+        // Obstáculo 1 en (0, 10)
+        ObjectDTO obstacle1;
+        obstacle1.type = ObjectType::OBSTACLE;
+        obstacle1.position = {0, 10};
+        obstacle1.width = 6;
+        obstacle1.height = 6;
+        obstacle1.id = 2;
+        objects.push_back(obstacle1);
+        cell = get_cell_from_position(obstacle1.position);
+        matrix[cell.first][cell.second].push_back(obstacle1);
+
+        // Obstáculo 2 en (60, 60)
+        ObjectDTO obstacle2;
+        obstacle2.type = ObjectType::OBSTACLE;
+        obstacle2.position = {90, 0};
+        obstacle2.width = 10;
+        obstacle2.height = 10;
+        obstacle2.id = 3;
+        objects.push_back(obstacle2);
+        cell = get_cell_from_position(obstacle2.position);
+        matrix[cell.first][cell.second].push_back(obstacle2);
+
+        // Bala en (50, 10)
+        ObjectDTO bullet;
+        bullet.type = ObjectType::BULLET;
+        bullet.position = {50, 10};
+        bullet.width = BULLET_SIZE;
+        bullet.height = BULLET_SIZE;
+        bullet.id = 4;
+        objects.push_back(bullet);
+        cell = get_cell_from_position(bullet.position);
+        matrix[cell.first][cell.second].push_back(bullet);
+
+        // muestro los objetos
+        std::cout << "Objetos iniciales:" << std::endl;
+        for (const auto& obj: objects) {
+            std::cout << "\tObjeto ID: " << obj.id << ", Tipo: " << static_cast<int>(obj.type)
+                      << ", Posición: (" << obj.position[0] << ", " << obj.position[1] << ")"
+                      << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
+    std::vector<uint16_t> get_position(uint16_t id) const {
+        auto it = std::find_if(objects.begin(), objects.end(),
+                               [id](const ObjectDTO& obj) { return obj.id == id; });
+        if (it != objects.end()) {
+            return it->position;
+        }
+        return {};
     }
 };
 
