@@ -9,15 +9,16 @@
 #include "../common/thread.h"
 
 #include "client_handler.h"
+#include "monitor_client_send_queues.h"
 
 class Acceptor: public Thread {
 private:
     Socket server_socket;
     Queue<ActionDTO>& shared_recv_queue;
-    std::list<Queue<ActionDTO>*>& client_send_queues;
+    MonitorClientSendQueues& monitor_client_send_queues;
     std::list<ClientHandler*> client_handlers_list;
     MonitorGame& monitor_game;
-    int id = 0;
+    uint16_t id = 0;
 
     void clear() {
         for (auto* client_handler: client_handlers_list) {
@@ -41,20 +42,21 @@ private:
 
 public:
     Acceptor(const char* port, Queue<ActionDTO>& shared_recv_queue,
-             std::list<Queue<ActionDTO>*>& send_queues, MonitorGame& monitor_game):
+             MonitorClientSendQueues& monitor_client_send_queues, MonitorGame& monitor_game):
             server_socket(port),
             shared_recv_queue(shared_recv_queue),
-            client_send_queues(send_queues),
+            monitor_client_send_queues(monitor_client_send_queues),
             monitor_game(monitor_game) {}
 
     void run() override {
         while (should_keep_running()) {
             try {
                 Socket new_client_socket = server_socket.accept();
-                Queue<ActionDTO>* send_queue = new Queue<ActionDTO>();
-                client_send_queues.push_back(send_queue);
-                ClientHandler* new_client_handler = new ClientHandler(
-                        std::move(new_client_socket), shared_recv_queue, *send_queue, ++id);
+                Queue<ActionDTO>* new_client_send_queue =
+                        monitor_client_send_queues.add_queue_to(id);
+                ClientHandler* new_client_handler =
+                        new ClientHandler(std::move(new_client_socket), shared_recv_queue,
+                                          new_client_send_queue, ++id);
                 monitor_game.add_player(id);  // TODO: Medio raro esto...
                 reap();
                 client_handlers_list.push_back(new_client_handler);

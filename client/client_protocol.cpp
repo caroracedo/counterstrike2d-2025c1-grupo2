@@ -44,7 +44,7 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
         ObjectType object_type = static_cast<ObjectType>(data[i]);
         std::vector<uint8_t> x(data.begin() + i + 1, data.begin() + i + 3);
         std::vector<uint8_t> y(data.begin() + i + 3, data.begin() + i + 5);
-        std::vector<int> position = {hex_big_endian_to_int(x), hex_big_endian_to_int(y)};
+        std::vector<uint16_t> position = {hex_big_endian_to_int_16(x), hex_big_endian_to_int_16(y)};
 
         // Esto es por el ID de los jugadores
         if (object_type == ObjectType::PLAYER) {

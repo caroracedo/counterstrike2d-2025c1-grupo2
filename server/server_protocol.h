@@ -18,13 +18,13 @@ class ServerProtocol {
 private:
     Socket& skt;
     SocketManager skt_manager;
-    int id;
+    uint16_t id;
 
-    std::vector<uint8_t> int_to_hex_big_endian(const int& integer) {
-        uint16_t integer_16 = htons(static_cast<uint16_t>(integer));
-        std::vector<uint8_t> hex(sizeof(integer_16));
-        std::memcpy(hex.data(), &integer_16, sizeof(integer_16));
-        return hex;
+    std::vector<uint8_t> int_16_to_hex_big_endian(const uint16_t int_16) {
+        uint16_t htons_int_16 = htons(int_16);
+        std::vector<uint8_t> hex_big_endian(sizeof(htons_int_16));
+        std::memcpy(hex_big_endian.data(), &htons_int_16, sizeof(htons_int_16));
+        return hex_big_endian;
     }
 
     void push_hexa_to(const std::vector<uint8_t>& hexa, std::vector<uint8_t>& vector) {

@@ -18,11 +18,10 @@ private:
     Socket& skt;
     SocketManager skt_manager;
 
-    int hex_big_endian_to_int(const std::vector<uint8_t>& hex) {
-        uint16_t integer;
-        std::memcpy(&integer, hex.data(), sizeof(integer));
-        integer = ntohs(integer);
-        return static_cast<int>(integer);
+    uint16_t hex_big_endian_to_int_16(const std::vector<uint8_t>& hex_big_endian) {
+        uint16_t int_16;
+        std::memcpy(&int_16, hex_big_endian.data(), sizeof(int_16));
+        return ntohs(int_16);
     }
 
 public:

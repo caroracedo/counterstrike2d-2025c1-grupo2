@@ -6,7 +6,13 @@
 
 #include "object_DTO.h"
 
-enum class ActionType : uint8_t { MOVE = 0x70, QUIT = 0x71, UPDATE = 0x72, UNKNOWN = 0xFF };
+enum class ActionType : uint8_t {
+    MOVE = 0x6D,
+    QUIT = 0x71,
+    SHOOT = 0x73,
+    UPDATE = 0x75,
+    UNKNOWN = 0x00
+};
 enum class Direction : uint8_t {
     UP = 0x01,
     DOWN = 0x02,
@@ -17,27 +23,24 @@ enum class Direction : uint8_t {
 
 struct ActionDTO {
     ActionType type;
-    int id;
     Direction direction;
     std::vector<ObjectDTO> objects;
+    uint16_t id;
 
     // para unknown
-    ActionDTO(): type(ActionType::UNKNOWN), id(), direction(), objects() {}
+    ActionDTO(): type(ActionType::UNKNOWN), direction(), objects(), id() {}
 
-    explicit ActionDTO(const ActionType& action): type(action), id(), direction(), objects() {}
+    explicit ActionDTO(const ActionType& action): type(action), direction(), objects(), id() {}
 
-    // para feats futuros (ej: soltar bomba)
-    // ActionDTO(const ActionType& action) : type(action) {};
-
-    // cliente -> server
+    // para mover -- cliente -> server
     ActionDTO(const ActionType& action, const Direction& direction):
-            type(action), id(), direction(direction), objects() {}
-    ActionDTO(const ActionType& action, int id, const Direction& direction):
-            type(action), id(id), direction(direction), objects() {}
+            type(action), direction(direction), objects(), id() {}
+    ActionDTO(const ActionType& action, const Direction& direction, uint16_t id):
+            type(action), direction(direction), objects(), id(id) {}
 
-    // server -> cliente
+    // para mandar el update
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
-            type(action), id(), direction(), objects(objects) {}
+            type(action), direction(), objects(objects), id() {}
 };
 
 #endif  // ACTION_DTO_H

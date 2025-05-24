@@ -15,12 +15,12 @@ private:
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
-    std::list<Queue<ActionDTO>*> send_queues;
+    MonitorClientSendQueues monitor_client_send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
             case ActionType::MOVE:
-                monitor_game.move_object(action_dto.id, action_dto.direction);
+                monitor_game.move(action_dto.id, action_dto.direction);
                 break;
             default:
                 return false;
@@ -29,16 +29,13 @@ private:
     }
 
     void send_snapshot_to_all_clients() {
-        ActionDTO update{ActionType::UPDATE, monitor_game.get_snapshot()};
-        for (auto* queue: send_queues) {
-            queue->push(update);
-        }
+        ActionDTO update{ActionType::UPDATE, monitor_game.get_objects()};
+        monitor_client_send_queues.send_update(update);
     }
 
 public:
     explicit GameLoop(const char* port):
-            monitor_game(MAX_POSITION, MAX_POSITION),
-            acceptor(port, recv_queue, send_queues, monitor_game) {}
+            acceptor(port, recv_queue, monitor_client_send_queues, monitor_game) {}
 
     void run() override {
         acceptor.start();

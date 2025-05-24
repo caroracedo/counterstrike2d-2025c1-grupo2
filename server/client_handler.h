@@ -17,11 +17,11 @@ private:
     ServerProtocol protocol;
     ServerSender sender;
     ServerReceiver receiver;
-    int id;
+    uint16_t id;
 
 public:
-    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue,
-                  int id):
+    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>* send_queue,
+                  uint16_t id):
             client_socket(std::move(socket)),
             protocol(this->client_socket, id),
             sender(protocol, send_queue),
