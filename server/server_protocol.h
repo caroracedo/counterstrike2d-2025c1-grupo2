@@ -33,7 +33,7 @@ private:
     }
 
 public:
-    ServerProtocol(Socket& skt, int id);
+    ServerProtocol(Socket& skt, uint16_t id);
 
     ActionDTO receive_and_deserialize_action();
 

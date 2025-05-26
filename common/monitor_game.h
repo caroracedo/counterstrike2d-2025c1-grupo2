@@ -26,7 +26,7 @@ public:
     }
 
     /* Snapshot */
-    std::vector<ObjectDTO> get_objects() {
+    std::vector<Object> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.get_objects();
     }

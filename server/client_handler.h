@@ -42,8 +42,9 @@ public:
         sender.join();
         receiver.join();
 
-        // client_socket.shutdown(2);  // Cierra lectura y escritura, turbio que tenga que comentar
-        // esto...
+        try {
+            client_socket.shutdown(2);  // Cierra lectura y escritura
+        } catch (...) {}
         client_socket.close();
     }
 

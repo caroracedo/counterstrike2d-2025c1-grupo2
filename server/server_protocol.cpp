@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-ServerProtocol::ServerProtocol(Socket& skt, int id): skt(skt), id(id) {}
+ServerProtocol::ServerProtocol(Socket& skt, uint16_t id): skt(skt), id(id) {}
 
 ActionDTO ServerProtocol::receive_and_deserialize_action() {
     uint16_t size;
@@ -33,8 +33,7 @@ bool ServerProtocol::serialize_and_send_updated_game(const ActionDTO& action_dto
         data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
         push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].position[0]), data);
         push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].position[1]), data);
-        if (action_dto.objects[i].type == ObjectType::PLAYER)
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].id));
+        push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].id), data);
     }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
