@@ -16,6 +16,7 @@ target_sources(taller_common
     main_menu_DTO.h 
     monitor_game.h 
     monitor_games.h 
+    object_DTO.h
     queue.h 
     resolver.h 
     resolvererror.h 

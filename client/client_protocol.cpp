@@ -1,28 +1,17 @@
 #include "client_protocol.h"
 
 #include <cstring>
+#include <iostream>
 #include <utility>
 #include <vector>
 
 #include "../common/constants.h"
+#include "../common/object_DTO.h"
 
 ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
 
-/*
-************************************* ENVIO DE DATOS ************************************
-** FORMATO: opcode (1 byte) + size (2 bytes - big-endian) + data (size bytes)          **
-**     - opcode: el código de operación que indica la acción a realizar                **
-**     - size: el tamaño del mensaje a enviar, en bytes                                **
-**     - data: el mensaje a enviar, que puede ser un string o un vector de bytes       **
-**         - En caso de no haber datos a enviar, se envía solo el opcode y el tamaño 0 **
-*****************************************************************************************
-*/
-
 bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
-    /**
-     * Envía al Server la acción seleccionada por el Client, pudiendo ser esta:
-     *  - Moverse en una dirección
-     */
+    // Esto se mantiene...
     uint8_t opcode = static_cast<uint8_t>(action.type);
     switch (action.type) {
         case ActionType::MOVE: {
@@ -35,36 +24,37 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     }
 }
 
-/*
-*********************************** RECEPCIÓN DE DATOS **********************************
-** FORMATO: size (2 bytes - big-endian) + data (size bytes)                            **
-**     - size: el tamaño del mensaje a recibir, en bytes                               **
-**     - data: el mensaje a recibir, que puede ser un string o un vector de bytes      **
-*****************************************************************************************
-*/
-
 ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
-    /*
-     * Recibe del Server la posición actualizada del jugador y la deserializa
-     * a un vector de bytes.
-     */
     uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size)) {
+    if (!skt_manager.receive_two_bytes(skt, size))
         return {};
-    }
-    std::vector<uint8_t> data(size);
-    if (!skt_manager.receive_bytes(skt, data)) {
+    uint8_t type_code;
+    if (!skt_manager.receive_byte(skt, type_code))
         return {};
-    }
-    if (data.empty()) {
+    std::vector<uint8_t> data(size - 1);
+    if (!skt_manager.receive_bytes(skt, data) || data.empty())
         return {};
+
+    ActionType type = static_cast<ActionType>(type_code);
+    if (type != ActionType::UPDATE)
+        return {};
+    std::vector<ObjectDTO> objects = {};
+    size_t i = 0;
+    while (i < data.size()) {
+        ObjectType object_type = static_cast<ObjectType>(data[i]);
+        std::vector<uint8_t> x(data.begin() + i + 1, data.begin() + i + 3);
+        std::vector<uint8_t> y(data.begin() + i + 3, data.begin() + i + 5);
+        std::vector<uint16_t> position = {hex_big_endian_to_int_16(x), hex_big_endian_to_int_16(y)};
+
+        // Esto es por el ID de los jugadores
+        if (object_type == ObjectType::PLAYER) {
+            int id = static_cast<int>(data[i + 5]);
+            objects.push_back({object_type, position, id});
+            i += 6;
+        } else {
+            objects.push_back({object_type, position});
+            i += 5;
+        }
     }
-    ActionType type = static_cast<ActionType>(data[0]);
-    std::vector<uint16_t> position;
-    // Deserializar de bytes a uint16_t (big-endian)
-    for (size_t i = 1; i + 1 < data.size(); i += 2) {
-        uint16_t value = (static_cast<uint16_t>(data[i]) << 8) | static_cast<uint16_t>(data[i + 1]);
-        position.push_back(value);
-    }
-    return {type, position};
+    return {ActionType::UPDATE, objects};
 }

@@ -81,7 +81,7 @@ private:
     }
 
     std::vector<uint16_t> calculate_new_position(const std::vector<uint16_t>& position,
-                                                 Direction direction, uint16_t delta,
+                                                 const Direction& direction, uint16_t delta,
                                                  uint16_t max_position) {
         /*
          *    Calcula la nueva posición del objeto en función de la dirección y el delta.
@@ -111,8 +111,8 @@ private:
         return new_position;
     }
 
-    std::pair<bool, std::vector<uint16_t>> _move(const uint16_t& id, Direction direction,
-                                                 std::vector<uint16_t> position, uint16_t size,
+    std::pair<bool, std::vector<uint16_t>> _move(const uint16_t& id, const Direction& direction,
+                                                 std::vector<uint16_t>& position, uint16_t size,
                                                  uint16_t delta) {
         /*
          *    Realiza el movimiento del objeto en la dirección especificada.
@@ -145,6 +145,7 @@ private:
          */
         std::vector<uint16_t> max_position = old_position;
         auto cell = get_cell_from_position(new_position);
+
         std::set<Object> ady_objects = get_adyacent_objects(cell);
 
         // Determinar dirección de movimiento
@@ -168,16 +169,7 @@ private:
                 // Si colisiona con una bala, permitimos estar en esa posición pero no avanzar más
                 if (collision == CollisionType::BULLET) {
                     max_position = test_position;
-                } else {
-                    // Si colisiona con otro objeto, no se puede mover más
-                    std::cout << "\t\t************************************************"
-                              << std::endl;
-                    std::cout << "\t\t***********Colisión con otro objeto.************"
-                              << std::endl;
-                    std::cout << "\t\t************************************************"
-                              << std::endl;
                 }
-
                 break;
             }
             max_position = test_position;
