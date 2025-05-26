@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 #include "player_view.h"
-#include "../common/action_DTO_prueba.h"
+#include "../common/action_DTO.h"
 #include "legs_view.h"
 #include "game_camera.h"
 #include "bullet_view.h"
@@ -35,7 +35,7 @@ private:
 
 public:
     GameView();
-    void update(const ActionDTO2& action);
+    void update(const ActionDTO& action);
     void render();
     void shoot(float angle_deg) {
         float px = player_view.get_x() + PLAYER_WIDTH / 2;
@@ -53,6 +53,8 @@ public:
             bullets.end()
         );
     }
+    
+    void update_graphics(const ActionDTO& action);
 };
 
 #endif

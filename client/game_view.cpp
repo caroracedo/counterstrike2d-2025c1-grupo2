@@ -25,17 +25,22 @@ GameView::GameView():
     gun_view(gun_texture) {}
 
 
-void GameView::update(const ActionDTO2& action) {
-    if (action.type != ActionType::UPDATE) return;
-    
+void GameView::update(const ActionDTO& action) {
+   
+    if (action.type != ActionType::UPDATE)
+        return;
+
     for(const auto& object : action.objects) {
-        
+       
         float x = object.position[0];
         float y = object.position[1];
+        std::cout << "Object ID: " << object.id << " Type: " << static_cast<int>(object.type)
+                  << " Position: (" << x << ", " << y << ")" << std::endl;
         if (object.type == ObjectType::PLAYER) {
             legs_view.update_position(x, y);
             legs_view.update_animation();
             player_view.update_position(x, y);
+            
         }
         else if (object.type == ObjectType::OBSTACLE) {
             // obstacles.push_back({x, y});
@@ -45,6 +50,7 @@ void GameView::update(const ActionDTO2& action) {
 }
 
 void GameView::render() {
+   
     float px = player_view.get_x();
     float py = player_view.get_y();
     camera.center_on(px + PLAYER_WIDTH / 2, 
@@ -73,5 +79,11 @@ void GameView::render() {
     
     renderer.Present();
 
-    SDL_Delay(16);  // TODO: hacer calculo de FPS no hardcodeado.
+    // SDL_Delay(16);  // TODO: hacer calculo de FPS no hardcodeado.
+    
+}
+
+void GameView::update_graphics(const ActionDTO& action){
+    update(action);
+    render();
 }

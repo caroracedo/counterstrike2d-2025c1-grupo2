@@ -54,6 +54,6 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
         // Todos con ID, sólo que a veces sirve y a veces no
         objects.push_back({object_type, position, hex_big_endian_to_int_16(id)});
     }
-
+    std::cout << "Envío update" << std::endl;
     return {ActionType::UPDATE, objects};
 }

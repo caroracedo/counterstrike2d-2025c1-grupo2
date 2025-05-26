@@ -51,9 +51,11 @@ public:
 
         using clock = std::chrono::steady_clock;
         auto last_snapshot_time = clock::now();
-        auto interval = std::chrono::seconds(2);  // cada 2 segundos
+        auto interval = std::chrono::milliseconds(16);  // ~60 FPS
 
         while (should_keep_running()) {
+            auto start = clock::now();
+
             ActionDTO action;
             if (recv_queue.try_pop(action))
                 do_action(action);
@@ -64,7 +66,12 @@ public:
                 last_snapshot_time = now;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            // Esperar hasta completar 16 ms desde que empezó la iteración
+            auto end = clock::now();
+            auto elapsed = end - start;
+
+            if (elapsed < interval)
+                std::this_thread::sleep_for(interval - elapsed);
         }
 
         acceptor.stop();

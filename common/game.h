@@ -293,6 +293,14 @@ private:
                       objects.end());
     }
 
+    void initialize_demo_objects() {
+        // Obstáculo 1 en (50, 10)
+        Obstacle obstacle1(6, 6, {50, 10});
+        objects.push_back(obstacle1);
+        auto cell = get_cell_from_position(obstacle1.get_position());
+        matrix[cell.first][cell.second].push_back(obstacle1);
+    }
+
 public:
     /*
      * Constructor.
@@ -331,49 +339,6 @@ public:
         return false;
     }
 
-    // std::pair<bool, uint16_t> shoot(Direction direction, const uint16_t& id, uint16_t range,
-    // uint16_t b_id = 0) {
-    //     /*
-    //      *    Dispara una bala en la dirección especificada.
-    //      *    Devuelve true si se creó la bala, false si no.
-    //      */
-
-    //     // Recolectar objetos que no están en la matriz
-    //     reap();
-
-    //     auto it = std::find_if(objects.begin(), objects.end(), [id](const Object& obj) {
-    //         return obj.type == ObjectType::PLAYER && obj.id == id;
-    //     });
-    //     if (it != objects.end()) {
-    //         Object bullet;
-    //         if (b_id == 0) {
-    //             position = it->position;
-    //             b_id = bullet_id;  // ID de la bala se asigna automáticamente
-    //             bullet_id++;
-    //         }
-
-    //         bullet.id = b_id;
-    //         bullet.type = ObjectType::BULLET;
-    //         bullet.position = position;
-    //         bullet.width = BULLET_SIZE;
-    //         bullet.height = BULLET_SIZE;
-
-
-    //         // Mover la bala en la dirección especificada
-    //         auto move_result = _move(id, direction, bullet.position, BULLET_SIZE, MOVE_STEP);
-    //         if (move_result.first) {
-    //             bullet.position = move_result.second;
-    //             objects.push_back(bullet);
-    //             auto cell = get_cell_from_position(bullet.position);
-    //             matrix[cell.first][cell.second].push_back(bullet);
-    //             return {true, id};
-    //         }
-    //     } else {
-    //         std::cout << "No se encontró el objeto con ID: " << id << std::endl;
-    //     }
-    //     return {false, 0};
-    // }
-
     std::vector<Object>& get_objects() {
         reap();
         return objects;
@@ -384,70 +349,6 @@ public:
         objects.push_back(player1);
         auto cell = get_cell_from_position(player1.get_position());
         matrix[cell.first][cell.second].push_back(player1);
-    }
-
-    /********************************************************************************************
-     ************************************ FUNCIONES PARA TESTEAR ********************************
-     ********************************************************************************************/
-    void initialize_demo_objects() {
-        // // Jugador en (10, 10)
-        // Player player1(1, {10, 10});
-        // objects.push_back(player1);
-        // auto cell = get_cell_from_position(player1.get_position());
-        // matrix[cell.first][cell.second].push_back(player1);
-
-        // Obstáculo 1 en (50, 10)
-        Obstacle obstacle1(6, 6, {50, 10});
-        objects.push_back(obstacle1);
-        auto cell = get_cell_from_position(obstacle1.get_position());
-        matrix[cell.first][cell.second].push_back(obstacle1);
-
-        // Bala en (50, 50)
-        Weapon weapon(0, 10, {45, 50});
-        objects.push_back(weapon);
-        cell = get_cell_from_position(weapon.get_position());
-        matrix[cell.first][cell.second].push_back(weapon);
-
-        // muestro los objetos
-        std::cout << "Objetos iniciales:" << std::endl;
-        for (const auto& obj: objects) {
-            std::cout << "\tObjeto ID: " << obj.get_id()
-                      << ", Tipo: " << get_object_type(static_cast<ObjectType>(obj.get_type()))
-                      << ", Posición: (" << obj.get_position()[0] << ", " << obj.get_position()[1]
-                      << ")" << std::endl;
-        }
-        std::cout << std::endl;
-    }
-
-    std::vector<uint16_t> get_position(uint16_t id) const {
-        auto it = std::find_if(objects.begin(), objects.end(),
-                               [id](const Object& obj) { return obj.get_id() == id; });
-        if (it != objects.end()) {
-            return it->get_position();
-        }
-        return {};
-    }
-
-    std::string get_object_type(const ObjectType& type) const {
-        switch (type) {
-            case ObjectType::PLAYER:
-                return "Jugador";
-            case ObjectType::WEAPON:
-                return "Arma";
-            case ObjectType::OBSTACLE:
-                return "Obstáculo";
-            default:
-                return "Desconocido";
-        }
-    }
-
-    uint16_t distance_moved(const std::vector<uint16_t>& old_position,
-                            const std::vector<uint16_t>& new_position) {
-        /*
-         *    Calcula la distancia recorrida entre dos posiciones.
-         */
-        return static_cast<uint16_t>(std::sqrt(std::pow(new_position[0] - old_position[0], 2) +
-                                               std::pow(new_position[1] - old_position[1], 2)));
     }
 };
 
