@@ -14,40 +14,48 @@ GameView::GameView():
     player_view(body_sprites),
     legs_view(legs_sprites,
                 {
-                    Rect(0,  0, 32, 32),   // Frame 1
-                    Rect(32, 0, 32, 32),   // Frame 2
-                    Rect(64, 0, 32, 32)    // Frame 3
+                    Rect(0,  0, 32, 32),   
+                    Rect(32, 0, 32, 32),   
+                    Rect(64, 0, 32, 32)    
                 },
                 100),
     background (renderer, Surface(SDL_LoadBMP("../dustroof.bmp"))),
-    camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048) {}
+    camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
+    gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
+    gun_view(gun_texture) {}
 
 
-void GameView::update(const ActionDTO& action) {
-    if (action.type == ActionType::MOVE) {
-        float x = action.position[0] * 3;
-        float y = action.position[1] * 3;
-        legs_view.update_position(x, y);
-        legs_view.update_animation();
-
-        player_view.update_position(x, y);
+void GameView::update(const ActionDTO2& action) {
+    if (action.type != ActionType2::UPDATE) return;
+    
+    for(const auto& object : action.objects) {
         
-    }
+        float x = object.position[0];
+        float y = object.position[1];
+        if (object.type == ObjectType::PLAYER) {
+            legs_view.update_position(x, y);
+            legs_view.update_animation();
+            player_view.update_position(x, y);
+        }
+        else if (object.type == ObjectType::OBSTACLE) {
+            // obstacles.push_back({x, y});
+            continue;
+        }
+    }    
 }
 
 void GameView::render() {
-    
-    camera.center_on(player_view.get_x() + PLAYER_WIDTH / 2, 
-                 player_view.get_y() + PLAYER_HEIGHT / 2);
+    float px = player_view.get_x();
+    float py = player_view.get_y();
+    camera.center_on(px + PLAYER_WIDTH / 2, 
+                 py + PLAYER_HEIGHT / 2);
 
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.Clear();
 
     Rect view = camera.get_viewport();
 
-    renderer.Copy(background,view, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
-    
-    
+    renderer.Copy(background,view, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
 
     SDL_Rect rojo = { 250 - camera.get_x(), 250 - camera.get_y(), 50, 50};
     renderer.SetDrawColor( 255, 0, 0, 255);
@@ -55,9 +63,14 @@ void GameView::render() {
 
     legs_view.draw(renderer,camera);
     
+    for (auto& bullet : bullets)
+        bullet.draw(renderer, camera);
+
     player_view.draw(renderer,camera);
+    float angle_deg = player_view.get_angle();
+    gun_view.draw(renderer, camera, px, py, angle_deg);
     
     renderer.Present();
 
-    SDL_Delay(1);  // TODO: hacer calculo de FPS no hardcodeado.
+    SDL_Delay(16);  // TODO: hacer calculo de FPS no hardcodeado.
 }

@@ -12,6 +12,7 @@ class PlayerView {
 private:
     float posX = 0.0f, posY = 0.0f;
     Texture& cuerpo;
+    float angle = 0.0f; // Angle in degrees
 
 public:
     PlayerView(Texture& cuerpo) : cuerpo(cuerpo) {}
@@ -42,7 +43,7 @@ public:
         float dy = mouseY - centerY;
 
         float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-
+        this->angle = angle;
         renderer.Copy(
             cuerpo,
             Rect(0, 0, PLAYER_HEIGHT, PLAYER_WIDTH),
@@ -51,6 +52,9 @@ public:
             SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2},
             SDL_FLIP_NONE
         );
+    }
+    float get_angle() const {
+        return angle;
     }
 
 };

@@ -7,6 +7,7 @@
 #include "client_sender.h"
 #include "client_protocol.h"
 #include "../common/action_DTO.h"
+#include "../common/action_DTO_prueba.h"
 #include "input_handler.h"
 #include "game_view.h"
 
@@ -50,19 +51,51 @@ public:
                 ActionDTO action = ih.receive_and_parse_action();
                 if (action.type == ActionType::QUIT)
                     break;
+                
+                if (ih.is_fire_requested()) 
+                    gv.shoot(ih.get_fire_angle());
+
                 if (action.type == ActionType::UNKNOWN) {
+                    gv.update_bullets();
                     gv.render();
                     continue;
                 }
                 to_server.push(action);
                 
-                ActionDTO action_update = from_server.pop();
+                ActionDTO action_update;
+                if (from_server.try_pop(action_update)) {
+                    if (action_update.type != ActionType::UNKNOWN) {
+                        ActionDTO2 action_update2;
+                        ObjectDTO player;
+                        player.type = ObjectType::PLAYER;
+                        player.position = {action_update.position[0], action_update.position[1]};
+                        player.width = 32;
+                        player.height = 32;
+                        player.id = 1;
+                        action_update2.type = ActionType2::UPDATE;
+                        action_update2.objects = std::vector<ObjectDTO>{player};
+                        gv.update(action_update2);
+                        gv.update_bullets();
+                    }
+                }
+
                 
                 if (action_update.type == ActionType::UNKNOWN) {
+                    gv.update_bullets();
+                    gv.render();
                     continue;
-                }  
-
-                gv.update(action_update);
+                }
+                // ActionDTO2 action_update2;
+                // ObjectDTO player;
+                // player.type = ObjectType::PLAYER;
+                // player.position = {action_update.position[0],action_update.position[1]};
+                // player.width = 32;
+                // player.height = 32;
+                // player.id = 1;
+                // action_update2.type = ActionType2::UPDATE;
+                // action_update2.objects = std::vector<ObjectDTO>{player};
+                // gv.update_bullets();
+                // gv.update(action_update2);
                 gv.render();
 
             } catch (...) {}  // Por el momento...
