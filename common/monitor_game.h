@@ -20,15 +20,21 @@ private:
 
 public:
     /* Mover */
-    bool move(Direction direction) {
+    bool move(Direction direction, const uint16_t& id) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.move(direction);
+        return game.move(direction, id);
     }
 
-    /* Mover */
-    std::vector<uint16_t> get_position() {
+    /* Snapshot */
+    std::vector<Object> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.get_position();
+        return game.get_objects();
+    }
+
+    /* Agregar objeto */
+    void add_player(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.add_player(id);
     }
 };
 

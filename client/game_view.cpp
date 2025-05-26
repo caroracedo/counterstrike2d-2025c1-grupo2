@@ -1,9 +1,9 @@
 #include "game_view.h"
+
 #include <SDL2/SDL.h>
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
-
 
 GameView::GameView():  
     sdl(SDL_INIT_VIDEO),
@@ -26,7 +26,7 @@ GameView::GameView():
 
 
 void GameView::update(const ActionDTO2& action) {
-    if (action.type != ActionType2::UPDATE) return;
+    if (action.type != ActionType::UPDATE) return;
     
     for(const auto& object : action.objects) {
         
@@ -49,6 +49,7 @@ void GameView::render() {
     float py = player_view.get_y();
     camera.center_on(px + PLAYER_WIDTH / 2, 
                  py + PLAYER_HEIGHT / 2);
+
 
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.Clear();

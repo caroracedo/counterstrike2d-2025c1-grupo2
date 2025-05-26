@@ -4,8 +4,15 @@
 #include <cstdint>
 #include <vector>
 
-// TODO: crear ActionType::QUIT para verificar si se cerró por error o no
-enum class ActionType : uint8_t { MOVE = 0x70, QUIT=0x71, UNKNOWN=0xFF};
+#include "object_DTO.h"
+
+enum class ActionType : uint8_t {
+    MOVE = 0x6D,
+    QUIT = 0x71,
+    SHOOT = 0x73,
+    UPDATE = 0x75,
+    UNKNOWN = 0x00
+};
 enum class Direction : uint8_t {
     UP = 0x01,
     DOWN = 0x02,
@@ -17,23 +24,23 @@ enum class Direction : uint8_t {
 struct ActionDTO {
     ActionType type;
     Direction direction;
-    std::vector<uint16_t> position;
+    std::vector<ObjectDTO> objects;
+    uint16_t id;
 
     // para unknown
-    ActionDTO(): type(ActionType::UNKNOWN), direction(), position() {}
+    ActionDTO(): type(ActionType::UNKNOWN), direction(), objects(), id() {}
 
-    ActionDTO(const ActionType& action): type(action), direction(), position() {}
-
-    // para feats futuros (ej: soltar bomba)
-    // ActionDTO(const ActionType& action) : type(action) {};
+    explicit ActionDTO(const ActionType& action): type(action), direction(), objects(), id() {}
 
     // para mover -- cliente -> server
     ActionDTO(const ActionType& action, const Direction& direction):
-            type(action), direction(direction), position() {}
+            type(action), direction(direction), objects(), id() {}
+    ActionDTO(const ActionType& action, const Direction& direction, uint16_t id):
+            type(action), direction(direction), objects(), id(id) {}
 
-    // para que el cliente sepa donde está actualmente -- server -> cliente
-    ActionDTO(const ActionType& action, const std::vector<uint16_t>& position):
-            type(action), direction(), position(position) {}
+    // para mandar el update
+    ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
+            type(action), direction(), objects(objects), id() {}
 };
 
 #endif  // ACTION_DTO_H

@@ -5,11 +5,12 @@ target_sources(taller_server
     server_protocol.cpp
     PUBLIC
     # .h files
-    server_protocol.h
     acceptor.h
     client_handler.h
+    game_loop.h
+    monitor_client_send_queues.h
+    server_protocol.h
     server_receiver.h
     server_sender.h
     server.h
-    game_loop.h
     )

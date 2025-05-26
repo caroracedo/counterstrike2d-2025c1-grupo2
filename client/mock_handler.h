@@ -1,14 +1,17 @@
 #ifndef INPUT_PARSER_H
 #define INPUT_PARSER_H
 
+#include <chrono>
 #include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include "../common/action_DTO.h"
 
 #define MOVE_INPUT "mover"
+#define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
 #define S_INPUT "s"
@@ -25,6 +28,10 @@ public:
         std::string action_input;
         if (!(iss >> action_input))
             return {};
+
+        if (action_input == QUIT_INPUT) {
+            return ActionDTO{ActionType::QUIT};  // No me dejaba compilar...
+        }
 
         if (action_input == MOVE_INPUT) {
             std::string direction_input;
@@ -44,14 +51,23 @@ public:
 
             return {ActionType::MOVE, direction};
         }
-
         return {};
     }
 
-    bool send_action(const ActionDTO& action_update) {
-        if (action_update.type == ActionType::MOVE) {
-            std::cout << '(' << static_cast<unsigned int>(action_update.position[0]) << ','
-                      << static_cast<unsigned int>(action_update.position[1]) << ')' << std::endl;
+    bool update_graphics(const ActionDTO& action_update) {
+        if (action_update.type == ActionType::UPDATE) {
+            for (const auto& object: action_update.objects) {
+                if (object.type == ObjectType::PLAYER) {
+                    std::cout << "🧍" << '(' << static_cast<unsigned int>(object.position[0])
+                              << ',' << static_cast<unsigned int>(object.position[1]) << ')'
+                              << std::endl;
+                }
+                if (object.type == ObjectType::OBSTACLE) {
+                    std::cout << "🗿" << '(' << static_cast<unsigned int>(object.position[0]) << ','
+                              << static_cast<unsigned int>(object.position[1]) << ')' << std::endl;
+                }
+            }
+            // TODO: Habría que simular delay...
             return true;
         }
         return false;

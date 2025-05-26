@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+
 #include "../common/action_DTO.h"
 #include "../common/constants.h"
 
@@ -16,9 +17,10 @@ private:
     public:
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT || 
+            if (event.type == SDL_QUIT ||
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
                 return {ActionType::QUIT};
             }
@@ -54,4 +56,4 @@ private:
 
 };
 
-#endif // INPUT_HANDLER_H
+#endif  // INPUT_HANDLER_H

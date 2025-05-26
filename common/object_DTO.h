@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-enum class ObjectType : uint8_t { PLAYER, BULLET, OBSTACLE, UNKNOWN };
+#include "object_type.h"
 
 struct ObjectDTO {
     ObjectType type;
@@ -13,17 +13,10 @@ struct ObjectDTO {
     std::uint16_t height;
     uint16_t id;
 
-    bool operator<(const ObjectDTO& other) const {
-        if (id != other.id)
-            return id < other.id;
-        if (type != other.type)
-            return type < other.type;
-        if (position != other.position)
-            return position < other.position;
-        if (width != other.width)
-            return width < other.width;
-        return height < other.height;
-    }
+    // TODO: Revisar porque por ahora ignoro el width y height
+    // Ahora todos tienen id, sólo que a algunos no les sirve
+    ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t id):
+            type(type), position(position), width(), height(), id(id) {}
 };
 
 #endif  // OBJECT_DTO_H

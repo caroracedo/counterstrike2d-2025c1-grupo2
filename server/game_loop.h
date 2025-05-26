@@ -2,47 +2,69 @@
 #define GAME_LOOP_H
 
 #include <list>
+#include <vector>
 
 #include "../common/action_DTO.h"
 #include "../common/monitor_game.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
 
+#define MAX_POSITION 50
+
 class GameLoop: public Thread {
 private:
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
-    std::list<Queue<ActionDTO>*> send_queues;
+    MonitorClientSendQueues monitor_client_send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
             case ActionType::MOVE:
-                return do_move_action(action_dto);
+                monitor_game.move(action_dto.direction, action_dto.id);
+                break;
             default:
                 return false;
-        }
-    }
-
-    bool do_move_action(const ActionDTO& action_dto) {
-        monitor_game.move(action_dto.direction);
-        for (auto* queue: send_queues) {
-            queue->push({ActionType::MOVE, monitor_game.get_position()});
         }
         return true;
     }
 
+    void send_snapshot_to_all_clients() {
+        ActionDTO update{ActionType::UPDATE, process_objects(monitor_game.get_objects())};
+        monitor_client_send_queues.send_update(update);
+    }
+
+    std::vector<ObjectDTO> process_objects(const std::vector<Object>& objects) {
+        std::vector<ObjectDTO> object_dtos;
+        for (const auto& obj: objects) {
+            object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id());
+        }
+        return object_dtos;
+    }
+
 public:
-    explicit GameLoop(const char* port): acceptor(port, recv_queue, send_queues) {}
+    explicit GameLoop(const char* port):
+            acceptor(port, recv_queue, monitor_client_send_queues, monitor_game) {}
 
     void run() override {
         acceptor.start();
 
+        using clock = std::chrono::steady_clock;
+        auto last_snapshot_time = clock::now();
+        auto interval = std::chrono::seconds(2);  // cada 2 segundos
+
         while (should_keep_running()) {
             ActionDTO action;
-            if (recv_queue.try_pop(action)) {
+            if (recv_queue.try_pop(action))
                 do_action(action);
+
+            auto now = clock::now();
+            if (now - last_snapshot_time >= interval) {
+                send_snapshot_to_all_clients();
+                last_snapshot_time = now;
             }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
         acceptor.stop();

@@ -9,9 +9,12 @@ target_sources(taller_client
     client.h
     client_sender.h
     client_receiver.h
-    input_handler.h
     game_view.cpp
+    input_handler.h
     legs_view.h
     animation.h
     game_camera.cpp
+    event_handler.h
+    mock_handler.h
+    update_handler.h
     )
