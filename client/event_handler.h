@@ -18,7 +18,7 @@ public:
             to_server(to_server), mock_handler(mock_handler), stop_flag(stop_flag) {}
 
     void run() override {
-        while (should_handler_keep_running()) {
+        while (should_this_thread_keep_running()) {
             try {
                 ActionDTO action = mock_handler.receive_and_parse_action();
                 if (action.type == ActionType::QUIT || action.type == ActionType::UNKNOWN)
@@ -31,7 +31,7 @@ public:
         stop_flag = true;
     }
 
-    bool should_handler_keep_running() const { return should_keep_running() && !stop_flag; }
+    bool should_this_thread_keep_running() const { return should_keep_running() && !stop_flag; }
 };
 
 #endif  // EVENT_HANDLER_H

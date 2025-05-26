@@ -20,7 +20,7 @@ public:
             from_server(from_server), mock_handler(mock_handler), stop_flag(stop_flag) {}
 
     void run() override {
-        while (should_handler_keep_running()) {
+        while (should_this_thread_keep_running()) {
             try {
                 ActionDTO action_update;
                 while (!from_server.try_pop(action_update)) {}
@@ -34,7 +34,7 @@ public:
         stop_flag = true;
     }
 
-    bool should_handler_keep_running() const { return should_keep_running() && !stop_flag; }
+    bool should_this_thread_keep_running() const { return should_keep_running() && !stop_flag; }
 };
 
 #endif  // UPDATE_HANDLER_H

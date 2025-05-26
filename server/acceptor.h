@@ -52,7 +52,7 @@ public:
         while (should_keep_running()) {
             try {
                 Socket new_client_socket = server_socket.accept();
-                Queue<ActionDTO>* new_client_send_queue =
+                Queue<ActionDTO>& new_client_send_queue =
                         monitor_client_send_queues.add_queue_to(id);
                 ClientHandler* new_client_handler =
                         new ClientHandler(std::move(new_client_socket), shared_recv_queue,

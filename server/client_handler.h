@@ -17,15 +17,16 @@ private:
     ServerProtocol protocol;
     ServerSender sender;
     ServerReceiver receiver;
+    std::atomic<bool> stop_flag;
     uint16_t id;
 
 public:
-    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>* send_queue,
+    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue,
                   uint16_t id):
             client_socket(std::move(socket)),
             protocol(this->client_socket, id),
-            sender(protocol, send_queue),
-            receiver(protocol, recv_queue),
+            sender(protocol, send_queue, stop_flag),
+            receiver(protocol, recv_queue, stop_flag),
             id(id) {}
 
     void run() override {
@@ -41,7 +42,8 @@ public:
         sender.join();
         receiver.join();
 
-        client_socket.shutdown(2);  // Cierra lectura y escritura
+        // client_socket.shutdown(2);  // Cierra lectura y escritura, turbio que tenga que comentar
+        // esto...
         client_socket.close();
     }
 
