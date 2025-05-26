@@ -18,6 +18,8 @@ private:
     MonitorClientSendQueues monitor_client_send_queues;
 
     bool do_action(const ActionDTO& action_dto) {
+        std::uint16_t id = 0;  // TODO: obtener el id del jugador que envió la acción
+        bool updated = false;
         switch (action_dto.type) {
             case ActionType::MOVE:
                 monitor_game.move(action_dto.id, action_dto.direction);

@@ -20,9 +20,9 @@ private:
 
 public:
     /* Mover */
-    void move(int id, Direction direction) {
+    bool move(Direction direction, const uint16_t& id) {
         std::lock_guard<std::mutex> lock(mutex);
-        game.move(direction, id);
+        return game.move(direction, id);
     }
 
     /* Snapshot */
