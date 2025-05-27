@@ -1,6 +1,7 @@
 #ifndef GAME_LOOP_H
 #define GAME_LOOP_H
 
+#include <algorithm>
 #include <list>
 #include <vector>
 
@@ -36,9 +37,12 @@ private:
 
     std::vector<ObjectDTO> process_objects(const std::vector<Object>& objects) {
         std::vector<ObjectDTO> object_dtos;
-        for (const auto& obj: objects) {
-            object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id());
-        }
+        object_dtos.reserve(objects.size());
+        std::transform(objects.begin(), objects.end(), std::back_inserter(object_dtos),
+                       [](const Object& obj) {
+                           return ObjectDTO(static_cast<ObjectType>(obj.get_type()),
+                                            obj.get_position(), obj.get_id());
+                       });
         return object_dtos;
     }
 
