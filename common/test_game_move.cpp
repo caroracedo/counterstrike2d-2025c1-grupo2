@@ -60,7 +60,6 @@ int main() {
                  "***********************************"
               << std::endl;
 
-
     // Pruebo todos los movimientos del jugador -> no hay colisión
     move_player(game, Direction::RIGHT, 1);
     move_player(game, Direction::DOWN, 1);
@@ -80,6 +79,7 @@ int main() {
     // Colisión con un obstáculo
     move_player(game, Direction::RIGHT, 1);
     move_player(game, Direction::RIGHT, 1);
+
     std::cout << "\n*******************************************************************************"
                  "*************************************"
               << std::endl;
@@ -114,6 +114,7 @@ int main() {
               << std::endl;
 
     show(game);
+
 
     return 0;
 }

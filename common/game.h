@@ -117,6 +117,7 @@ private:
                                                  Direction direction, uint16_t delta) {
         /*
          *    Realiza el movimiento del objeto dado en la dirección dada.
+         *    Realiza el movimiento del objeto dado en la dirección dada.
          *    Devuelve un par que indica si el movimiento fue exitoso y la nueva posición.
          */
         std::vector<uint16_t> position = obj->get_position();
@@ -135,6 +136,7 @@ private:
         }
 
         std::vector<uint16_t> max_position = get_max_position(obj, new_position);
+        std::vector<uint16_t> max_position = get_max_position(obj, new_position);
 
         return {max_position != position, max_position};
     }
@@ -151,12 +153,18 @@ private:
         // Determinar dirección de movimiento
         int dx = (new_position[0] > max_position[0]) ? 1 :
                  (new_position[0] < max_position[0]) ? -1 :
+        int dx = (new_position[0] > max_position[0]) ? 1 :
+                 (new_position[0] < max_position[0]) ? -1 :
                                                        0;
+        int dy = (new_position[1] > max_position[1]) ? 1 :
+                 (new_position[1] < max_position[1]) ? -1 :
         int dy = (new_position[1] > max_position[1]) ? 1 :
                  (new_position[1] < max_position[1]) ? -1 :
                                                        0;
 
         // Solo se mueve en una dirección a la vez (asumido por el diseño)
+        uint16_t x = max_position[0];
+        uint16_t y = max_position[1];
         uint16_t x = max_position[0];
         uint16_t y = max_position[1];
 
@@ -183,6 +191,7 @@ private:
                 }
                 std::cout << "\tColisión detectada" << std::endl;
                 break;
+                std::cout << "\t\tColisión detectada" << std::endl;
             }
             max_position = test_position;
             x = next_x;
@@ -197,6 +206,7 @@ private:
                                              const std::set<std::shared_ptr<Object>>& objects) {
         /*
          *    Verifica si hay colisiones con otros objetos en la nueva posición.
+         *    Devuelve el tipo de colisión (BULLET, PLAYER, OBSTACLE, OTHER o NONE).
          *    Devuelve el tipo de colisión (BULLET, PLAYER, OBSTACLE, OTHER o NONE).
          */
 
@@ -241,6 +251,7 @@ private:
 
         auto old_cell = get_cell_from_position(old_position);
         auto new_cell = get_cell_from_position(obj->get_position());
+        auto new_cell = get_cell_from_position(obj->get_position());
 
         // Quitar de la celda anterior
         auto& old_vec = matrix[old_cell.first][old_cell.second];
@@ -273,7 +284,7 @@ private:
         }
 
         // Si no colisiona con bala, agregar a la nueva celda
-        matrix[new_cell.first][new_cell.second].push_back(obj);
+        matrix[new_cell.first][new_cell.second].push_back(*obj);
         return true;
     }
 
@@ -385,7 +396,7 @@ public:
 
                 // Actualizar la posición del objeto en la matriz -> si no lo puede actualizar
                 // es porque el objeto "murió" (colisionó con una bala)
-                return update_object_in_matrix(*it, old_position);
+                return update_object_in_matrix(&(*it), old_position);
             }
         } else {
             std::cout << "No se encontró el objeto con ID: " << id << std::endl;
@@ -453,6 +464,12 @@ public:
         return objects;
     }
 
+    void add_player(const uint16_t& id) {
+        Player player1(id, {0, 0});
+        objects.push_back(player1);
+        auto cell = get_cell_from_position(player1.get_position());
+        matrix[cell.first][cell.second].push_back(player1);
+    }
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************

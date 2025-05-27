@@ -5,9 +5,12 @@
 #include <utility>
 #include <vector>
 
+#include "object_type.h"
+
 class Object {
 protected:
     enum class ObjectType : uint8_t { PLAYER, OBSTACLE, WEAPON, UNKNOWN };
+
     ObjectType type;
     uint16_t id;
     uint16_t width;
@@ -36,7 +39,6 @@ public:
 
     virtual void set_range(uint16_t new_range) {}
 
-    // Ensure ObjectDTO has a compatible 'type' member of ObjectType or cast appropriately
     template <typename T>
     bool operator<(const T& other) const {
         if (id != other.id)

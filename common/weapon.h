@@ -15,6 +15,7 @@ public:
     Weapon(uint16_t id, uint16_t price, uint16_t range,
            const std::vector<uint16_t>& position = {0, 0}):
             Object(ObjectType::WEAPON, id, 8, 8, position),
+
             price(price),
             range(range) {}  // Tamaño del arma (8x8)
 

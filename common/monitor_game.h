@@ -24,9 +24,17 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         return game.move(direction, id);
     }
-    std::vector<ObjectDTO> get_objects() {
+
+    /* Snapshot */
+    std::vector<Object> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.get_objects();
+    }
+
+    /* Agregar objeto */
+    void add_player(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.add_player(id);
     }
 };
 

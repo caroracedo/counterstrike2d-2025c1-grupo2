@@ -9,6 +9,8 @@ target_sources(taller_client
     client.h
     client_sender.h
     client_receiver.h
+    event_handler.h
     # input_handler.h
     mock_handler.h
+    update_handler.h
     )
