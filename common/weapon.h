@@ -2,29 +2,41 @@
 #define WEAPON_H
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
-#include "object.h"
+#include "bullet.h"
+#include "types.h"
 
-class Weapon: public Object {
-protected:
+// Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en el
+// lobby
+class Weapon {
+private:
+    WeaponModel model;
     uint16_t price;
     uint16_t range;
 
 public:
-    Weapon(uint16_t id, uint16_t price, uint16_t range,
-           const std::vector<uint16_t>& position = {0, 0}):
-            Object(ObjectType::WEAPON, id, 8, 8, position),
+    /* Constructor */
+    explicit Weapon(WeaponModel model):
+            model(model),
+            price(30),
+            range(5) {}  // Por ahora hardcodeado, dependerá del tipo de arma
 
-            price(price),
-            range(range) {}  // Tamaño del arma (8x8)
+    /* Verificaciones*/
+    bool is_bomb() { return model == WeaponModel::BOMB; }
 
-    Weapon(uint16_t id, uint16_t range, const std::vector<uint16_t>& position = {0, 0}):
-            Object(ObjectType::WEAPON, id, 8, 8, position), price(0), range(range) {}
+    /* Funcionalidades */
+    /* Disparar */
+    std::shared_ptr<Bullet> shoot(std::vector<uint16_t> shoot_position,
+                                  std::vector<uint16_t> desired_position) {
+        return std::make_shared<Bullet>(shoot_position, range, 5,
+                                        desired_position);  // Por ahora el daño es 5, después se
+                                                            // calculará según el tipo de arma
+    }
 
-    void set_range(uint16_t new_range) override { range = new_range; }
-
-    // Bullet shoot(){}
+    /* Getters */
+    uint16_t get_price() { return price; }
 };
 
 #endif  // WEAPON_H

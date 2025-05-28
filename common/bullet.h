@@ -2,21 +2,40 @@
 #define BULLET_H
 
 #include <cstdint>
+#include <vector>
+
 #include "object.h"
 
-class Bullet : public Object {
+#define BULLET_SIZE 5
+class Bullet: public Object {
 private:
-    uint16_t range;  // Daño que causa la bala
-    std::vector<uint16_t> desired_position;  // Hacia donde quiere ir la bala
+    uint16_t range;
+    uint16_t damage;
+    std::vector<uint16_t> desired_position;
+
 public:
-    Bullet(){}
+    /* Constructor */
+    Bullet(const std::vector<uint16_t>& position, uint16_t range, uint16_t damage,
+           const std::vector<uint16_t>& desired_position):
+            Object(ObjectType::BULLET, -1, position, BULLET_SIZE, BULLET_SIZE),
+            range(range),
+            damage(damage),
+            desired_position(desired_position) {}
 
-    void set_range(uint16_t new_range) override {
-        range = new_range;
-    }
+    /* Getters */
+    uint16_t get_range() const { return range; }
 
-    uint16_t get_range() const {
-        return range;
+    uint16_t get_damage() const { return damage; }
+
+    /* Verificaciones */
+    /* Virtual puro */
+    bool is_alive() const override { return range > 0; }
+
+    /* Funcionalidades */
+    void decrement_range() {
+        if (range > 0) {
+            range--;
+        }
     }
 };
 
