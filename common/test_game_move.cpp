@@ -29,19 +29,12 @@ void move_player(Game& game, Direction direction, uint16_t id) {
     }
 }
 
-void reshoot(Game& game, Direction direction, uint16_t id, uint16_t range, uint16_t b_id) {
-    auto result = game.shoot(direction, id, range, b_id);
-    if (result.first && range > 5) {
-        reshoot(game, direction, id, range - 5, result.second);
-    }
-}
-
-void shoot(Game& game, Direction direction, uint16_t id, uint16_t range) {
-    auto result = game.shoot(direction, id, range);
-    if (result.first && range > 5) {
-        reshoot(game, direction, id, range - 5, result.second);
-    }
-}
+// void shoot(Game& game, Direction direction, uint16_t id, uint16_t range) {
+//     auto result = game.shoot(direction, id, range);
+//     if (result.first && range > 5) {
+//         reshoot(game, direction, id, range - 5, result.second);
+//     }
+// }
 
 void show(Game& game) { game.show_objects(); }
 
@@ -93,21 +86,23 @@ int main() {
     move_player(game, Direction::DOWN, 1);
     move_player(game, Direction::DOWN, 1);
 
-    std::cout << "\n*******************************************************************************"
-                 "*************************************"
-              << std::endl;
-    std::cout << "***************************************************PRUEBA "
-                 "DISPARO***************************************************"
-              << std::endl;
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
+    // std::cout <<
+    // "\n*******************************************************************************"
+    //              "*************************************"
+    //           << std::endl;
+    // std::cout << "***************************************************PRUEBA "
+    //              "DISPARO***************************************************"
+    //           << std::endl;
+    // std::cout <<
+    // "*********************************************************************************"
+    //              "***********************************"
+    //           << std::endl;
 
-    shoot(game, Direction::LEFT, 2, 10);
-    shoot(game, Direction::LEFT, 2, 10);
-    shoot(game, Direction::LEFT, 2, 10);
-    shoot(game, Direction::LEFT, 2, 10);
-    shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
 
     std::cout << "\n*******************************************************************************"
                  "*************************************"

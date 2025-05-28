@@ -7,7 +7,7 @@
 #include "types.h"
 
 class Object {
-private:
+protected:
     ObjectType object_type;
     uint16_t id;
     std::vector<uint16_t> position;
@@ -33,11 +33,6 @@ public:
 
     /* Funcionalidad */
     void move(const std::vector<uint16_t>& new_position) { position = new_position; }
-
-    /* Virtual puro */
-    /* Verificaciones */
-    virtual bool is_alive()
-            const = 0;  // Método virtual puro, debe ser implementado por las subclases
 
     // Esto no se...
     template <typename T>

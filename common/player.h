@@ -22,23 +22,20 @@ private:
     uint16_t money;
 
 public:
-    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType player_type,
-           bool has_bomb):
+    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, bool has_bomb):
             Object(ObjectType::PLAYER, id, position, PLAYER_SIZE, PLAYER_SIZE),
-            player_type(player_type),
-            secondary_weapon(WeaponModel::GLOCK),
-            knife(WeaponModel::KNIFE),
-            has_bomb ? bomb(WeaponModel::Bomb) : bomb(),
+            player_type(type),
+            primary_weapon({WeaponModel::AK47}),  // Para que no me tire error
+            secondary_weapon({WeaponModel::GLOCK}),
+            knife({WeaponModel::KNIFE}),
+            bomb(has_bomb ? Weapon(WeaponModel::BOMB) : Weapon(WeaponModel::UNKNOWN)),
             current(secondary_weapon),
             health(100),   // Por defecto, el jugador comienza con 100 de salud
             money(500) {}  // Por defecto, el jugador comienza con 500 de dinero
 
-    /* Virtual puro */
-    /* Verificaciones */
-    bool is_alive() const override { return health > 0; }
 
-    /* Funcionalidades */
-    /* Daño */
+    bool is_alive() const { return health > 0; }
+
     void take_damage(uint16_t damage) {
         if (health > damage) {
             health -= damage;
@@ -62,6 +59,34 @@ public:
             return false;
         }
         return true;
+    }
+
+    Weapon get_current_weapon() const { return current; }
+
+    std::vector<uint16_t> get_next_position(Direction direction) const {
+        uint16_t max_position = MATRIX_SIZE * CELL_SIZE - PLAYER_SIZE;
+        std::vector<uint16_t> new_position = position;
+        switch (direction) {
+            case Direction::UP:
+                new_position[1] = (position[1] > MOVE_STEP) ? position[1] - MOVE_STEP : 0;
+                break;
+            case Direction::DOWN:
+                new_position[1] = (position[1] + MOVE_STEP > max_position) ?
+                                          max_position :
+                                          position[1] + MOVE_STEP;
+                break;
+            case Direction::LEFT:
+                new_position[0] = (position[0] > MOVE_STEP) ? position[0] - MOVE_STEP : 0;
+                break;
+            case Direction::RIGHT:
+                new_position[0] = (position[0] + MOVE_STEP > max_position) ?
+                                          max_position :
+                                          position[0] + MOVE_STEP;
+                break;
+            default:
+                break;
+        }
+        return new_position;
     }
 
     /* Compra de arma */

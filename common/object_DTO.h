@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "object_type.h"
+#include "types.h"
 
 struct ObjectDTO {
     ObjectType type;

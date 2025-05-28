@@ -28,15 +28,34 @@ public:
 
     /* Funcionalidades */
     /* Disparar */
-    std::shared_ptr<Bullet> shoot(std::vector<uint16_t> shoot_position,
-                                  std::vector<uint16_t> desired_position) {
-        return std::make_shared<Bullet>(shoot_position, range, 5,
-                                        desired_position);  // Por ahora el daño es 5, después se
-                                                            // calculará según el tipo de arma
-    }
+    // std::shared_ptr<Bullet> shoot(std::vector<uint16_t> shoot_position,
+    //                               std::vector<uint16_t> desired_position) {
+    //     return std::make_shared<Bullet>(shoot_position, range, 5,
+    //                                     desired_position);  // Por ahora el daño es 5, después se
+    //                                                         // calculará según el tipo de arma
+    // }
 
     /* Getters */
     uint16_t get_price() { return price; }
+    uint16_t get_range() { return range; }
+    uint16_t get_damage() {
+        switch (model) {
+            case WeaponModel::KNIFE:
+                return 50;  // Daño del cuchillo
+            case WeaponModel::GLOCK:
+                return 20;  // Daño de la Glock
+            case WeaponModel::AK47:
+                return 30;  // Daño del AK47
+            case WeaponModel::M3:
+                return 40;  // Daño de la M3
+            case WeaponModel::AWP:
+                return 100;  // Daño del AWP
+            case WeaponModel::BOMB:
+                return 200;  // Daño de la bomba
+            default:
+                return 0;  // Daño desconocido
+        }
+    }
 };
 
 #endif  // WEAPON_H
