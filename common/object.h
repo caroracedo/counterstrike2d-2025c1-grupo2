@@ -9,7 +9,7 @@
 
 class Object {
 protected:
-    enum class ObjectType : uint8_t { PLAYER, OBSTACLE, WEAPON, UNKNOWN };
+    enum class ObjectType : uint8_t { BULLET, PLAYER, OBSTACLE, WEAPON, UNKNOWN };
 
     ObjectType type;
     uint16_t id;

@@ -23,6 +23,8 @@ public:
             Object(ObjectType::WEAPON, id, 8, 8, position), price(0), range(range) {}
 
     void set_range(uint16_t new_range) override { range = new_range; }
+
+    // Bullet shoot(){}
 };
 
 #endif  // WEAPON_H

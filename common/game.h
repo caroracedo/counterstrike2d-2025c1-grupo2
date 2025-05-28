@@ -395,6 +395,12 @@ public:
         return false;
     }
 
+    void update_bullets() {
+        // busca todas las balas vivas y las mueve otro poco
+    }
+
+    // POSICION IDEAL (DONDE APUNTA EL MOUSE), ID JUGADOR -> get_current_weapon()
+    // jugador->current_weapon->bala nueva y la agrego a la matriz
     std::pair<bool, uint16_t> shoot(Direction direction, const uint16_t& id, uint16_t range,
                                     uint16_t b_id = 0) {
         /*
