@@ -3,6 +3,7 @@
 
 #include <condition_variable>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -19,22 +20,29 @@ private:
     std::mutex mutex;
 
 public:
-    /* Mover */
-    bool move(Direction direction, const uint16_t& id) {
+    /* Agregar objeto */
+    void add_player(uint16_t id, bool is_terrorist, bool has_bomb) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.move(direction, id);
+        game.add_player(id, is_terrorist, has_bomb);
     }
 
     /* Snapshot */
-    std::vector<Object> get_objects() {
+    std::vector<std::shared_ptr<Object>> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.get_objects();
     }
 
-    /* Agregar objeto */
-    void add_player(uint16_t id) {
+    /* Funcionalidades */
+    /* Mover */
+    bool move(const Direction& direction, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        game.add_player(id);
+        return game.move(direction, id);
+    }
+
+    /* Disparar */
+    bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.shoot(desired_position, id);
     }
 };
 

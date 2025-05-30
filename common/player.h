@@ -33,9 +33,16 @@ public:
             health(100),   // Por defecto, el jugador comienza con 100 de salud
             money(500) {}  // Por defecto, el jugador comienza con 500 de dinero
 
-
+    /* Verificaciones */
     bool is_alive() const { return health > 0; }
 
+    /* Getters */
+    Weapon get_current_weapon() const { return current; }
+    PlayerType get_player_type() const { return player_type; }
+    WeaponModel get_current_weapon_model() const { return current.get_model(); }
+
+    /* Funcionalidades */
+    /* Daño */
     void take_damage(uint16_t damage) {
         if (health > damage) {
             health -= damage;
@@ -60,8 +67,6 @@ public:
         }
         return true;
     }
-
-    Weapon get_current_weapon() const { return current; }
 
     std::vector<uint16_t> get_next_position(Direction direction) const {
         uint16_t max_position = MATRIX_SIZE * CELL_SIZE - PLAYER_SIZE;

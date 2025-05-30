@@ -23,24 +23,45 @@ enum class Direction : uint8_t {
 
 struct ActionDTO {
     ActionType type;
+
+    /* Mover */
     Direction direction;
+    /* Disparar */
+    std::vector<uint16_t> desired_position;
+    /* Update */
     std::vector<ObjectDTO> objects;
+
     uint16_t id;
 
-    // para unknown
-    ActionDTO(): type(ActionType::UNKNOWN), direction(), objects(), id() {}
+    ActionDTO():
+            type(ActionType::UNKNOWN),
+            direction(Direction::UNKNOWN),
+            desired_position(),
+            objects(),
+            id() {}
 
-    explicit ActionDTO(const ActionType& action): type(action), direction(), objects(), id() {}
+    explicit ActionDTO(const ActionType& action):
+            type(action), direction(Direction::UNKNOWN), desired_position(), objects(), id() {}
 
-    // para mover -- cliente -> server
+    /* client -> server */
+    /* Mover */
     ActionDTO(const ActionType& action, const Direction& direction):
-            type(action), direction(direction), objects(), id() {}
+            type(action), direction(direction), desired_position(), objects(), id() {}
+    /* Mover con id (en server)*/
     ActionDTO(const ActionType& action, const Direction& direction, uint16_t id):
-            type(action), direction(direction), objects(), id(id) {}
+            type(action), direction(direction), desired_position(), objects(), id(id) {}
 
-    // para mandar el update
+    /* Disparar */
+    ActionDTO(const ActionType& action, const std::vector<uint16_t>& desired_position):
+            type(action), direction(), desired_position(desired_position), objects(), id() {}
+    /* Disparar con id (en server)*/
+    ActionDTO(const ActionType& action, const std::vector<uint16_t>& desired_position, uint16_t id):
+            type(action), direction(), desired_position(desired_position), objects(), id(id) {}
+
+    /* server -> client */
+    /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
-            type(action), direction(), objects(objects), id() {}
+            type(action), direction(), desired_position(), objects(objects), id() {}
 };
 
 #endif  // ACTION_DTO_H
