@@ -29,12 +29,27 @@ void move_player(Game& game, Direction direction, uint16_t id) {
     }
 }
 
-// void shoot(Game& game, Direction direction, uint16_t id, uint16_t range) {
-//     auto result = game.shoot(direction, id, range);
-//     if (result.first && range > 5) {
-//         reshoot(game, direction, id, range - 5, result.second);
-//     }
-// }
+void shoot(Game& game, Direction direction, uint16_t id) {
+    std::vector<uint16_t> position = game.get_position(id);
+    switch (direction) {
+        case Direction::UP:
+            position[1] -= 40;
+            break;
+        case Direction::DOWN:
+            position[1] += 40;
+            break;
+        case Direction::LEFT:
+            position[0] -= 40;
+            break;
+        case Direction::RIGHT:
+            position[0] += 40;
+            break;
+        default:
+            break;
+    }
+
+    game.shoot(position, id);
+}
 
 void show(Game& game) { game.show_objects(); }
 
@@ -43,66 +58,68 @@ int main() {
 
     show(game);
 
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
-    std::cout << "***********************************************PRUEBA DE "
-                 "MOVIMIENTOS************************************************"
-              << std::endl;
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
-
-    // Pruebo todos los movimientos del jugador -> no hay colisión
-    move_player(game, Direction::RIGHT, 1);
-    move_player(game, Direction::DOWN, 1);
-    move_player(game, Direction::LEFT, 1);
-    move_player(game, Direction::UP, 1);
-
-    std::cout << "\n*******************************************************************************"
-                 "*************************************"
-              << std::endl;
-    std::cout << "******************************************PRUEBA DE COLISIÓN CON "
-                 "OBSTÁCULO******************************************"
-              << std::endl;
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
-
-    // Colisión con un obstáculo
-    move_player(game, Direction::RIGHT, 1);
-    move_player(game, Direction::RIGHT, 1);
-
-    std::cout << "\n*******************************************************************************"
-                 "*************************************"
-              << std::endl;
-    std::cout << "*********************************************PRUEBA DE COLISIÓN CON "
-                 "BALA********************************************"
-              << std::endl;
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
-
-    move_player(game, Direction::DOWN, 1);
-    move_player(game, Direction::DOWN, 1);
-
     // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
+    // "*********************************************************************************"
+    //              "***********************************"
     //           << std::endl;
-    // std::cout << "***************************************************PRUEBA "
-    //              "DISPARO***************************************************"
+    // std::cout << "***********************************************PRUEBA DE "
+    //              "MOVIMIENTOS************************************************"
     //           << std::endl;
     // std::cout <<
     // "*********************************************************************************"
     //              "***********************************"
     //           << std::endl;
 
-    // shoot(game, Direction::LEFT, 2, 10);
-    // shoot(game, Direction::LEFT, 2, 10);
-    // shoot(game, Direction::LEFT, 2, 10);
-    // shoot(game, Direction::LEFT, 2, 10);
-    // shoot(game, Direction::LEFT, 2, 10);
+    // // Pruebo todos los movimientos del jugador -> no hay colisión
+    // move_player(game, Direction::RIGHT, 1);
+    // move_player(game, Direction::DOWN, 1);
+    // move_player(game, Direction::LEFT, 1);
+    // move_player(game, Direction::UP, 1);
+
+    // std::cout <<
+    // "\n*******************************************************************************"
+    //              "*************************************"
+    //           << std::endl;
+    // std::cout << "******************************************PRUEBA DE COLISIÓN CON "
+    //              "OBSTÁCULO******************************************"
+    //           << std::endl;
+    // std::cout <<
+    // "*********************************************************************************"
+    //              "***********************************"
+    //           << std::endl;
+
+    // // Colisión con un obstáculo
+    // move_player(game, Direction::RIGHT, 1);
+    // move_player(game, Direction::RIGHT, 1);
+
+    // std::cout <<
+    // "\n*******************************************************************************"
+    //              "*************************************"
+    //           << std::endl;
+    // std::cout << "*********************************************PRUEBA DE COLISIÓN CON "
+    //              "BALA********************************************"
+    //           << std::endl;
+    // std::cout <<
+    // "*********************************************************************************"
+    //              "***********************************"
+    //           << std::endl;
+
+    // move_player(game, Direction::DOWN, 1);
+    // move_player(game, Direction::DOWN, 1);
+
+    std::cout << "\n*******************************************************************************"
+                 "*************************************"
+              << std::endl;
+    std::cout << "***************************************************PRUEBA "
+                 "DISPARO***************************************************"
+              << std::endl;
+    std::cout << "*********************************************************************************"
+                 "***********************************"
+              << std::endl;
+
+    for (int i = 0; i < 5; ++i) {
+        shoot(game, Direction::LEFT, 2);
+    }
 
     std::cout << "\n*******************************************************************************"
                  "*************************************"

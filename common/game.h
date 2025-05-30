@@ -76,7 +76,9 @@ private:
     void inc_bullet_id();
 
     // Calcula la posición inicial de la bala en función de la dirección y la posición del jugador.
-    std::vector<uint16_t> calculate_bullet_starting_position(const std::shared_ptr<Object>& player);
+    std::vector<uint16_t> calculate_bullet_starting_position(
+            const std::vector<uint16_t>& player_position,
+            const std::vector<uint16_t>& desired_position);
 
     // Actualiza las balas en la matriz, eliminando las que ya no están activas.
     void update_bullets();

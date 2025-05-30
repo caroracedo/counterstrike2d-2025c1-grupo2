@@ -16,9 +16,6 @@ std::pair<uint16_t, uint16_t> Game::get_cell_from_position(const std::vector<uin
     return {x, y};
 }
 
-// A partir de la línea 21 falta un shift + tab para que quede bien (me dió toc perdón, no lo hago
-// yo porque va a parecer que yo hice todo este código)
-
 std::vector<std::pair<uint16_t, uint16_t>> Game::get_cells_within_radius(
         const std::pair<uint16_t, uint16_t>& cell, uint16_t radius = 2) {
     /*
@@ -152,6 +149,12 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
                        new_position[1] < obj->get_position()[1] + obj->get_height() &&
                        new_position[1] + height > obj->get_position()[1];
         if (overlap) {
+            std::cout << "\tColisión detectada entre "
+                      << get_object_type(static_cast<ObjectType>(object.get_type()))
+                      << " ID: " << object.get_id() << " y "
+                      << get_object_type(static_cast<ObjectType>(obj->get_type()))
+                      << " ID: " << obj->get_id() << std::endl;
+
             ObjectType type = static_cast<ObjectType>(obj->get_type());
             if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
                 type == ObjectType::PLAYER) {
@@ -230,14 +233,11 @@ uint16_t Game::get_damage_and_delete_bullet(uint bullet_id) {
     auto bullet_it = bullets.find(bullet_id);
     if (bullet_it != bullets.end()) {
         damage = bullet_it->second->get_damage();
-
-        // Eliminar la bala de la lista de balas
-        bullets.erase(bullet_it);
-
         // Eliminar la bala de la matriz
         auto bullet_cell = get_cell_from_position(bullet_it->second->get_position());
-        auto& bullet_vec = matrix[bullet_cell.first][bullet_cell.second];
         uint bullet_id_val = bullet_it->first;
+        auto& bullet_vec = matrix[bullet_cell.first][bullet_cell.second];
+
         bullet_vec.erase(std::remove_if(bullet_vec.begin(), bullet_vec.end(),
                                         [bullet_id_val](const std::shared_ptr<Object>& o) {
                                             return o->get_id() == bullet_id_val &&
@@ -254,6 +254,9 @@ uint16_t Game::get_damage_and_delete_bullet(uint bullet_id) {
                                                         ObjectType::BULLET;
                                      }),
                       objects.end());
+
+        // Eliminar la bala de la lista de balas
+        bullets.erase(bullet_it);
     }
     return damage;
 }
@@ -272,8 +275,6 @@ bool Game::find_player_and_damage(uint16_t id, uint16_t damage) {
 
         if (!player_it->second->is_alive()) {
             std::cout << "\tJugador " << id << " ha muerto." << std::endl;
-            // Eliminar al jugador de players
-            players.erase(player_it);
 
             // Eliminar al jugador de la matriz
             auto player_cell = get_cell_from_position(player_it->second->get_position());
@@ -295,6 +296,9 @@ bool Game::find_player_and_damage(uint16_t id, uint16_t damage) {
                                          }),
                           objects.end());
 
+            // Eliminar al jugador de players
+            players.erase(player_it);
+
             return false;  // El jugador ha muerto
         }
         return true;  // El jugador sigue vivo
@@ -313,17 +317,35 @@ void Game::inc_bullet_id() {
 }
 
 std::vector<uint16_t> Game::calculate_bullet_starting_position(
-        const std::shared_ptr<Object>& player) {
-    /*
-     *    Calcula la posición inicial de la bala en función de la dirección y la posición del
-     *    jugador. La bala se coloca en el centro del jugador.
-     */
+        const std::vector<uint16_t>& player_position,
+        const std::vector<uint16_t>& desired_position) {
+    // Centro del jugador
+    float cx = player_position[0] + PLAYER_SIZE / 2.0f;
+    float cy = player_position[1] + PLAYER_SIZE / 2.0f;
 
-    std::vector<uint16_t> position = player->get_position();
-    uint16_t offset = PLAYER_SIZE / 2 - BULLET_SIZE / 2;  // Centrar la bala en el jugador
+    // Vector dirección
+    float dx = static_cast<float>(desired_position[0]) - cx;
+    float dy = static_cast<float>(desired_position[1]) - cy;
+    float mag = std::sqrt(dx * dx + dy * dy);
 
-    return {static_cast<uint16_t>(position[0] + offset),
-            static_cast<uint16_t>(position[1] + offset)};
+    // Si el destino es el mismo que el centro, deja la bala en el centro
+    if (mag == 0) {
+        return {static_cast<uint16_t>(cx - BULLET_SIZE / 2.0f),
+                static_cast<uint16_t>(cy - BULLET_SIZE / 2.0f)};
+    }
+
+    // Offset desde el centro del jugador hasta el borde (más la mitad de la bala)
+    float offset = PLAYER_SIZE / 2.0f + BULLET_SIZE / 2.0f;
+
+    // Posición inicial de la bala
+    float x_bullet = cx + dx * (offset / mag) - BULLET_SIZE / 2.0f;
+    float y_bullet = cy + dy * (offset / mag) - BULLET_SIZE / 2.0f;
+
+    std::cout << "Posición inicial de la bala: (" << static_cast<uint16_t>(std::round(x_bullet))
+              << ", " << static_cast<uint16_t>(std::round(y_bullet)) << ")" << std::endl;
+
+    return {static_cast<uint16_t>(std::round(x_bullet)),
+            static_cast<uint16_t>(std::round(y_bullet))};
 }
 
 bool Game::move(Direction direction, const uint16_t& id) {
@@ -394,7 +416,8 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
 
         uint16_t range = player_it->second->get_current_weapon().get_range();
         uint16_t damage = player_it->second->get_current_weapon().get_damage();
-        std::vector<uint16_t> position = calculate_bullet_starting_position(player_it->second);
+        std::vector<uint16_t> position = calculate_bullet_starting_position(
+                player_it->second->get_position(), desired_position);
 
         Bullet bullet(b_id, position, range, damage);
 
@@ -425,20 +448,3 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
         return false;  // No se pudo disparar
     }
 }
-
-// Creo que no se necesita más porque se actualiza solo en el movimiento
-// void Game::reap() {
-//     objects.erase(std::remove_if(objects.begin(), objects.end(),
-//                                  [this](const std::shared_ptr<Object>& obj) {
-//                                      auto cell = get_cell_from_position(obj->get_position());
-//                                      const auto& cell_vec = matrix[cell.first][cell.second];
-//                                      // Busca si el objeto está en la celda correspondiente de
-//                                      // la matriz
-//                                      return std::none_of(
-//                                              cell_vec.begin(), cell_vec.end(),
-//                                              [&obj](const std::shared_ptr<Object>& o) {
-//                                                  return o == obj;
-//                                              });
-//                                  }),
-//                   objects.end());
-// }
