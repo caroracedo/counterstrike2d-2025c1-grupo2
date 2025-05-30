@@ -21,8 +21,11 @@ GameView::GameView():
                 100),
     background (renderer, Surface(SDL_LoadBMP("../dustroof.bmp"))),
     camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
-    gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
-    gun_view(gun_texture) {}
+    // gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
+    // gun_view(gun_texture) 
+    box_texture(renderer, Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
+    box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp")))
+    {}
 
 
 void GameView::update(const ActionDTO& action) {
@@ -30,20 +33,34 @@ void GameView::update(const ActionDTO& action) {
     if (action.type != ActionType::UPDATE)
         return;
 
+    obstacles.clear(); // Limpiar obstáculos antes de procesar nuevos objetos
     for(const auto& object : action.objects) {
-       
         float x = object.position[0];
         float y = object.position[1];
-        std::cout << "Object ID: " << object.id << " Type: " << static_cast<int>(object.type)
-                  << " Position: (" << x << ", " << y << ")" << std::endl;
         if (object.type == ObjectType::PLAYER) {
+            bool moved = (x != last_px || y != last_py);
+
             legs_view.update_position(x, y);
-            legs_view.update_animation();
+            if (moved)
+                legs_view.update_animation();
+
             player_view.update_position(x, y);
-            
+
+            last_px = x;
+            last_py = y;
         }
+
         else if (object.type == ObjectType::OBSTACLE) {
-            // obstacles.push_back({x, y});
+            float w = object.width; 
+            float h = object.height;
+        
+            ObstacleView obs;
+            obs.x = x;
+            obs.y = y;
+            obs.w = w;
+            obs.h = h;
+            obs.use_texture2 = (w == 64 && h == 64); // Asumiendo que el tamaño 64x64 usa la segunda textura
+            obstacles.push_back(obs);
             continue;
         }
     }    
@@ -64,18 +81,28 @@ void GameView::render() {
 
     renderer.Copy(background,view, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
 
-    SDL_Rect rojo = { 250 - camera.get_x(), 250 - camera.get_y(), 50, 50};
-    renderer.SetDrawColor( 255, 0, 0, 255);
-    renderer.FillRect(rojo);
+    // SDL_Rect rojo = { 50 - camera.get_x(), 10 - camera.get_y(), 50, 50};
+    // renderer.SetDrawColor( 255, 0, 0, 255);
+    // renderer.FillRect(rojo);
 
     legs_view.draw(renderer,camera);
     
-    for (auto& bullet : bullets)
-        bullet.draw(renderer, camera);
+    // for (auto& bullet : bullets)
+    //     bullet.draw(renderer, camera);
 
     player_view.draw(renderer,camera);
-    float angle_deg = player_view.get_angle();
-    gun_view.draw(renderer, camera, px, py, angle_deg);
+    // float angle_deg = player_view.get_angle();
+    // gun_view.draw(renderer, camera, px, py, angle_deg);
+
+    for (const auto& obs : obstacles) {
+        SDL_Rect dst_rect = { int(obs.x) - camera.get_x(), int(obs.y) - camera.get_y(), int(obs.w), int(obs.h) };
+        SDL_Rect src_rect = { 0, 0, int(obs.w), int(obs.h) }; // O el tamaño real de la textura
+        if (obs.use_texture2) {
+            renderer.Copy(box_texture2, src_rect, dst_rect);
+        } else {
+            renderer.Copy(box_texture, src_rect, dst_rect);
+        }
+    }
     
     renderer.Present();
 
@@ -86,4 +113,14 @@ void GameView::render() {
 void GameView::update_graphics(const ActionDTO& action){
     update(action);
     render();
+}
+
+void GameView::frame_sync() {
+    Uint32 now = SDL_GetTicks();
+    Uint32 elapsed = now - last_frame_time;
+
+    if (elapsed < frame_delay)
+        SDL_Delay(frame_delay - elapsed);
+
+    last_frame_time = SDL_GetTicks();
 }

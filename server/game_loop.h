@@ -37,7 +37,11 @@ private:
     std::vector<ObjectDTO> process_objects(const std::vector<Object>& objects) {
         std::vector<ObjectDTO> object_dtos;
         for (const auto& obj: objects) {
-            object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id());
+            if (obj.get_type() != ObjectType::OBSTACLE) {
+                object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id());
+            } else {
+                object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id(), obj.get_width(), obj.get_height());
+            }
         }
         return object_dtos;
     }

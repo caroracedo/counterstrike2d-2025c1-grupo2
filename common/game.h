@@ -122,8 +122,8 @@ private:
         uint16_t MAX_POSITION = MATRIX_SIZE * CELL_SIZE - obj.get_width();
         std::vector<uint16_t> new_position =
                 calculate_new_position(position, direction, delta, MAX_POSITION);
-        std::cout << "Intentando mover de (" << position[0] << ", " << position[1] << ") a ("
-                  << new_position[0] << ", " << new_position[1] << ")" << std::endl;
+        // std::cout << "Intentando mover de (" << position[0] << ", " << position[1] << ") a ("
+                //   << new_position[0] << ", " << new_position[1] << ")" << std::endl;
 
         if (new_position == position) {
             return {false, position};  // No se movió
@@ -159,20 +159,20 @@ private:
             uint16_t next_x = x + dx;
             uint16_t next_y = y + dy;
             std::vector<uint16_t> test_position = {next_x, next_y};
-            std::cout << "\t\tProbando posición: (" << test_position[0] << ", " << test_position[1]
-                      << ")" << std::endl;
+            // std::cout << "\t\tProbando posición: (" << test_position[0] << ", " << test_position[1]
+                    //   << ")" << std::endl;
             CollisionType collision = collides(obj, test_position, ady_objects);
             if (collision != CollisionType::NONE) {
                 ObjectType obj_type = static_cast<ObjectType>(obj.get_type());
                 if (collision == CollisionType::BULLET && obj_type == ObjectType::PLAYER) {
                     // Si un jugador colisiona con una bala, se mueve hasta la posición de la bala
                     max_position = test_position;
-                    std::cout << "\t\tJugador " << obj.get_id() << " colisionó con una bala."
-                              << std::endl;
+                    // std::cout << "\t\tJugador " << obj.get_id() << " colisionó con una bala."
+                            //   << std::endl;
                 } else if (collision == CollisionType::PLAYER && obj_type == ObjectType::WEAPON) {
                     // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                     max_position = test_position;
-                    std::cout << "\t\tBala colisionó con un jugador." << std::endl;
+                    // std::cout << "\t\tBala colisionó con un jugador." << std::endl;
                     /*
                         TODO: chequear si el jugador muere y eliminarlo de la matriz o restarle vida
                     */
@@ -180,10 +180,10 @@ private:
                     // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                     // obstáculo
                     max_position = test_position;
-                    std::cout << "\t\tBala colisionó con un obstáculo." << std::endl;
+                    // std::cout << "\t\tBala colisionó con un obstáculo." << std::endl;
                 }
                 break;
-                std::cout << "\t\tColisión detectada" << std::endl;
+                // std::cout << "\t\tColisión detectada" << std::endl;
             }
             max_position = test_position;
             x = next_x;
@@ -211,20 +211,20 @@ private:
                            new_position[1] < obj.get_position()[1] + obj.get_height() &&
                            new_position[1] + height > obj.get_position()[1];
             if (overlap) {
-                std::cout << "\tColisión detectada entre objeto ID: " << object.get_id()
-                          << " y objeto ID: " << obj.get_id() << std::endl;
+                // std::cout << "\tColisión detectada entre objeto ID: " << object.get_id()
+                        //   << " y objeto ID: " << obj.get_id() << std::endl;
                 switch (static_cast<ObjectType>(
                         obj.get_type()))  // Cast to ObjectType for comparison
                 {
                     case ObjectType::WEAPON:
-                        std::cout << "\tColisión con arma detectada." << std::endl;
+                        // std::cout << "\tColisión con arma detectada." << std::endl;
                         return CollisionType::BULLET;
                     case ObjectType::OBSTACLE:
-                        std::cout << "\tColisión con obstáculo detectada." << std::endl;
+                        // std::cout << "\tColisión con obstáculo detectada." << std::endl;
                         return CollisionType::OBSTACLE;
                     case ObjectType::PLAYER:
-                        std::cout << "\tColisión con jugador " << obj.get_id() << " detectada."
-                                  << std::endl;
+                        // std::cout << "\tColisión con jugador " << obj.get_id() << " detectada."
+                                //   << std::endl;
                         return CollisionType::PLAYER;
                     default:
                         return CollisionType::OTHER;
@@ -257,8 +257,8 @@ private:
         if (collision != CollisionType::NONE) {
             // Si colisiona con un obstáculo, no se mueve
             if (collision == CollisionType::OBSTACLE) {
-                std::cout << "Objeto " << obj->get_id()
-                          << " colisionó con un obstáculo y no se movió." << std::endl;
+                // std::cout << "Objeto " << obj->get_id()
+                        //   << " colisionó con un obstáculo y no se movió." << std::endl;
                 return false;
             }
         }
@@ -268,8 +268,8 @@ private:
             /*
                 TODO: chequear si el jugador muere y eliminarlo de la matriz o restarle vida
             */
-            std::cout << "Jugador " << obj->get_id() << " colisionó con una bala y murió."
-                      << std::endl;
+            // std::cout << "Jugador " << obj->get_id() << " colisionó con una bala y murió."
+                    //   << std::endl;
             return false;
         }
 
@@ -295,10 +295,15 @@ private:
 
     void initialize_demo_objects() {
         // Obstáculo 1 en (50, 10)
-        Obstacle obstacle1(6, 6, {50, 10});
+        Obstacle obstacle1(32, 32, {50, 10});
+        Obstacle obstacle2(64, 64, {150, 150});
         objects.push_back(obstacle1);
         auto cell = get_cell_from_position(obstacle1.get_position());
         matrix[cell.first][cell.second].push_back(obstacle1);
+        
+        objects.push_back(obstacle2);
+        auto cell2 = get_cell_from_position(obstacle2.get_position());
+        matrix[cell2.first][cell2.second].push_back(obstacle2);
     }
 
 public:
@@ -334,7 +339,7 @@ public:
                 return update_object_in_matrix(&(*it), old_position);
             }
         } else {
-            std::cout << "No se encontró el objeto con ID: " << id << std::endl;
+            // std::cout << "No se encontró el objeto con ID: " << id << std::endl;
         }
         return false;
     }

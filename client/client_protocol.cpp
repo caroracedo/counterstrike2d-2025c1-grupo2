@@ -42,18 +42,40 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
         return {};
 
     std::vector<ObjectDTO> objects;
-    for (size_t i = 0; i + 6 < data.size(); i += 7) {
+    size_t i = 0;
+
+    while (i + 7 <= data.size()) { // al menos 7 bytes para empezar
         ObjectType object_type = static_cast<ObjectType>(data[i]);
 
+        if (i + 7 > data.size()) break; // para los 7 bytes base
         std::vector<uint8_t> x(data.begin() + i + 1, data.begin() + i + 3);
         std::vector<uint8_t> y(data.begin() + i + 3, data.begin() + i + 5);
         std::vector<uint8_t> id(data.begin() + i + 5, data.begin() + i + 7);
+        std::vector<uint16_t> position = {
+            hex_big_endian_to_int_16(x),
+            hex_big_endian_to_int_16(y)
+        };
 
-        std::vector<uint16_t> position = {hex_big_endian_to_int_16(x), hex_big_endian_to_int_16(y)};
-
-        // Todos con ID, sólo que a veces sirve y a veces no
-        objects.push_back({object_type, position, hex_big_endian_to_int_16(id)});
+        if (object_type == ObjectType::OBSTACLE) {
+            if (i + 11 > data.size()) break; // verificar que haya 11 bytes para OBSTACLE
+            std::vector<uint8_t> width(data.begin() + i + 7, data.begin() + i + 9);
+            std::vector<uint8_t> height(data.begin() + i + 9, data.begin() + i + 11);
+            objects.push_back({
+                object_type,
+                position,
+                hex_big_endian_to_int_16(id),
+                hex_big_endian_to_int_16(width),
+                hex_big_endian_to_int_16(height)
+            });
+            i += 11;
+        } else {
+            objects.push_back({
+                object_type,
+                position,
+                hex_big_endian_to_int_16(id)
+            });
+            i += 7;
+        }
     }
-    std::cout << "Envío update" << std::endl;
     return {ActionType::UPDATE, objects};
 }

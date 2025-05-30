@@ -90,8 +90,8 @@ public:
         InputHandler input_handler;
 
         bool running = true;
-        Uint32 last_frame_time = SDL_GetTicks();
-        const Uint32 frame_delay = 1000 / 60;  // 60 FPS
+        // Uint32 last_frame_time = SDL_GetTicks();
+        // const Uint32 frame_delay = 1000 / 60;  // 60 FPS
 
         while (running) {
             // INPUT
@@ -110,15 +110,10 @@ public:
                 }
             }
 
-            // RENDER
-            Uint32 now = SDL_GetTicks();
-            if (now - last_frame_time >= frame_delay) {
-                game_view.render();
-                last_frame_time = now;
-            }
+                // RENDER
+            game_view.render();
+            game_view.frame_sync();
 
-            // PREVENIR USO EXCESIVO DE CPU
-            SDL_Delay(16);
         }
 
         client_socket.shutdown(2);

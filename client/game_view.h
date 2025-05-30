@@ -5,12 +5,18 @@
 #include <SDL2pp/SDL2pp.hh>
 #include "player_view.h"
 #include "../common/action_DTO.h"
+#include "../common/obstacle.h"
 #include "legs_view.h"
 #include "game_camera.h"
 #include "bullet_view.h"
 #include "gun_view.h"
 
 using namespace SDL2pp;
+
+struct ObstacleView {
+    float x, y, w, h;
+    bool use_texture2 = false; 
+};
 
 class GameView {
 private:
@@ -27,10 +33,19 @@ private:
     Texture background;
 
     GameCamera camera; 
-    Texture gun_texture;
-    GunView gun_view;
+    // Texture gun_texture;
+    // GunView gun_view;
 
+    Texture box_texture;
+    Texture box_texture2;
+    
+    Uint32 last_frame_time;
+    const Uint32 frame_delay = 1000 / 60;  // 60 FPS
+
+    std::vector<ObstacleView> obstacles;  
     std::vector<BulletView> bullets; 
+    float last_px = -1;
+    float last_py = -1;
     void calculate_fps(); //TODO: hacer
 
 public:
@@ -55,6 +70,8 @@ public:
     }
     
     void update_graphics(const ActionDTO& action);
+
+    void frame_sync();
 };
 
 #endif
