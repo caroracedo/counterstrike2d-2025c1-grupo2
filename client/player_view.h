@@ -12,7 +12,7 @@ class PlayerView {
 private:
     float posX = 0.0f, posY = 0.0f;
     Texture& cuerpo;
-    float angle = 0.0f; // Angle in degrees
+    float angle = 0.0f; 
 
 public:
     PlayerView(Texture& cuerpo) : cuerpo(cuerpo) {}

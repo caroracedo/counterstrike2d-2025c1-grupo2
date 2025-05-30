@@ -11,38 +11,27 @@ using namespace SDL2pp;
 
 class BulletView {
     private:
-        // int id;
-        float x, y;
-        float vx, vy;
-        float speed;
-        double angle;
-        bool active = true; 
+    // int id;
+    float x;
+    float y;
+    // float angle; 
         
     public:
-        BulletView(float start_x, float start_y, float angle_deg):  x(start_x), y(start_y), angle(angle_deg){
-            float angle_rad = angle_deg * M_PI / 180.0f;
-            float speed = 5.0f;
-            vx = std::cos(angle_rad) * speed;
-            vy = std::sin(angle_rad) * speed;
-        }
+        BulletView(float start_x, float start_y):  x(start_x), y(start_y){}
             
-        void update() {
-            if (!active) return;
-            x += vx;
-            y += vy;
-            if (x < 0 || y < 0 || x > 2048 || y > 2048) active = false;
+        void update(float new_x, float new_y) {
+            x = new_x;
+            y = new_y;
         }
+
         void draw(Renderer& renderer, const GameCamera& camera) {
             SDL_Rect rect = {
                 static_cast<int>(x - camera.get_x()),
                 static_cast<int>(y - camera.get_y()),
-                5, 3
+                4, 4
             };
             renderer.SetDrawColor(255, 255, 0, 255);  // Amarillo
             renderer.FillRect(rect);
-        }
-        bool is_active() const {
-            return active;
         }
 };
 

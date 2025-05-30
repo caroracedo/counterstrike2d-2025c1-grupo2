@@ -11,7 +11,6 @@
 #include "bullet_view.h"
 #include "gun_view.h"
 
-using namespace SDL2pp;
 
 struct ObstacleView {
     float x, y, w, h;
@@ -46,6 +45,11 @@ private:
     std::vector<BulletView> bullets; 
     float last_px = -1;
     float last_py = -1;
+    
+    void update_obstacles(const ObjectDTO& object);
+    void update_player(const ObjectDTO& object);
+    void update_bullets(const ObjectDTO& object);
+
     void calculate_fps(); //TODO: hacer
 
 public:
@@ -58,16 +62,6 @@ public:
         bullets.emplace_back(px, py, angle_deg);
     }
 
-    void update_bullets() {
-        for (auto& bullet : bullets)
-            bullet.update();
-
-        bullets.erase(
-            std::remove_if(bullets.begin(), bullets.end(),
-                [](const BulletView& b) { return !b.is_active(); }),
-            bullets.end()
-        );
-    }
     
     void update_graphics(const ActionDTO& action);
 

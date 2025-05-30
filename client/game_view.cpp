@@ -2,9 +2,8 @@
 
 #include <SDL2/SDL.h>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
-
+// de esto voy a hacer un refactor para que no se carguen las texturas en el constructor
+// se haria una clase mas prolija.
 GameView::GameView():  
     sdl(SDL_INIT_VIDEO),
     window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
@@ -33,38 +32,50 @@ void GameView::update(const ActionDTO& action) {
     if (action.type != ActionType::UPDATE)
         return;
 
-    obstacles.clear(); // Limpiar obstáculos antes de procesar nuevos objetos
+    obstacles.clear();
+    bullets.clear();
     for(const auto& object : action.objects) {
-        float x = object.position[0];
-        float y = object.position[1];
-        if (object.type == ObjectType::PLAYER) {
-            bool moved = (x != last_px || y != last_py);
 
-            legs_view.update_position(x, y);
-            if (moved)
-                legs_view.update_animation();
+        if (object.type == ObjectType::PLAYER)
+            update_player(object);
+       
+        // se encapsula en una clase
+        else if (object.type == ObjectType::OBSTACLE) 
+            update_obstacles(object);
 
-            player_view.update_position(x, y);
-
-            last_px = x;
-            last_py = y;
-        }
-
-        else if (object.type == ObjectType::OBSTACLE) {
-            float w = object.width; 
-            float h = object.height;
-        
-            ObstacleView obs;
-            obs.x = x;
-            obs.y = y;
-            obs.w = w;
-            obs.h = h;
-            obs.use_texture2 = (w == 64 && h == 64); // Asumiendo que el tamaño 64x64 usa la segunda textura
-            obstacles.push_back(obs);
-            continue;
-        }
+        // else if (object.type == ObjectType::BULLET)
+        //     update_bullets(object);
     }    
 }
+
+void GameView::update_player(const ObjectDTO& object){
+    float x = object.position[0];
+    float y = object.position[1];
+    bool moved = (x != last_px || y != last_py);
+    legs_view.update_position(x, y);
+    if (moved)
+        legs_view.update_animation();
+
+    player_view.update_position(x, y);
+
+    last_px = x;
+    last_py = y;
+}
+void GameView::update_bullets(const ObjectDTO& object) {
+    BulletView bullet(object.position[0], object.position[1]);
+    // bullet.angle = object.angle; // Asumiendo que el DTO tiene un campo de ángulo
+    bullets.push_back(bullet);
+}
+void GameView::update_obstacles(const ObjectDTO& object) {
+    ObstacleView obs;
+    obs.x = object.position[0];
+    obs.y = object.position[1];
+    obs.w = object.width;
+    obs.h = object.height;
+    obs.use_texture2 = (object.width == 64 && object.height == 64); // ejemplo de uso de textura2
+    obstacles.push_back(obs);
+}
+
 
 void GameView::render() {
    
@@ -81,18 +92,12 @@ void GameView::render() {
 
     renderer.Copy(background,view, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
 
-    // SDL_Rect rojo = { 50 - camera.get_x(), 10 - camera.get_y(), 50, 50};
-    // renderer.SetDrawColor( 255, 0, 0, 255);
-    // renderer.FillRect(rojo);
-
     legs_view.draw(renderer,camera);
     
-    // for (auto& bullet : bullets)
-    //     bullet.draw(renderer, camera);
+    for (auto& bullet : bullets)
+        bullet.draw(renderer, camera);
 
     player_view.draw(renderer,camera);
-    // float angle_deg = player_view.get_angle();
-    // gun_view.draw(renderer, camera, px, py, angle_deg);
 
     for (const auto& obs : obstacles) {
         SDL_Rect dst_rect = { int(obs.x) - camera.get_x(), int(obs.y) - camera.get_y(), int(obs.w), int(obs.h) };
@@ -105,8 +110,6 @@ void GameView::render() {
     }
     
     renderer.Present();
-
-    // SDL_Delay(16);  // TODO: hacer calculo de FPS no hardcodeado.
     
 }
 
