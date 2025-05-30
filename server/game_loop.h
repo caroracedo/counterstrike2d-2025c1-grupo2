@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <list>
+#include <memory>
 #include <vector>
 
 #include "../common/action_DTO.h"
@@ -22,26 +23,35 @@ private:
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
             case ActionType::MOVE:
-                monitor_game.move(action_dto.direction, action_dto.id);
-                break;
+                return monitor_game.move(action_dto.direction, action_dto.id);
+            case ActionType::SHOOT:
+                return monitor_game.shoot(action_dto.desired_position, action_dto.id);
             default:
                 return false;
         }
-        return true;
     }
 
     void send_snapshot_to_all_clients() {
-        ActionDTO update{ActionType::UPDATE, process_objects(monitor_game.get_objects())};
+        ActionDTO update = {ActionType::UPDATE, process_objects(monitor_game.get_objects())};
         monitor_client_send_queues.send_update(update);
     }
 
-    std::vector<ObjectDTO> process_objects(const std::vector<Object>& objects) {
+    std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
         std::vector<ObjectDTO> object_dtos;
         object_dtos.reserve(objects.size());
         std::transform(objects.begin(), objects.end(), std::back_inserter(object_dtos),
-                       [](const Object& obj) {
-                           return ObjectDTO(static_cast<ObjectType>(obj.get_type()),
-                                            obj.get_position(), obj.get_id());
+                       [](const std::shared_ptr<Object>& obj_ptr) {
+                           if (obj_ptr->get_type() == ObjectType::PLAYER) {
+                               std::shared_ptr<Player> player_ptr =
+                                       std::dynamic_pointer_cast<Player>(
+                                               obj_ptr);  // TODO: Turbio... POO fail
+                               return ObjectDTO(player_ptr->get_type(), player_ptr->get_position(),
+                                                player_ptr->get_id(), player_ptr->get_player_type(),
+                                                player_ptr->get_current_weapon_model());
+                           } else {
+                               return ObjectDTO(obj_ptr->get_type(), obj_ptr->get_position(),
+                                                obj_ptr->get_width(), obj_ptr->get_height());
+                           }
                        });
         return object_dtos;
     }

@@ -7,10 +7,12 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "../common/action_DTO.h"
 
 #define MOVE_INPUT "mover"
+#define SHOOT_INPUT "disparar"
 #define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
@@ -50,7 +52,13 @@ public:
                 return {};
 
             return {ActionType::MOVE, direction};
+        } else if (action_input == SHOOT_INPUT) {
+            std::vector<uint16_t> desired_position(2);
+            if (!(iss >> desired_position[0] >> desired_position[1]))
+                return {};
+            return {ActionType::SHOOT, desired_position};
         }
+
         return {};
     }
 
@@ -59,12 +67,27 @@ public:
             for (const auto& object: action_update.objects) {
                 if (object.type == ObjectType::PLAYER) {
                     std::cout << "🧍" << '(' << static_cast<unsigned int>(object.position[0])
-                              << ',' << static_cast<unsigned int>(object.position[1]) << ')'
-                              << std::endl;
-                }
-                if (object.type == ObjectType::OBSTACLE) {
+                              << ',' << static_cast<unsigned int>(object.position[1]) << ") ";
+                    if (object.weapon_model == WeaponModel::KNIFE) {
+                        std::cout << "🔪 ";
+                    } else if (object.weapon_model == WeaponModel::GLOCK) {
+                        std::cout << "🔫 ";
+                    }
+                    if (object.player_type == PlayerType::TERRORIST) {
+                        std::cout << "(Terrorista)";
+                    } else if (object.player_type == PlayerType::COUNTERTERRORIST) {
+                        std::cout << " (Counter-Terrorista)";
+                    }
+                    std::cout << std::endl;
+                } else if (object.type == ObjectType::OBSTACLE) {
                     std::cout << "🗿" << '(' << static_cast<unsigned int>(object.position[0]) << ','
-                              << static_cast<unsigned int>(object.position[1]) << ')' << std::endl;
+                              << static_cast<unsigned int>(object.position[1]) << ") "
+                              << static_cast<unsigned int>(object.width) << 'X'
+                              << static_cast<unsigned int>(object.height) << std::endl;
+                } else if (object.type == ObjectType::BULLET) {
+                    std::cout << "💥 Bala en (" << static_cast<unsigned int>(object.position[0])
+                              << ',' << static_cast<unsigned int>(object.position[1]) << ")"
+                              << std::endl;
                 }
             }
             // TODO: Habría que simular delay...

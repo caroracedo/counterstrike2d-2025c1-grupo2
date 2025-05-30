@@ -8,8 +8,8 @@
 #include "bullet.h"
 #include "types.h"
 
-// Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en el
-// lobby
+// TODO: Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en
+// el lobby
 class Weapon {
 private:
     WeaponModel model;
@@ -21,7 +21,7 @@ public:
     explicit Weapon(WeaponModel model):
             model(model),
             price(30),
-            range(5) {}  // Por ahora hardcodeado, dependerá del tipo de arma
+            range(5) {}  // TODO: Por ahora hardcodeado, dependerá del tipo de arma
 
     /* Verificaciones*/
     bool is_bomb() { return model == WeaponModel::BOMB; }
@@ -56,6 +56,7 @@ public:
                 return 0;  // Daño desconocido
         }
     }
+    WeaponModel get_model() const { return model; }
 };
 
 #endif  // WEAPON_H

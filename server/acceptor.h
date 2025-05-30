@@ -57,7 +57,9 @@ public:
                 ClientHandler* new_client_handler =
                         new ClientHandler(std::move(new_client_socket), shared_recv_queue,
                                           new_client_send_queue, ++id);
-                monitor_game.add_player(id);  // TODO: Medio raro esto...
+                monitor_game.add_player(id, true,
+                                        false);  // TODO: Medio raro esto... Por ahora, todos los
+                                                 // jugadores son terroristas sin bomba
                 reap();
                 client_handlers_list.push_back(new_client_handler);
                 new_client_handler->start();
@@ -70,7 +72,7 @@ public:
 
     void stop() override {
         Thread::stop();
-        server_socket.shutdown(2);  // Cierra lectura y escritura
+        server_socket.shutdown(2);
         server_socket.close();
     }
 };
