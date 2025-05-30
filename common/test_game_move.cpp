@@ -1,6 +1,4 @@
-#include <cstdint>
 #include <iostream>
-#include <vector>
 
 #include "game.h"
 
@@ -31,28 +29,12 @@ void move_player(Game& game, Direction direction, uint16_t id) {
     }
 }
 
-void shoot(Game& game, Direction direction, uint16_t id) {
-    std::vector<uint16_t> position = game.get_position(id);
-    switch (direction) {
-        case Direction::UP:
-            position[1] -= 40;  // Dispara hacia arriba
-            break;
-        case Direction::DOWN:
-            position[1] += 40;  // Dispara hacia abajo
-            break;
-        case Direction::LEFT:
-            position[0] -= 40;  // Dispara hacia la izquierda
-            break;
-        case Direction::RIGHT:
-            position[0] += 40;  // Dispara hacia la derecha
-            break;
-        default:
-            break;
-    }
-    game.shoot(position, id);
-    std::cout << "\tJugador " << static_cast<int>(id) << " disparó hacia "
-              << direction_to_string(direction) << std::endl;
-}
+// void shoot(Game& game, Direction direction, uint16_t id, uint16_t range) {
+//     auto result = game.shoot(direction, id, range);
+//     if (result.first && range > 5) {
+//         reshoot(game, direction, id, range - 5, result.second);
+//     }
+// }
 
 void show(Game& game) { game.show_objects(); }
 
@@ -103,28 +85,24 @@ int main() {
 
     move_player(game, Direction::DOWN, 1);
     move_player(game, Direction::DOWN, 1);
-    move_player(game, Direction::LEFT, 1);
-    move_player(game, Direction::LEFT, 1);
 
-    std::cout << "\n*******************************************************************************"
-                 "*************************************"
-              << std::endl;
-    std::cout << "***************************************************PRUEBA "
-                 "DISPARO***************************************************"
-              << std::endl;
-    std::cout << "*********************************************************************************"
-                 "***********************************"
-              << std::endl;
+    // std::cout <<
+    // "\n*******************************************************************************"
+    //              "*************************************"
+    //           << std::endl;
+    // std::cout << "***************************************************PRUEBA "
+    //              "DISPARO***************************************************"
+    //           << std::endl;
+    // std::cout <<
+    // "*********************************************************************************"
+    //              "***********************************"
+    //           << std::endl;
 
-    for (int i = 0; i < 5; ++i) {
-        shoot(game, Direction::LEFT, 2);
-        for (int j = 0; j < 4; ++j) {
-            game.update();
-        }
-    }
-
-
-    shoot(game, Direction::UP, 2);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
+    // shoot(game, Direction::LEFT, 2, 10);
 
     std::cout << "\n*******************************************************************************"
                  "*************************************"

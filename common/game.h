@@ -1,11 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MATRIX_SIZE 200  // posición máxima en la matriz
-#define MOVE_STEP 5      // paso de movimiento
-#define CELL_SIZE 56     // tamaño de cada celda en la matriz
-#define PLAYER_SIZE 32   // tamaño del jugador
-#define BULLET_SIZE 8    // tamaño de la bala
+#define MATRIX_SIZE 200   // posición máxima en la matriz
+#define MOVE_STEP 5       // paso de movimiento
+#define CELL_SIZE 56      // tamaño de cada celda en la matriz
+#define PLAYER_SIZE 32    // tamaño del jugador
+#define BULLET_SIZE 8     // tamaño de la bala
+#define WEAPON_DAMAGE 20  // daño del arma
 
 #include <algorithm>
 #include <cmath>
@@ -75,9 +76,7 @@ private:
     void inc_bullet_id();
 
     // Calcula la posición inicial de la bala en función de la dirección y la posición del jugador.
-    std::vector<uint16_t> calculate_bullet_starting_position(
-            const std::vector<uint16_t>& player_position,
-            const std::vector<uint16_t>& desired_position);
+    std::vector<uint16_t> calculate_bullet_starting_position(const std::shared_ptr<Object>& player);
 
     // Actualiza las balas en la matriz, eliminando las que ya no están activas.
     void update_bullets();
@@ -89,9 +88,10 @@ public:
 
     bool move(Direction direction, const uint16_t& id);
 
-    bool shoot(const std::vector<uint16_t>& desired_position, const uint16_t& player_id);
+    bool shoot(std::vector<uint16_t> position, const uint16_t player_id);
 
     std::vector<std::shared_ptr<Object>>& get_objects() {
+        reap();
         update_bullets();
         return objects;
     }
@@ -130,8 +130,8 @@ public:
         matrix[cell.first][cell.second].push_back(obstacle1);
 
         // Bala en (45, 50)
-        auto bullet = std::make_shared<Bullet>(7, std::vector<uint16_t>{45, 50}, 10, 20);
-        bullets.insert({7, bullet});
+        auto bullet = std::make_shared<Bullet>(1, std::vector<uint16_t>{45, 50}, 10, 20);
+        bullets.insert({1, bullet});
         objects.push_back(bullet);
         cell = get_cell_from_position(bullet->get_position());
         matrix[cell.first][cell.second].push_back(bullet);
@@ -160,18 +160,6 @@ public:
                       << ", Tipo: " << get_object_type(static_cast<ObjectType>(obj->get_type()))
                       << ", Posición: (" << obj->get_position()[0] << ", " << obj->get_position()[1]
                       << ")" << std::endl;
-        }
-        std::cout << std::endl;
-    }
-
-    void show_bullets() {
-        std::cout << "Balas:" << std::endl;
-        for (const auto& bullet_pair: bullets) {
-            const auto& bullet = bullet_pair.second;
-            std::cout << "\tID: " << bullet->get_id() << ", Posición: ("
-                      << bullet->get_position()[0] << ", " << bullet->get_position()[1] << ")"
-                      << ", Rango: " << bullet->get_range() << ", Daño: " << bullet->get_damage()
-                      << std::endl;
         }
         std::cout << std::endl;
     }
@@ -224,14 +212,6 @@ public:
          */
         return static_cast<uint16_t>(std::sqrt(std::pow(new_position[0] - old_position[0], 2) +
                                                std::pow(new_position[1] - old_position[1], 2)));
-    }
-
-    void update() { update_bullets(); }
-
-    std::vector<uint16_t> get_bullet_starting_position(
-            const std::vector<uint16_t>& player_position,
-            const std::vector<uint16_t>& desired_position) {
-        return calculate_bullet_starting_position(player_position, desired_position);
     }
 };
 
