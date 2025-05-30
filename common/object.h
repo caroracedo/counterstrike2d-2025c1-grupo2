@@ -21,7 +21,7 @@ public:
             object_type(object_type), id(id), position(position), width(width), height(height) {}
 
     // Esto se usa?
-    Object(): object_type(ObjectType::UNKNOWN), id(0), width(0), height(0), position({0, 0}) {}
+    Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), width(0), height(0) {}
 
     /* Getters */
     ObjectType get_type() const { return object_type; }
@@ -52,6 +52,8 @@ public:
     bool operator==(const Object& other) const {
         return id == other.id && object_type == other.object_type;
     }
+
+    virtual ~Object() = default;  // Agrego destructor virtual para permitir la herencia polimórfica
 };
 
 #endif  // OBJECT_H

@@ -91,7 +91,7 @@ public:
     bool shoot(std::vector<uint16_t> position, const uint16_t player_id);
 
     std::vector<std::shared_ptr<Object>>& get_objects() {
-        reap();
+        // reap();
         update_bullets();
         return objects;
     }

@@ -19,11 +19,16 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
-        case ActionType::SHOOT:
+        case ActionType::SHOOT: {
+            uint16_t x = hex_big_endian_to_int_16({data[1], data[2]});
+            uint16_t y = hex_big_endian_to_int_16({data[3], data[4]});
+            std::cout << "Disparar desde (" << static_cast<int>(x) << ", " << static_cast<int>(y)
+                      << ")" << std::endl;
             return {type,
                     {hex_big_endian_to_int_16({data[1], data[2]}),
                      hex_big_endian_to_int_16({data[3], data[4]})},
                     id};  // Agrega el id del jugador...
+        }
         default:
             return {};
     }
@@ -43,8 +48,8 @@ bool ServerProtocol::serialize_and_send_updated_game(const ActionDTO& action_dto
             data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_type));
             data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
         } else if (action_dto.objects[i].type == ObjectType::OBSTACLE) {
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].width));
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].height));
+            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
+            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
         }
     }
 

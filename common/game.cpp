@@ -61,7 +61,7 @@ std::set<std::shared_ptr<Object>> Game::get_adyacent_objects(
 }
 
 std::pair<bool, std::vector<uint16_t>> Game::_move(const Object& obj,
-                                                   std::vector<uint16_t> new_position) {
+                                                   const std::vector<uint16_t>& new_position) {
     /*
      *    Realiza el movimiento del objeto dado en la dirección dada.
      *    Realiza el movimiento del objeto dado en la dirección dada.
@@ -214,7 +214,7 @@ bool Game::update_object_in_matrix(const std::shared_ptr<Object>& obj,
         static_cast<ObjectType>(obj->get_type()) == ObjectType::BULLET) {
         std::cout << "\tBala colisionó con un obstáculo" << std::endl;
 
-        uint16_t damage = get_damage_and_delete_bullet(obj->get_id());
+        get_damage_and_delete_bullet(obj->get_id());
 
         // No se inflige daño a los obstáculos, solo se elimina la bala
         return false;  // La bala no se mueve si colisiona con un obstáculo
@@ -380,7 +380,7 @@ void Game::update_bullets() {
     }
 }
 
-bool Game::shoot(std::vector<uint16_t> desired_position, const uint16_t player_id) {
+bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
     /*
      *    Dispara una bala desde la posición especificada por el jugador con el ID dado.
      *    Devuelve true si se creó la bala, false si no.
