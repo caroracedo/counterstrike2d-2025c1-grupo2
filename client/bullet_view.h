@@ -10,13 +10,13 @@
 using namespace SDL2pp;
 
 class BulletView {
-    private:
+private:
     // int id;
     float x;
     float y;
     // float angle; 
         
-    public:
+public:
         BulletView(float start_x, float start_y):  x(start_x), y(start_y){}
             
         void update(float new_x, float new_y) {

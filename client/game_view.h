@@ -56,12 +56,6 @@ public:
     GameView();
     void update(const ActionDTO& action);
     void render();
-    void shoot(float angle_deg) {
-        float px = player_view.get_x() + PLAYER_WIDTH / 2;
-        float py = player_view.get_y() + PLAYER_HEIGHT / 2;
-        bullets.emplace_back(px, py, angle_deg);
-    }
-
     
     void update_graphics(const ActionDTO& action);
 

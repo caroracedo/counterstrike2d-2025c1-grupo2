@@ -53,13 +53,16 @@ void GameView::update_player(const ObjectDTO& object){
     float y = object.position[1];
     bool moved = (x != last_px || y != last_py);
     legs_view.update_position(x, y);
-    if (moved)
+    std::cout << "Player moved to: " << x << ", " << y << std::endl;
+    if (moved){
         legs_view.update_animation();
 
-    player_view.update_position(x, y);
+        player_view.update_position(x, y);
 
-    last_px = x;
-    last_py = y;
+        last_px = x;
+        last_py = y;
+
+    }
 }
 void GameView::update_bullets(const ObjectDTO& object) {
     BulletView bullet(object.position[0], object.position[1]);
@@ -88,9 +91,9 @@ void GameView::render() {
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.Clear();
 
-    Rect view = camera.get_viewport();
+    // Rect view = camera.get_viewport();
 
-    renderer.Copy(background,view, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
+    renderer.Copy(background, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
 
     legs_view.draw(renderer,camera);
     
