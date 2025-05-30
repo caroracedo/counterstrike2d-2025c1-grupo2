@@ -126,17 +126,17 @@ public:
         matrix[cell.first][cell.second].push_back(player1);
 
         // Obstáculo 1 en (50, 10)
-        auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 6, 6);
+        auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 30, 6);
         objects.push_back(obstacle1);
         cell = get_cell_from_position(obstacle1->get_position());
         matrix[cell.first][cell.second].push_back(obstacle1);
 
-        // Bala en (45, 50)
-        auto bullet = std::make_shared<Bullet>(1, std::vector<uint16_t>{45, 50}, 10, 20);
-        bullets.insert({1, bullet});
-        objects.push_back(bullet);
-        cell = get_cell_from_position(bullet->get_position());
-        matrix[cell.first][cell.second].push_back(bullet);
+        // // Bala en (45, 50)
+        // auto bullet = std::make_shared<Bullet>(7, std::vector<uint16_t>{45, 50}, 10, 20);
+        // bullets.insert({7, bullet});
+        // objects.push_back(bullet);
+        // cell = get_cell_from_position(bullet->get_position());
+        // matrix[cell.first][cell.second].push_back(bullet);
 
         // Otro jugador en (80, 80)
         auto player2 = std::make_shared<Player>(2, std::vector<uint16_t>{80, 80},
@@ -215,6 +215,8 @@ public:
         return static_cast<uint16_t>(std::sqrt(std::pow(new_position[0] - old_position[0], 2) +
                                                std::pow(new_position[1] - old_position[1], 2)));
     }
+
+    void update() { update_bullets(); }
 };
 
 #endif  // GAME_H

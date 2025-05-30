@@ -21,7 +21,7 @@ public:
     explicit Weapon(WeaponModel model):
             model(model),
             price(30),
-            range(5) {}  // TODO: Por ahora hardcodeado, dependerá del tipo de arma
+            range(100) {}  // TODO: Por ahora hardcodeado, dependerá del tipo de arma
 
     /* Verificaciones*/
     bool is_bomb() { return model == WeaponModel::BOMB; }

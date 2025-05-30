@@ -99,8 +99,8 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
     uint16_t y = max_position[1];
 
     while (x != new_position[0] || y != new_position[1]) {
-        uint16_t next_x = x + dx;
-        uint16_t next_y = y + dy;
+        uint16_t next_x = (x == new_position[0]) ? x : x + dx;
+        uint16_t next_y = (y == new_position[1]) ? y : y + dy;
         std::vector<uint16_t> test_position = {next_x, next_y};
         auto collision_result = collides(obj, test_position, ady_objects);
         ObjectType collision = static_cast<ObjectType>(collision_result.first);
@@ -119,7 +119,6 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
                 // obstáculo
                 max_position = test_position;
             }
-            std::cout << "\tColisión detectada" << std::endl;
             break;
         }
         max_position = test_position;
@@ -341,9 +340,6 @@ std::vector<uint16_t> Game::calculate_bullet_starting_position(
     float x_bullet = cx + dx * (offset / mag) - BULLET_SIZE / 2.0f;
     float y_bullet = cy + dy * (offset / mag) - BULLET_SIZE / 2.0f;
 
-    std::cout << "Posición inicial de la bala: (" << static_cast<uint16_t>(std::round(x_bullet))
-              << ", " << static_cast<uint16_t>(std::round(y_bullet)) << ")" << std::endl;
-
     return {static_cast<uint16_t>(std::round(x_bullet)),
             static_cast<uint16_t>(std::round(y_bullet))};
 }
@@ -352,9 +348,6 @@ bool Game::move(Direction direction, const uint16_t& id) {
     /*
      *    Realiza el movimiento del jugador con el id especificado en la dirección dada.
      */
-
-    // // Recolectar objetos que no están en la matriz
-    // reap();
 
     // Buscar el jugador con el ID especificado
     auto player_it = players.find(id);
@@ -381,36 +374,42 @@ bool Game::move(Direction direction, const uint16_t& id) {
 }
 
 void Game::update_bullets() {
-    for (auto it = bullets.begin(); it != bullets.end();) {
-        auto bullet = it->second;
+    std::map<uint16_t, std::vector<uint16_t>> bullets_to_update;
+    std::vector<uint16_t> bullets_to_delete;
+
+    for (const auto& [id, bullet]: bullets) {
         if (bullet->is_alive()) {
-            // Actualizar la posición de la bala
-            std::vector<uint16_t> next_position = bullet->get_next_position();
-            auto move_result = _move(*bullet, next_position);
+            auto move_result = _move(*bullet, bullet->get_next_position());
             if (move_result.first) {
+                bullets_to_update[id] = bullet->get_position();
+                uint16_t distance = distance_moved(bullet->get_position(), move_result.second);
+                bullet->decrement_range(distance);
                 bullet->move(move_result.second);
-                // Actualizar la posición de la bala en la matriz
-                update_object_in_matrix(bullet, bullet->get_position());
+
             } else {
-                // Si no se pudo mover, eliminar la bala
-                it = bullets.erase(it);
+                bullets_to_delete.push_back(id);
             }
         } else {
-            // Si la bala ya no está viva, eliminarla
-            it = bullets.erase(it);
+            bullets_to_delete.push_back(id);
         }
+    }
+
+    for (const auto& [id, old_position]: bullets_to_update) {
+        auto bullet_it = bullets.find(id);
+        if (bullet_it != bullets.end()) {
+            auto bullet = bullet_it->second;
+            update_object_in_matrix(bullet, old_position);
+        }
+    }
+
+    for (auto id: bullets_to_delete) {
+        get_damage_and_delete_bullet(id);
     }
 }
 
 bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
-    /*
-     *    Dispara una bala desde la posición especificada por el jugador con el ID dado.
-     *    Devuelve true si se creó la bala, false si no.
-     */
-
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
-        // Crear una nueva bala
         uint16_t b_id = bullet_id;
         inc_bullet_id();
 
@@ -420,31 +419,25 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
                 player_it->second->get_position(), desired_position);
 
         Bullet bullet(b_id, position, range, damage);
+        bullet.set_target_position(desired_position, player_it->second->get_position());
 
-        // Agregar la bala a la lista de balas
-        bullets[b_id] = std::make_shared<Bullet>(bullet);
+        auto bullet_ptr = std::make_shared<Bullet>(bullet);
+        bullets[b_id] = bullet_ptr;
+        objects.push_back(bullet_ptr);
+        auto cell = get_cell_from_position(bullet_ptr->get_position());
+        matrix[cell.first][cell.second].push_back(bullet_ptr);
 
-        // Agregar la bala a la lista de objetos
-        objects.push_back(std::make_shared<Bullet>(bullet));
-
-        // Agregar la bala a la matriz
-        auto cell = get_cell_from_position(bullet.get_position());
-        matrix[cell.first][cell.second].push_back(std::make_shared<Bullet>(bullet));
-
-        // Actualizar la posición hacia donde va a avanzar la bala efectivamente
-        bullet.set_target_position(desired_position);
-
-        auto move_result = _move(bullet, bullet.get_next_position());
+        // Si querés mover la bala inmediatamente, hacelo sobre bullet_ptr:
+        auto move_result = _move(*bullet_ptr, bullet_ptr->get_next_position());
         if (move_result.first) {
-            // Actualizar la posición de la bala
-            bullet.move(move_result.second);
-
-            // Actualizar la posición de la bala en la matriz
-            return update_object_in_matrix(std::make_shared<Bullet>(bullet), position);
+            uint16_t distance = distance_moved(bullet_ptr->get_position(), move_result.second);
+            bullet_ptr->decrement_range(distance);
+            bullet_ptr->move(move_result.second);
+            return update_object_in_matrix(bullet_ptr, position);
         }
         return false;
     } else {
         std::cout << "No se encontró el jugador con ID: " << player_id << std::endl;
-        return false;  // No se pudo disparar
+        return false;
     }
 }
