@@ -50,7 +50,7 @@ private:
 
     // Realiza el movimiento del objeto dado en la dirección dada.
     std::pair<bool, std::vector<uint16_t>> _move(const Object& obj,
-                                                 std::vector<uint16_t> new_position);
+                                                 const std::vector<uint16_t>& new_position);
 
     // Determina la posición máxima a la que se puede mover el objeto sin colisionar.
     std::vector<uint16_t> get_max_position(const Object& obj,
@@ -88,7 +88,7 @@ public:
 
     bool move(Direction direction, const uint16_t& id);
 
-    bool shoot(std::vector<uint16_t> position, const uint16_t player_id);
+    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
 
     std::vector<std::shared_ptr<Object>>& get_objects() {
         // reap();
