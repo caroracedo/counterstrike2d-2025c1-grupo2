@@ -117,8 +117,8 @@ public:
      ************************************ FUNCIONES PARA TESTEAR ********************************
      ********************************************************************************************/
     void initialize_demo_objects() {
-        // Jugador en (10, 10)
-        auto player1 = std::make_shared<Player>(1, std::vector<uint16_t>{10, 10},
+        // Jugador en (30,30)
+        auto player1 = std::make_shared<Player>(1, std::vector<uint16_t>{30, 30},
                                                 PlayerType::TERRORIST, true);
         players.insert({1, player1});
         objects.push_back(player1);
