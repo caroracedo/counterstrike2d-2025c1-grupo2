@@ -56,37 +56,48 @@ public:
         tx = std::max(0, std::min(tx, max_pos));
         ty = std::max(0, std::min(ty, max_pos));
 
-        target_position = {static_cast<uint16_t>(tx), static_cast<uint16_t>(ty)};
+        target_position = {static_cast<uint16_t>(tx - BULLET_SIZE / 2.0f),
+                           static_cast<uint16_t>(ty - BULLET_SIZE / 2.0f)};
     }
-
     std::vector<uint16_t> get_next_position() const {
         if (target_position.size() != 2)
             return position;
 
-        int dx = static_cast<int>(target_position[0]) - static_cast<int>(position[0]);
-        int dy = static_cast<int>(target_position[1]) - static_cast<int>(position[1]);
+        // Centro actual de la bala
+        float cx = position[0] + BULLET_SIZE / 2.0f;
+        float cy = position[1] + BULLET_SIZE / 2.0f;
+
+        // Vector hacia el centro objetivo
+        int dx = static_cast<int>(target_position[0]) - static_cast<int>(cx);
+        int dy = static_cast<int>(target_position[1]) - static_cast<int>(cy);
 
         float magnitude = std::sqrt(dx * dx + dy * dy);
         if (magnitude == 0) {
             return position;
         }
 
-        float v_step =
-                std::min(5.0f, static_cast<float>(range)) / magnitude;  // 5 unidades por paso
-        int step_dx = static_cast<int>(dx * v_step);
-        int step_dy = static_cast<int>(dy * v_step);
+        float v_step = std::min(5.0f, static_cast<float>(range)) / magnitude;
+        float step_dx = dx * v_step;
+        float step_dy = dy * v_step;
+
+        // Nuevo centro
+        float nx_c = cx + step_dx;
+        float ny_c = cy + step_dy;
+
+        // Esquina superior izquierda real
+        int nx = static_cast<int>(std::round(nx_c - BULLET_SIZE / 2.0f));
+        int ny = static_cast<int>(std::round(ny_c - BULLET_SIZE / 2.0f));
 
         int max_pos = MATRIX_SIZE * CELL_SIZE - BULLET_SIZE;
-        int nx = static_cast<int>(position[0]) + step_dx;
-        int ny = static_cast<int>(position[1]) + step_dy;
-
         nx = std::max(0, std::min(nx, max_pos));
         ny = std::max(0, std::min(ny, max_pos));
         return {static_cast<uint16_t>(nx), static_cast<uint16_t>(ny)};
     }
-
     bool is_alive() const {
-        return range > 0 && position[0] != target_position[0] && position[1] != target_position[1];
+        float cx = position[0] + BULLET_SIZE / 2.0f;
+        float cy = position[1] + BULLET_SIZE / 2.0f;
+        return range > 0 && (static_cast<int>(cx) != static_cast<int>(target_position[0]) ||
+                             static_cast<int>(cy) != static_cast<int>(target_position[1]));
     }
 
     /* Funcionalidades */

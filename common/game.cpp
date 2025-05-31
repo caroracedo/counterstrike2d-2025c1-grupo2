@@ -67,14 +67,14 @@ std::pair<bool, std::vector<uint16_t>> Game::_move(const Object& obj,
 
     std::vector<uint16_t> position = obj.get_position();
 
+    if (new_position == position) {
+        return {false, position};  // No se puede mover
+    }
+
     std::cout << "\nIntentando mover " << get_object_type(static_cast<ObjectType>(obj.get_type()))
               << " con ID " << obj.get_id() << " desde (" << position[0] << ", " << position[1]
               << ")"
               << " hacia (" << new_position[0] << ", " << new_position[1] << ")" << std::endl;
-
-    if (new_position == position) {
-        return {false, position};  // No se puede mover
-    }
 
     std::vector<uint16_t> max_position = get_max_position(obj, new_position);
 
@@ -327,18 +327,29 @@ std::vector<uint16_t> Game::calculate_bullet_starting_position(
     float dy = static_cast<float>(desired_position[1]) - cy;
     float mag = std::sqrt(dx * dx + dy * dy);
 
-    // Si el destino es el mismo que el centro, deja la bala en el centro
     if (mag == 0) {
         return {static_cast<uint16_t>(cx - BULLET_SIZE / 2.0f),
                 static_cast<uint16_t>(cy - BULLET_SIZE / 2.0f)};
     }
 
-    // Offset desde el centro del jugador hasta el borde (más la mitad de la bala)
+    // Offset inicial: justo afuera del jugador
     float offset = PLAYER_SIZE / 2.0f + BULLET_SIZE / 2.0f;
 
-    // Posición inicial de la bala
-    float x_bullet = cx + dx * (offset / mag) - BULLET_SIZE / 2.0f;
-    float y_bullet = cy + dy * (offset / mag) - BULLET_SIZE / 2.0f;
+    // Función lambda para verificar solapamiento
+    auto overlaps_player = [&](float x_bullet, float y_bullet) {
+        float px = player_position[0];
+        float py = player_position[1];
+        return !(x_bullet + BULLET_SIZE <= px || x_bullet >= px + PLAYER_SIZE ||
+                 y_bullet + BULLET_SIZE <= py || y_bullet >= py + PLAYER_SIZE);
+    };
+
+    // Busca el primer punto fuera del jugador
+    float x_bullet, y_bullet;
+    do {
+        x_bullet = cx + dx * (offset / mag) - BULLET_SIZE / 2.0f;
+        y_bullet = cy + dy * (offset / mag) - BULLET_SIZE / 2.0f;
+        offset += 1.0f;  // Avanza de a 1 pixel hasta que no haya solapamiento
+    } while (overlaps_player(x_bullet, y_bullet));
 
     return {static_cast<uint16_t>(std::round(x_bullet)),
             static_cast<uint16_t>(std::round(y_bullet))};
