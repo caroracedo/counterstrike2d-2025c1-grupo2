@@ -20,11 +20,16 @@ public:
         while (should_this_thread_keep_running()) {
             try {
                 ActionDTO action = input_handler.receive_and_parse_action();
-                if (action.type == ActionType::QUIT)
-                    break;  // Salir
-                if (action.type == ActionType::UNKNOWN)
-                    continue;
-                to_server.push(action);
+                // if (action.type == ActionType::QUIT)
+                //     break;  // Salir
+                // if (action.type == ActionType::UNKNOWN)
+                //     continue;
+                // to_server.push(action);
+                if (action.type == ActionType::QUIT) {
+                    break;
+                } else if (action.type != ActionType::UNKNOWN) {
+                    to_server.push(action);
+                }
             } catch (...) {
                 break;
             }

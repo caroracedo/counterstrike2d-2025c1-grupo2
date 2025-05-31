@@ -3,6 +3,10 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+#include <unordered_map>
+#include <cstdint>
+#include <memory>
+
 #include "player_view.h"
 #include "../common/action_DTO.h"
 #include "../common/obstacle.h"
@@ -25,7 +29,12 @@ private:
 
     Texture body_sprites;
     Texture legs_sprites;   
-    
+
+    std::unordered_map<uint8_t, std::unique_ptr<PlayerView>> players;
+    std::unordered_map<uint8_t, std::unique_ptr<LegsView>> legs;
+
+    int local_id;
+
     PlayerView player_view; 
     LegsView legs_view;
 

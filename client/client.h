@@ -40,9 +40,6 @@ public:
     //     // TODO: Capaz conviene no tenerlos como atributo, si solo se usan en esta función...
     //     GameView game_view;
     //     InputHandler input_handler;
-    //     // std::atomic<bool> stop_flag = false;
-    //     // EventHandler event_handler(to_server, stop_flag, input_handler);
-    //     // UpdateHandler update_handler(from_server, stop_flag, game_view);
 
     //     while (true) {
     //         try {
@@ -86,35 +83,48 @@ public:
         sender.start();
         receiver.start();
 
-        GameView game_view;
         InputHandler input_handler;
+        GameView game_view;
+        std::atomic<bool> stop_flag = false;
+        EventHandler event_handler(to_server, stop_flag, input_handler);
+        UpdateHandler update_handler(from_server, stop_flag, game_view);
 
-        bool running = true;
+        event_handler.start();
+        update_handler.start();
+
+         while (!stop_flag) {
+            game_view.render();
+            game_view.frame_sync();
+        }
+
+        event_handler.join();
+        update_handler.join();
+        // bool running = true;
         // Uint32 last_frame_time = SDL_GetTicks();
         // const Uint32 frame_delay = 1000 / 60;  // 60 FPS
 
-        while (running) {
-            // INPUT
-            ActionDTO action = input_handler.receive_and_parse_action();
-            if (action.type == ActionType::QUIT) {
-                running = false;
-            } else if (action.type != ActionType::UNKNOWN) {
-                to_server.push(action);
-            }
+        // while (running) {
+        //     // INPUT
+        //     ActionDTO action = input_handler.receive_and_parse_action();
+        //     if (action.type == ActionType::QUIT) {
+        //         running = false;
+        //     } else if (action.type != ActionType::UNKNOWN) {
+        //         to_server.push(action);
+        //     }
 
-            // SERVER UPDATE
-            ActionDTO update;
-            while (from_server.try_pop(update)) {
-                if (update.type == ActionType::UPDATE) {
-                    game_view.update(update);
-                }
-            }
+        //     // SERVER UPDATE
+        //     ActionDTO update;
+        //     while (from_server.try_pop(update)) {
+        //         if (update.type == ActionType::UPDATE) {
+        //             game_view.update(update);
+        //         }
+        //     }
 
-                // RENDER
-            game_view.render();
-            game_view.frame_sync();
+        //         // RENDER
+        //     game_view.render();
+        //     game_view.frame_sync();
 
-        }
+        // }
 
         client_socket.shutdown(2);
         client_socket.close();

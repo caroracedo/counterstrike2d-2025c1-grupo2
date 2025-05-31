@@ -21,11 +21,20 @@ public:
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
-                ActionDTO action_update;
-                while (!from_server.try_pop(action_update)) {}
-                if (action_update.type == ActionType::UNKNOWN)
-                    break;  // Error
-                game_view.update_graphics(action_update);
+                // ActionDTO action_update;
+                // while (!from_server.try_pop(action_update)) {}
+                // if (action_update.type == ActionType::UNKNOWN)
+                //     break;  // Error
+                // game_view.update_graphics(action_update);
+                ActionDTO update;
+                while (from_server.try_pop(update)) {
+                    if (update.type == ActionType::UPDATE) {
+                        game_view.update(update);
+                    }
+                }
+
+                // game_view.render();
+                // game_view.frame_sync();
             } catch (...) {
                 break;
             }

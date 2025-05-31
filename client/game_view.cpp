@@ -48,22 +48,39 @@ void GameView::update(const ActionDTO& action) {
     }    
 }
 
-void GameView::update_player(const ObjectDTO& object){
+void GameView::update_player(const ObjectDTO& object) {
+    int id = object.id;
     float x = object.position[0];
     float y = object.position[1];
-    bool moved = (x != last_px || y != last_py);
-    legs_view.update_position(x, y);
-    std::cout << "Player moved to: " << x << ", " << y << std::endl;
-    if (moved){
-        legs_view.update_animation();
 
-        player_view.update_position(x, y);
+    // Si no existe, lo creo
 
-        last_px = x;
-        last_py = y;
-
+    if (players.find(id) == players.end()) {
+        players[id] = std::make_unique<PlayerView>(body_sprites);
     }
+    players[id]->update_position(x, y);
+
+    if (legs.find(id) == legs.end()) {
+        legs[id] = std::make_unique<LegsView>(legs_sprites,std::vector<SDL2pp::Rect>{
+                     Rect(0, 0, 32, 32),
+                     Rect(32, 0, 32, 32),
+                     Rect(64, 0, 32, 32)
+                 },
+                 100);
+    }
+
+        // Si todavía no tengo mi ID asignado, este puede ser el local
+    if (local_id == -1) {
+        local_id = id;
+        // std::cout << "Local player ID asignado: " << local_id << std::endl;
+    }
+    
+
+    legs[id]->update_position(x, y);
+    legs[id]->update_animation();
+
 }
+
 void GameView::update_bullets(const ObjectDTO& object) {
     BulletView bullet(object.position[0], object.position[1]);
     // bullet.angle = object.angle; // Asumiendo que el DTO tiene un campo de ángulo
@@ -82,10 +99,14 @@ void GameView::update_obstacles(const ObjectDTO& object) {
 
 void GameView::render() {
    
-    float px = player_view.get_x();
-    float py = player_view.get_y();
-    camera.center_on(px + PLAYER_WIDTH / 2, 
-                 py + PLAYER_HEIGHT / 2);
+    if (local_id != -1) {
+        auto it = players.find(local_id);
+        if (it != players.end() && it->second) {
+            float px = it->second->get_x();
+            float py = it->second->get_y();
+            camera.center_on(px + PLAYER_WIDTH / 2, py + PLAYER_HEIGHT / 2);
+        }
+    }
 
 
     renderer.SetDrawColor(255, 255, 255, 255);
@@ -95,12 +116,15 @@ void GameView::render() {
 
     renderer.Copy(background, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));      
 
-    legs_view.draw(renderer,camera);
     
     for (auto& bullet : bullets)
-        bullet.draw(renderer, camera);
+    bullet.draw(renderer, camera);
+    
+    for (auto& [id, leg] : legs)
+        leg->draw(renderer, camera);
 
-    player_view.draw(renderer,camera);
+    for (auto& [id, player] : players)
+        player->draw(renderer, camera);
 
     for (const auto& obs : obstacles) {
         SDL_Rect dst_rect = { int(obs.x) - camera.get_x(), int(obs.y) - camera.get_y(), int(obs.w), int(obs.h) };
