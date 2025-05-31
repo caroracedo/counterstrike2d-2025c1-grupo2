@@ -88,6 +88,8 @@ public:
                 } else if (object.type == ObjectType::BULLET) {
                     std::cout << "💥 (" << static_cast<unsigned int>(object.position[0]) << ','
                               << static_cast<unsigned int>(object.position[1]) << ")" << std::endl;
+                } else {
+                    std::cout << "Objeto desconocido" << std::endl;
                 }
             }
             // TODO: Habría que simular delay...

@@ -134,10 +134,15 @@ int main() {
     std::cout << "*********************************************************************************"
                  "***********************************"
               << std::endl;
-
-    shoot(game, Direction::UP, 2);
-    for (int j = 0; j < 20; ++j) {
-        game.update();
+    std::vector<std::vector<uint16_t>> positions = {{0, 0},     {0, 30},   {20, 100},
+                                                    {100, 100}, {200, 30}, {60, 0},
+                                                    {15, 0},    {20, 20},  {90, 50}};
+    for (const auto& pos: positions) {
+        game.shoot(pos, 1);
+        for (int j = 0; j < 20; ++j) {
+            game.update();
+        }
+        std::cout << "*******************************" << std::endl;
     }
 
 

@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include <algorithm>
 #include <iostream>
 
 Game::Game(): matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)) {
@@ -67,14 +68,14 @@ std::pair<bool, std::vector<uint16_t>> Game::_move(const Object& obj,
 
     std::vector<uint16_t> position = obj.get_position();
 
+    if (new_position == position) {
+        return {false, position};  // No se puede mover
+    }
+
     std::cout << "\nIntentando mover " << get_object_type(static_cast<ObjectType>(obj.get_type()))
               << " con ID " << obj.get_id() << " desde (" << position[0] << ", " << position[1]
               << ")"
               << " hacia (" << new_position[0] << ", " << new_position[1] << ")" << std::endl;
-
-    if (new_position == position) {
-        return {false, position};  // No se puede mover
-    }
 
     std::vector<uint16_t> max_position = get_max_position(obj, new_position);
 
@@ -94,7 +95,6 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
     int dx = (new_position[0] > max_position[0]) ? 1 : (new_position[0] < max_position[0]) ? -1 : 0;
     int dy = (new_position[1] > max_position[1]) ? 1 : (new_position[1] < max_position[1]) ? -1 : 0;
 
-    // Solo se mueve en una dirección a la vez (asumido por el diseño)
     uint16_t x = max_position[0];
     uint16_t y = max_position[1];
 
@@ -102,19 +102,20 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
         uint16_t next_x = (x == new_position[0]) ? x : x + dx;
         uint16_t next_y = (y == new_position[1]) ? y : y + dy;
         std::vector<uint16_t> test_position = {next_x, next_y};
+
         auto collision_result = collides(obj, test_position, ady_objects);
-        ObjectType collision = static_cast<ObjectType>(collision_result.first);
-        if (collision != ObjectType::UNKNOWN) {
+        ObjectType collider_type = static_cast<ObjectType>(collision_result.first);
+        if (collider_type != ObjectType::UNKNOWN) {
             ObjectType obj_type = static_cast<ObjectType>(obj.get_type());
-            if (collision == ObjectType::BULLET && obj_type == ObjectType::PLAYER) {
+            if (collider_type == ObjectType::BULLET && obj_type == ObjectType::PLAYER) {
                 // Si un jugador colisiona con una bala, se mueve hasta la posición de la bala
                 max_position = test_position;
 
-            } else if (collision == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
+            } else if (collider_type == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                 max_position = test_position;
 
-            } else if (collision == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
+            } else if (collider_type == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                 // obstáculo
                 max_position = test_position;
@@ -129,6 +130,53 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
     return max_position;
 }
 
+bool circle_circle_collision(const std::vector<uint16_t>& new_position,
+                             const uint16_t& object_radius,
+                             const std::vector<uint16_t>& collider_position,
+                             const uint16_t& collider_radius) {
+    /*
+     *    Verifica si hay colisión entre dos círculos dados sus posiciones y radios.
+     *    new_position: posición del objeto que se mueve
+     *    object_radius: radio del objeto que se mueve
+     *    collider_position: posición del objeto con el que se colisiona
+     *    collider_radius: radio del objeto con el que se colisiona
+     */
+    int dx = static_cast<int>(new_position[0]) - static_cast<int>(collider_position[0]);
+    int dy = static_cast<int>(new_position[1]) - static_cast<int>(collider_position[1]);
+    int distance_squared = dx * dx + dy * dy;
+
+    int radius_sum = object_radius + collider_radius;
+
+    return distance_squared < radius_sum * radius_sum;
+}
+
+bool circle_rectangle_collision(const std::vector<uint16_t>& c_center, const uint16_t& c_radius,
+                                const std::vector<uint16_t>& r_position, const uint16_t& r_width,
+                                const uint16_t& r_height) {
+    /*
+     *    Verifica si hay colisión entre un círculo y un rectángulo.
+     *    c_center: posición del objeto que se mueve
+     *    c_radius: radio del objeto que se mueve
+     *    r_position: posición del rectángulo con el que se colisiona
+     *    r_width: ancho del rectángulo con el que se colisiona
+     *    r_height: alto del rectángulo con el que se colisiona
+     */
+
+    // Encuentra el punto más cercano al círculo dentro del rectángulo
+    int closest_x = std::max(
+            static_cast<int>(r_position[0]),
+            std::min(static_cast<int>(c_center[0]), static_cast<int>(r_position[0] + r_width)));
+    int closest_y = std::max(
+            static_cast<int>(r_position[1]),
+            std::min(static_cast<int>(c_center[1]), static_cast<int>(r_position[1] + r_height)));
+
+    // Calcula la distancia entre el círculo y este punto más cercano
+    int dx = closest_x - static_cast<int>(c_center[0]);
+    int dy = closest_y - static_cast<int>(c_center[1]);
+
+    return (dx * dx + dy * dy) < (c_radius * c_radius);
+}
+
 std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
                                                const std::vector<uint16_t>& new_position,
                                                const std::set<std::shared_ptr<Object>>& objects) {
@@ -137,16 +185,32 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
      *    Devuelve el tipo de objeto con el que colisiona y su ID.
      */
 
-    uint16_t width = object.get_width();
-    uint16_t height = object.get_height();
+    uint16_t radius;
+    if (object.get_type() == ObjectType::BULLET) {
+        radius = BULLET_SIZE / 2;  // Radio de la bala
+    } else if (object.get_type() == ObjectType::PLAYER) {
+        radius = PLAYER_SIZE / 2;  // Radio del jugador
+    } else {
+        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+    }
+
     for (const auto& obj: objects) {
         if (object == *obj) {
             continue;
         }
-        bool overlap = new_position[0] < obj->get_position()[0] + obj->get_width() &&
-                       new_position[0] + width > obj->get_position()[0] &&
-                       new_position[1] < obj->get_position()[1] + obj->get_height() &&
-                       new_position[1] + height > obj->get_position()[1];
+        bool overlap = false;
+
+        if (obj->get_type() == ObjectType::BULLET) {
+            overlap = circle_circle_collision(new_position, radius, obj->get_position(),
+                                              BULLET_SIZE / 2);
+        } else if (obj->get_type() == ObjectType::PLAYER) {
+            overlap = circle_circle_collision(new_position, radius, obj->get_position(),
+                                              PLAYER_SIZE / 2);
+        } else if (obj->get_type() == ObjectType::OBSTACLE) {
+            overlap = circle_rectangle_collision(new_position, radius, obj->get_position(),
+                                                 obj->get_width(), obj->get_height());
+        }
+
         if (overlap) {
             std::cout << "\tColisión detectada entre "
                       << get_object_type(static_cast<ObjectType>(object.get_type()))
@@ -315,35 +379,6 @@ void Game::inc_bullet_id() {
     }
 }
 
-std::vector<uint16_t> Game::calculate_bullet_starting_position(
-        const std::vector<uint16_t>& player_position,
-        const std::vector<uint16_t>& desired_position) {
-    // Centro del jugador
-    float cx = player_position[0] + PLAYER_SIZE / 2.0f;
-    float cy = player_position[1] + PLAYER_SIZE / 2.0f;
-
-    // Vector dirección
-    float dx = static_cast<float>(desired_position[0]) - cx;
-    float dy = static_cast<float>(desired_position[1]) - cy;
-    float mag = std::sqrt(dx * dx + dy * dy);
-
-    // Si el destino es el mismo que el centro, deja la bala en el centro
-    if (mag == 0) {
-        return {static_cast<uint16_t>(cx - BULLET_SIZE / 2.0f),
-                static_cast<uint16_t>(cy - BULLET_SIZE / 2.0f)};
-    }
-
-    // Offset desde el centro del jugador hasta el borde (más la mitad de la bala)
-    float offset = PLAYER_SIZE / 2.0f + BULLET_SIZE / 2.0f;
-
-    // Posición inicial de la bala
-    float x_bullet = cx + dx * (offset / mag) - BULLET_SIZE / 2.0f;
-    float y_bullet = cy + dy * (offset / mag) - BULLET_SIZE / 2.0f;
-
-    return {static_cast<uint16_t>(std::round(x_bullet)),
-            static_cast<uint16_t>(std::round(y_bullet))};
-}
-
 bool Game::move(Direction direction, const uint16_t& id) {
     /*
      *    Realiza el movimiento del jugador con el id especificado en la dirección dada.
@@ -416,11 +451,9 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
 
         uint16_t range = player_it->second->get_current_weapon().get_range();
         uint16_t damage = player_it->second->get_current_weapon().get_damage();
-        std::vector<uint16_t> position = calculate_bullet_starting_position(
-                player_it->second->get_position(), desired_position);
+        std::vector<uint16_t> player_position = player_it->second->get_position();
 
-        Bullet bullet(b_id, position, range, damage);
-        bullet.set_target_position(desired_position, player_it->second->get_position());
+        Bullet bullet(b_id, player_position, range, damage, desired_position);
 
         auto bullet_ptr = std::make_shared<Bullet>(bullet);
         bullets[b_id] = bullet_ptr;
@@ -428,13 +461,13 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
         auto cell = get_cell_from_position(bullet_ptr->get_position());
         matrix[cell.first][cell.second].push_back(bullet_ptr);
 
-        // Si querés mover la bala inmediatamente, hacelo sobre bullet_ptr:
         auto move_result = _move(*bullet_ptr, bullet_ptr->get_next_position());
         if (move_result.first) {
+            std::vector<uint16_t> old_position = bullet_ptr->get_position();
             uint16_t distance = distance_moved(bullet_ptr->get_position(), move_result.second);
             bullet_ptr->decrement_range(distance);
             bullet_ptr->move(move_result.second);
-            return update_object_in_matrix(bullet_ptr, position);
+            return update_object_in_matrix(bullet_ptr, old_position);
         }
         return false;
     } else {

@@ -16,11 +16,11 @@
 #define AWP_PRICE 300
 
 #define KNIFE_RANGE 1
-#define GLOCK_RANGE 20
+#define GLOCK_RANGE 50
 #define BOMB_RANGE 0
-#define AK47_RANGE 30
-#define M3_RANGE 10
-#define AWP_RANGE 40
+#define AK47_RANGE 100
+#define M3_RANGE 50
+#define AWP_RANGE 150
 
 #define KNIFE_DAMAGE 10
 #define GLOCK_DAMAGE 20

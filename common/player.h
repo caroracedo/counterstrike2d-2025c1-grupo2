@@ -15,6 +15,8 @@ private:
     PlayerType player_type;
     uint16_t health;
     uint16_t money;
+    uint16_t radius = PLAYER_SIZE / 2;
+
     WeaponShop& weapon_shop;
 
     Weapon knife;
@@ -92,24 +94,29 @@ public:
     }
 
     std::vector<uint16_t> get_next_position(Direction direction) const {
-        uint16_t max_position = MATRIX_SIZE * CELL_SIZE - PLAYER_SIZE;
+        uint16_t min_position = radius;
+        uint16_t max_position = MATRIX_SIZE * CELL_SIZE - radius;
         std::vector<uint16_t> new_position = position;
         switch (direction) {
             case Direction::UP:
-                new_position[1] = (position[1] > MOVE_STEP) ? position[1] - MOVE_STEP : 0;
+                new_position[1] = (position[1] > min_position + MOVE_STEP) ?
+                                          position[1] - MOVE_STEP :
+                                          min_position;
                 break;
             case Direction::DOWN:
-                new_position[1] = (position[1] + MOVE_STEP > max_position) ?
-                                          max_position :
-                                          position[1] + MOVE_STEP;
+                new_position[1] = (position[1] + MOVE_STEP < max_position) ?
+                                          position[1] + MOVE_STEP :
+                                          max_position;
                 break;
             case Direction::LEFT:
-                new_position[0] = (position[0] > MOVE_STEP) ? position[0] - MOVE_STEP : 0;
+                new_position[0] = (position[0] > min_position + MOVE_STEP) ?
+                                          position[0] - MOVE_STEP :
+                                          min_position;
                 break;
             case Direction::RIGHT:
-                new_position[0] = (position[0] + MOVE_STEP > max_position) ?
-                                          max_position :
-                                          position[0] + MOVE_STEP;
+                new_position[0] = (position[0] + MOVE_STEP < max_position) ?
+                                          position[0] + MOVE_STEP :
+                                          max_position;
                 break;
             default:
                 break;

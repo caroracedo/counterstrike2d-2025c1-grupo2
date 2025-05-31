@@ -101,10 +101,18 @@ public:
     }
 
     void add_player(const uint16_t& id, const bool is_terrorist, const bool has_bomb) {
-        auto player1 = std::make_shared<Player>(
-                id, std::vector<uint16_t>{0, 0},
-                is_terrorist ? PlayerType::TERRORIST : PlayerType::COUNTERTERRORIST, has_bomb,
-                weapon_shop);
+        std::shared_ptr<Player> player1;
+        if (id == 1) {
+            player1 = std::make_shared<Player>(
+                    id, std::vector<uint16_t>{30, 30},
+                    is_terrorist ? PlayerType::TERRORIST : PlayerType::COUNTERTERRORIST, has_bomb,
+                    weapon_shop);
+        } else {
+            player1 = std::make_shared<Player>(
+                    id, std::vector<uint16_t>{80, 80},
+                    is_terrorist ? PlayerType::TERRORIST : PlayerType::COUNTERTERRORIST, has_bomb,
+                    weapon_shop);
+        }
         // Agregar el jugador a players
         players.insert({id, player1});
 
