@@ -27,6 +27,10 @@ public:
         set_starting_position(player_position);
     }
 
+    /* Virtual puro */
+    /* Getters */
+    ObjectDTO get_dto() const override { return ObjectDTO(object_type, position); }
+
     /* Getters */
     uint16_t get_range() const { return range; }
     uint16_t get_damage() const { return damage; }
@@ -45,7 +49,8 @@ public:
         float min_pos = radius;
         float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
 
-        float t_max = (magnitude == 0) ? 0.0f : static_cast<float>(range) / magnitude;
+        float t_max =
+                (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_SIZE / 2) / magnitude;
 
         // Calcula el t permitido por los bordes del mapa
         if (dx != 0) {

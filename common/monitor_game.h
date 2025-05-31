@@ -42,6 +42,8 @@ public:
     /* Disparar */
     bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
+        std::cout << "Desired position: x=" << desired_position[0] << " y=" << desired_position[1]
+                  << std::endl;
         return game.shoot(desired_position, id);
     }
 };

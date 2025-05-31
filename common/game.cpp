@@ -390,7 +390,8 @@ bool Game::move(Direction direction, const uint16_t& id) {
         std::vector<uint16_t> old_position = player_it->second->get_position();
         std::vector<uint16_t> new_position = player_it->second->get_next_position(direction);
         std::pair<bool, std::vector<uint16_t>> move_result =
-                _move(static_cast<Object>(*(player_it->second)), new_position);
+                _move(*(player_it->second), new_position);
+        // _move(static_cast<Object>(*(player_it->second)), new_position);
         if (move_result.first) {
             // Actualizar la posición del objeto
             player_it->second->move(move_result.second);

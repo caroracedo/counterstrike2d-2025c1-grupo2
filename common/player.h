@@ -1,46 +1,70 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <utility>
 #include <vector>
 
 #include "object.h"
 #include "weapon.h"
+#include "weapon_shop.h"
 
 #define PLAYER_SIZE 32
 
 class Player: public Object {
 private:
     PlayerType player_type;
-    Weapon primary_weapon;
-    Weapon secondary_weapon;
-    Weapon knife;
-    Weapon bomb;
-
-    Weapon current;
-
     uint16_t health;
     uint16_t money;
     uint16_t radius = PLAYER_SIZE / 2;
 
+    WeaponShop& weapon_shop;
+
+    Weapon knife;
+    Weapon primary_weapon;
+    Weapon secondary_weapon;
+    Weapon bomb;
+
+    Weapon current;
+
 public:
-    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, bool has_bomb):
+    /* Constructor */
+    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, bool has_bomb,
+           WeaponShop& weapon_shop):
             Object(ObjectType::PLAYER, id, position, PLAYER_SIZE, PLAYER_SIZE),
             player_type(type),
-            primary_weapon({WeaponModel::AK47}),  // Para que no me tire error
-            secondary_weapon({WeaponModel::GLOCK}),
-            knife({WeaponModel::KNIFE}),
-            bomb(has_bomb ? Weapon(WeaponModel::BOMB) : Weapon(WeaponModel::UNKNOWN)),
-            current(secondary_weapon),
-            health(100),   // Por defecto, el jugador comienza con 100 de salud
-            money(500) {}  // Por defecto, el jugador comienza con 500 de dinero
+            health(100),  // Por defecto, el jugador comienza con 100 de salud
+            money(500),
+            weapon_shop(weapon_shop) {
+        std::pair<uint16_t, Weapon> new_knife = weapon_shop.buy_weapon(WeaponModel::KNIFE, money);
+        money -= new_knife.first;
+        knife = new_knife.second;
+
+        std::pair<uint16_t, Weapon> new_secondary_weapon =
+                weapon_shop.buy_weapon(WeaponModel::GLOCK, money);
+        money -= new_secondary_weapon.first;
+        secondary_weapon = new_secondary_weapon.second;
+
+        if (has_bomb) {
+            std::pair<uint16_t, Weapon> new_bomb = weapon_shop.buy_weapon(WeaponModel::BOMB, money);
+            money -= new_bomb.first;
+            bomb = new_bomb.second;
+        }
+
+        current = secondary_weapon;
+    }
+
+    /* Virtual puro */
+    /* Getters */
+    ObjectDTO get_dto() const override {
+        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health,
+                         money);
+    }
 
     /* Verificaciones */
     bool is_alive() const { return health > 0; }
 
     /* Getters */
     Weapon get_current_weapon() const { return current; }
-    PlayerType get_player_type() const { return player_type; }
-    WeaponModel get_current_weapon_model() const { return current.get_model(); }
 
     /* Funcionalidades */
     /* Daño */
@@ -53,20 +77,20 @@ public:
     }
 
     /* Cambio de arma */
-    bool change_weapon(const WeaponType& weapon_type) {
-        if (weapon_type == WeaponType::PRIMARY) {
-            current = primary_weapon;
-        } else if (weapon_type == WeaponType::SECONDARY) {
+    void change_weapon() {
+        if (current == primary_weapon) {
             current = secondary_weapon;
-        } else if (weapon_type == WeaponType::KNIFE) {
+        } else if (current == secondary_weapon) {
+            if (bomb.is_bomb()) {
+                current = bomb;
+            } else {
+                current = knife;
+            }
+        } else if (current == bomb) {
             current = knife;
-        } else if (weapon_type == WeaponType::BOMB &&
-                   bomb.is_bomb()) {  // En realidad estoy checkeando si no es UNKNOWN
-            current = bomb;
-        } else {
-            return false;
+        } else if (current == knife) {
+            current = primary_weapon;
         }
-        return true;
     }
 
     std::vector<uint16_t> get_next_position(Direction direction) const {
@@ -103,10 +127,12 @@ public:
     /* Compra de arma */
     // Igual esto sería otro comando...
     bool buy_weapon(const WeaponModel& weapon_model) {
-        Weapon new_weapon = Weapon(weapon_model);
-        if (new_weapon.get_price() > money)
+        std::pair<uint16_t, Weapon> purchase = weapon_shop.buy_weapon(weapon_model, money);
+        if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
             return false;
-        primary_weapon = new_weapon;
+        }
+        money -= purchase.first;
+        primary_weapon = purchase.second;
         return true;
     }
 };

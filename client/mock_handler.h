@@ -74,20 +74,22 @@ public:
                         std::cout << "🔫 ";
                     }
                     if (object.player_type == PlayerType::TERRORIST) {
-                        std::cout << "(Terrorista)";
+                        std::cout << "(Terrorista) ";
                     } else if (object.player_type == PlayerType::COUNTERTERRORIST) {
-                        std::cout << " (Counter-Terrorista)";
+                        std::cout << "(Counter-Terrorista) ";
                     }
+                    std::cout << "❤️" << object.health << "💰" << object.money;
                     std::cout << std::endl;
                 } else if (object.type == ObjectType::OBSTACLE) {
-                    std::cout << "🗿" << '(' << static_cast<unsigned int>(object.position[0]) << ','
+                    std::cout << "🗿 (" << static_cast<unsigned int>(object.position[0]) << ','
                               << static_cast<unsigned int>(object.position[1]) << ") "
                               << static_cast<unsigned int>(object.width) << 'X'
                               << static_cast<unsigned int>(object.height) << std::endl;
                 } else if (object.type == ObjectType::BULLET) {
-                    std::cout << "💥 Bala en (" << static_cast<unsigned int>(object.position[0])
-                              << ',' << static_cast<unsigned int>(object.position[1]) << ")"
-                              << std::endl;
+                    std::cout << "💥 (" << static_cast<unsigned int>(object.position[0]) << ','
+                              << static_cast<unsigned int>(object.position[1]) << ")" << std::endl;
+                } else {
+                    std::cout << "Objeto desconocido" << std::endl;
                 }
             }
             // TODO: Habría que simular delay...

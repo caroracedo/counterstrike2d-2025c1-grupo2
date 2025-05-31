@@ -23,6 +23,10 @@ public:
     // Esto se usa?
     Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), width(0), height(0) {}
 
+    /* Virtual puro */
+    /* Getters */
+    virtual ObjectDTO get_dto() const = 0;  // Método virtual puro para obtener el DTO del objeto
+
     /* Getters */
     ObjectType get_type() const { return object_type; }
     uint16_t get_id() const { return id; }

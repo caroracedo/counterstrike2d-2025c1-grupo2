@@ -13,50 +13,31 @@
 class Weapon {
 private:
     WeaponModel model;
-    uint16_t price;
     uint16_t range;
+    uint16_t damage;
+    uint16_t ammo;
 
 public:
     /* Constructor */
-    explicit Weapon(WeaponModel model):
-            model(model),
-            price(30),
-            range(100) {}  // TODO: Por ahora hardcodeado, dependerá del tipo de arma
+    Weapon(WeaponModel model, uint16_t range, u_int16_t damage, uint16_t ammo = 30):
+            model(model), range(range), damage(damage), ammo(ammo) {}
+    Weapon(): model(WeaponModel::UNKNOWN), range(), damage(), ammo() {}
 
-    /* Verificaciones*/
+    /* Verificaciones */
     bool is_bomb() { return model == WeaponModel::BOMB; }
 
-    /* Funcionalidades */
-    /* Disparar */
-    // std::shared_ptr<Bullet> shoot(std::vector<uint16_t> shoot_position,
-    //                               std::vector<uint16_t> desired_position) {
-    //     return std::make_shared<Bullet>(shoot_position, range, 5,
-    //                                     desired_position);  // Por ahora el daño es 5, después se
-    //                                                         // calculará según el tipo de arma
-    // }
-
     /* Getters */
-    uint16_t get_price() { return price; }
     uint16_t get_range() { return range; }
     uint16_t get_damage() {
-        switch (model) {
-            case WeaponModel::KNIFE:
-                return 50;  // Daño del cuchillo
-            case WeaponModel::GLOCK:
-                return 20;  // Daño de la Glock
-            case WeaponModel::AK47:
-                return 30;  // Daño del AK47
-            case WeaponModel::M3:
-                return 40;  // Daño de la M3
-            case WeaponModel::AWP:
-                return 100;  // Daño del AWP
-            case WeaponModel::BOMB:
-                return 200;  // Daño de la bomba
-            default:
-                return 0;  // Daño desconocido
-        }
-    }
+        return damage;
+    }  // El daño depende de la distancia, se podría pasar y calcularlo desde ahí, la consigna dice
+       // que es inversamente proporcional...
     WeaponModel get_model() const { return model; }
+
+    bool operator==(const Weapon& other) const {
+        // Compara los atributos relevantes, por ejemplo el modelo o id
+        return this->model == other.model;  // Ajusta según tu implementación
+    }
 };
 
 #endif  // WEAPON_H

@@ -40,19 +40,7 @@ private:
         std::vector<ObjectDTO> object_dtos;
         object_dtos.reserve(objects.size());
         std::transform(objects.begin(), objects.end(), std::back_inserter(object_dtos),
-                       [](const std::shared_ptr<Object>& obj_ptr) {
-                           if (obj_ptr->get_type() == ObjectType::PLAYER) {
-                               std::shared_ptr<Player> player_ptr =
-                                       std::dynamic_pointer_cast<Player>(
-                                               obj_ptr);  // TODO: Turbio... POO fail
-                               return ObjectDTO(player_ptr->get_type(), player_ptr->get_position(),
-                                                player_ptr->get_id(), player_ptr->get_player_type(),
-                                                player_ptr->get_current_weapon_model());
-                           } else {
-                               return ObjectDTO(obj_ptr->get_type(), obj_ptr->get_position(),
-                                                obj_ptr->get_width(), obj_ptr->get_height());
-                           }
-                       });
+                       [](const std::shared_ptr<Object>& obj_ptr) { return obj_ptr->get_dto(); });
         return object_dtos;
     }
 
