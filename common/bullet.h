@@ -22,6 +22,10 @@ public:
             damage(damage),
             target_position(position) {}
 
+    /* Virtual puro */
+    /* Getters */
+    ObjectDTO get_dto() const override { return ObjectDTO(object_type, position); }
+
     /* Getters */
     uint16_t get_range() const { return range; }
 
