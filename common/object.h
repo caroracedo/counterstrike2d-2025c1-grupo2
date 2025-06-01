@@ -1,40 +1,50 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <cstdint>
 #include <utility>
 #include <vector>
 
-#include "object_type.h"
+#include "types.h"
 
 class Object {
 protected:
-    ObjectType type;
+    ObjectType object_type;
     uint16_t id;
+    std::vector<uint16_t> position;
     uint16_t width;
     uint16_t height;
-    std::vector<uint16_t> position;
 
 public:
-    Object(ObjectType type, uint16_t id, uint16_t width, uint16_t height,
-           const std::vector<uint16_t>& position):
-            type(type), id(id), width(width), height(height), position(position) {}
+    /* Constructores */
+    Object(ObjectType object_type, uint16_t id, const std::vector<uint16_t>& position,
+           uint16_t width, uint16_t height):
+            object_type(object_type), id(id), position(position), width(width), height(height) {}
 
-    ObjectType get_type() const { return type; }
+    // Esto se usa?
+    Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), width(0), height(0) {}
+
+    /* Virtual puro */
+    /* Getters */
+    virtual ObjectDTO get_dto() const = 0;  // Método virtual puro para obtener el DTO del objeto
+
+    /* Getters */
+    ObjectType get_type() const { return object_type; }
     uint16_t get_id() const { return id; }
     uint16_t get_width() const { return width; }
     uint16_t get_height() const { return height; }
     std::vector<uint16_t> get_position() const { return position; }
 
+
+    /* Funcionalidad */
     void move(const std::vector<uint16_t>& new_position) { position = new_position; }
 
-    // Ensure ObjectDTO has a compatible 'type' member of ObjectType or cast appropriately
+    // Esto no se...
     template <typename T>
     bool operator<(const T& other) const {
         if (id != other.id)
             return id < other.id;
-        if (static_cast<uint8_t>(type) != static_cast<uint8_t>(other.type))
-            return static_cast<uint8_t>(type) < static_cast<uint8_t>(other.type);
+        if (static_cast<uint8_t>(object_type) != static_cast<uint8_t>(other.object_type))
+            return static_cast<uint8_t>(object_type) < static_cast<uint8_t>(other.object_type);
         if (position != other.position)
             return position < other.position;
         if (width != other.width)
@@ -42,7 +52,12 @@ public:
         return height < other.height;
     }
 
-    bool operator==(const Object& other) const { return id == other.id && type == other.type; }
+    // A este si le veo sentido
+    bool operator==(const Object& other) const {
+        return id == other.id && object_type == other.object_type;
+    }
+
+    virtual ~Object() = default;  // Agrego destructor virtual para permitir la herencia polimórfica
 };
 
 #endif  // OBJECT_H

@@ -2,22 +2,42 @@
 #define WEAPON_H
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
-#include "object.h"
+#include "bullet.h"
+#include "types.h"
 
-class Weapon: public Object {
-protected:
-    uint16_t price;
+// TODO: Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en
+// el lobby
+class Weapon {
+private:
+    WeaponModel model;
     uint16_t range;
+    uint16_t damage;
+    uint16_t ammo;
 
 public:
-    Weapon(uint16_t price, uint16_t range, const std::vector<uint16_t>& position = {0, 0}):
-            Object(ObjectType::WEAPON, -1, 8, 8, position),
-            price(price),
-            range(range) {}  // Tamaño del arma (8x8)
+    /* Constructor */
+    Weapon(WeaponModel model, uint16_t range, u_int16_t damage, uint16_t ammo = 30):
+            model(model), range(range), damage(damage), ammo(ammo) {}
+    Weapon(): model(WeaponModel::UNKNOWN), range(), damage(), ammo() {}
 
-    // Aquí puedes agregar métodos específicos para el arma si es necesario
+    /* Verificaciones */
+    bool is_bomb() { return model == WeaponModel::BOMB; }
+
+    /* Getters */
+    uint16_t get_range() { return range; }
+    uint16_t get_damage() {
+        return damage;
+    }  // El daño depende de la distancia, se podría pasar y calcularlo desde ahí, la consigna dice
+       // que es inversamente proporcional...
+    WeaponModel get_model() const { return model; }
+
+    bool operator==(const Weapon& other) const {
+        // Compara los atributos relevantes, por ejemplo el modelo o id
+        return this->model == other.model;  // Ajusta según tu implementación
+    }
 };
 
 #endif  // WEAPON_H

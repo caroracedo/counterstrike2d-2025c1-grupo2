@@ -20,6 +20,12 @@ private:
     SocketManager skt_manager;
     uint16_t id;
 
+    uint16_t hex_big_endian_to_int_16(const std::vector<uint8_t>& hex_big_endian) {
+        uint16_t int_16;
+        std::memcpy(&int_16, hex_big_endian.data(), sizeof(int_16));
+        return ntohs(int_16);
+    }
+
     std::vector<uint8_t> int_16_to_hex_big_endian(const uint16_t int_16) {
         uint16_t htons_int_16 = htons(int_16);
         std::vector<uint8_t> hex_big_endian(sizeof(htons_int_16));

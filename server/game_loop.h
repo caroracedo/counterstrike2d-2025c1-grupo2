@@ -1,7 +1,9 @@
 #ifndef GAME_LOOP_H
 #define GAME_LOOP_H
 
+#include <algorithm>
 #include <list>
+#include <memory>
 #include <vector>
 
 #include "../common/action_DTO.h"
@@ -21,28 +23,24 @@ private:
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
             case ActionType::MOVE:
-                monitor_game.move(action_dto.direction, action_dto.id);
-                break;
+                return monitor_game.move(action_dto.direction, action_dto.id);
+            case ActionType::SHOOT:
+                return monitor_game.shoot(action_dto.desired_position, action_dto.id);
             default:
                 return false;
         }
-        return true;
     }
 
     void send_snapshot_to_all_clients() {
-        ActionDTO update{ActionType::UPDATE, process_objects(monitor_game.get_objects())};
+        ActionDTO update = {ActionType::UPDATE, process_objects(monitor_game.get_objects())};
         monitor_client_send_queues.send_update(update);
     }
 
-    std::vector<ObjectDTO> process_objects(const std::vector<Object>& objects) {
+    std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
         std::vector<ObjectDTO> object_dtos;
-        for (const auto& obj: objects) {
-            if (obj.get_type() != ObjectType::OBSTACLE) {
-                object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id());
-            } else {
-                object_dtos.emplace_back(obj.get_type(), obj.get_position(), obj.get_id(), obj.get_width(), obj.get_height());
-            }
-        }
+        object_dtos.reserve(objects.size());
+        std::transform(objects.begin(), objects.end(), std::back_inserter(object_dtos),
+                       [](const std::shared_ptr<Object>& obj_ptr) { return obj_ptr->get_dto(); });
         return object_dtos;
     }
 

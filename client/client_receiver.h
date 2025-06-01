@@ -19,7 +19,7 @@ public:
             try {
                 queue.push(protocol.receive_and_deserialize_updated_position());
             } catch (...) {
-                break;  // Manejo básico de error: podría mejorarse.
+                break;
             }
         }
     }
