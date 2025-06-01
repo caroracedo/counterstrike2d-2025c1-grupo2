@@ -41,9 +41,9 @@ private:
     }
 
 public:
-    Acceptor(const char* port, Queue<ActionDTO>& shared_recv_queue,
+    Acceptor(Config& config, Queue<ActionDTO>& shared_recv_queue,
              MonitorClientSendQueues& monitor_client_send_queues, MonitorGame& monitor_game):
-            server_socket(port),
+            server_socket(config.get_server_port().c_str()),
             shared_recv_queue(shared_recv_queue),
             monitor_client_send_queues(monitor_client_send_queues),
             monitor_game(monitor_game) {}

@@ -3,15 +3,18 @@
 
 #define QUIT_INPUT 'q'
 
+#include "../common/config.h"
+
 #include "acceptor.h"
 #include "game_loop.h"
 
 class Server {
 private:
+    Config config;
     GameLoop game_loop;
 
 public:
-    explicit Server(const char* port): game_loop(port) {}
+    explicit Server(const char* yaml_path): config(yaml_path), game_loop(config) {}
 
     void run() {
         game_loop.start();

@@ -1,12 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MATRIX_SIZE 200   // posición máxima en la matriz
-#define MOVE_STEP 5       // paso de movimiento
-#define CELL_SIZE 56      // tamaño de cada celda en la matriz
-#define PLAYER_SIZE 32    // tamaño del jugador
-#define BULLET_SIZE 8     // tamaño de la bala
-#define WEAPON_DAMAGE 20  // daño del arma
+#define MATRIX_SIZE 200  // posición máxima en la matriz
+#define MOVE_STEP 5      // paso de movimiento
+#define CELL_SIZE 56     // tamaño de cada celda en la matriz
+#define PLAYER_SIZE 32   // tamaño del jugador
+#define BULLET_SIZE 8    // tamaño de la bala
 
 #include <algorithm>
 #include <cmath>
@@ -21,6 +20,7 @@
 #include <vector>
 
 #include "action_DTO.h"
+#include "config.h"
 #include "object.h"
 #include "object_DTO.h"
 #include "obstacle.h"
@@ -36,6 +36,7 @@ private:
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     uint16_t bullet_id = 1;
+    Config& config;
     WeaponShop weapon_shop;
 
     // Obtiene la celda correspondiente a una posición dada.
@@ -88,7 +89,7 @@ private:
     uint16_t get_damage_and_delete_bullet(uint bullet_id);
 
 public:
-    Game();
+    explicit Game(Config& config);
 
     bool move(Direction direction, const uint16_t& id);
 
@@ -102,9 +103,9 @@ public:
 
     void add_player(PlayerType player_type, uint16_t id) {
         // TODO: Generar posición random que no colisione con otros objetos
-        std::shared_ptr<Player> player1 =
-                std::make_shared<Player>(id, std::vector<uint16_t>{30, 30}, player_type, false,
-                                         weapon_shop);  // Sin bomba por ahora
+        std::shared_ptr<Player> player1 = std::make_shared<Player>(
+                id, std::vector<uint16_t>{30, 30}, player_type, config.get_player_health(),
+                config.get_player_money(), weapon_shop, false);  // Sin bomba por ahora
 
         // Agregar el jugador a players
         players.insert({id, player1});
@@ -137,42 +138,14 @@ public:
      ************************************ FUNCIONES PARA TESTEAR ********************************
      ********************************************************************************************/
     void initialize_demo_objects() {
-        // // Jugador en (10, 10)
-        // auto player1 = std::make_shared<Player>(1, std::vector<uint16_t>{10, 10},
-        //                                         PlayerType::TERRORIST, true);
-        // players.insert({1, player1});
-        // objects.push_back(player1);
-        // auto cell = get_cell_from_position(player1->get_position());
-        // matrix[cell.first][cell.second].push_back(player1);
+        for (const auto& obs_cfg: config.get_obstacles()) {
+            auto obstacle = std::make_shared<Obstacle>(std::vector<uint16_t>{obs_cfg.x, obs_cfg.y},
+                                                       obs_cfg.width, obs_cfg.height);
+            objects.push_back(obstacle);
 
-        // Obstáculo 1 en (50, 10)
-        auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 30, 6);
-        objects.push_back(obstacle1);
-        auto cell = get_cell_from_position(obstacle1->get_position());
-        matrix[cell.first][cell.second].push_back(obstacle1);
-
-        // // Bala en (45, 50)
-        // auto bullet = std::make_shared<Bullet>(7, std::vector<uint16_t>{45, 50}, 10, 20);
-        // bullets.insert({7, bullet});
-        // objects.push_back(bullet);
-        // cell = get_cell_from_position(bullet->get_position());
-        // matrix[cell.first][cell.second].push_back(bullet);
-
-        // // Otro jugador en (80, 80)
-        // auto player2 = std::make_shared<Player>(2, std::vector<uint16_t>{80, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false);
-        // players.insert({2, player2});
-        // objects.push_back(player2);
-        // cell = get_cell_from_position(player2->get_position());
-        // matrix[cell.first][cell.second].push_back(player2);
-
-        // // Otro jugador en (30, 80)
-        // auto player3 = std::make_shared<Player>(3, std::vector<uint16_t>{30, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false);
-        // players.insert({3, player3});
-        // objects.push_back(player3);
-        // cell = get_cell_from_position(player3->get_position());
-        // matrix[cell.first][cell.second].push_back(player3);
+            auto cell = get_cell_from_position(obstacle->get_position());
+            matrix[cell.first][cell.second].push_back(obstacle);
+        }
     }
 
     void show_objects() {

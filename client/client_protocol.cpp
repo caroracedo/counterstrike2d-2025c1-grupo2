@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-#include "../common/constants.h"
 #include "../common/object_DTO.h"
 
 ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}

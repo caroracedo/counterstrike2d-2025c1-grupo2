@@ -20,6 +20,8 @@ private:
     std::mutex mutex;
 
 public:
+    explicit MonitorGame(Config& config): game(config) {}
+
     /* Snapshot */
     std::vector<std::shared_ptr<Object>> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);

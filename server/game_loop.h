@@ -17,6 +17,7 @@
 
 class GameLoop: public Thread {
 private:
+    Config& config;
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
@@ -50,8 +51,10 @@ private:
     }
 
 public:
-    explicit GameLoop(const char* port):
-            acceptor(port, recv_queue, monitor_client_send_queues, monitor_game) {}
+    explicit GameLoop(Config& config):
+            config(config),
+            monitor_game(config),
+            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
 
     void run() override {
         acceptor.start();

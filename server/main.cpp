@@ -8,16 +8,16 @@
 
 int main(int argc, char* argv[]) {
     try {
-        const char* port = nullptr;
+        const char* yaml_path = nullptr;
 
         if (argc != EXPECTED_ARGC) {
-            std::cerr << "Bad program call. Expected: " << argv[0] << " <port> <protocol-type>\n";
+            std::cerr << "Bad program call. Expected: " << argv[0] << " <yaml_path>\n";
             return EXIT_FAILURE;
         }
 
-        port = argv[1];
+        yaml_path = argv[1];
 
-        Server server(port);
+        Server server(yaml_path);
         server.run();
         return EXIT_SUCCESS;
 
