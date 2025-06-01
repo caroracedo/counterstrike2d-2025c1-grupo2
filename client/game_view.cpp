@@ -10,20 +10,14 @@ GameView::GameView(int id):
     renderer(window, -1, SDL_RENDERER_ACCELERATED),
     body_sprites(renderer, Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
     legs_sprites(renderer, Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp"))),
-    player_view(body_sprites),
-    legs_view(legs_sprites,
-                {
-                    Rect(0,  0, 32, 32),   
-                    Rect(32, 0, 32, 32),   
-                    Rect(64, 0, 32, 32)    
-                },
-                100),
     background (renderer, Surface(SDL_LoadBMP("../dustroof.bmp"))),
     camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
     // gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
     // gun_view(gun_texture) 
     box_texture(renderer, Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
     box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
+    hud_numbres(renderer, Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
+    hud_view(hud_numbres, renderer),
     local_id(id)
     {}
 
@@ -59,7 +53,8 @@ void GameView::update_player(const ObjectDTO& object) {
     // if (local_id == 0 ) {
     //     local_id = id;
     // }
-
+    hud_view.update(object);
+    
     if (players.find(id) == players.end()) {
         players[id] = std::make_unique<PlayerView>(body_sprites);
     }
@@ -135,6 +130,8 @@ void GameView::render() {
             renderer.Copy(box_texture, src_rect, dst_rect);
         }
     }
+
+    hud_view.draw();
     
     renderer.Present();
     

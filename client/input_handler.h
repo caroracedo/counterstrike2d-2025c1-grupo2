@@ -38,7 +38,7 @@ private:
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-                return {ActionType::SHOOT, {static_cast<unsigned short>(event.button.x), static_cast<unsigned short>(event.button.y)}};
+                return {ActionType::SHOOT, std::vector<uint16_t>{static_cast<uint16_t>(event.button.x), static_cast<uint16_t>(event.button.y)}};
             }
         }
         return {};

@@ -3,8 +3,9 @@
 
 #include <SDL2pp/SDL2pp.hh>
 #include <cmath>
-#include "../common/constants.h"
 #include "game_camera.h"
+#include "../common/constants.h"
+#include "../common/types.h"
 
 using namespace SDL2pp;
 
