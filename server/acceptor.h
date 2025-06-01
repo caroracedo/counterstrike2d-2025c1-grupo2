@@ -57,6 +57,7 @@ public:
                 ClientHandler* new_client_handler =
                         new ClientHandler(std::move(new_client_socket), shared_recv_queue,
                                           new_client_send_queue, ++id);
+                new_client_send_queue.push(ActionDTO(ActionType::PLAYERID, id));  // Para la gráfica
                 reap();
                 client_handlers_list.push_back(new_client_handler);
                 new_client_handler->start();

@@ -13,6 +13,7 @@ private:
     Queue<ActionDTO>& recv_queue;
     MockHandler& mock_handler;
     std::atomic<bool>& stop_flag;
+    uint16_t id = -1;
 
 public:
     UpdateHandler(Queue<ActionDTO>& recv_queue, MockHandler& mock_handler,
@@ -25,8 +26,12 @@ public:
                 ActionDTO action_update;
                 while (!recv_queue.try_pop(action_update)) {}
                 if (action_update.type == ActionType::UNKNOWN ||
-                    !mock_handler.update_graphics(action_update))
-                    break;  // Error
+                    (action_update.type == ActionType::UPDATE &&
+                     !mock_handler.update_graphics(action_update))) {
+                    break;
+                } else if (action_update.type == ActionType::PLAYERID) {
+                    id = action_update.id;
+                }
             } catch (...) {
                 break;
             }

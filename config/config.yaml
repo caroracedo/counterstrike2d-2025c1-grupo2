@@ -12,7 +12,7 @@ weapons:
     damage: 10
 
   glock:
-    price: 300
+    price: 0
     range: 10
     damage: 20
 

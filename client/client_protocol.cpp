@@ -7,51 +7,12 @@
 
 #include "../common/object_DTO.h"
 
+/* Constructor */
 ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
 
-bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
-    uint8_t opcode = static_cast<uint8_t>(action.type);
-    std::vector<uint8_t> data = {opcode};
-    switch (action.type) {
-        case ActionType::PLAYERTYPE: {
-            data.push_back(static_cast<uint8_t>(action.player_type));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
-        }
-        case ActionType::MOVE: {
-            data.push_back(static_cast<uint8_t>(action.direction));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
-        }
-        case ActionType::SHOOT: {
-            push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
-            push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
-        }
-        default:
-            return false;
-    }
-}
-
-// TODO: Esto está RE largo, perdón por eso
-ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
-    uint16_t size;
-    if (!skt_manager.receive_two_bytes(skt, size))
-        return {};
-
-    uint8_t type_code;
-    if (!skt_manager.receive_byte(skt, type_code))
-        return {};
-
-    std::vector<uint8_t> data(size - 1);
-    if (!skt_manager.receive_bytes(skt, data) || data.empty())
-        return {};
-
-    ActionType type = static_cast<ActionType>(type_code);
-    if (type != ActionType::UPDATE)
-        return {};
-
+/* Private */
+/* Recepción */
+ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
     std::vector<ObjectDTO> objects;
     for (size_t i = 0; i < data.size();) {
         ObjectType object_type = static_cast<ObjectType>(data[i]);
@@ -79,4 +40,59 @@ ActionDTO ClientProtocol::receive_and_deserialize_updated_position() {
         }
     }
     return {ActionType::UPDATE, objects};
+}
+
+ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
+    std::vector<uint8_t> id(data.begin(), data.begin() + 2);
+    return {ActionType::PLAYERID, hex_big_endian_to_int_16(id)};
+}
+
+/* Public */
+/* Recepción */
+ActionDTO ClientProtocol::receive_and_deserialize_action() {
+    uint16_t size;
+    if (!skt_manager.receive_two_bytes(skt, size))
+        return {};
+
+    uint8_t type_code;
+    if (!skt_manager.receive_byte(skt, type_code))
+        return {};
+
+    std::vector<uint8_t> data(size - 1);
+    if (!skt_manager.receive_bytes(skt, data) || data.empty())
+        return {};
+
+    ActionType type = static_cast<ActionType>(type_code);
+    if (type == ActionType::UPDATE) {
+        return deserialize_update(data);
+    } else if (type == ActionType::PLAYERID) {
+        return deserialize_id(data);
+    }
+    return {};
+}
+
+/* Envío */
+bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
+    uint8_t opcode = static_cast<uint8_t>(action.type);
+    std::vector<uint8_t> data = {opcode};
+    switch (action.type) {
+        case ActionType::PLAYERTYPE: {
+            data.push_back(static_cast<uint8_t>(action.player_type));
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        case ActionType::MOVE: {
+            data.push_back(static_cast<uint8_t>(action.direction));
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        case ActionType::SHOOT: {
+            push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
+            push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        default:
+            return false;
+    }
 }

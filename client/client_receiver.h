@@ -17,7 +17,7 @@ public:
     void run() override {
         while (should_keep_running()) {
             try {
-                queue.push(protocol.receive_and_deserialize_updated_position());
+                queue.push(protocol.receive_and_deserialize_action());
             } catch (...) {
                 break;
             }

@@ -20,7 +20,7 @@ public:
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
-                if (!protocol.serialize_and_send_updated_game(send_queue.pop()))
+                if (!protocol.serialize_and_send_action(send_queue.pop()))
                     break;
             } catch (...) {
                 break;

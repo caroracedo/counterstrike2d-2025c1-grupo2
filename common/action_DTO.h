@@ -12,6 +12,7 @@ enum class ActionType : uint8_t {
     SHOOT = 0x73,
     UPDATE = 0x75,
     PLAYERTYPE = 0x70,
+    PLAYERID = 0x69,
     UNKNOWN = 0x00
 };
 enum class Direction : uint8_t {
@@ -34,6 +35,7 @@ struct ActionDTO {
     /* Update */
     std::vector<ObjectDTO> objects;
 
+    /* Id */
     uint16_t id;
 
     ActionDTO():
@@ -100,6 +102,10 @@ struct ActionDTO {
             id(id) {}
 
     /* server -> client */
+    /* Id */
+    ActionDTO(const ActionType& action, uint16_t id):
+            type(action), player_type(), direction(), desired_position(), objects(), id(id) {}
+
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
             type(action), player_type(), direction(), desired_position(), objects(objects), id() {}
