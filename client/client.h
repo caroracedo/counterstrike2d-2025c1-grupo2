@@ -19,7 +19,7 @@ class Client {
 private:
     Socket client_socket;
     ClientProtocol protocol;
-
+    int id;
     Queue<ActionDTO> to_server;
     Queue<ActionDTO> from_server;
 
@@ -27,11 +27,12 @@ private:
     Receiver receiver;
 
 public:
-    Client(const char* hostname, const char* servname):
+    Client(const char* hostname, const char* servname, int id):
             client_socket(hostname, servname),
             protocol(this->client_socket),
+            id(id), 
             sender(protocol, to_server),
-            receiver(protocol, from_server) {}
+            receiver(protocol, from_server){}
 
     // void initiate_communication() {
     //     sender.start();
@@ -84,7 +85,7 @@ public:
         receiver.start();
 
         InputHandler input_handler;
-        GameView game_view;
+        GameView game_view(id);
         std::atomic<bool> stop_flag = false;
         EventHandler event_handler(to_server, stop_flag, input_handler);
         UpdateHandler update_handler(from_server, stop_flag, game_view);

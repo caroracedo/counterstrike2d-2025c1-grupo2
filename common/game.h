@@ -87,19 +87,6 @@ private:
 
     uint16_t get_damage_and_delete_bullet(uint bullet_id);
 
-    void initialize_demo_objects() {
-        // Obstáculo 1 en (50, 10)
-        Obstacle obstacle1(32, 32, {50, 10});
-        Obstacle obstacle2(64, 64, {150, 150});
-        objects.push_back(obstacle1);
-        auto cell = get_cell_from_position(obstacle1.get_position());
-        matrix[cell.first][cell.second].push_back(obstacle1);
-        
-        objects.push_back(obstacle2);
-        auto cell2 = get_cell_from_position(obstacle2.get_position());
-        matrix[cell2.first][cell2.second].push_back(obstacle2);
-    }
-
 public:
     Game();
 
@@ -150,7 +137,7 @@ public:
         // matrix[cell.first][cell.second].push_back(player1);
 
         // Obstáculo 1 en (50, 10)
-        auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 30, 6);
+        auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 32, 32);
         objects.push_back(obstacle1);
         auto cell = get_cell_from_position(obstacle1->get_position());
         matrix[cell.first][cell.second].push_back(obstacle1);

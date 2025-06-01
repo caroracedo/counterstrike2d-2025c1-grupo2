@@ -38,14 +38,7 @@ private:
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-                int mouse_x, mouse_y;
-                SDL_GetMouseState(&mouse_x, &mouse_y);
-                int center_x = SCREEN_WIDTH / 2;
-                int center_y = SCREEN_HEIGHT / 2;
-                float dx = mouse_x - center_x;
-                float dy = mouse_y - center_y;
-                fire_angle = std::atan2(dy, dx) * 180.0f / M_PI;
-                fire_requested = true;
+                return {ActionType::SHOOT, {static_cast<unsigned short>(event.button.x), static_cast<unsigned short>(event.button.y)}};
             }
         }
         return {};

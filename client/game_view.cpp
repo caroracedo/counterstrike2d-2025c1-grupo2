@@ -4,7 +4,7 @@
 
 // de esto voy a hacer un refactor para que no se carguen las texturas en el constructor
 // se haria una clase mas prolija.
-GameView::GameView():  
+GameView::GameView(int id):  
     sdl(SDL_INIT_VIDEO),
     window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
     renderer(window, -1, SDL_RENDERER_ACCELERATED),
@@ -23,7 +23,8 @@ GameView::GameView():
     // gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
     // gun_view(gun_texture) 
     box_texture(renderer, Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
-    box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp")))
+    box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
+    local_id(id)
     {}
 
 
@@ -43,41 +44,43 @@ void GameView::update(const ActionDTO& action) {
         else if (object.type == ObjectType::OBSTACLE) 
             update_obstacles(object);
 
-        // else if (object.type == ObjectType::BULLET)
-        //     update_bullets(object);
+        else if (object.type == ObjectType::BULLET)
+            update_bullets(object);
     }    
 }
 
 void GameView::update_player(const ObjectDTO& object) {
-    int id = object.id;
+    uint16_t id = object.id;
     float x = object.position[0];
     float y = object.position[1];
 
     // Si no existe, lo creo
+    
+    // if (local_id == 0 ) {
+    //     local_id = id;
+    // }
 
     if (players.find(id) == players.end()) {
         players[id] = std::make_unique<PlayerView>(body_sprites);
     }
-    players[id]->update_position(x, y);
 
+    
     if (legs.find(id) == legs.end()) {
         legs[id] = std::make_unique<LegsView>(legs_sprites,std::vector<SDL2pp::Rect>{
                      Rect(0, 0, 32, 32),
                      Rect(32, 0, 32, 32),
                      Rect(64, 0, 32, 32)
-                 },
-                 100);
-    }
+                    },
+                    100);
+                }
 
-        // Si todavía no tengo mi ID asignado, este puede ser el local
-    if (local_id == -1) {
-        local_id = id;
-        // std::cout << "Local player ID asignado: " << local_id << std::endl;
+    if (x - last_px  || y - last_py  == 5|| last_px == -1 || last_py == -1) {
+        last_px = x;
+        last_py = y;
+        players[id]->update_position(x, y);
+        legs[id]->update_position(x, y);
+        legs[id]->update_animation();
     }
-    
-
-    legs[id]->update_position(x, y);
-    legs[id]->update_animation();
 
 }
 
@@ -86,6 +89,7 @@ void GameView::update_bullets(const ObjectDTO& object) {
     // bullet.angle = object.angle; // Asumiendo que el DTO tiene un campo de ángulo
     bullets.push_back(bullet);
 }
+
 void GameView::update_obstacles(const ObjectDTO& object) {
     ObstacleView obs;
     obs.x = object.position[0];
@@ -98,16 +102,12 @@ void GameView::update_obstacles(const ObjectDTO& object) {
 
 
 void GameView::render() {
-   
-    if (local_id != -1) {
-        auto it = players.find(local_id);
-        if (it != players.end() && it->second) {
-            float px = it->second->get_x();
-            float py = it->second->get_y();
-            camera.center_on(px + PLAYER_WIDTH / 2, py + PLAYER_HEIGHT / 2);
-        }
+    auto it = players.find(local_id);
+    if (it != players.end() && it->second) {
+        float px = it->second->get_x();
+        float py = it->second->get_y();
+        camera.center_on(px + PLAYER_WIDTH / 2, py + PLAYER_HEIGHT / 2);  
     }
-
 
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.Clear();

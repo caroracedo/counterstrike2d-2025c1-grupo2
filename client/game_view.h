@@ -30,30 +30,30 @@ private:
     Texture body_sprites;
     Texture legs_sprites;   
 
-    std::unordered_map<uint8_t, std::unique_ptr<PlayerView>> players;
-    std::unordered_map<uint8_t, std::unique_ptr<LegsView>> legs;
+    std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
+    std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
 
-    int local_id;
-
+    
     PlayerView player_view; 
     LegsView legs_view;
-
+    
     Texture background;
-
+    
     GameCamera camera; 
     // Texture gun_texture;
     // GunView gun_view;
-
+    
     Texture box_texture;
     Texture box_texture2;
     
     Uint32 last_frame_time;
     const Uint32 frame_delay = 1000 / 60;  // 60 FPS
-
+    
     std::vector<ObstacleView> obstacles;  
     std::vector<BulletView> bullets; 
     float last_px = -1;
     float last_py = -1;
+    uint16_t local_id = 0; 
     
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);
@@ -62,7 +62,7 @@ private:
     void calculate_fps(); //TODO: hacer
 
 public:
-    GameView();
+    GameView(int id);
     void update(const ActionDTO& action);
     void render();
     

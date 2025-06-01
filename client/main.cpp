@@ -6,7 +6,7 @@
 
 #include "client.h"
 
-#define EXPECTED_ARGC 3
+#define EXPECTED_ARGC 4
 
 int main(int argc, char* argv[]) {
     try {
@@ -21,8 +21,9 @@ int main(int argc, char* argv[]) {
 
         hostname = argv[1];
         servname = argv[2];
+        int id_cli = std::stoi(argv[3]);
 
-        Client client(hostname, servname);
+        Client client(hostname, servname, id_cli);
         client.initiate_communication();
         return EXIT_SUCCESS;
 

@@ -1,0 +1,338 @@
+[33mcommit a5321b37583aa9447895c670ccd2bf562942351e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mprueba_graficos[m[33m)[m
+Merge: 7c6b6b3 6870f14
+Author: luciano <luchoserra288@gmail.com>
+Date:   Sat May 31 22:40:47 2025 -0300
+
+    Solución parcial para la vista de múltiples jugadores.
+    
+    Se hizo merge con la rama del refactor del protocolo y también distintos cambios para lograr ver a dos jugadores al mismo tiempo.
+    
+    Co-authored-by: Carolina Racedo <caroracedo@users.noreply.github.com>
+
+[33mcommit 6870f145379a579b75ae6563b11d01e936401a3d[m[33m ([m[1;31morigin/client_server_refactor_2[m[33m)[m
+Merge: 88e5a5f 63ec815
+Author: Carolina Racedo <129893104+caroracedo@users.noreply.github.com>
+Date:   Sat May 31 15:40:04 2025 -0300
+
+    Merge pull request #11 from caroracedo/client_server_refactor_2_b
+    
+    Client server refactor 2 b
+
+[33mcommit 63ec815ba26c56aed462fd15918a772e8539e101[m
+Merge: 5c7c778 88e5a5f
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Sat May 31 15:36:34 2025 -0300
+
+    Shoot funcionando; Merge remote-tracking branch 'origin/client_server_refactor_2' into client_server_refactor_2_b
+    
+    Co-authored-by: Mora Mujica <moramujica1@users.noreply.github.com>
+
+[33mcommit 5c7c778b71752f239cda92c2dafcfa2ed00b1d4e[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Sat May 31 14:44:12 2025 -0300
+
+    Implementación de weapon_shop para desacoplar armas y sus características, además ahora se mande health y money por protocolo
+
+[33mcommit 88e5a5fabe37baab85e373cd6f9d339496a70d23[m
+Author: moramujica1 <146000925+moramujica1@users.noreply.github.com>
+Date:   Sat May 31 14:33:17 2025 -0300
+
+    Implementación de players y bullets como círculos (#10)
+
+[33mcommit 7c6b6b3ce6392ab10d5949b9caacae5ddfe3fec6[m[33m ([m[1;31morigin/prueba_graficos[m[33m)[m
+Author: Luciano <luchoserra288@gmail.com>
+Date:   Sat May 31 13:47:27 2025 -0300
+
+    Primer intento fix para ver mùltiples jugadores (todavìa no funciona bien)
+
+[33mcommit 70396072ab75d4276d5e2b90fa3229e56444b511[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Sat May 31 11:00:47 2025 -0300
+
+    Mejora en el cálculo de la posición inicial de la bala
+
+[33mcommit 09ddeb0cfbacd4a491e45f28578f5fed46f9b9e2[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 30 20:40:17 2025 -0300
+
+    Fix disparos
+    Se tiene en cuenta la posicion inicial de la bala y que se pueda mover en diagonal
+
+[33mcommit ee028e7b58cc2dae52578e519b65d02c5c92c90c[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 30 19:30:36 2025 -0300
+
+    Fix en el disparo
+     - Se corrige la posicion inicial de la bala para que no colisione con el que dispara
+
+[33mcommit ec080e240c0b5f0359fc194c26eace5b3c16ff9d[m
+Merge: 12d2396 dc7235b
+Author: moramujica1 <146000925+moramujica1@users.noreply.github.com>
+Date:   Fri May 30 19:06:43 2025 -0300
+
+    Merge pull request #9 from caroracedo/client_server_refactor_2_b
+    
+    Client server refactor 2 b
+
+[33mcommit 12d2396f1ef4eea156c4ac9a6a9dc95c0fc8383d[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 30 19:05:27 2025 -0300
+
+    Revert "Fix en el disparo"
+    
+    This reverts commit 7d91bb96d4dc8be0785f0d6b3e1700f31466284a.
+
+[33mcommit 7d91bb96d4dc8be0785f0d6b3e1700f31466284a[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 30 18:51:59 2025 -0300
+
+    Fix en el disparo
+    - Se corrigió la posición inicial de la bala para que no colisione con el jugador que la dispara
+    - Se ajustó el movimiento de la bala para que pueda llegar a la posición target
+
+[33mcommit dc7235b3140e5a3aa3b2fb9d0bbec67d8a449bf0[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 30 16:02:06 2025 -0300
+
+    Micro-fix
+
+[33mcommit 43c7c97304debaf0ffc4a1579513e0dfb7dea3ac[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 30 15:55:18 2025 -0300
+
+    Fix errores menores en protocol, y algunos para que compile
+
+[33mcommit ed4d03df1ffcb846427fbec8c6d687f2f09879ab[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Fri May 30 15:54:08 2025 -0300
+
+    pequeño fix de las balas
+
+[33mcommit c70b92934fa4154e0a3d03356579741f1d78fb9e[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Fri May 30 15:22:50 2025 -0300
+
+    Implemento lógica para visualización de balas
+    
+    Todavía no está testeado, por lo que puede no funcionar.
+
+[33mcommit 28ada0feceb04715b1a57400e218e0535a8da84d[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 30 12:13:39 2025 -0300
+
+    Implementación de shoot a nivel comunicación, y de paso un refactor del snapshot para que se manden las características de cada objeto
+
+[33mcommit 26f5f36b082485ed5f7c2dbf43953184f2ac341d[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Fri May 30 09:39:35 2025 -0300
+
+    Inclusión del ancho y la altura en los obstáculos.
+    
+    Co-authored-by: Carolina Racedo <caroracedo@users.noreply.github.com>
+
+[33mcommit b13d772e3f3829be06644379a7bb701ea94e86d3[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Wed May 28 18:43:15 2025 -0300
+
+    Impl básica de shoot
+
+[33mcommit 0236f7a166eda7c637ae796cc0f1ea0cd66c3e4d[m
+Merge: 1dd6855 ef0b0da
+Author: moramujica1 <146000925+moramujica1@users.noreply.github.com>
+Date:   Wed May 28 15:23:04 2025 -0300
+
+    Merge pull request #7 from caroracedo/client_server_refactor_2_b
+    
+    Implementación básica clase Object
+
+[33mcommit ef0b0dadff52d1bbfbfaa15ea5652f9d5af6abc3[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Wed May 28 14:13:31 2025 -0300
+
+    Implementación básica clase Object
+
+[33mcommit 1dd68554b5aa538bcdf137c99f88492993aa80db[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Wed May 28 12:08:02 2025 -0300
+
+    Boceto impl shoot y change, agrego object bullet
+
+[33mcommit eb45d244b581f683a3ba7d84b4b803a5bc816555[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Mon May 26 21:25:20 2025 -0300
+
+    Fix errores del merge
+
+[33mcommit d69e18b539d5c44fa6fbf7374306973344f8855c[m
+Merge: e947762 156c6de
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Mon May 26 21:16:24 2025 -0300
+
+    Merge branch 'client_server_refactor_2' of https://github.com/caroracedo/counterstrike2d-2025c1-grupo2 into client_server_refactor_2
+
+[33mcommit e947762adfe64345b77bcd44b099bb843560e95e[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Mon May 26 21:02:13 2025 -0300
+
+    Impl shoot en game.h
+
+[33mcommit 57f19543a5cd056bdc78e90c8f40816aba28ad8c[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Mon May 26 20:19:57 2025 -0300
+
+    Integración de gráfica y lógica.
+    
+    Co-authored-by: moramujica1 <moramujica1@users.noreply.github.com>
+    Co-authored-by: Carolina Racedo <caroracedo@users.noreply.github.com>
+
+[33mcommit 19c2b25b13a74ab122eff3baf378e6845e516ca8[m
+Merge: f45154a 156c6de
+Author: luciano <luchoserra288@gmail.com>
+Date:   Mon May 26 17:28:32 2025 -0300
+
+    Merge branch 'client_server_refactor_2' into prueba_graficos
+    
+    Co-authored-by: moramujica1 <moramujica1@users.noreply.github.com>
+    Co-authored-by: Carolina Racedo <caroracedo@users.noreply.github.com>
+
+[33mcommit f45154a12ba27bf76b32c77c4b49cbb8756fde53[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Mon May 26 17:01:48 2025 -0300
+
+    inclusion de bullet_view
+
+[33mcommit 156c6deac65569ddf4a4b40238d1c2ad0974f546[m[33m ([m[1;32mclient_server_refactor_2[m[33m)[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Mon May 26 16:20:11 2025 -0300
+
+    Integración de lógica y comunicación funcionando
+    
+    Co-authored-by: Mora Mujica <moramujica1@users.noreply.github.com>
+
+[33mcommit 2b55dc21ebb6d46c11b6c6f56df5a88e93cbaf5d[m
+Merge: a4c6b11 8c97995
+Author: Carolina Racedo <129893104+caroracedo@users.noreply.github.com>
+Date:   Mon May 26 15:17:25 2025 -0300
+
+    Merge pull request #4 from caroracedo/client_server_refactor_2_b
+    
+    Client server refactor 2 b
+
+[33mcommit 8c97995c7067dab9db4f0abec265d170f4d69674[m[33m ([m[1;31morigin/client_server_refactor_2_b[m[33m)[m
+Merge: 5adb4f8 a4c6b11
+Author: Carolina Racedo <129893104+caroracedo@users.noreply.github.com>
+Date:   Mon May 26 15:17:11 2025 -0300
+
+    Merge branch 'client_server_refactor_2' into client_server_refactor_2_b
+
+[33mcommit 5adb4f8f28a9a4c34e728fb52d41d37c98231a0a[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Sun May 25 22:50:05 2025 -0300
+
+    Fix de server que no cerraba y reemplazo de punteros por referencias
+    Agregué un atomic bool
+    Tuve en cuenta fallos en sockets y queues
+    Las queues_sender eran punteros, preferí dejarlas como referencias
+
+[33mcommit a4c6b11419efee74295b867bce8df7be7de0110c[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Sun May 25 20:41:40 2025 -0300
+
+    Boceto implementación clases Player, Weapon y Object
+
+[33mcommit 302b25b78f25d6260c7ab36b52aca5e3a2dcd3bd[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Sat May 24 17:03:43 2025 -0300
+
+    Adapto mi código a la lógica
+    Sigo sin poder solucionar lo del server, entendí que es porque los hilos siguen latentes, las queues no están cerradas y el game_loop sigue enviando
+    Todavía queda ver el tema del width y height
+
+[33mcommit c876e05e67d35621e5546737844e0bd1bfcdf60b[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 23 17:52:51 2025 -0300
+
+    Agrego testeo del move
+    Se chequea que se mueva correctamente el jugador, indicando si colisiona o no y verificando que se elimine el objeto cuando colisiona con una bala
+
+[33mcommit 4701e18195e00b64c46f82594cc3182be13f3052[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 23 16:13:03 2025 -0300
+
+    Agrego función reap() para eliminar objetos "muertos"
+
+[33mcommit e5e4bb9095d9a870dca7b2a2e5b45d48cd70e882[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Fri May 23 16:05:56 2025 -0300
+
+    Refactor importante en game.h referente al movimiento de objetos
+    
+    Se tiene en cuenta la dimensión del objeto a mover, y si choca contra una bala
+
+[33mcommit 678ac0d2c76ad97bb53388a9e6eb36e66430c4bc[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 23 14:40:26 2025 -0300
+
+    Agrego manejo de snapshots
+    Boceto: funciona pero raro, si el server queda colgado rompe todo, pero bueno
+
+[33mcommit 9e5af3ade90cdbe3e1e0cfe47ce5d3c75b1927f3[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 23 12:02:26 2025 -0300
+
+    Agrego manejo de obstáculos
+    Todavía falta el manejo de snapshots, a investigar...
+
+[33mcommit 6c5d95c35eb6f12d8cea613e09a9d25e1d5b7a55[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Fri May 23 11:05:59 2025 -0300
+
+    Pruebo una posible implementación de la comunicación con un Game Básico (no incluir) que permite movimiento
+    Agregué manejo de IDs
+    Agregué try_pop en un while
+    Envío actualización del juego
+    Cambié mock_handler para visualizar mejor
+
+[33mcommit 2ff1bfb4afc543fe92ed136aa8700eb46d4f4253[m
+Author: moramujica1 <mmujica@fi.uba.ar>
+Date:   Thu May 22 17:39:50 2025 -0300
+
+    Inclusión de matriz lógica para verificar posibles colisiones
+
+[33mcommit ae875dd4e2b34efb39938a1c5a88294d03f08667[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Thu May 22 01:58:19 2025 -0300
+
+    Boceto de GameCamera
+    
+    Ahora la vista del jugador está centrada en el medio de la pantalla dando la ilusión que el fondo se desplaza.
+
+[33mcommit 0a999d1fb2951c5abd9d372ea93c2e969317f144[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Wed May 21 23:47:23 2025 -0300
+
+    Boceto (literal) de lo que sería el protocolo y fixes en server y client para que funcione
+
+[33mcommit b0aecc5ff6b3d519689364adf0cae7575e9a37e6[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Wed May 21 22:21:42 2025 -0300
+
+    Nueva branch refactor protocolo y lógica
+
+[33mcommit 0017eae461368202d90ec38afb0ccd441d255924[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Wed May 21 18:15:10 2025 -0300
+
+    pequeño fix client.h
+
+[33mcommit 1b5de647a2678513019a60bf720721a40c96f84e[m
+Author: luciano <luchoserra288@gmail.com>
+Date:   Wed May 21 17:22:00 2025 -0300
+
+    implemento game_view
+
+[33mcommit 8b4d1bd85fd3e3375509f0d5263f371df32ab107[m
+Author: Carolina <cracedo@fi.uba.ar>
+Date:   Sun May 18 23:47:13 2025 -0300
+
+    Actualizo con respecto a main y reemplazo nuevamente gráfica por mock
