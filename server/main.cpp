@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         port = argv[1];
 
         Server server(port);
-        server.initiate_communication();
+        server.run();
         return EXIT_SUCCESS;
 
     } catch (const std::exception& err) {

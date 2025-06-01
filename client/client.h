@@ -2,9 +2,11 @@
 #define CLIENT_H
 
 #include <iostream>
+#include <string>
 #include <utility>
 
 #include "../common/action_DTO.h"
+#include "../common/types.h"  // <-- Importa types.h
 
 #include "client_protocol.h"
 #include "client_receiver.h"
@@ -18,30 +20,44 @@ private:
     Socket client_socket;
     ClientProtocol protocol;
 
-    Queue<ActionDTO> to_server;
-    Queue<ActionDTO> from_server;
+    Queue<ActionDTO> send_queue;
+    Queue<ActionDTO> recv_queue;
 
     Sender sender;
     Receiver receiver;
 
+    PlayerType player_type;
+
+    PlayerType parse_player_type(const char* type_str) {
+        std::string type(type_str);
+        if (type == "Terrorist")
+            return PlayerType::TERRORIST;
+        return PlayerType::COUNTERTERRORIST;
+    }
+
+    void send_initial_configuration() {
+        send_queue.push(ActionDTO{ActionType::PLAYERTYPE, player_type});
+    }
+
 public:
-    Client(const char* hostname, const char* servname):
+    Client(const char* hostname, const char* servname, const char* type_str):
             client_socket(hostname, servname),
             protocol(this->client_socket),
-            sender(protocol, to_server),
-            receiver(protocol, from_server) {}
+            sender(protocol, send_queue),
+            receiver(protocol, recv_queue),
+            player_type(parse_player_type(type_str)) {}
 
-    void initiate_communication() {
+    void run() {
         sender.start();
         receiver.start();
 
-        // TODO: Capaz conviene no tenerlos como atributo, si solo se usan en esta función...
+        send_initial_configuration();
+
         MockHandler mock_handler;
         std::atomic<bool> stop_flag = false;
-        EventHandler event_handler(to_server, mock_handler, stop_flag);
-        UpdateHandler update_handler(from_server, mock_handler, stop_flag);
+        EventHandler event_handler(send_queue, mock_handler, stop_flag);
+        UpdateHandler update_handler(recv_queue, mock_handler, stop_flag);
 
-        // Cuando termina uno debería terminar todo...
         event_handler.start();
         update_handler.start();
 

@@ -17,6 +17,8 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 
     ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
+        case ActionType::PLAYERTYPE:
+            return {type, static_cast<PlayerType>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::SHOOT: {

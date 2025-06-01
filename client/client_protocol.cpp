@@ -14,6 +14,11 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     uint8_t opcode = static_cast<uint8_t>(action.type);
     std::vector<uint8_t> data = {opcode};
     switch (action.type) {
+        case ActionType::PLAYERTYPE: {
+            data.push_back(static_cast<uint8_t>(action.player_type));
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
         case ActionType::MOVE: {
             data.push_back(static_cast<uint8_t>(action.direction));
             return skt_manager.send_two_bytes(skt, data.size()) &&

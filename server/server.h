@@ -13,7 +13,7 @@ private:
 public:
     explicit Server(const char* port): game_loop(port) {}
 
-    void initiate_communication() {
+    void run() {
         game_loop.start();
 
         char input;

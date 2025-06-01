@@ -10,20 +10,20 @@
 
 class UpdateHandler: public Thread {
 private:
-    Queue<ActionDTO>& from_server;
+    Queue<ActionDTO>& recv_queue;
     MockHandler& mock_handler;
     std::atomic<bool>& stop_flag;
 
 public:
-    UpdateHandler(Queue<ActionDTO>& from_server, MockHandler& mock_handler,
+    UpdateHandler(Queue<ActionDTO>& recv_queue, MockHandler& mock_handler,
                   std::atomic<bool>& stop_flag):
-            from_server(from_server), mock_handler(mock_handler), stop_flag(stop_flag) {}
+            recv_queue(recv_queue), mock_handler(mock_handler), stop_flag(stop_flag) {}
 
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
                 ActionDTO action_update;
-                while (!from_server.try_pop(action_update)) {}
+                while (!recv_queue.try_pop(action_update)) {}
                 if (action_update.type == ActionType::UNKNOWN ||
                     !mock_handler.update_graphics(action_update))
                     break;  // Error

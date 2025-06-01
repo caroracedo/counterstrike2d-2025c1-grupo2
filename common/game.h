@@ -100,19 +100,12 @@ public:
         return objects;
     }
 
-    void add_player(const uint16_t& id, const bool is_terrorist, const bool has_bomb) {
-        std::shared_ptr<Player> player1;
-        if (id == 1) {
-            player1 = std::make_shared<Player>(
-                    id, std::vector<uint16_t>{30, 30},
-                    is_terrorist ? PlayerType::TERRORIST : PlayerType::COUNTERTERRORIST, has_bomb,
-                    weapon_shop);
-        } else {
-            player1 = std::make_shared<Player>(
-                    id, std::vector<uint16_t>{80, 80},
-                    is_terrorist ? PlayerType::TERRORIST : PlayerType::COUNTERTERRORIST, has_bomb,
-                    weapon_shop);
-        }
+    void add_player(PlayerType player_type, uint16_t id) {
+        // TODO: Generar posición random que no colisione con otros objetos
+        std::shared_ptr<Player> player1 =
+                std::make_shared<Player>(id, std::vector<uint16_t>{30, 30}, player_type, false,
+                                         weapon_shop);  // Sin bomba por ahora
+
         // Agregar el jugador a players
         players.insert({id, player1});
 
@@ -122,6 +115,22 @@ public:
         // Agregar el jugador a la matriz
         auto cell = get_cell_from_position(player1->get_position());
         matrix[cell.first][cell.second].push_back(player1);
+    }
+
+    bool is_over() {
+        /*
+         * Una ronda termina cuando:
+         *     - plantan una bomba y explota
+         *     - desactivan bomba
+         *     - todos los jugadores de un bando eliminados
+         */
+        // return !(
+        //     std::any_of(players.begin(), players.end(),
+        //         [](const auto& par) { return par.second.tipo == TERRORIST; }) &&
+        //     std::any_of(players.begin(), players.end(),
+        //         [](const auto& par) { return par.second.tipo == COUNTERTERRORIST; })
+        // );
+        return false;
     }
 
     /********************************************************************************************

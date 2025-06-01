@@ -8,14 +8,14 @@
 
 class EventHandler: public Thread {
 private:
-    Queue<ActionDTO>& to_server;
+    Queue<ActionDTO>& send_queue;
     MockHandler& mock_handler;
     std::atomic<bool>& stop_flag;
 
 public:
-    EventHandler(Queue<ActionDTO>& to_server, MockHandler& mock_handler,
+    EventHandler(Queue<ActionDTO>& send_queue, MockHandler& mock_handler,
                  std::atomic<bool>& stop_flag):
-            to_server(to_server), mock_handler(mock_handler), stop_flag(stop_flag) {}
+            send_queue(send_queue), mock_handler(mock_handler), stop_flag(stop_flag) {}
 
     void run() override {
         while (should_this_thread_keep_running()) {
@@ -23,7 +23,7 @@ public:
                 ActionDTO action = mock_handler.receive_and_parse_action();
                 if (action.type == ActionType::QUIT || action.type == ActionType::UNKNOWN)
                     break;  // Error o salir
-                to_server.push(action);
+                send_queue.push(action);
             } catch (...) {
                 break;
             }
