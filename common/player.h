@@ -65,6 +65,7 @@ public:
 
     /* Getters */
     Weapon get_current_weapon() const { return current; }
+    PlayerType get_player_type() const { return player_type; }
 
     /* Funcionalidades */
     /* Daño */

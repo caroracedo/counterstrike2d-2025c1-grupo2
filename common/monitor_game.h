@@ -22,17 +22,23 @@ private:
 public:
     explicit MonitorGame(Config& config): game(config) {}
 
+    /* Inicialización */
+    size_t is_ready_to_start() {
+        std::lock_guard<std::mutex> lock(mutex);  // si usás sincronización
+        return game.is_ready_to_start();  // o el contenedor que uses para almacenar jugadores
+    }
+
+    /* Finalización */
+    bool is_over() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.is_over();
+    }
+
+
     /* Snapshot */
     std::vector<std::shared_ptr<Object>> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.get_objects();
-    }
-
-    /* Verificaciones */
-    bool is_over() {
-        std::lock_guard<std::mutex> lock(mutex);
-        // cppcheck-suppress knownConditionTrueFalse
-        return game.is_over();
     }
 
     /* Funcionalidades */

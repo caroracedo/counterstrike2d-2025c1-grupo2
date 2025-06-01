@@ -105,7 +105,7 @@ public:
         // TODO: Generar posición random que no colisione con otros objetos
         std::shared_ptr<Player> player1 = std::make_shared<Player>(
                 id, std::vector<uint16_t>{30, 30}, player_type, config.get_player_health(),
-                config.get_player_money(), weapon_shop, false);  // Sin bomba por ahora
+                config.get_player_money(), weapon_shop, false);  // TODO: Sin bomba por ahora
 
         // Agregar el jugador a players
         players.insert({id, player1});
@@ -125,13 +125,28 @@ public:
          *     - desactivan bomba
          *     - todos los jugadores de un bando eliminados
          */
-        // return !(
-        //     std::any_of(players.begin(), players.end(),
-        //         [](const auto& par) { return par.second.tipo == TERRORIST; }) &&
-        //     std::any_of(players.begin(), players.end(),
-        //         [](const auto& par) { return par.second.tipo == COUNTERTERRORIST; })
-        // );
-        return false;
+        // TODO: Por ahora, el juego termina si no hay jugadores de ambos bandos
+        return !(std::any_of(players.begin(), players.end(),
+                             [](const auto& par) {
+                                 return par.second &&
+                                        par.second->get_player_type() == PlayerType::TERRORIST;
+                             }) &&
+                 std::any_of(players.begin(), players.end(), [](const auto& par) {
+                     return par.second &&
+                            par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+                 }));
+    }
+
+    bool is_ready_to_start() {
+        // Empieza el juego si hay al menos un TERRORIST y un COUNTERTERRORIST
+        return std::any_of(players.begin(), players.end(),
+                           [](const auto& p) {
+                               return p.second &&
+                                      p.second->get_player_type() == PlayerType::TERRORIST;
+                           }) &&
+               std::any_of(players.begin(), players.end(), [](const auto& p) {
+                   return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+               });
     }
 
     /********************************************************************************************

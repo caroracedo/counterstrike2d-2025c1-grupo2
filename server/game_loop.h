@@ -61,12 +61,20 @@ public:
 
         auto snapshot_interval = std::chrono::seconds(2);
 
+        while (!monitor_game.is_ready_to_start() && should_keep_running()) {
+            ActionDTO action;
+            if (recv_queue.try_pop(action)) {
+                do_action(action);
+            }
+        }
+
+        std::cout << "¡Que comience el juego!" << std::endl;
+
         for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
             // monitor_game.start_new_round(round);  // Inicializa lógica de la ronda
 
             auto last_snapshot_time = std::chrono::steady_clock::now();
 
-            // cppcheck-suppress knownConditionTrueFalse
             while (!monitor_game.is_over() && should_keep_running()) {
                 ActionDTO action;
                 if (recv_queue.try_pop(action)) {
