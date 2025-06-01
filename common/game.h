@@ -87,7 +87,11 @@ private:
     uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
 
     // Dispara 3 balas en cono
-    void shoot_m3(const std::vector<uint16_t>& desired_position, const uint16_t player_id);
+    void shoot_m3(const std::vector<uint16_t>& desired_position,
+                  const std::vector<uint16_t>& player_position);
+
+    void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
+                       const uint16_t& damage, const std::vector<uint16_t>& desired_position);
 
     void delete_bullet(const uint16_t& bullet_id);
 
@@ -96,8 +100,7 @@ public:
 
     bool move(Direction direction, const uint16_t& id);
 
-    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id,
-               bool is_secondary = false);
+    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
 
     std::vector<std::shared_ptr<Object>>& get_objects() {
         // reap();

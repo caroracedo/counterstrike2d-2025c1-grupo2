@@ -142,6 +142,48 @@ int main() {
                                                     {100, 100}, {200, 30}, {60, 0},
                                                     {15, 0},    {20, 20},  {90, 50}};
 
+
+    /*
+    Valores esperados de los disparos:
+            - Disparando a la posición: (0, 0)
+                - Bala 1 (14, 14), posición objetivo: (4, 4)
+                - Bala 2 (22, 10), posición objetivo: (20, 4)
+                - Bala 3 (10, 22), posición objetivo: (4, 20)
+            - Disparando a la posición: (0, 30)
+                - Bala 4 (9, 30), posición objetivo: (4, 30)
+                - Bala 5 (12, 20), posición objetivo: (4, 15)
+                - Bala 6 (12, 40), posición objetivo: (4, 45)
+       !    - Disparando a la posición: (20, 100)
+                - Bala 7 (27, 51), posición objetivo: (21, 95)
+                - Bala 8 (20, 48), posición objetivo: (4, 78)
+                - Bala 9 (38, 49), posición objetivo: (55, 91)
+            - Disparando a la posición: (100, 100)
+                - Bala 10 (45, 45), posición objetivo: (77, 77)
+                - Bala 11 (35, 50), posición objetivo: (47, 94)
+                - Bala 12 (50, 35), posición objetivo: (94, 47)
+       !    - Disparando a la posición: (200, 30)
+                - Bala 13 (51, 30), posición objetivo: (96, 30)
+                - Bala 14 (48, 41), posición objetivo: (87, 63)
+                - Bala 15 (51, 26), posición objetivo: (95, 17)
+       !    - Disparando a la posición: (60, 0)
+                - Bala 16 (45, 15), posición objetivo: (56, 4)
+                - Bala 17 (51, 24), posición objetivo: (94, 12)
+                - Bala 18 (37, 10), posición objetivo: (39, 4)
+       !    - Disparando a la posición: (15, 0)
+                - Bala 19 (21, 11), posición objetivo: (17, 4)
+                - Bala 20 (32, 9), posición objetivo: (32, 4)
+                - Bala 21 (12, 17), posición objetivo: (4, 12)
+            - Disparando a la posición: (20, 20)
+                - Bala 22 (14, 14), posición objetivo: (4, 4)
+                - Bala 23 (25, 10), posición objetivo: (23, 4)
+                - Bala 24 (10, 25), posición objetivo: (4, 23)
+       !    - Disparando a la posición: (90, 50)
+                - Bala 25 (51, 37), posición objetivo: (93, 51)
+                - Bala 26 (44, 46), posición objetivo: (73, 80)
+                - Bala 27 (52, 25), posición objetivo: (95, 16)
+
+
+    */
     for (const auto& pos: positions) {
         std::cout << "\t\tDisparando a la posición: (" << pos[0] << ", " << pos[1] << ")"
                   << std::endl;

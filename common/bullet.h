@@ -111,9 +111,10 @@ public:
         position[0] = static_cast<uint16_t>(std::round(x_bullet));
         position[1] = static_cast<uint16_t>(std::round(y_bullet));
 
-        std::cout << "\nBala " << id << " creada con éxito en la posición (" << position[0] << ", "
-                  << position[1] << "), posición objetivo: (" << target_position[0] << ", "
-                  << target_position[1] << ")" << std::endl;
+        // std::cout << "\nBala " << id << " creada con éxito en la posición (" << position[0] << ",
+        // "
+        //           << position[1] << "), posición objetivo: (" << target_position[0] << ", "
+        //           << target_position[1] << ")" << std::endl;
     }
 
     // Devuelve el próximo centro de la bala
