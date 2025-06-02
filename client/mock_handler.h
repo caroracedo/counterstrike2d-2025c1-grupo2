@@ -93,7 +93,6 @@ public:
                     std::cout << "Objeto desconocido" << std::endl;
                 }
             }
-            // TODO: Habría que simular delay...
             return true;
         }
         return false;
