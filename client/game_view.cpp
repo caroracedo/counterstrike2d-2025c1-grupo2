@@ -10,15 +10,15 @@ GameView::GameView():
     sdl(SDL_INIT_VIDEO),
     window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
     renderer(window, -1, SDL_RENDERER_ACCELERATED),
-    body_sprites(renderer, Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
+    terrorist_sprites(renderer, Surface(SDL_LoadBMP("../assets/gfx/player/t1.bmp"))),
+    counterterrorist_srpites(renderer, Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
     legs_sprites(renderer, Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp"))),
     background (renderer, Surface(SDL_LoadBMP("../dustroof.bmp"))),
-    camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
-    // gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp"))),
-    // gun_view(gun_texture) 
     box_texture(renderer, Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
     box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
     hud_numbres(renderer, Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
+    gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/deagle.bmp"))), 
+    camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
     hud_view(hud_numbres, renderer)
     {}
 
@@ -70,7 +70,11 @@ void GameView::update_player(const ObjectDTO& object) {
 
     
     if (players.find(id) == players.end()) {
-        players[id] = std::make_unique<PlayerView>(body_sprites);
+        players[id] = std::make_unique<PlayerView>(
+            object.player_type == PlayerType::TERRORIST
+                ? terrorist_sprites
+                : counterterrorist_srpites
+        );
     }
     
     
@@ -82,6 +86,10 @@ void GameView::update_player(const ObjectDTO& object) {
         },
         100);
     }
+
+    if (guns.find(id) == guns.end()) {
+        guns[id] = std::make_unique<GunView>(gun_texture);
+    }
     
     if (x - last_px  || y - last_py  == 5|| last_px == -1 || last_py == -1) {
         last_px = x;
@@ -89,12 +97,11 @@ void GameView::update_player(const ObjectDTO& object) {
         players[id]->update_position(x, y);
         legs[id]->update_position(x, y);
         legs[id]->update_animation();
+        guns[id]->update(x,y);
     }
     if (id == local_id) {
         hud_view.update(object);
     }
-
-    //borrar priernas y jugador si se murió 
     
 }
 
@@ -139,6 +146,11 @@ void GameView::render() {
 
     for (auto& [id, player] : players)
         player->draw(renderer, camera);
+
+    for (auto& [id, gun] : guns) {
+        gun->update_angle(players[id]->get_angle());
+        gun->draw(renderer, camera);
+    }
 
     for (const auto& obs : obstacles) {
         SDL_Rect dst_rect = { int(obs.x) - camera.get_x() + (OBSTACLE_WIDTH / 2), int(obs.y) - camera.get_y() + (OBSTACLE_HEIGHT / 2), int(obs.w), int(obs.h) };

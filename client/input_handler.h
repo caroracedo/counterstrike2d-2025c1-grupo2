@@ -38,6 +38,8 @@ private:
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                std::cout << "Mouse button pressed at: (" << event.button.x << ", " << event.button.y << ")\n";
+                std::cout << "Mouse button pressed at: (" << static_cast<uint16_t>(event.button.x) << ", " << static_cast<uint16_t>(event.button.y) << ")\n";
                 return {ActionType::SHOOT, std::vector<uint16_t>{static_cast<uint16_t>(event.button.x), static_cast<uint16_t>(event.button.y)}};
             }
         }

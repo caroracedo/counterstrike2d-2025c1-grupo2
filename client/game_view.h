@@ -28,25 +28,27 @@ private:
     Window window;
     Renderer renderer;
 
-    Texture body_sprites;
+    Texture terrorist_sprites;
+    Texture counterterrorist_srpites;
     Texture legs_sprites;   
     
     Texture background;
-    
-    GameCamera camera; 
     
     Texture box_texture;
     Texture box_texture2;
     
     Texture hud_numbres;
     
+    Texture gun_texture;
+        
     Uint32 last_frame_time;
     const Uint32 frame_delay = 1000 / 60;  // 60 FPS
     
+    GameCamera camera; 
     PLayerHUD hud_view;
-    
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
+    std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
     std::vector<ObstacleView> obstacles;  
     std::vector<BulletView> bullets; 
     

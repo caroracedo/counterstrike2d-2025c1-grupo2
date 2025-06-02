@@ -47,7 +47,7 @@ public:
         this->angle = angle;
         renderer.Copy(
             cuerpo,
-            Rect(0, 0, PLAYER_HEIGHT, PLAYER_WIDTH),
+            Rect(PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT),
             Rect(static_cast<int>(screenX), static_cast<int>(screenY), PLAYER_WIDTH, PLAYER_HEIGHT),
             angle,
             SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2},

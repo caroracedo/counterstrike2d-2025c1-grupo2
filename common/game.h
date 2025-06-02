@@ -133,15 +133,16 @@ public:
          *     - todos los jugadores de un bando eliminados
          */
         // TODO: Por ahora, el juego termina si no hay jugadores de ambos bandos
-        return !(std::any_of(players.begin(), players.end(),
-                             [](const auto& par) {
-                                 return par.second &&
-                                        par.second->get_player_type() == PlayerType::TERRORIST;
-                             }) &&
-                 std::any_of(players.begin(), players.end(), [](const auto& par) {
-                     return par.second &&
-                            par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-                 }));
+        // return !(std::any_of(players.begin(), players.end(),
+        //                      [](const auto& par) {
+        //                          return par.second &&
+        //                                 par.second->get_player_type() == PlayerType::TERRORIST;
+        //                      }) &&
+        //          std::any_of(players.begin(), players.end(), [](const auto& par) {
+        //              return par.second &&
+        //                     par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+        //          }));
+        return false;
     }
 
     bool is_ready_to_start() {

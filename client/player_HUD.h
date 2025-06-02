@@ -7,6 +7,7 @@
 #include "../common/object_DTO.h"
 #include "../common/constants.h"
 
+// Agregar el 💲 y ❤️ 
 class PLayerHUD {
 private:
     SDL2pp::Texture& texture;

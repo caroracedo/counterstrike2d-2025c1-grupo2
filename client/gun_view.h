@@ -6,37 +6,44 @@
 #include "game_camera.h"
 #include "../common/constants.h"
 
+#define GUN_WIDTH 32
+#define GUN_HEIGHT 32
+
 using namespace SDL2pp;
 
 class GunView {
 private:
     Texture& texture;
-    int offset_x = 10;
-    int offset_y = 10;
+    float x, y;
+    float angle = 0.0f;  // Grados
 
 public:
     GunView(Texture& tex) : texture(tex) {}
 
-    void draw(Renderer& renderer, const GameCamera& camera, float player_x, float player_y, float angle_deg) {
-        // float angle_rad = angle_deg * M_PI / 180.0f;
+    void update(float px, float py) {
+        x = px;
+        y = py;
+    }
 
-        // Punto donde queremos anclar el arma (mano del jugador)
-        int hand_x = static_cast<int>(player_x + PLAYER_WIDTH / 2);
-        int hand_y = static_cast<int>(player_y + PLAYER_HEIGHT / 2);
+    void update_angle(float new_angle) {
+        angle = new_angle;
+    }
 
-        // Elegimos como punto de rotación el mango del arma (por ejemplo: x = 6px desde el borde izquierdo)
-        SDL_Point pivot = {18, texture.GetHeight() / 2};
+    void draw(Renderer& renderer, GameCamera& camera) {
+        float screenX = x - camera.get_x();
+        float screenY = y - camera.get_y();
 
-        // El arma se dibuja en pantalla con su PIVOT alineado al punto de la mano
-        int draw_x = hand_x - pivot.x - camera.get_x();
-        int draw_y = hand_y - pivot.y - camera.get_y();
+        // // Calcular el centro de la pistola
+        // float centerX = screenX + GUN_WIDTH / 2.0f;
+        // float centerY = screenY + GUN_HEIGHT / 2.0f;
 
+        // Dibujar la pistola con el ángulo calculado
         renderer.Copy(
             texture,
-            Rect(0, 0, texture.GetWidth(), texture.GetHeight()),
-            Rect(draw_x, draw_y, texture.GetWidth(), texture.GetHeight()),
-            angle_deg,
-            pivot,
+            Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
+            Rect(static_cast<int>(screenX), static_cast<int>(screenY), GUN_WIDTH, GUN_HEIGHT),
+            angle,
+            SDL_Point{GUN_WIDTH/2, GUN_HEIGHT/2}, // Centro de la pistola
             SDL_FLIP_NONE
         );
     }
