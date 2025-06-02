@@ -13,7 +13,7 @@ weapons:
 
   glock:
     price: 0
-    range: 50
+    range: 500
     damage: 20
 
   bomb:

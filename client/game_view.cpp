@@ -1,6 +1,8 @@
 #include "game_view.h"
 
 #include <SDL2/SDL.h>
+#include <unordered_set>
+
 
 // de esto voy a hacer un refactor para que no se carguen las texturas en el constructor
 // se haria una clase mas prolija.
@@ -28,10 +30,13 @@ void GameView::update(const ActionDTO& action) {
 
     obstacles.clear();
     bullets.clear();
+    std::unordered_set<uint8_t> players_in_game;
     for(const auto& object : action.objects) {
 
-        if (object.type == ObjectType::PLAYER)
+        if (object.type == ObjectType::PLAYER){
             update_player(object);
+            players_in_game.insert(object.id);
+        }
        
         // se encapsula en una clase
         else if (object.type == ObjectType::OBSTACLE) 
@@ -39,7 +44,23 @@ void GameView::update(const ActionDTO& action) {
 
         else if (object.type == ObjectType::BULLET)
             update_bullets(object);
-    }    
+    }
+
+    for (auto it = players.begin(); it != players.end(); ) {
+        if (players_in_game.find(it->first) == players_in_game.end()) {
+            it = players.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    for (auto it = legs.begin(); it != legs.end(); ) {
+        if (players_in_game.find(it->first) == players_in_game.end()) {
+            it = legs.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void GameView::update_player(const ObjectDTO& object) {
@@ -47,12 +68,6 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    // Si no existe, lo creo
-    
-    // if (local_id == 0 ) {
-    //     local_id = id;
-    // }
-    
     
     if (players.find(id) == players.end()) {
         players[id] = std::make_unique<PlayerView>(body_sprites);
@@ -78,6 +93,8 @@ void GameView::update_player(const ObjectDTO& object) {
     if (id == local_id) {
         hud_view.update(object);
     }
+
+    //borrar priernas y jugador si se murió 
     
 }
 
