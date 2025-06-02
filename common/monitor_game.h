@@ -24,8 +24,8 @@ public:
 
     /* Inicialización */
     size_t is_ready_to_start() {
-        std::lock_guard<std::mutex> lock(mutex);  // si usás sincronización
-        return game.is_ready_to_start();  // o el contenedor que uses para almacenar jugadores
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.is_ready_to_start();
     }
 
     /* Finalización */
@@ -33,7 +33,6 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         return game.is_over();
     }
-
 
     /* Snapshot */
     std::vector<std::shared_ptr<Object>> get_objects() {
@@ -57,8 +56,6 @@ public:
     /* Disparar */
     bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        std::cout << "Desired position: x=" << desired_position[0] << " y=" << desired_position[1]
-                  << std::endl;
         return game.shoot(desired_position, id);
     }
 };

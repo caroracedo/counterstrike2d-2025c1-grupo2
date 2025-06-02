@@ -14,6 +14,7 @@
 #include <map>
 #include <memory>
 #include <ostream>
+#include <random>
 #include <set>
 #include <string>
 #include <utility>
@@ -88,6 +89,8 @@ private:
 
     uint16_t get_damage_and_delete_bullet(uint bullet_id);
 
+    Player get_player_with_random_position(PlayerType player_type, uint16_t id);
+
 public:
     explicit Game(Config& config);
 
@@ -95,59 +98,13 @@ public:
 
     bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
 
-    std::vector<std::shared_ptr<Object>>& get_objects() {
-        // reap();
-        update_bullets();
-        return objects;
-    }
+    std::vector<std::shared_ptr<Object>>& get_objects();
 
-    void add_player(PlayerType player_type, uint16_t id) {
-        // TODO: Generar posición random que no colisione con otros objetos
-        std::shared_ptr<Player> player1 = std::make_shared<Player>(
-                id, std::vector<uint16_t>{30, 30}, player_type, config.get_player_health(),
-                config.get_player_money(), weapon_shop, false);  // TODO: Sin bomba por ahora
+    void add_player(PlayerType player_type, uint16_t id);
 
-        // Agregar el jugador a players
-        players.insert({id, player1});
+    bool is_over();
 
-        // Agregar el jugador a objects
-        objects.push_back(player1);
-
-        // Agregar el jugador a la matriz
-        auto cell = get_cell_from_position(player1->get_position());
-        matrix[cell.first][cell.second].push_back(player1);
-    }
-
-    bool is_over() {
-        /*
-         * Una ronda termina cuando:
-         *     - plantan una bomba y explota
-         *     - desactivan bomba
-         *     - todos los jugadores de un bando eliminados
-         */
-        // TODO: Por ahora, el juego termina si no hay jugadores de ambos bandos
-        return !(std::any_of(players.begin(), players.end(),
-                             [](const auto& par) {
-                                 return par.second &&
-                                        par.second->get_player_type() == PlayerType::TERRORIST;
-                             }) &&
-                 std::any_of(players.begin(), players.end(), [](const auto& par) {
-                     return par.second &&
-                            par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-                 }));
-    }
-
-    bool is_ready_to_start() {
-        // Empieza el juego si hay al menos un TERRORIST y un COUNTERTERRORIST
-        return std::any_of(players.begin(), players.end(),
-                           [](const auto& p) {
-                               return p.second &&
-                                      p.second->get_player_type() == PlayerType::TERRORIST;
-                           }) &&
-               std::any_of(players.begin(), players.end(), [](const auto& p) {
-                   return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-               });
-    }
+    bool is_ready_to_start();
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
