@@ -50,25 +50,18 @@ private:
         return object_dtos;
     }
 
-public:
-    explicit GameLoop(Config& config):
-            config(config),
-            monitor_game(config),
-            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
-
-    void run() override {
-        acceptor.start();
-
-        auto snapshot_interval = std::chrono::seconds(2);
-
+    void waiting_lobby() {
         while (!monitor_game.is_ready_to_start() && should_keep_running()) {
             ActionDTO action;
             if (recv_queue.try_pop(action)) {
                 do_action(action);
             }
         }
-
         std::cout << "¡Que comience el juego!" << std::endl;
+    }
+
+    void game_loop() {
+        auto snapshot_interval = std::chrono::seconds(2);
 
         for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
             // monitor_game.start_new_round(round);  // Inicializa lógica de la ronda
@@ -93,6 +86,19 @@ public:
             // send_snapshot_to_all_clients();  // Snapshot final al terminar la ronda
             // monitor_game.end_round(round);  // Lógica de cierre de ronda
         }
+    }
+
+public:
+    explicit GameLoop(Config& config):
+            config(config),
+            monitor_game(config),
+            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
+
+    void run() override {
+        acceptor.start();
+
+        waiting_lobby();
+        game_loop();
 
         acceptor.stop();
         acceptor.join();

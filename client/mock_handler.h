@@ -13,6 +13,7 @@
 
 #define MOVE_INPUT "mover"
 #define SHOOT_INPUT "disparar"
+#define BOMB_INPUT "bomb"
 #define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
@@ -32,10 +33,8 @@ public:
             return {};
 
         if (action_input == QUIT_INPUT) {
-            return ActionDTO{ActionType::QUIT};  // No me dejaba compilar...
-        }
-
-        if (action_input == MOVE_INPUT) {
+            return ActionDTO(ActionType::QUIT);
+        } else if (action_input == MOVE_INPUT) {
             std::string direction_input;
             if (!(iss >> direction_input))
                 return {};
@@ -57,8 +56,9 @@ public:
             if (!(iss >> desired_position[0] >> desired_position[1]))
                 return {};
             return {ActionType::SHOOT, desired_position};
+        } else if (action_input == BOMB_INPUT) {
+            return ActionDTO(ActionType::BOMB);
         }
-
         return {};
     }
 

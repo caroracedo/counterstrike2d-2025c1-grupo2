@@ -100,6 +100,8 @@ private:
 
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
 
+    void set_bomb_player();
+
 public:
     explicit Game(Config& config);
 

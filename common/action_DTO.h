@@ -8,8 +8,9 @@
 
 enum class ActionType : uint8_t {
     MOVE = 0x6D,
-    QUIT = 0x71,
     SHOOT = 0x73,
+    BOMB = 0x66,
+    QUIT = 0x71,
     UPDATE = 0x75,
     PLAYERTYPE = 0x70,
     PLAYERID = 0x69,
@@ -38,6 +39,8 @@ struct ActionDTO {
     /* Id */
     uint16_t id;
 
+    /* Comunes */
+    /* Unknown */
     ActionDTO():
             type(ActionType::UNKNOWN),
             player_type(),
@@ -46,8 +49,12 @@ struct ActionDTO {
             objects(),
             id() {}
 
+    /* Action */
     explicit ActionDTO(const ActionType& action):
             type(action), player_type(), direction(), desired_position(), objects(), id() {}
+    /* Action con Id */
+    ActionDTO(const ActionType& action, uint16_t id):
+            type(action), player_type(), direction(), desired_position(), objects(), id(id) {}
 
     /* client -> server */
     /* Tipo de Jugador */
@@ -102,10 +109,6 @@ struct ActionDTO {
             id(id) {}
 
     /* server -> client */
-    /* Id */
-    ActionDTO(const ActionType& action, uint16_t id):
-            type(action), player_type(), direction(), desired_position(), objects(), id(id) {}
-
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
             type(action), player_type(), direction(), desired_position(), objects(objects), id() {}

@@ -535,7 +535,7 @@ Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id
         auto cell = get_cell_from_position(pos);
         auto ady = get_adyacent_objects(cell);
         Player temp_player(id, pos, player_type, config.get_player_health(),
-                           config.get_player_money(), weapon_shop, false);
+                           config.get_player_money(), weapon_shop);
         auto collision = collides(temp_player, pos, ady);
         if (collision.first == ObjectType::UNKNOWN) {
             return temp_player;
@@ -577,14 +577,37 @@ bool Game::is_over() {
 }
 
 bool Game::is_ready_to_start() {
-    // Empieza el juego si hay al menos un TERRORIST y un COUNTERTERRORIST
-    return std::any_of(players.begin(), players.end(),
-                       [](const auto& p) {
-                           return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
-                       }) &&
-           std::any_of(players.begin(), players.end(), [](const auto& p) {
-               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-           });
+    bool is_ready_to_start =
+            std::any_of(players.begin(), players.end(),
+                        [](const auto& p) {
+                            return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
+                        }) &&
+            std::any_of(players.begin(), players.end(), [](const auto& p) {
+                return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+            });
+
+    if (is_ready_to_start) {
+        set_bomb_player();
+    }
+    return is_ready_to_start;
+}
+
+void Game::set_bomb_player() {
+    std::vector<std::shared_ptr<Player>> terrorists;
+    for (auto& [id, player]: players) {
+        if (player && player->get_player_type() == PlayerType::TERRORIST) {
+            terrorists.push_back(player);
+        }
+    }
+
+    if (!terrorists.empty()) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, terrorists.size() - 1);
+
+        auto bomb_carrier = terrorists[dis(gen)];
+        bomb_carrier->set_bomb();
+    }
 }
 
 void Game::create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,

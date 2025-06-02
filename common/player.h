@@ -30,7 +30,7 @@ private:
 public:
     /* Constructor */
     Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
-           uint16_t initial_money, WeaponShop& weapon_shop, bool has_bomb):
+           uint16_t initial_money, WeaponShop& weapon_shop):
             Object(ObjectType::PLAYER, id, position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2),
             player_type(type),
             health(health),
@@ -44,12 +44,6 @@ public:
                 weapon_shop.buy_weapon(WeaponModel::GLOCK, money);
         money -= new_secondary_weapon.first;
         secondary_weapon = new_secondary_weapon.second;
-
-        if (has_bomb) {
-            std::pair<uint16_t, Weapon> new_bomb = weapon_shop.buy_weapon(WeaponModel::BOMB, money);
-            money -= new_bomb.first;
-            bomb = new_bomb.second;
-        }
 
         current = secondary_weapon;
     }
@@ -79,7 +73,6 @@ public:
     }
 
     /* Cambio de arma */
-
     void change_weapon() {
         if (current == primary_weapon) {
             current = secondary_weapon;
@@ -94,6 +87,13 @@ public:
         } else if (current == knife) {
             current = primary_weapon;
         }
+    }
+
+    /* Setters */
+    void set_bomb() {
+        std::pair<uint16_t, Weapon> new_bomb = weapon_shop.buy_weapon(WeaponModel::BOMB, money);
+        money -= new_bomb.first;
+        bomb = new_bomb.second;
     }
 
     std::string get_current_weapon_name() const {
