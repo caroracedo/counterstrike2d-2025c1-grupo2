@@ -66,6 +66,7 @@ public:
         if (action_update.type == ActionType::UPDATE) {
             for (const auto& object: action_update.objects) {
                 if (object.type == ObjectType::PLAYER) {
+                    std::cout << "ID: " << object.id << " ";
                     std::cout << "🧍" << '(' << static_cast<unsigned int>(object.position[0])
                               << ',' << static_cast<unsigned int>(object.position[1]) << ") ";
                     if (object.weapon_model == WeaponModel::KNIFE) {
@@ -92,7 +93,6 @@ public:
                     std::cout << "Objeto desconocido" << std::endl;
                 }
             }
-            // TODO: Habría que simular delay...
             return true;
         }
         return false;

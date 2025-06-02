@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
-Game::Game(): matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)) {
+Game::Game(Config& config):
+        matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
+        config(config),
+        weapon_shop(config) {
     initialize_demo_objects();
 }
 
@@ -516,6 +519,73 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     }
 }
 
+std::vector<std::shared_ptr<Object>>& Game::get_objects() {
+    // reap();
+    update_bullets();
+    return objects;
+}
+
+Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_SIZE, MATRIX_SIZE - PLAYER_SIZE);
+
+    while (true) {
+        std::vector<uint16_t> pos = {dist(gen), dist(gen)};
+        auto cell = get_cell_from_position(pos);
+        auto ady = get_adyacent_objects(cell);
+        Player temp_player(id, pos, player_type, config.get_player_health(),
+                           config.get_player_money(), weapon_shop, false);
+        auto collision = collides(temp_player, pos, ady);
+        if (collision.first == ObjectType::UNKNOWN) {
+            return temp_player;
+        }
+    }
+}
+
+void Game::add_player(PlayerType player_type, uint16_t id) {
+    std::shared_ptr<Player> player =
+            std::make_shared<Player>(get_player_with_random_position(player_type, id));
+
+    // Agregar el jugador a players
+    players.insert({id, player});
+
+    // Agregar el jugador a objects
+    objects.push_back(player);
+
+    // Agregar el jugador a la matriz
+    auto cell = get_cell_from_position(player->get_position());
+    matrix[cell.first][cell.second].push_back(player);
+}
+
+bool Game::is_over() {
+    /*
+     * Una ronda termina cuando:
+     *     - plantan una bomba y explota
+     *     - desactivan bomba
+     *     - todos los jugadores de un bando eliminados
+     */
+    // TODO: Por ahora, el juego termina si no hay jugadores de ambos bandos
+    return !(std::any_of(players.begin(), players.end(),
+                         [](const auto& par) {
+                             return par.second &&
+                                    par.second->get_player_type() == PlayerType::TERRORIST;
+                         }) &&
+             std::any_of(players.begin(), players.end(), [](const auto& par) {
+                 return par.second && par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+             }));
+}
+
+bool Game::is_ready_to_start() {
+    // Empieza el juego si hay al menos un TERRORIST y un COUNTERTERRORIST
+    return std::any_of(players.begin(), players.end(),
+                       [](const auto& p) {
+                           return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
+                       }) &&
+           std::any_of(players.begin(), players.end(), [](const auto& p) {
+               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+           });
+           
 void Game::create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
                          const uint16_t& damage, const std::vector<uint16_t>& desired_position) {
 

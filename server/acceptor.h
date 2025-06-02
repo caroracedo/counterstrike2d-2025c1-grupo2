@@ -41,9 +41,9 @@ private:
     }
 
 public:
-    Acceptor(const char* port, Queue<ActionDTO>& shared_recv_queue,
+    Acceptor(Config& config, Queue<ActionDTO>& shared_recv_queue,
              MonitorClientSendQueues& monitor_client_send_queues, MonitorGame& monitor_game):
-            server_socket(port),
+            server_socket(config.get_server_port().c_str()),
             shared_recv_queue(shared_recv_queue),
             monitor_client_send_queues(monitor_client_send_queues),
             monitor_game(monitor_game) {}
@@ -57,9 +57,7 @@ public:
                 ClientHandler* new_client_handler =
                         new ClientHandler(std::move(new_client_socket), shared_recv_queue,
                                           new_client_send_queue, ++id);
-                monitor_game.add_player(id, true,
-                                        false);  // TODO: Medio raro esto... Por ahora, todos los
-                                                 // jugadores son terroristas sin bomba
+                new_client_send_queue.push(ActionDTO(ActionType::PLAYERID, id));  // Para la gráfica
                 reap();
                 client_handlers_list.push_back(new_client_handler);
                 new_client_handler->start();
