@@ -4,8 +4,11 @@
 #define MATRIX_SIZE 200  // posición máxima en la matriz
 #define MOVE_STEP 5      // paso de movimiento
 #define CELL_SIZE 56     // tamaño de cada celda en la matriz
-#define PLAYER_SIZE 32   // tamaño del jugador
-#define BULLET_SIZE 8    // tamaño de la bala
+// #define PLAYER_SIZE 32    // tamaño del jugador
+// #define BULLET_SIZE 8     // tamaño de la bala
+#define WEAPON_DAMAGE 20  // daño del arma
+#define PLAYER_RADIUS 16  // radio del jugador
+#define BULLET_RADIUS 4   // radio de la bala
 
 #include <algorithm>
 #include <cmath>
@@ -71,7 +74,7 @@ private:
 
     // Encuentra el jugador con el ID especificado y le inflige daño, devuelve si el jugador sigue
     // vivo.
-    bool find_player_and_damage(uint16_t id, uint16_t damage);
+    bool damage_player(uint16_t id, uint16_t damage);
 
     // Recolecta objetos que no están en la matriz y los elimina de la lista de objetos.
     void reap();
@@ -79,15 +82,21 @@ private:
     // Incrementa el ID de la siguiente bala.
     void inc_bullet_id();
 
-    // Calcula la posición inicial de la bala en función de la dirección y la posición del jugador.
-    std::vector<uint16_t> calculate_bullet_starting_position(
-            const std::vector<uint16_t>& player_position,
-            const std::vector<uint16_t>& desired_position);
-
     // Actualiza las balas en la matriz, eliminando las que ya no están activas.
     void update_bullets();
 
-    uint16_t get_damage_and_delete_bullet(uint bullet_id);
+
+    // Obtiene el daño de la bala con el ID especificado.
+    uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
+
+    // Dispara 3 balas en cono
+    void shoot_m3(const std::vector<uint16_t>& desired_position,
+                  const std::vector<uint16_t>& player_position);
+
+    void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
+                       const uint16_t& damage, const std::vector<uint16_t>& desired_position);
+
+    void delete_bullet(const uint16_t& bullet_id);
 
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
 
@@ -118,6 +127,48 @@ public:
             auto cell = get_cell_from_position(obstacle->get_position());
             matrix[cell.first][cell.second].push_back(obstacle);
         }
+        //  // Jugador en (30, 30)
+        // auto player1 = std::make_shared<Player>(1, std::vector<uint16_t>{30, 30},
+        //                                         PlayerType::TERRORIST, false, weapon_shop);
+        // player1->buy_weapon(WeaponModel::M3);
+        // player1->change_weapon();
+        // player1->change_weapon();
+        // std::cout << "Arma actual del jugador 1: " << player1->get_current_weapon_name()
+        //             << std::endl;
+        // players.insert({1, player1});
+        // objects.push_back(player1);
+        // auto cell = get_cell_from_position(player1->get_position());
+        // matrix[cell.first][cell.second].push_back(player1);
+
+
+        // // Obstáculo 1 en (50, 10)
+        // auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 30, 6);
+        // objects.push_back(obstacle1);
+        // cell = get_cell_from_position(obstacle1->get_position());
+        // matrix[cell.first][cell.second].push_back(obstacle1);
+
+        // // // Bala en (45, 50)
+        // // auto bullet = std::make_shared<Bullet>(7, std::vector<uint16_t>{45, 50}, 10, 20);
+        // // bullets.insert({7, bullet});
+        // // objects.push_back(bullet);
+        // // cell = get_cell_from_position(bullet->get_position());
+        // // matrix[cell.first][cell.second].push_back(bullet);
+
+        // // Otro jugador en (80, 80)
+        // auto player2 = std::make_shared<Player>(2, std::vector<uint16_t>{80, 80},
+        //                                         PlayerType::COUNTERTERRORIST, false, weapon_shop);
+        // players.insert({2, player2});
+        // objects.push_back(player2);
+        // cell = get_cell_from_position(player2->get_position());
+        // matrix[cell.first][cell.second].push_back(player2);
+
+        // // Otro jugador en (30, 80)
+        // auto player3 = std::make_shared<Player>(3, std::vector<uint16_t>{30, 80},
+        //                                         PlayerType::COUNTERTERRORIST, false, weapon_shop);
+        // players.insert({3, player3});
+        // objects.push_back(player3);
+        // cell = get_cell_from_position(player3->get_position());
+        // matrix[cell.first][cell.second].push_back(player3);
     }
 
     void show_objects() {
@@ -130,6 +181,16 @@ public:
         }
         std::cout << std::endl;
     }
+
+    // void show_bullets() {
+    //     std::cout << "Balas:" << std::endl;
+    //     for (const auto& [id, bullet]: bullets) {
+    //         std::cout << "\tID: " << id << ", Posición: (" << bullet->get_position()[0] << ", "
+    //                   << bullet->get_position()[1] << "), Rango: " << bullet->get_range()
+    //                   << ", Daño: " << bullet->get_damage() << std::endl;
+    //     }
+    //     std::cout << std::endl;
+    // }
 
     std::vector<uint16_t> get_position(uint16_t id) const {
         auto it = std::find_if(

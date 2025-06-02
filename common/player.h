@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -8,14 +9,14 @@
 #include "weapon.h"
 #include "weapon_shop.h"
 
-#define PLAYER_SIZE 32
+// #define PLAYER_SIZE 32
 
 class Player: public Object {
 private:
     PlayerType player_type;
     uint16_t health;
     uint16_t money;
-    uint16_t radius = PLAYER_SIZE / 2;
+    uint16_t radius = PLAYER_RADIUS;
 
     WeaponShop& weapon_shop;
 
@@ -78,6 +79,7 @@ public:
     }
 
     /* Cambio de arma */
+
     void change_weapon() {
         if (current == primary_weapon) {
             current = secondary_weapon;
@@ -91,6 +93,25 @@ public:
             current = knife;
         } else if (current == knife) {
             current = primary_weapon;
+        }
+    }
+
+    std::string get_current_weapon_name() const {
+        switch (current.get_model()) {
+            case WeaponModel::KNIFE:
+                return "Knife";
+            case WeaponModel::GLOCK:
+                return "Glock";
+            case WeaponModel::AK47:
+                return "AK-47";
+            case WeaponModel::M3:
+                return "M3";
+            case WeaponModel::AWP:
+                return "AWP";
+            case WeaponModel::BOMB:
+                return "Bomb";
+            default:
+                return "Unknown Weapon";
         }
     }
 

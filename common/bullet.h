@@ -11,15 +11,15 @@ class Bullet: public Object {
 private:
     uint16_t range;
     uint16_t damage;
-    uint16_t radius = BULLET_SIZE / 2;
+    uint16_t radius = BULLET_RADIUS;
     std::vector<uint16_t> target_position;
 
 public:
     /* Constructor */
     Bullet(const uint16_t id, const std::vector<uint16_t>& player_position, uint16_t _range,
            uint16_t _damage, const std::vector<uint16_t>& desired_position):
-            Object(ObjectType::BULLET, id, {player_position[0], player_position[1]}, BULLET_SIZE,
-                   BULLET_SIZE),
+            Object(ObjectType::BULLET, id, {player_position[0], player_position[1]},
+                   BULLET_RADIUS * 2, BULLET_RADIUS * 2),
             range(_range),
             damage(_damage),
             target_position(player_position) {
@@ -50,7 +50,7 @@ public:
         float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
 
         float t_max =
-                (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_SIZE / 2) / magnitude;
+                (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_RADIUS) / magnitude;
 
         // Calcula el t permitido por los bordes del mapa
         if (dx != 0) {
@@ -74,14 +74,11 @@ public:
 
         target_position = {static_cast<uint16_t>(std::round(tx)),
                            static_cast<uint16_t>(std::round(ty))};
-
-        std::cout << "\tBala " << id << ", posición objetivo: (" << target_position[0] << ", "
-                  << target_position[1] << ")" << std::endl;
     }
 
     void set_starting_position(const std::vector<uint16_t>& player_center) {
-        float player_radius = PLAYER_SIZE / 2.0f;
-        float bullet_radius = BULLET_SIZE / 2.0f;
+        float player_radius = static_cast<float>(PLAYER_RADIUS);
+        float bullet_radius = static_cast<float>(BULLET_RADIUS);
 
         float cx = static_cast<float>(player_center[0]);
         float cy = static_cast<float>(player_center[1]);
@@ -113,6 +110,11 @@ public:
 
         position[0] = static_cast<uint16_t>(std::round(x_bullet));
         position[1] = static_cast<uint16_t>(std::round(y_bullet));
+
+        // std::cout << "\nBala " << id << " creada con éxito en la posición (" << position[0] << ",
+        // "
+        //           << position[1] << "), posición objetivo: (" << target_position[0] << ", "
+        //           << target_position[1] << ")" << std::endl;
     }
 
     // Devuelve el próximo centro de la bala
@@ -162,11 +164,7 @@ public:
     }
 
     void decrement_range(uint16_t distance_moved) {
-        if (distance_moved > range) {
-            range = 0;
-        } else {
-            range -= distance_moved;
-        }
+        range = (distance_moved >= range) ? 0 : range - distance_moved;
     }
 };
 
