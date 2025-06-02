@@ -206,7 +206,8 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
 
         if (obj->get_type() == ObjectType::BULLET) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
-                                              BULLET_RADIUS);
+                                              BULLET_RADIUS) &&
+                      object.get_type() != ObjectType::BULLET;
         } else if (obj->get_type() == ObjectType::PLAYER) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
                                               PLAYER_RADIUS);
@@ -216,12 +217,6 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         }
 
         if (overlap) {
-            // std::cout << "\tColisión detectada entre "
-            //           << get_object_type(static_cast<ObjectType>(object.get_type()))
-            //           << " ID: " << object.get_id() << " y "
-            //           << get_object_type(static_cast<ObjectType>(obj->get_type()))
-            //           << " ID: " << obj->get_id() << std::endl;
-
             ObjectType type = static_cast<ObjectType>(obj->get_type());
             if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
                 type == ObjectType::PLAYER) {
@@ -459,12 +454,13 @@ void Game::update_bullets() {
 
 void Game::shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
                     const std::vector<uint16_t>& desired_position) {
+
     double dx = static_cast<double>(desired_position[0] - player_position[0]);
     double dy = static_cast<double>(desired_position[1] - player_position[1]);
     double magnitude = std::sqrt(dx * dx + dy * dy);
 
     if (magnitude == 0)
-        return;  // Evitar división por cero
+        return;
 
     double ux = dx / magnitude;  // Componente x unitaria
     double uy = dy / magnitude;  // Componente y unitaria
@@ -490,9 +486,20 @@ void Game::shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range
     create_bullet(player_position, range, damage, {x2, y2});          // Disparo derecho
 }
 
+void Game::shoot_ak47(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+                      const std::vector<uint16_t>& desired_position) {
+    /*
+        Dispara 3 balas en ráfaga (una atrás de la otra)
+    */
+    for (int i = 0; i < 3; ++i) {
+        create_bullet(player_position, range, damage, desired_position);
+        // sleep(0.4)
+    }
+}
+
 bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
     /*
-        TODO: chequear ammo y tiempo de enfriamiento del arma + disparo con AK-47
+        TODO: chequear ammo y tiempo de enfriamiento del arma
     */
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
@@ -502,13 +509,17 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
         uint16_t range = player_it->second->get_current_weapon().get_range();
         uint16_t damage = player_it->second->get_current_weapon().get_damage();
 
-        if (weapon_model == WeaponModel::M3) {
-            shoot_m3(player_position, range, damage, desired_position);
-            return true;
-        } else if (weapon_model == WeaponModel::AWP || weapon_model == WeaponModel::GLOCK) {
+        if (weapon_model == WeaponModel::AWP || weapon_model == WeaponModel::GLOCK) {
             // Disparo normal
             create_bullet(player_position, range, damage, desired_position);
+        } else if (weapon_model == WeaponModel::M3) {
+            shoot_m3(player_position, range, damage, desired_position);
+            return true;
+        } else if (weapon_model == WeaponModel::AK47) {
+            shoot_ak47(player_position, range, damage, desired_position);
+            return true;
         }
+
         return false;
 
     } else {
@@ -519,7 +530,6 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
 }
 
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {
-    // reap();
     update_bullets();
     return objects;
 }
@@ -528,7 +538,7 @@ Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<uint16_t> dist(
-            0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
+            0 + PLAYER_RADIUS, MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
 
     while (true) {
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};
@@ -605,4 +615,33 @@ void Game::create_bullet(const std::vector<uint16_t>& player_position, const uin
     // Agregar la bala a la matriz
     auto cell = get_cell_from_position(bullet_ptr->get_position());
     matrix[cell.first][cell.second].push_back(bullet_ptr);
+}
+
+bool Game::plant_bomb(const uint16_t& player_id) {
+    /*
+     *    Planta una bomba en la posición del jugador con el ID especificado.
+     *    Devuelve true si se planta la bomba, false si no se puede.
+     */
+
+    auto player_it = players.find(player_id);
+    if (player_it != players.end()) {
+        if (!player_it->second->can_plant_bomb()) {
+            return false;  // El jugador no tiene bomba
+        }
+        std::vector<uint16_t> position = player_it->second->get_position();
+        Bomb bomb(position);
+
+        auto bomb_ptr = std::make_shared<Bomb>(bomb);
+        // Agregar la bomba a la lista de objetos
+        objects.push_back(bomb_ptr);
+        // Agregar la bomba a la matriz
+        auto cell = get_cell_from_position(bomb_ptr->get_position());
+        matrix[cell.first][cell.second].push_back(bomb_ptr);
+
+        std::cout << "Bomba plantada por el jugador con ID: " << player_id << std::endl;
+        return true;
+    } else {
+        std::cout << "No se encontró el jugador con ID: " << player_id << std::endl;
+        return false;  // No se encontró el jugador
+    }
 }

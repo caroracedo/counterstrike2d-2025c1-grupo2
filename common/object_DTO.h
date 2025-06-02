@@ -47,7 +47,7 @@ struct ObjectDTO {
             width(width),
             height(height) {}
 
-    /* Bala */
+    /* Bala y bomba */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position):
             type(type),
             position(position),
