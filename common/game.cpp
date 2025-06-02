@@ -544,8 +544,19 @@ Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};
         auto cell = get_cell_from_position(pos);
         auto ady = get_adyacent_objects(cell);
+        bool has_bomb = false;
+
+        // si el jugador es terrorista y bomb_allocated=false, se le asigna la bomba al jugador con
+        // una probabilidad aleatoria
+        if (player_type == PlayerType::TERRORIST && !bomb_allocated) {
+            if (dist(gen) % 2 == 0) {
+                bomb_allocated = true;
+                has_bomb = true;
+            }
+        }
+
         Player temp_player(id, pos, player_type, config.get_player_health(),
-                           config.get_player_money(), weapon_shop, false);
+                           config.get_player_money(), weapon_shop, has_bomb);
         auto collision = collides(temp_player, pos, ady);
         if (collision.first == ObjectType::UNKNOWN) {
             return temp_player;
@@ -592,9 +603,12 @@ bool Game::is_ready_to_start() {
                        [](const auto& p) {
                            return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
                        }) &&
-           std::any_of(players.begin(), players.end(), [](const auto& p) {
-               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-           });
+           std::any_of(players.begin(), players.end(),
+                       [](const auto& p) {
+                           return p.second &&
+                                  p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+                       }) &&
+           bomb_allocated;
 }
 
 void Game::create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
@@ -622,10 +636,13 @@ bool Game::plant_bomb(const uint16_t& player_id) {
      *    Planta una bomba en la posición del jugador con el ID especificado.
      *    Devuelve true si se planta la bomba, false si no se puede.
      */
+    std::cout << "Intentando plantar bomba por el jugador con ID: " << player_id << std::endl;
 
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
         if (!player_it->second->can_plant_bomb()) {
+            std::cout << "\tEl jugador con ID: " << player_id << " no tiene una bomba para plantar."
+                      << std::endl;
             return false;  // El jugador no tiene bomba
         }
         std::vector<uint16_t> position = player_it->second->get_position();
@@ -638,7 +655,8 @@ bool Game::plant_bomb(const uint16_t& player_id) {
         auto cell = get_cell_from_position(bomb_ptr->get_position());
         matrix[cell.first][cell.second].push_back(bomb_ptr);
 
-        std::cout << "Bomba plantada por el jugador con ID: " << player_id << std::endl;
+        std::cout << "\tBomba plantada por el jugador con ID: " << player_id << " en la posición ("
+                  << position[0] << ", " << position[1] << ")" << std::endl;
         return true;
     } else {
         std::cout << "No se encontró el jugador con ID: " << player_id << std::endl;

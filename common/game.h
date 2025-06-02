@@ -33,6 +33,7 @@
 
 class Game {
 private:
+    std::atomic_bool bomb_allocated = false;
     std::vector<std::vector<std::vector<std::shared_ptr<Object>>>> matrix;
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
