@@ -34,7 +34,7 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
             objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
                                hex_big_endian_to_int_16(height)});
             i += 9;
-        } else {  // ObjectType::BULLET
+        } else {  // ObjectType::BULLET, ObjectType::BOMB
             objects.push_back({object_type, position});
             i += 5;
         }
@@ -92,6 +92,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
         }
+        case ActionType::BOMB:
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
         default:
             return false;
     }

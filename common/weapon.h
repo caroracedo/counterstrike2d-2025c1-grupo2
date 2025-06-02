@@ -8,8 +8,6 @@
 #include "bullet.h"
 #include "types.h"
 
-// TODO: Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en
-// el lobby
 class Weapon {
 private:
     WeaponModel model;

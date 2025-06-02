@@ -52,12 +52,13 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
             return {type, static_cast<PlayerType>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
-        case ActionType::SHOOT: {
+        case ActionType::SHOOT:
             return {type,
                     {hex_big_endian_to_int_16({data[1], data[2]}),
                      hex_big_endian_to_int_16({data[3], data[4]})},
                     id};  // Agrega el id del jugador...
-        }
+        case ActionType::BOMB:
+            return {type, id};  // Agrega el id del jugador...
         default:
             return {};
     }

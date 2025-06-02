@@ -33,7 +33,6 @@
 
 class Game {
 private:
-    std::atomic_bool bomb_allocated = false;
     std::vector<std::vector<std::vector<std::shared_ptr<Object>>>> matrix;
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
@@ -105,6 +104,8 @@ private:
                     const std::vector<uint16_t>& desired_position);
 
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
+
+    void set_bomb_player();
 
 public:
     explicit Game(Config& config);

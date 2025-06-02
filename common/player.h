@@ -23,20 +23,19 @@ private:
     Weapon knife;
     Weapon primary_weapon;
     Weapon secondary_weapon;
-    bool has_bomb;
+    bool has_bomb = false;
 
     Weapon current;
 
 public:
     /* Constructor */
     Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
-           uint16_t initial_money, WeaponShop& weapon_shop, bool has_bomb):
+           uint16_t initial_money, WeaponShop& weapon_shop):
             Object(ObjectType::PLAYER, id, position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2),
             player_type(type),
             health(health),
             money(initial_money),
-            weapon_shop(weapon_shop),
-            has_bomb(has_bomb) {
+            weapon_shop(weapon_shop) {
 
         std::pair<uint16_t, Weapon> new_knife = weapon_shop.buy_weapon(WeaponModel::KNIFE, money);
         money -= new_knife.first;
@@ -75,7 +74,6 @@ public:
     }
 
     /* Cambio de arma */
-
     void change_weapon() {
         // primary_weapon -> secondary_weapon -> knife -> primary_weapon
         if (current == primary_weapon) {
@@ -92,6 +90,9 @@ public:
     bool can_plant_bomb() const { return has_bomb; }
 
     void plant_bomb() { has_bomb = false; }
+
+    /* Setters */
+    void set_bomb() { has_bomb = true; }
 
     std::string get_current_weapon_name() const {
         switch (current.get_model()) {

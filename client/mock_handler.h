@@ -13,6 +13,7 @@
 
 #define MOVE_INPUT "mover"
 #define SHOOT_INPUT "disparar"
+#define BOMB_INPUT "bomba"
 #define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
@@ -32,10 +33,8 @@ public:
             return {};
 
         if (action_input == QUIT_INPUT) {
-            return ActionDTO{ActionType::QUIT};  // No me dejaba compilar...
-        }
-
-        if (action_input == MOVE_INPUT) {
+            return ActionDTO(ActionType::QUIT);
+        } else if (action_input == MOVE_INPUT) {
             std::string direction_input;
             if (!(iss >> direction_input))
                 return {};
@@ -57,42 +56,76 @@ public:
             if (!(iss >> desired_position[0] >> desired_position[1]))
                 return {};
             return {ActionType::SHOOT, desired_position};
+        } else if (action_input == BOMB_INPUT) {
+            return ActionDTO(ActionType::BOMB);
         }
-
         return {};
     }
 
     bool update_graphics(const ActionDTO& action_update) {
         if (action_update.type == ActionType::UPDATE) {
             for (const auto& object: action_update.objects) {
-                if (object.type == ObjectType::PLAYER) {
-                    std::cout << "ID: " << object.id << " ";
-                    std::cout << "🧍" << '(' << static_cast<unsigned int>(object.position[0])
-                              << ',' << static_cast<unsigned int>(object.position[1]) << ") ";
-                    if (object.weapon_model == WeaponModel::KNIFE) {
-                        std::cout << "🔪 ";
-                    } else if (object.weapon_model == WeaponModel::GLOCK) {
-                        std::cout << "🔫 ";
+                switch (object.type) {
+                    case ObjectType::PLAYER: {
+                        std::cout << "🧍  [ID: " << object.id << "] ";
+                        std::cout << "📍 Pos: (" << static_cast<unsigned int>(object.position[0])
+                                  << ", " << static_cast<unsigned int>(object.position[1]) << ") ";
+
+                        std::cout << "🔫 Arma: ";
+                        if (object.weapon_model == WeaponModel::KNIFE) {
+                            std::cout << "🔪 Cuchillo ";
+                        } else if (object.weapon_model == WeaponModel::GLOCK) {
+                            std::cout << "🔫 Glock ";
+                        } else {
+                            std::cout << "❓ Desconocida ";
+                        }
+
+                        std::cout << "| 🎭 Rol: ";
+                        if (object.player_type == PlayerType::TERRORIST) {
+                            std::cout << "Terrorista ";
+                        } else if (object.player_type == PlayerType::COUNTERTERRORIST) {
+                            std::cout << "Counter-Terrorista ";
+                        } else {
+                            std::cout << "Desconocido ";
+                        }
+
+                        std::cout << "| ❤️ Salud: " << object.health;
+                        std::cout << " | 💰 Dinero: $" << object.money << std::endl;
+                        break;
                     }
-                    if (object.player_type == PlayerType::TERRORIST) {
-                        std::cout << "(Terrorista) ";
-                    } else if (object.player_type == PlayerType::COUNTERTERRORIST) {
-                        std::cout << "(Counter-Terrorista) ";
+
+                    case ObjectType::OBSTACLE: {
+                        std::cout << "🧱  Obstáculo en ";
+                        std::cout << "(" << static_cast<unsigned int>(object.position[0]) << ", "
+                                  << static_cast<unsigned int>(object.position[1]) << ") "
+                                  << static_cast<unsigned int>(object.width) << "x"
+                                  << static_cast<unsigned int>(object.height) << std::endl;
+                        break;
                     }
-                    std::cout << "❤️" << object.health << "💰" << object.money;
-                    std::cout << std::endl;
-                } else if (object.type == ObjectType::OBSTACLE) {
-                    std::cout << "🗿 (" << static_cast<unsigned int>(object.position[0]) << ','
-                              << static_cast<unsigned int>(object.position[1]) << ") "
-                              << static_cast<unsigned int>(object.width) << 'X'
-                              << static_cast<unsigned int>(object.height) << std::endl;
-                } else if (object.type == ObjectType::BULLET) {
-                    std::cout << "💥 (" << static_cast<unsigned int>(object.position[0]) << ','
-                              << static_cast<unsigned int>(object.position[1]) << ")" << std::endl;
-                } else {
-                    std::cout << "Objeto desconocido" << std::endl;
+
+                    case ObjectType::BULLET: {
+                        std::cout << "💥  Bala en ";
+                        std::cout << "(" << static_cast<unsigned int>(object.position[0]) << ", "
+                                  << static_cast<unsigned int>(object.position[1]) << ")"
+                                  << std::endl;
+                        break;
+                    }
+
+                    case ObjectType::BOMB: {
+                        std::cout << "💣  Bomba ubicada en ";
+                        std::cout << "(" << static_cast<unsigned int>(object.position[0]) << ", "
+                                  << static_cast<unsigned int>(object.position[1]) << ")"
+                                  << std::endl;
+                        break;
+                    }
+
+                    default: {
+                        std::cout << "❓  Objeto desconocido" << std::endl;
+                        break;
+                    }
                 }
             }
+
             return true;
         }
         return false;
