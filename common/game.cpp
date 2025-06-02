@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
-Game::Game(): matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)) {
+Game::Game(Config& config):
+        matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
+        config(config),
+        weapon_shop(config) {
     initialize_demo_objects();
 }
 

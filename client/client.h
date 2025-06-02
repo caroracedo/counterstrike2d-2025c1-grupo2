@@ -2,9 +2,11 @@
 #define CLIENT_H
 
 #include <iostream>
+#include <string>
 #include <utility>
 
 #include "../common/action_DTO.h"
+#include "../common/types.h"  // <-- Importa types.h
 
 #include "client_protocol.h"
 #include "client_receiver.h"
@@ -19,76 +21,45 @@ class Client {
 private:
     Socket client_socket;
     ClientProtocol protocol;
-    int id;
-    Queue<ActionDTO> to_server;
-    Queue<ActionDTO> from_server;
+
+    Queue<ActionDTO> send_queue;
+    Queue<ActionDTO> recv_queue;
 
     Sender sender;
     Receiver receiver;
 
+    PlayerType player_type;
+
+    PlayerType parse_player_type(const char* type_str) {
+        std::string type(type_str);
+        if (type == "Terrorist")
+            return PlayerType::TERRORIST;
+        return PlayerType::COUNTERTERRORIST;
+    }
+
+    void send_initial_configuration() {
+        send_queue.push(ActionDTO{ActionType::PLAYERTYPE, player_type});
+    }
+
 public:
-    Client(const char* hostname, const char* servname, int id):
+    Client(const char* hostname, const char* servname, const char* type_str):
             client_socket(hostname, servname),
             protocol(this->client_socket),
-            id(id), 
-            sender(protocol, to_server),
-            receiver(protocol, from_server){}
+            sender(protocol, send_queue),
+            receiver(protocol, recv_queue),
+            player_type(parse_player_type(type_str)) {}
 
-    // void initiate_communication() {
-    //     sender.start();
-    //     receiver.start();
-
-    //     // TODO: Capaz conviene no tenerlos como atributo, si solo se usan en esta función...
-    //     GameView game_view;
-    //     InputHandler input_handler;
-
-    //     while (true) {
-    //         try {
-    //             ActionDTO action = input_handler.receive_and_parse_action();
-    //             if (action.type == ActionType::QUIT)
-    //                 break;
-    //             if (action.type == ActionType::UNKNOWN) {
-    //                 game_view.render();
-    //                 continue;
-    //             }
-    //             to_server.push(action);
-                
-    //             ActionDTO action_update;
-    //             if (from_server.try_pop(action_update)) {
-    //                 if (action_update.type == ActionType::UNKNOWN) {
-    //                     continue;
-    //                 }               
-    //                 game_view.update(action_update);
-    //             }
-    //             game_view.render();
-    //         } catch (...) {}
-    //     }
-
-
-    //     // Cuando termina uno debería terminar todo...
-    //     // event_handler.start();
-    //     // update_handler.start();
-
-    //     // event_handler.join();
-    //     // update_handler.join();
-        
-    //     client_socket.shutdown(2);
-    //     client_socket.close();
-
-    //     sender.stop();
-    //     receiver.stop();
-    //     sender.join();
-    //     receiver.join();
-    // }
-    void initiate_communication() {
+    void run() {
         sender.start();
         receiver.start();
 
+        send_initial_configuration();
+
         InputHandler input_handler;
-        GameView game_view(id);
+        GameView game_view;
         std::atomic<bool> stop_flag = false;
-        EventHandler event_handler(to_server, stop_flag, input_handler);
-        UpdateHandler update_handler(from_server, stop_flag, game_view);
+        EventHandler event_handler(send_queue, stop_flag, input_handler);
+        UpdateHandler update_handler(recv_queue, stop_flag, game_view);
 
         event_handler.start();
         update_handler.start();
@@ -100,32 +71,6 @@ public:
 
         event_handler.join();
         update_handler.join();
-        // bool running = true;
-        // Uint32 last_frame_time = SDL_GetTicks();
-        // const Uint32 frame_delay = 1000 / 60;  // 60 FPS
-
-        // while (running) {
-        //     // INPUT
-        //     ActionDTO action = input_handler.receive_and_parse_action();
-        //     if (action.type == ActionType::QUIT) {
-        //         running = false;
-        //     } else if (action.type != ActionType::UNKNOWN) {
-        //         to_server.push(action);
-        //     }
-
-        //     // SERVER UPDATE
-        //     ActionDTO update;
-        //     while (from_server.try_pop(update)) {
-        //         if (update.type == ActionType::UPDATE) {
-        //             game_view.update(update);
-        //         }
-        //     }
-
-        //         // RENDER
-        //     game_view.render();
-        //     game_view.frame_sync();
-
-        // }
 
         client_socket.shutdown(2);
         client_socket.close();

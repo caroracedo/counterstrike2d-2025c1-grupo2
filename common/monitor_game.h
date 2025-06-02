@@ -20,11 +20,20 @@ private:
     std::mutex mutex;
 
 public:
-    /* Agregar objeto */
-    void add_player(uint16_t id, bool is_terrorist, bool has_bomb) {
-        std::lock_guard<std::mutex> lock(mutex);
-        game.add_player(id, is_terrorist, has_bomb);
+    explicit MonitorGame(Config& config): game(config) {}
+
+    /* Inicialización */
+    size_t is_ready_to_start() {
+        std::lock_guard<std::mutex> lock(mutex);  // si usás sincronización
+        return game.is_ready_to_start();  // o el contenedor que uses para almacenar jugadores
     }
+
+    /* Finalización */
+    bool is_over() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.is_over();
+    }
+
 
     /* Snapshot */
     std::vector<std::shared_ptr<Object>> get_objects() {
@@ -33,6 +42,12 @@ public:
     }
 
     /* Funcionalidades */
+    /* Agregar jugador */
+    void add_player(PlayerType player_type, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.add_player(player_type, id);
+    }
+
     /* Mover */
     bool move(const Direction& direction, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);

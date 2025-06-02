@@ -28,12 +28,12 @@ private:
 
 public:
     /* Constructor */
-    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, bool has_bomb,
-           WeaponShop& weapon_shop):
+    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
+           uint16_t initial_money, WeaponShop& weapon_shop, bool has_bomb):
             Object(ObjectType::PLAYER, id, position, PLAYER_SIZE, PLAYER_SIZE),
             player_type(type),
-            health(100),  // Por defecto, el jugador comienza con 100 de salud
-            money(500),
+            health(health),
+            money(initial_money),
             weapon_shop(weapon_shop) {
         std::pair<uint16_t, Weapon> new_knife = weapon_shop.buy_weapon(WeaponModel::KNIFE, money);
         money -= new_knife.first;
@@ -65,6 +65,7 @@ public:
 
     /* Getters */
     Weapon get_current_weapon() const { return current; }
+    PlayerType get_player_type() const { return player_type; }
 
     /* Funcionalidades */
     /* Daño */

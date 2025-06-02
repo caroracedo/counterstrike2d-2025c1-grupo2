@@ -63,11 +63,16 @@ private:
     void calculate_fps(); //TODO: hacer
 
 public:
-    GameView(int id);
+    GameView();
     void update(const ActionDTO& action);
     void render();
     
-    void update_graphics(const ActionDTO& action);
+    void set_id(uint16_t id) {
+        local_id = id;
+        std::cout << "local_id: " << local_id << std::endl;
+    }
+
+    // void update_graphics(const ActionDTO& action);
 
     void frame_sync();
 };

@@ -12,9 +12,12 @@
 #include "../common/thread.h"
 
 #define MAX_POSITION 50
+// #define ROUNDS 10
+#define ROUNDS 1
 
 class GameLoop: public Thread {
 private:
+    Config& config;
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
@@ -22,6 +25,9 @@ private:
 
     bool do_action(const ActionDTO& action_dto) {
         switch (action_dto.type) {
+            case ActionType::PLAYERTYPE:
+                monitor_game.add_player(action_dto.player_type, action_dto.id);
+                return true;
             case ActionType::MOVE:
                 return monitor_game.move(action_dto.direction, action_dto.id);
             case ActionType::SHOOT:
@@ -45,35 +51,47 @@ private:
     }
 
 public:
-    explicit GameLoop(const char* port):
-            acceptor(port, recv_queue, monitor_client_send_queues, monitor_game) {}
+    explicit GameLoop(Config& config):
+            config(config),
+            monitor_game(config),
+            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
 
     void run() override {
         acceptor.start();
 
-        using clock = std::chrono::steady_clock;
-        auto last_snapshot_time = clock::now();
-        auto interval = std::chrono::milliseconds(16);  // ~60 FPS
+        auto snapshot_interval = std::chrono::milliseconds(33); // ~30FPS
 
-        while (should_keep_running()) {
-            auto start = clock::now();
-
+        while (!monitor_game.is_ready_to_start() && should_keep_running()) {
             ActionDTO action;
-            if (recv_queue.try_pop(action))
+            if (recv_queue.try_pop(action)) {
                 do_action(action);
+            }
+        }
 
-            auto now = clock::now();
-            if (now - last_snapshot_time >= interval) {
-                send_snapshot_to_all_clients();
-                last_snapshot_time = now;
+        std::cout << "¡Que comience el juego!" << std::endl;
+
+        for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
+            // monitor_game.start_new_round(round);  // Inicializa lógica de la ronda
+
+            auto last_snapshot_time = std::chrono::steady_clock::now();
+
+            while (!monitor_game.is_over() && should_keep_running()) {
+                ActionDTO action;
+                if (recv_queue.try_pop(action)) {
+                    do_action(action);
+                }
+
+                auto now = std::chrono::steady_clock::now();
+                if (now - last_snapshot_time >= snapshot_interval) {
+                    send_snapshot_to_all_clients();
+                    last_snapshot_time = now;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
 
-            // Esperar hasta completar 16 ms desde que empezó la iteración
-            auto end = clock::now();
-            auto elapsed = end - start;
-
-            if (elapsed < interval)
-                std::this_thread::sleep_for(interval - elapsed);
+            // send_snapshot_to_all_clients();  // Snapshot final al terminar la ronda
+            // monitor_game.end_round(round);  // Lógica de cierre de ronda
         }
 
         acceptor.stop();

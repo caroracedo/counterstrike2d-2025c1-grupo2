@@ -30,7 +30,7 @@ public:
                 static_cast<int>(y - camera.get_y()),
                 4, 4
             };
-            renderer.SetDrawColor(255, 255, 0, 255);  // Amarillo
+            renderer.SetDrawColor(0, 0, 0, 1);  //dorado
             renderer.FillRect(rect);
         }
 };

@@ -8,27 +8,22 @@
 
 class EventHandler: public Thread {
 private:
-    Queue<ActionDTO>& to_server;
+    Queue<ActionDTO>& send_queue;
     std::atomic<bool>& stop_flag;
     InputHandler& input_handler;
 
 public:
-    EventHandler(Queue<ActionDTO>& to_server, std::atomic<bool>& stop_flag, InputHandler& input_handler):
-            to_server(to_server), stop_flag(stop_flag), input_handler(input_handler) {}
+    EventHandler(Queue<ActionDTO>& send_queue, std::atomic<bool>& stop_flag, InputHandler& input_handler):
+            send_queue(send_queue), stop_flag(stop_flag), input_handler(input_handler) {}
 
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
                 ActionDTO action = input_handler.receive_and_parse_action();
-                // if (action.type == ActionType::QUIT)
-                //     break;  // Salir
-                // if (action.type == ActionType::UNKNOWN)
-                //     continue;
-                // to_server.push(action);
                 if (action.type == ActionType::QUIT) {
                     break;
                 } else if (action.type != ActionType::UNKNOWN) {
-                    to_server.push(action);
+                    send_queue.push(action);
                 }
             } catch (...) {
                 break;

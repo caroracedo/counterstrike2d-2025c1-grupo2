@@ -10,31 +10,28 @@
 
 class UpdateHandler: public Thread {
 private:
-    Queue<ActionDTO>& from_server;
+    Queue<ActionDTO>& recv_queue;
     std::atomic<bool>& stop_flag;
     GameView& game_view;
-    
+
 public:
-    UpdateHandler(Queue<ActionDTO>& from_server, std::atomic<bool>& stop_flag, GameView& game_view):
-            from_server(from_server), stop_flag(stop_flag), game_view(game_view) {}
+    UpdateHandler(Queue<ActionDTO>& recv_queue, std::atomic<bool>& stop_flag, GameView& game_view):
+            recv_queue(recv_queue), stop_flag(stop_flag), game_view(game_view) {}
 
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
-                // ActionDTO action_update;
-                // while (!from_server.try_pop(action_update)) {}
-                // if (action_update.type == ActionType::UNKNOWN)
-                //     break;  // Error
-                // game_view.update_graphics(action_update);
-                ActionDTO update;
-                while (from_server.try_pop(update)) {
-                    if (update.type == ActionType::UPDATE) {
-                        game_view.update(update);
-                    }
+                ActionDTO action_update;
+                while (!recv_queue.try_pop(action_update)) {}
+                if (action_update.type == ActionType::UNKNOWN) {
+                    std::cout << "Acción desconocida recibida. Terminando el hilo de actualización." << std::endl;
+                    break;
+                } else if (action_update.type == ActionType::PLAYERID) {
+                    std::cout << "ID recibido: " << action_update.id << std::endl;
+                    game_view.set_id(action_update.id);
+                } else if (action_update.type == ActionType::UPDATE) {
+                    game_view.update(action_update);
                 }
-
-                // game_view.render();
-                // game_view.frame_sync();
             } catch (...) {
                 break;
             }

@@ -4,7 +4,7 @@
 
 // de esto voy a hacer un refactor para que no se carguen las texturas en el constructor
 // se haria una clase mas prolija.
-GameView::GameView(int id):  
+GameView::GameView():  
     sdl(SDL_INIT_VIDEO),
     window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
     renderer(window, -1, SDL_RENDERER_ACCELERATED),
@@ -17,8 +17,7 @@ GameView::GameView(int id):
     box_texture(renderer, Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
     box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
     hud_numbres(renderer, Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
-    hud_view(hud_numbres, renderer),
-    local_id(id)
+    hud_view(hud_numbres, renderer)
     {}
 
 
@@ -53,22 +52,22 @@ void GameView::update_player(const ObjectDTO& object) {
     // if (local_id == 0 ) {
     //     local_id = id;
     // }
-    hud_view.update(object);
+    
     
     if (players.find(id) == players.end()) {
         players[id] = std::make_unique<PlayerView>(body_sprites);
     }
-
+    
     
     if (legs.find(id) == legs.end()) {
         legs[id] = std::make_unique<LegsView>(legs_sprites,std::vector<SDL2pp::Rect>{
-                     Rect(0, 0, 32, 32),
-                     Rect(32, 0, 32, 32),
-                     Rect(64, 0, 32, 32)
-                    },
-                    100);
-                }
-
+            Rect(0, 0, 32, 32),
+            Rect(32, 0, 32, 32),
+            Rect(64, 0, 32, 32)
+        },
+        100);
+    }
+    
     if (x - last_px  || y - last_py  == 5|| last_px == -1 || last_py == -1) {
         last_px = x;
         last_py = y;
@@ -76,7 +75,10 @@ void GameView::update_player(const ObjectDTO& object) {
         legs[id]->update_position(x, y);
         legs[id]->update_animation();
     }
-
+    if (id == local_id) {
+        hud_view.update(object);
+    }
+    
 }
 
 void GameView::update_bullets(const ObjectDTO& object) {
@@ -137,10 +139,10 @@ void GameView::render() {
     
 }
 
-void GameView::update_graphics(const ActionDTO& action){
-    update(action);
-    render();
-}
+// void GameView::update_graphics(const ActionDTO& action){
+//     update(action);
+//     render();
+// }
 
 void GameView::frame_sync() {
     Uint32 now = SDL_GetTicks();
