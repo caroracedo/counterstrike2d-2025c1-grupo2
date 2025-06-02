@@ -141,7 +141,7 @@ void GameView::render() {
         player->draw(renderer, camera);
 
     for (const auto& obs : obstacles) {
-        SDL_Rect dst_rect = { int(obs.x) - camera.get_x(), int(obs.y) - camera.get_y(), int(obs.w), int(obs.h) };
+        SDL_Rect dst_rect = { int(obs.x) - camera.get_x() + (OBSTACLE_WIDTH / 2), int(obs.y) - camera.get_y() + (OBSTACLE_HEIGHT / 2), int(obs.w), int(obs.h) };
         SDL_Rect src_rect = { 0, 0, int(obs.w), int(obs.h) }; // O el tamaño real de la textura
         if (obs.use_texture2) {
             renderer.Copy(box_texture2, src_rect, dst_rect);
