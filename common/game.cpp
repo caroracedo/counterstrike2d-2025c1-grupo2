@@ -457,8 +457,8 @@ void Game::update_bullets() {
     }
 }
 
-void Game::shoot_m3(const std::vector<uint16_t>& desired_position,
-                    const std::vector<uint16_t>& player_position) {
+void Game::shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+                    const std::vector<uint16_t>& desired_position) {
     double dx = static_cast<double>(desired_position[0] - player_position[0]);
     double dy = static_cast<double>(desired_position[1] - player_position[1]);
     double magnitude = std::sqrt(dx * dx + dy * dy);
@@ -485,10 +485,9 @@ void Game::shoot_m3(const std::vector<uint16_t>& desired_position,
               << "Izquierda: (" << x1 << ", " << y1 << ")\n"
               << "Derecha: (" << x2 << ", " << y2 << ")\n";
 
-
-    create_bullet(player_position, M3_RANGE, M3_DAMAGE, desired_position);  // Disparo central
-    create_bullet(player_position, M3_RANGE, M3_DAMAGE, {x1, y1});          // Disparo izquierdo
-    create_bullet(player_position, M3_RANGE, M3_DAMAGE, {x2, y2});          // Disparo derecho
+    create_bullet(player_position, range, damage, desired_position);  // Disparo central
+    create_bullet(player_position, range, damage, {x1, y1});          // Disparo izquierdo
+    create_bullet(player_position, range, damage, {x2, y2});          // Disparo derecho
 }
 
 bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
@@ -504,7 +503,7 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
         uint16_t damage = player_it->second->get_current_weapon().get_damage();
 
         if (weapon_model == WeaponModel::M3) {
-            shoot_m3(desired_position, player_position);
+            shoot_m3(player_position, range, damage, desired_position);
             return true;
         } else if (weapon_model == WeaponModel::AWP || weapon_model == WeaponModel::GLOCK) {
             // Disparo normal
@@ -528,7 +527,8 @@ std::vector<std::shared_ptr<Object>>& Game::get_objects() {
 Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_SIZE, MATRIX_SIZE - PLAYER_SIZE);
+    std::uniform_int_distribution<uint16_t> dist(
+            0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
 
     while (true) {
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};
@@ -585,7 +585,8 @@ bool Game::is_ready_to_start() {
            std::any_of(players.begin(), players.end(), [](const auto& p) {
                return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
            });
-           
+}
+
 void Game::create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
                          const uint16_t& damage, const std::vector<uint16_t>& desired_position) {
 

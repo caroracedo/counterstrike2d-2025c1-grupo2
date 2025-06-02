@@ -90,8 +90,8 @@ private:
     uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
 
     // Dispara 3 balas en cono
-    void shoot_m3(const std::vector<uint16_t>& desired_position,
-                  const std::vector<uint16_t>& player_position);
+    void shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+                  const std::vector<uint16_t>& desired_position);
 
     void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
                        const uint16_t& damage, const std::vector<uint16_t>& desired_position);
@@ -156,7 +156,8 @@ public:
 
         // // Otro jugador en (80, 80)
         // auto player2 = std::make_shared<Player>(2, std::vector<uint16_t>{80, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false, weapon_shop);
+        //                                         PlayerType::COUNTERTERRORIST, false,
+        //                                         weapon_shop);
         // players.insert({2, player2});
         // objects.push_back(player2);
         // cell = get_cell_from_position(player2->get_position());
@@ -164,7 +165,8 @@ public:
 
         // // Otro jugador en (30, 80)
         // auto player3 = std::make_shared<Player>(3, std::vector<uint16_t>{30, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false, weapon_shop);
+        //                                         PlayerType::COUNTERTERRORIST, false,
+        //                                         weapon_shop);
         // players.insert({3, player3});
         // objects.push_back(player3);
         // cell = get_cell_from_position(player3->get_position());

@@ -31,7 +31,7 @@ public:
     /* Constructor */
     Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
            uint16_t initial_money, WeaponShop& weapon_shop, bool has_bomb):
-            Object(ObjectType::PLAYER, id, position, PLAYER_SIZE, PLAYER_SIZE),
+            Object(ObjectType::PLAYER, id, position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2),
             player_type(type),
             health(health),
             money(initial_money),
