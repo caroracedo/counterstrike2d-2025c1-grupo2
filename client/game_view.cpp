@@ -55,6 +55,7 @@ void GameView::update(const ActionDTO& action) {
             } else {
                 bomb_view.activate_bomb();
             }
+            hud_view.update_timer(object);
             bomb_view.update(object.position[0], object.position[1]);
         }
     }

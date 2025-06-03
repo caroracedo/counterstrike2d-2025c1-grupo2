@@ -39,7 +39,7 @@ public:
             Rect(32, 96, 32, 32), Rect(64, 96, 32, 32),
             Rect(96, 96, 32, 32), Rect(128, 96, 32, 32), 
             Rect(0, 128, 32, 32), Rect(32, 128, 32, 32), 
-            Rect(64, 128, 32, 32)},100),
+            Rect(64, 128, 32, 32)},50),
         texture(tex) {}
 
     void update(float px, float py) {
