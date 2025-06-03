@@ -1,14 +1,14 @@
 #ifndef SOUND_MANAGER_H
 #define SOUND_MANAGER_H
 
+#include <random>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2pp/Chunk.hh>
-
-#include <unordered_map>
-#include <random>
-#include <vector>
-#include <string>
 using namespace SDL2pp;
 class SoundManager {
 private:
@@ -29,22 +29,17 @@ public:
         single_sounds.emplace("hit", SDL2pp::Chunk("../assets/sfx/player/hit1.wav"));
 
         std::vector<std::string> stepPaths = {
-            "../assets/sfx/player/pl_dirt1.wav",
-            "../assets/sfx/player/pl_dirt2.wav",
-            "../assets/sfx/player/pl_dirt3.wav",
-            "../assets/sfx/player/pl_dirt4.wav"
-        };
+                "../assets/sfx/player/pl_dirt1.wav", "../assets/sfx/player/pl_dirt2.wav",
+                "../assets/sfx/player/pl_dirt3.wav", "../assets/sfx/player/pl_dirt4.wav"};
 
         std::vector<SDL2pp::Chunk> steps;
-        for (const auto& path : stepPaths) {
+        for (const auto& path: stepPaths) {
             steps.emplace_back(path);
         }
         soundGroups.emplace("steps", std::move(steps));
     }
 
-    ~SoundManager() {
-        Mix_CloseAudio();
-    }
+    ~SoundManager() { Mix_CloseAudio(); }
 
     void play(const std::string& name, int loops = 0) {
         auto it = single_sounds.find(name);
