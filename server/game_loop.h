@@ -17,7 +17,7 @@
 
 class GameLoop: public Thread {
 private:
-    Config& config;
+    Config config;
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
@@ -43,6 +43,10 @@ private:
     void send_snapshot_to_all_clients() {
         ActionDTO update = {ActionType::UPDATE, process_objects(monitor_game.get_objects())};
         monitor_client_send_queues.send_update(update);
+    }
+
+    void send_end_to_all_clients() {
+        monitor_client_send_queues.send_update(ActionDTO(ActionType::END));
     }
 
     std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
@@ -89,11 +93,12 @@ private:
             // send_snapshot_to_all_clients();  // Snapshot final al terminar la ronda
             // monitor_game.end_round(round);  // Lógica de cierre de ronda
         }
+        send_end_to_all_clients();
     }
 
 public:
-    explicit GameLoop(Config& config):
-            config(config),
+    explicit GameLoop(const char* yaml_path):
+            config(yaml_path),
             monitor_game(config),
             acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
 

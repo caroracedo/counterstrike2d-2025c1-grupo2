@@ -529,8 +529,14 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     }
 }
 
+void Game::update_bomb_countdown() {
+    if (bomb)
+        exploded = bomb->update_countdown();
+}
+
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {
     update_bullets();
+    update_bomb_countdown();
     return objects;
 }
 
@@ -582,9 +588,12 @@ bool Game::is_over() {
                              return par.second &&
                                     par.second->get_player_type() == PlayerType::TERRORIST;
                          }) &&
-             std::any_of(players.begin(), players.end(), [](const auto& par) {
-                 return par.second && par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-             }));
+             std::any_of(players.begin(), players.end(),
+                         [](const auto& par) {
+                             return par.second &&
+                                    par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+                         })) ||
+           exploded;
 }
 
 bool Game::is_ready_to_start() {
@@ -656,15 +665,17 @@ bool Game::plant_bomb(const uint16_t& player_id) {
             return false;  // El jugador no tiene bomba
         }
         std::vector<uint16_t> position = player_it->second->get_position();
-        Bomb bomb(position);
 
-        auto bomb_ptr = std::make_shared<Bomb>(bomb);
+        auto bomb_ptr = std::make_shared<Bomb>(position);
         // Agregar la bomba a la lista de objetos
         objects.push_back(bomb_ptr);
         // Agregar la bomba a la matriz
         auto cell = get_cell_from_position(bomb_ptr->get_position());
         matrix[cell.first][cell.second].push_back(bomb_ptr);
+        // Agregar a game
+        bomb = bomb_ptr;
 
+        bomb->start_countdown();
         std::cout << "\tBomba plantada por el jugador con ID: " << player_id << " en la posición ("
                   << position[0] << ", " << position[1] << ")" << std::endl;
         return true;

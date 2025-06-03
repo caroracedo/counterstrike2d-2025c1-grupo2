@@ -37,9 +37,11 @@ private:
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
+    std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
     Config& config;
     WeaponShop weapon_shop;
+    bool exploded = false;
 
     // Obtiene la celda correspondiente a una posición dada.
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
@@ -106,6 +108,8 @@ private:
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
 
     void set_bomb_player();
+
+    void update_bomb_countdown();
 
 public:
     explicit Game(Config& config);

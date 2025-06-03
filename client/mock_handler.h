@@ -115,7 +115,7 @@ public:
                         std::cout << "💣  Bomba ubicada en ";
                         std::cout << "(" << static_cast<unsigned int>(object.position[0]) << ", "
                                   << static_cast<unsigned int>(object.position[1]) << ")"
-                                  << std::endl;
+                                  << "| ⏳ Tiempo restante: " << object.bomb_countdown << std::endl;
                         break;
                     }
 

@@ -27,7 +27,8 @@ public:
                 while (!recv_queue.try_pop(action_update)) {}
                 if (action_update.type == ActionType::UNKNOWN ||
                     (action_update.type == ActionType::UPDATE &&
-                     !mock_handler.update_graphics(action_update))) {
+                     !mock_handler.update_graphics(action_update)) ||
+                    action_update.type == ActionType::END) {
                     break;
                 } else if (action_update.type == ActionType::PLAYERID) {
                     id = action_update.id;

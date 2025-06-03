@@ -9,15 +9,16 @@
 class Sender: public Thread {
 private:
     ClientProtocol& protocol;
-    Queue<ActionDTO>& queue;
+    Queue<ActionDTO>& send_queue;
 
 public:
-    Sender(ClientProtocol& protocol, Queue<ActionDTO>& queue): protocol(protocol), queue(queue) {}
+    Sender(ClientProtocol& protocol, Queue<ActionDTO>& send_queue):
+            protocol(protocol), send_queue(send_queue) {}
 
     void run() override {
         while (should_keep_running()) {
             try {
-                protocol.serialize_and_send_action(queue.pop());
+                protocol.serialize_and_send_action(send_queue.pop());
             } catch (...) {
                 break;
             }
@@ -26,7 +27,7 @@ public:
 
     void stop() override {
         Thread::stop();
-        queue.close();
+        send_queue.close();
     }
 };
 

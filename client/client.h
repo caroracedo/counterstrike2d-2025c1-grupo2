@@ -23,6 +23,8 @@ private:
     Queue<ActionDTO> send_queue;
     Queue<ActionDTO> recv_queue;
 
+    std::atomic<bool> stop_flag;
+
     Sender sender;
     Receiver receiver;
 
@@ -54,7 +56,6 @@ public:
         send_initial_configuration();
 
         MockHandler mock_handler;
-        std::atomic<bool> stop_flag = false;
         EventHandler event_handler(send_queue, mock_handler, stop_flag);
         UpdateHandler update_handler(recv_queue, mock_handler, stop_flag);
 

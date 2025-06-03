@@ -14,6 +14,7 @@ enum class ActionType : uint8_t {
     UPDATE = 0x75,
     PLAYERTYPE = 0x70,
     PLAYERID = 0x69,
+    END = 0x59,
     UNKNOWN = 0x00
 };
 enum class Direction : uint8_t {
