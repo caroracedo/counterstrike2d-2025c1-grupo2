@@ -34,6 +34,8 @@ private:
                         return {ActionType::MOVE, Direction::LEFT};
                     case SDLK_d:
                         return {ActionType::MOVE, Direction::RIGHT};
+                    case SDLK_b:
+                        return {ActionType::BOMB};
                 }
             }
 

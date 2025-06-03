@@ -18,8 +18,11 @@ GameView::GameView():
     box_texture2(renderer, Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
     hud_numbres(renderer, Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
     gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/deagle.bmp"))), 
+    bomb_texture(renderer,Surface(SDL_LoadBMP("../assets/gfx/weapons/bomb.bmp"))),
+    explotion_sprites(renderer,Surface("../assets/gfx/explosion.png")),
     camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
-    hud_view(hud_numbres, renderer)
+    hud_view(hud_numbres, renderer),
+    bomb_view(bomb_texture, explotion_sprites)
     {}
 
 
@@ -44,6 +47,11 @@ void GameView::update(const ActionDTO& action) {
 
         else if (object.type == ObjectType::BULLET)
             update_bullets(object);
+        
+        else if (object.type == ObjectType::BOMB) {
+            bomb_view.update(object.position[0], object.position[1]);
+            bomb_view.activate_bomb();
+        }
     }
 
     for (auto it = players.begin(); it != players.end(); ) {
@@ -57,6 +65,13 @@ void GameView::update(const ActionDTO& action) {
     for (auto it = legs.begin(); it != legs.end(); ) {
         if (players_in_game.find(it->first) == players_in_game.end()) {
             it = legs.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = guns.begin(); it != guns.end(); ) {
+        if (players_in_game.find(it->first) == players_in_game.end()) {
+            it = guns.erase(it);
         } else {
             ++it;
         }
@@ -148,7 +163,7 @@ void GameView::render() {
         player->draw(renderer, camera);
 
     for (auto& [id, gun] : guns) {
-        gun->update_angle(players[id]->get_angle());
+        // gun->update_angle(players[id]->get_angle());
         gun->draw(renderer, camera);
     }
 
@@ -160,6 +175,11 @@ void GameView::render() {
         } else {
             renderer.Copy(box_texture, src_rect, dst_rect);
         }
+    }
+    if (bomb_view.is_exploding()) {
+        bomb_view.drawExplosion(renderer, camera);
+    } else if (bomb_view.is_active()) {
+        bomb_view.draw(renderer, camera);
     }
 
     hud_view.draw();

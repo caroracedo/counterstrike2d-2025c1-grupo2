@@ -15,6 +15,8 @@
 #include "bullet_view.h"
 #include "gun_view.h"
 #include "player_HUD.h"
+#include "bomb_view.h"
+
 
 
 struct ObstacleView {
@@ -40,12 +42,17 @@ private:
     Texture hud_numbres;
     
     Texture gun_texture;
-        
+    
+    Texture bomb_texture;
+    Texture explotion_sprites;   
+
     Uint32 last_frame_time;
     const Uint32 frame_delay = 1000 / 60;  // 60 FPS
     
     GameCamera camera; 
     PLayerHUD hud_view;
+    BombView bomb_view;
+    
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
