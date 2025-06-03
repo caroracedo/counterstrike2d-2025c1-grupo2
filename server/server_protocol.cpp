@@ -25,6 +25,8 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
         } else if (action_dto.objects[i].type == ObjectType::OBSTACLE) {
             push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
             push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
+        } else if (action_dto.objects[i].type == ObjectType::BOMB) {
+            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
         }
     }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
@@ -33,6 +35,10 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
 bool ServerProtocol::serialize_and_send_id(const ActionDTO& action_dto,
                                            std::vector<uint8_t>& data) {
     push_hexa_to(int_16_to_hex_big_endian(action_dto.id), data);
+    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
+}
+
+bool ServerProtocol::serialize_and_send_end(const std::vector<uint8_t>& data) {
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 
@@ -52,12 +58,13 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
             return {type, static_cast<PlayerType>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
-        case ActionType::SHOOT: {
+        case ActionType::SHOOT:
             return {type,
                     {hex_big_endian_to_int_16({data[1], data[2]}),
                      hex_big_endian_to_int_16({data[3], data[4]})},
                     id};  // Agrega el id del jugador...
-        }
+        case ActionType::BOMB:
+            return {type, id};  // Agrega el id del jugador...
         default:
             return {};
     }
@@ -70,6 +77,8 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
         return serialize_and_send_update(action_dto, data);
     } else if (action_dto.type == ActionType::PLAYERID) {
         return serialize_and_send_id(action_dto, data);
+    } else if (action_dto.type == ActionType::END) {
+        return serialize_and_send_end(data);
     }
     return false;
 }

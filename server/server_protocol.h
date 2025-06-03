@@ -41,6 +41,7 @@ private:
     /* Envío */
     bool serialize_and_send_update(const ActionDTO& action_dto, std::vector<uint8_t>& data);
     bool serialize_and_send_id(const ActionDTO& action_dto, std::vector<uint8_t>& data);
+    bool serialize_and_send_end(const std::vector<uint8_t>& data);
 
 public:
     /* Constructor */

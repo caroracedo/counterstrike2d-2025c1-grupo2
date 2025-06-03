@@ -8,8 +8,6 @@
 #include "bullet.h"
 #include "types.h"
 
-// TODO: Por ahora no es técnicamente un objeto, capaz si cuando tenga que estar en el piso y eso en
-// el lobby
 class Weapon {
 private:
     WeaponModel model;
@@ -21,6 +19,7 @@ public:
     /* Constructor */
     Weapon(WeaponModel model, uint16_t range, u_int16_t damage, uint16_t ammo = 30):
             model(model), range(range), damage(damage), ammo(ammo) {}
+
     Weapon(): model(WeaponModel::UNKNOWN), range(), damage(), ammo() {}
 
     /* Verificaciones */

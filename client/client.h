@@ -25,6 +25,8 @@ private:
     Queue<ActionDTO> send_queue;
     Queue<ActionDTO> recv_queue;
 
+    std::atomic<bool> stop_flag;
+
     Sender sender;
     Receiver receiver;
 
@@ -57,7 +59,6 @@ public:
 
         InputHandler input_handler;
         GameView game_view;
-        std::atomic<bool> stop_flag = false;
         EventHandler event_handler(send_queue, stop_flag, input_handler);
         UpdateHandler update_handler(recv_queue, stop_flag, game_view);
 

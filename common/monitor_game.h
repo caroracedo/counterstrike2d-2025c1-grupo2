@@ -58,6 +58,12 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         return game.shoot(desired_position, id);
     }
+
+    /* Plantar bomba */
+    void plant_bomb(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.plant_bomb(id);
+    }
 };
 
 #endif  // MONITOR_GAME_H

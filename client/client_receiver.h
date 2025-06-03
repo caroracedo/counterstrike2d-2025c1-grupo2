@@ -9,15 +9,16 @@
 class Receiver: public Thread {
 private:
     ClientProtocol& protocol;
-    Queue<ActionDTO>& queue;
+    Queue<ActionDTO>& recv_queue;
 
 public:
-    Receiver(ClientProtocol& protocol, Queue<ActionDTO>& queue): protocol(protocol), queue(queue) {}
+    Receiver(ClientProtocol& protocol, Queue<ActionDTO>& recv_queue):
+            protocol(protocol), recv_queue(recv_queue) {}
 
     void run() override {
         while (should_keep_running()) {
             try {
-                queue.push(protocol.receive_and_deserialize_action());
+                recv_queue.push(protocol.receive_and_deserialize_action());
             } catch (...) {
                 break;
             }

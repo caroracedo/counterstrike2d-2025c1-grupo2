@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "config.h"
 #include "game.h"
 
 std::string direction_to_string(Direction direction) {
@@ -54,9 +55,23 @@ void shoot(Game& game, Direction direction, uint16_t id) {
 void show(Game& game) { game.show_objects(); }
 
 int main() {
-    // Game game;
+    Config config("config/config.yaml");
+    Game game(config);
 
-    // show(game);
+    uint16_t i = 1;
+
+    while (!game.is_ready_to_start()) {
+        game.add_player(PlayerType::TERRORIST, i);
+        ++i;
+        game.add_player(PlayerType::COUNTERTERRORIST, i);
+        ++i;
+    }
+
+    show(game);
+
+    for (uint16_t j = 1; j < i; ++j) {
+        game.plant_bomb(j);
+    }
 
     // // std::cout <<
     // // "*********************************************************************************"
@@ -263,7 +278,6 @@ int main() {
     //           << std::endl;
 
     // show(game);
-
 
     return 0;  // Comenté todo porque sino no me deja compilar
 }

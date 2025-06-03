@@ -1,12 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MATRIX_SIZE 200  // posición máxima en la matriz
-#define MOVE_STEP 5      // paso de movimiento
-#define CELL_SIZE 56     // tamaño de cada celda en la matriz
-// #define PLAYER_SIZE 32    // tamaño del jugador
-// #define BULLET_SIZE 8     // tamaño de la bala
-#define WEAPON_DAMAGE 20  // daño del arma
+#define MATRIX_SIZE 200   // posición máxima en la matriz (celdas)
+#define MOVE_STEP 5       // paso de movimiento
+#define CELL_SIZE 56      // tamaño de cada celda en la matriz
 #define PLAYER_RADIUS 16  // radio del jugador
 #define BULLET_RADIUS 4   // radio de la bala
 
@@ -24,6 +21,7 @@
 #include <vector>
 
 #include "action_DTO.h"
+#include "bomb.h"
 #include "config.h"
 #include "object.h"
 #include "object_DTO.h"
@@ -39,9 +37,11 @@ private:
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
+    std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
     Config& config;
     WeaponShop weapon_shop;
+    bool exploded = false;
 
     // Obtiene la celda correspondiente a una posición dada.
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
@@ -76,8 +76,20 @@ private:
     // vivo.
     bool damage_player(uint16_t id, uint16_t damage);
 
-    // Recolecta objetos que no están en la matriz y los elimina de la lista de objetos.
-    void reap();
+    // // Recolecta objetos que no están en la matriz y los elimina de la lista de objetos.
+    // void reap();
+
+    // Crea una bala y la agrega a la matriz, al vector de objetos y al mapa de balas.
+    void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
+                       const uint16_t& damage, const std::vector<uint16_t>& desired_position);
+
+    // Elimina la bala con el ID especificado de la matriz, del vector de objetos y del mapa de
+    // balas.
+    void delete_bullet(const uint16_t& bullet_id);
+
+    // Devuelve el daño infligido por la bala y elimina la bala de la matriz, del vector de objetos
+    // y del mapa de balas.
+    uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
 
     // Incrementa el ID de la siguiente bala.
     void inc_bullet_id();
@@ -85,20 +97,19 @@ private:
     // Actualiza las balas en la matriz, eliminando las que ya no están activas.
     void update_bullets();
 
-
-    // Obtiene el daño de la bala con el ID especificado.
-    uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
-
     // Dispara 3 balas en cono
     void shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
                   const std::vector<uint16_t>& desired_position);
 
-    void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
-                       const uint16_t& damage, const std::vector<uint16_t>& desired_position);
-
-    void delete_bullet(const uint16_t& bullet_id);
+    // Dispara 3 balas en ráfaga (una atrás de la otra)
+    void shoot_ak47(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+                    const std::vector<uint16_t>& desired_position);
 
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
+
+    void set_bomb_player();
+
+    void update_bomb_countdown();
 
 public:
     explicit Game(Config& config);
@@ -106,6 +117,8 @@ public:
     bool move(Direction direction, const uint16_t& id);
 
     bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
+
+    bool plant_bomb(const uint16_t& player_id);
 
     std::vector<std::shared_ptr<Object>>& get_objects();
 

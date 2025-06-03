@@ -19,7 +19,7 @@ GameView::GameView():
     hud_numbres(renderer, Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
     gun_texture(renderer, Surface(SDL_LoadBMP("../assets/gfx/weapons/deagle.bmp"))), 
     bomb_texture(renderer,Surface(SDL_LoadBMP("../assets/gfx/weapons/bomb.bmp"))),
-    explotion_sprites(renderer,Surface("../assets/gfx/explosion.png")),
+    explotion_sprites(renderer,Surface(SDL_LoadBMP("../explosion.bmp"))),
     camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
     hud_view(hud_numbres, renderer),
     bomb_view(bomb_texture, explotion_sprites)
@@ -37,6 +37,7 @@ void GameView::update(const ActionDTO& action) {
     for(const auto& object : action.objects) {
 
         if (object.type == ObjectType::PLAYER){
+            std::cout << "Player ID: " << object.id << std::endl;
             update_player(object);
             players_in_game.insert(object.id);
         }
@@ -49,8 +50,12 @@ void GameView::update(const ActionDTO& action) {
             update_bullets(object);
         
         else if (object.type == ObjectType::BOMB) {
+            if (object.bomb_countdown <= 0) {
+                bomb_view.explode();
+            } else {
+                bomb_view.activate_bomb();
+            }
             bomb_view.update(object.position[0], object.position[1]);
-            bomb_view.activate_bomb();
         }
     }
 
@@ -178,6 +183,7 @@ void GameView::render() {
     }
     if (bomb_view.is_exploding()) {
         bomb_view.drawExplosion(renderer, camera);
+        bomb_view.reset();
     } else if (bomb_view.is_active()) {
         bomb_view.draw(renderer, camera);
     }

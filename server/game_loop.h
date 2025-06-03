@@ -17,7 +17,7 @@
 
 class GameLoop: public Thread {
 private:
-    Config& config;
+    Config config;
     MonitorGame monitor_game;
     Acceptor acceptor;
     Queue<ActionDTO> recv_queue;
@@ -32,6 +32,9 @@ private:
                 return monitor_game.move(action_dto.direction, action_dto.id);
             case ActionType::SHOOT:
                 return monitor_game.shoot(action_dto.desired_position, action_dto.id);
+            case ActionType::BOMB:
+                monitor_game.plant_bomb(action_dto.id);
+                return true;
             default:
                 return false;
         }
@@ -42,6 +45,10 @@ private:
         monitor_client_send_queues.send_update(update);
     }
 
+    void send_end_to_all_clients() {
+        monitor_client_send_queues.send_update(ActionDTO(ActionType::END));
+    }
+
     std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
         std::vector<ObjectDTO> object_dtos;
         object_dtos.reserve(objects.size());
@@ -50,25 +57,18 @@ private:
         return object_dtos;
     }
 
-public:
-    explicit GameLoop(Config& config):
-            config(config),
-            monitor_game(config),
-            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
-
-    void run() override {
-        acceptor.start();
-
-        auto snapshot_interval = std::chrono::milliseconds(33); // ~30FPS
-
+    void waiting_lobby() {
         while (!monitor_game.is_ready_to_start() && should_keep_running()) {
             ActionDTO action;
             if (recv_queue.try_pop(action)) {
                 do_action(action);
             }
         }
-
         std::cout << "¡Que comience el juego!" << std::endl;
+    }
+
+    void game_loop() {
+        auto snapshot_interval = std::chrono::milliseconds(33); // ~30FPS
 
         for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
             // monitor_game.start_new_round(round);  // Inicializa lógica de la ronda
@@ -93,6 +93,20 @@ public:
             // send_snapshot_to_all_clients();  // Snapshot final al terminar la ronda
             // monitor_game.end_round(round);  // Lógica de cierre de ronda
         }
+        send_end_to_all_clients();
+    }
+
+public:
+    explicit GameLoop(const char* yaml_path):
+            config(yaml_path),
+            monitor_game(config),
+            acceptor(config, recv_queue, monitor_client_send_queues, monitor_game) {}
+
+    void run() override {
+        acceptor.start();
+
+        waiting_lobby();
+        game_loop();
 
         acceptor.stop();
         acceptor.join();

@@ -39,6 +39,7 @@ private:
     /* Recepción */
     ActionDTO deserialize_update(std::vector<uint8_t>& data);
     ActionDTO deserialize_id(std::vector<uint8_t>& data);
+    ActionDTO deserialize_end();
 
 public:
     /* Constructor */

@@ -34,6 +34,10 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
             objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
                                hex_big_endian_to_int_16(height)});
             i += 9;
+        } else if (object_type == ObjectType::BOMB) {
+            std::vector<uint8_t> bomb_countdown(data.begin() + i + 5, data.begin() + i + 7);
+            objects.push_back({object_type, position, hex_big_endian_to_int_16(bomb_countdown)});
+            i += 7;
         } else {  // ObjectType::BULLET
             objects.push_back({object_type, position});
             i += 5;
@@ -47,6 +51,8 @@ ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
     return {ActionType::PLAYERID, hex_big_endian_to_int_16(id)};
 }
 
+ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
+
 /* Public */
 /* Recepción */
 ActionDTO ClientProtocol::receive_and_deserialize_action() {
@@ -58,17 +64,24 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     if (!skt_manager.receive_byte(skt, type_code))
         return {};
 
-    std::vector<uint8_t> data(size - 1);
-    if (!skt_manager.receive_bytes(skt, data) || data.empty())
-        return {};
+    std::vector<uint8_t> data;
+    if (size > 1) {
+        data.resize(size - 1);
+        if (!skt_manager.receive_bytes(skt, data) || data.empty())
+            return {};
+    }
 
     ActionType type = static_cast<ActionType>(type_code);
-    if (type == ActionType::UPDATE) {
-        return deserialize_update(data);
-    } else if (type == ActionType::PLAYERID) {
-        return deserialize_id(data);
+    switch (type) {
+        case ActionType::UPDATE:
+            return deserialize_update(data);
+        case ActionType::PLAYERID:
+            return deserialize_id(data);
+        case ActionType::END:
+            return deserialize_end();
+        default:
+            return {};
     }
-    return {};
 }
 
 /* Envío */
@@ -92,6 +105,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
         }
+        case ActionType::BOMB:
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
         default:
             return false;
     }

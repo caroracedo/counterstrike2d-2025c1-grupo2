@@ -10,11 +10,10 @@
 
 class Server {
 private:
-    Config config;
     GameLoop game_loop;
 
 public:
-    explicit Server(const char* yaml_path): config(yaml_path), game_loop(config) {}
+    explicit Server(const char* yaml_path): game_loop(yaml_path) {}
 
     void run() {
         game_loop.start();

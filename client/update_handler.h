@@ -23,11 +23,9 @@ public:
             try {
                 ActionDTO action_update;
                 while (!recv_queue.try_pop(action_update)) {}
-                if (action_update.type == ActionType::UNKNOWN) {
-                    std::cout << "Acción desconocida recibida. Terminando el hilo de actualización." << std::endl;
+                if (action_update.type == ActionType::UNKNOWN || action_update.type == ActionType::END) {
                     break;
                 } else if (action_update.type == ActionType::PLAYERID) {
-                    std::cout << "ID recibido: " << action_update.id << std::endl;
                     game_view.set_id(action_update.id);
                 } else if (action_update.type == ActionType::UPDATE) {
                     game_view.update(action_update);

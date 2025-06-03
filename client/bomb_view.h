@@ -18,8 +18,8 @@ private:
     Animation explotion_animation;
     Texture& texture;
     float x, y;
-    bool is_exploding = false;
-    bool is_active = false;
+    bool exploding = false;
+    bool active = false;
 
 
 public:
@@ -70,19 +70,23 @@ public:
     }
 
     void activate_bomb() {
-       
-        is_active = true; 
+        active = true; 
     }
 
     void explode() {
-        is_exploding = true;
+        exploding = true;
+    }
+
+    void reset() {
+        exploding = false;
+        active = false;
     }
 
     bool is_exploding() const {
-        return is_exploding;
+        return exploding;
     }
     bool is_active() const {
-        return is_active ;
+        return active ;
     }
 
 
