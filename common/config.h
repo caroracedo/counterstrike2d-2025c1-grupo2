@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <string>
@@ -109,17 +110,25 @@ private:
     }
 
 public:
+    /* Constructor */
     explicit Config(const std::string& yaml_path) { load_from_yaml(yaml_path); }
 
+    /* Getters */
     std::string get_server_port() const { return server_port; }
     uint8_t get_player_health() const { return player_health; }
     uint16_t get_player_money() const { return player_money; }
     uint8_t get_rounds_total() const { return rounds_total; }
     uint8_t get_rounds_switch() const { return rounds_switch; }
+    const std::vector<ObstacleConfig> get_obstacles() const { return obstacles; }
     std::unordered_map<WeaponModel, WeaponConfig> get_weapon_config() const {
         return weapon_catalog;
     }
-    const std::vector<ObstacleConfig>& get_obstacles() const { return obstacles; }
+    std::vector<WeaponModel> get_weapons() const {
+        std::vector<WeaponModel> weapons;
+        std::transform(weapon_catalog.begin(), weapon_catalog.end(), std::back_inserter(weapons),
+                       [](const auto& pair) { return pair.first; });
+        return weapons;
+    }
 };
 
 #endif  // CONFIG_H

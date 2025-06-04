@@ -144,8 +144,7 @@ public:
         return new_position;
     }
 
-    /* Compra de arma */
-    // Igual esto sería otro comando...
+    /* Comprar Weapon */
     bool buy_weapon(const WeaponModel& weapon_model) {
         std::pair<uint16_t, Weapon> purchase = weapon_shop.buy_weapon(weapon_model, money);
         if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
@@ -153,6 +152,17 @@ public:
         }
         money -= purchase.first;
         primary_weapon = purchase.second;
+        return true;
+    }
+
+    /* Comprar Ammo */
+    bool buy_ammo(uint16_t ammo_amount) {
+        std::pair<uint16_t, bool> purchase = weapon_shop.buy_ammo(ammo_amount, money);
+        if (!purchase.second) {
+            return false;
+        }
+        money -= purchase.first;
+        primary_weapon.add_ammo(ammo_amount);
         return true;
     }
 };

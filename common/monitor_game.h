@@ -60,9 +60,21 @@ public:
     }
 
     /* Plantar bomba */
-    void plant_bomb(uint16_t id) {
+    bool plant_bomb(uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        game.plant_bomb(id);
+        return game.plant_bomb(id);
+    }
+
+    /* Compar Weapon */
+    bool shop_weapon(WeaponModel weapon, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.shop_weapon(weapon, id);
+    }
+
+    /* Compar Ammo */
+    bool shop_ammo(uint16_t ammo_amount, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.shop_ammo(ammo_amount, id);
     }
 };
 

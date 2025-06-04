@@ -1,5 +1,6 @@
 #include "client_protocol.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <utility>
@@ -53,6 +54,13 @@ ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
 
 ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
 
+ActionDTO ClientProtocol::deserialize_shop(std::vector<uint8_t>& data) {
+    std::vector<WeaponModel> weapons;
+    std::transform(data.begin(), data.end(), std::back_inserter(weapons),
+                   [](uint8_t byte) { return static_cast<WeaponModel>(byte); });
+    return {ActionType::SHOP, weapons};
+}
+
 /* Public */
 /* Recepción */
 ActionDTO ClientProtocol::receive_and_deserialize_action() {
@@ -79,6 +87,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
             return deserialize_id(data);
         case ActionType::END:
             return deserialize_end();
+        case ActionType::SHOP:
+            return deserialize_shop(data);
         default:
             return {};
     }
@@ -108,6 +118,16 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::BOMB:
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
+        case ActionType::WEAPON: {
+            data.push_back(static_cast<uint8_t>(action.weapon));
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        case ActionType::AMMO: {
+            push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
         default:
             return false;
     }

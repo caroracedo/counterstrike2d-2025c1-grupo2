@@ -1,5 +1,6 @@
 #include "server_protocol.h"
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -42,6 +43,13 @@ bool ServerProtocol::serialize_and_send_end(const std::vector<uint8_t>& data) {
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 
+bool ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
+                                             std::vector<uint8_t>& data) {
+    std::transform(action_dto.weapons.begin(), action_dto.weapons.end(), std::back_inserter(data),
+                   [](WeaponModel weapon) { return static_cast<uint8_t>(weapon); });
+    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
+}
+
 /* Public */
 /* Recepción */
 ActionDTO ServerProtocol::receive_and_deserialize_action() {
@@ -65,6 +73,11 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
                     id};  // Agrega el id del jugador...
         case ActionType::BOMB:
             return {type, id};  // Agrega el id del jugador...
+        case ActionType::WEAPON:
+            return {type, static_cast<WeaponModel>(data[1]), id};  // Agrega el id del jugador...
+        case ActionType::AMMO:
+            return {type, hex_big_endian_to_int_16({data[1], data[2]}),
+                    id};  // Agrega el id del jugador...
         default:
             return {};
     }
@@ -79,6 +92,8 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
         return serialize_and_send_id(action_dto, data);
     } else if (action_dto.type == ActionType::END) {
         return serialize_and_send_end(data);
+    } else if (action_dto.type == ActionType::SHOP) {
+        return serialize_and_send_shop(action_dto, data);
     }
     return false;
 }

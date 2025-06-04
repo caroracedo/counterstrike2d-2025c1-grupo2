@@ -130,6 +130,22 @@ public:
 
     bool is_ready_to_start();
 
+    bool shop_weapon(WeaponModel weapon, uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->buy_weapon(weapon);
+        }
+        return false;
+    }
+
+    bool shop_ammo(uint ammo, uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->buy_ammo(ammo);
+        }
+        return false;
+    }
+
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
      ********************************************************************************************/

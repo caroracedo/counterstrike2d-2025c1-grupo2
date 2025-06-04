@@ -33,6 +33,9 @@ public:
        // que es inversamente proporcional...
     WeaponModel get_model() const { return model; }
 
+    /* Funcionalidades */
+    void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
+
     bool operator==(const Weapon& other) const {
         // Compara los atributos relevantes, por ejemplo el modelo o id
         return this->model == other.model;  // Ajusta según tu implementación
