@@ -36,6 +36,7 @@ private:
     std::vector<std::vector<std::vector<std::shared_ptr<Object>>>> matrix;
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
+    std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
@@ -133,20 +134,33 @@ public:
     void restart() {
         delete_bomb();
         exploded = false;
-        // TODO: Acá los players deberían volver a la vida...
-        // Cada vez que se eliminan se deberían guardar en un buffer, entonces después se podría
-        // hacer: for player in players_dead:
-        //     player.cure(config.get:player_health())
-        //     players.add(player)
-        //     matrix.add(player)
-        //     objects.add(player)
-        // Y creo que con esto estaría...
+        for (auto& [id, player]: dead_players) {
+            if (player) {
+                // Reestablece la salud del jugador muerto
+                player->cure(config.get_player_health());
+
+                // Reagrega al jugador a la lista de jugadores
+                players[id] = player;  
+
+                // Reagrega al jugador a la matriz
+                auto cell = get_cell_from_position(player->get_position());
+                matrix[cell.first][cell.second].push_back(player);
+
+                // Reagrega al jugador a la lista de objetos
+                objects.push_back(player);
+            }
+        }
+        // Elimina los jugadores muertos de la lista de jugadores muertos
+        dead_players.clear();
+        switch_player_types();
     }
 
     void switch_player_types() {
-        // TODO: sería algo tipo:
-        // for player in players:
-        //     player.switch_player_type()
+        for (auto& [id, player]: players) {
+            if (player) {
+                player->switch_player_type();
+            }
+        }
     }
 
     bool shop_weapon(WeaponModel weapon, uint16_t id) {

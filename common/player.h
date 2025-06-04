@@ -73,6 +73,15 @@ public:
         }
     }
 
+    void cure(uint16_t health_amount) {
+        health = health_amount;
+    }
+
+    void switch_player_type() {
+        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
+                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
+    }
+
     /* Cambio de arma */
     void change_weapon() {
         // primary_weapon -> secondary_weapon -> knife -> primary_weapon
