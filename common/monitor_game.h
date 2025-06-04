@@ -3,6 +3,7 @@
 
 #include <condition_variable>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -19,18 +20,49 @@ private:
     std::mutex mutex;
 
 public:
-    /* Mover */
-    bool move(Direction direction) {
+    explicit MonitorGame(Config& config): game(config) {}
+
+    /* Inicialización */
+    size_t is_ready_to_start() {
         std::lock_guard<std::mutex> lock(mutex);
-        if (!game.move(direction))
-            return false;
-        return true;
+        return game.is_ready_to_start();
+    }
+
+    /* Finalización */
+    bool is_over() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.is_over();
+    }
+
+    /* Snapshot */
+    std::vector<std::shared_ptr<Object>> get_objects() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.get_objects();
+    }
+
+    /* Funcionalidades */
+    /* Agregar jugador */
+    void add_player(PlayerType player_type, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.add_player(player_type, id);
     }
 
     /* Mover */
-    std::vector<uint16_t> get_position() {
+    bool move(const Direction& direction, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.get_position();
+        return game.move(direction, id);
+    }
+
+    /* Disparar */
+    bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.shoot(desired_position, id);
+    }
+
+    /* Plantar bomba */
+    void plant_bomb(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.plant_bomb(id);
     }
 };
 

@@ -10,25 +10,33 @@ class ServerSender: public Thread {
 private:
     ServerProtocol& protocol;
     Queue<ActionDTO>& send_queue;
+    std::atomic<bool>& stop_flag;
 
 public:
-    ServerSender(ServerProtocol& protocol, Queue<ActionDTO>& send_queue):
-            protocol(protocol), send_queue(send_queue) {}
+    ServerSender(ServerProtocol& protocol, Queue<ActionDTO>& send_queue,
+                 std::atomic<bool>& stop_flag):
+            protocol(protocol), send_queue(send_queue), stop_flag(stop_flag) {}
 
     void run() override {
-        while (should_keep_running()) {
+        while (should_this_thread_keep_running()) {
             try {
-                protocol.serialize_and_send_updated_position(send_queue.pop());
+                if (!protocol.serialize_and_send_action(send_queue.pop()))
+                    break;
             } catch (...) {
                 break;
             }
         }
+        stop();
     }
 
     void stop() override {
-        Thread::stop();
-        send_queue.close();
+        if (should_keep_running()) {
+            Thread::stop();
+            send_queue.close();
+        }
     }
+
+    bool should_this_thread_keep_running() { return should_keep_running() && !stop_flag; }
 };
 
 #endif  // SERVER_SENDER_H

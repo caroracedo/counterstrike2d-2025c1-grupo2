@@ -32,6 +32,16 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG yaml-cpp-0.7.0
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(yaml-cpp)
 
 # set compiler warnings to the targets
 include(cmake/CompilerWarnings.cmake)
@@ -41,6 +51,8 @@ set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 # Make this PUBLIC so any dependant linking lib will inherit this
 # location (so our dependants will not have to explicitly request this)
 target_include_directories(taller_common PUBLIC .)
+
+target_link_libraries(taller_common PUBLIC yaml-cpp)
 
 # HEY!! TODO XXX: you need to install some runtime and dev libraries *before*
 # compiling the client/editor code.

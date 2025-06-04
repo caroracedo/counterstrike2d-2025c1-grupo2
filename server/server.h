@@ -3,6 +3,8 @@
 
 #define QUIT_INPUT 'q'
 
+#include "../common/config.h"
+
 #include "acceptor.h"
 #include "game_loop.h"
 
@@ -11,9 +13,9 @@ private:
     GameLoop game_loop;
 
 public:
-    explicit Server(const char* port): game_loop(port) {}
+    explicit Server(const char* yaml_path): game_loop(yaml_path) {}
 
-    void initiate_communication() {
+    void run() {
         game_loop.start();
 
         char input;

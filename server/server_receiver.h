@@ -10,18 +10,33 @@ class ServerReceiver: public Thread {
 private:
     ServerProtocol& protocol;
     Queue<ActionDTO>& recv_queue;
+    std::atomic<bool>& stop_flag;
 
 public:
-    ServerReceiver(ServerProtocol& protocol, Queue<ActionDTO>& recv_queue):
-            protocol(protocol), recv_queue(recv_queue) {}
+    ServerReceiver(ServerProtocol& protocol, Queue<ActionDTO>& recv_queue,
+                   std::atomic<bool>& stop_flag):
+            protocol(protocol), recv_queue(recv_queue), stop_flag(stop_flag) {}
 
     void run() override {
-        while (should_keep_running()) {
+        while (should_this_thread_keep_running()) {
             try {
-                recv_queue.push(protocol.receive_and_deserialize_action());
+                ActionDTO action = protocol.receive_and_deserialize_action();
+                if (action.type == ActionType::UNKNOWN)
+                    break;
+                recv_queue.push(action);
             } catch (...) {
                 break;
             }
+        }
+        stop_flag = true;
+        stop();
+    }
+
+    bool should_this_thread_keep_running() { return should_keep_running() && !stop_flag; }
+
+    void stop() override {
+        if (should_keep_running()) {
+            Thread::stop();
         }
     }
 };

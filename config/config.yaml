@@ -1,0 +1,53 @@
+server:
+  port: 1500
+
+player:
+  health: 100
+  money: 500
+
+weapons:
+  knife:
+    price: 0
+    range: 1
+    damage: 10
+
+  glock:
+    price: 0
+    range: 500
+    damage: 20
+
+  bomb:
+    price: 0
+    range: 0
+    damage: 500
+
+  ak47:
+    price: 100
+    range: 100
+    damage: 10
+
+  m3:
+    price: 200
+    range: 50
+    damage: 30
+
+  awp:
+    price: 300
+    range: 200
+    damage: 40
+
+obstacles:
+  - width: 32
+    height: 32
+    position:
+      x: 100
+      y: 100
+  - width: 32
+    height: 32
+    position:
+      x: 150
+      y: 150
+
+rounds:
+  total: 10
+  switch: 5

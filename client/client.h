@@ -1,90 +1,79 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <iostream>
+#include <string>
 #include <utility>
 
+#include "../common/action_DTO.h"
+#include "../common/types.h"  // <-- Importa types.h
+
+#include "client_protocol.h"
 #include "client_receiver.h"
 #include "client_sender.h"
-#include "client_protocol.h"
-#include "../common/action_DTO.h"
+#include "event_handler.h"
+#include "game_view.h"
 #include "input_handler.h"
-
-#include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2pp/SDL2pp.hh>
-#include <SDL2pp/Surface.hh>
-#include <cmath>
-
-
-using namespace SDL2pp;
+#include "mock_handler.h"
+#include "update_handler.h"
 
 class Client {
 private:
     Socket client_socket;
     ClientProtocol protocol;
 
-    Queue<ActionDTO> to_server;
-    Queue<ActionDTO> from_server;
+    Queue<ActionDTO> send_queue;
+    Queue<ActionDTO> recv_queue;
+
+    std::atomic<bool> stop_flag;
 
     Sender sender;
     Receiver receiver;
 
+    PlayerType player_type;
+
+    PlayerType parse_player_type(const char* type_str) {
+        std::string type(type_str);
+        if (type == "Terrorist")
+            return PlayerType::TERRORIST;
+        return PlayerType::COUNTERTERRORIST;
+    }
+
+    void send_initial_configuration() {
+        send_queue.push(ActionDTO{ActionType::PLAYERTYPE, player_type});
+    }
+
 public:
-    Client(const char* hostname, const char* servname):
+    Client(const char* hostname, const char* servname, const char* type_str):
             client_socket(hostname, servname),
             protocol(this->client_socket),
-            sender(protocol, to_server),
-            receiver(protocol, from_server) {}
+            sender(protocol, send_queue),
+            receiver(protocol, recv_queue),
+            player_type(parse_player_type(type_str)) {}
 
-    void initiate_communication() {
+    void run() {
         sender.start();
         receiver.start();
-        
-        // Inicialización
-        SDL sdl(SDL_INIT_VIDEO);
-        Window window("Jugador compuesto", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                      SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-        Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-        
-        // Cargar recursos
-        Surface cuerpo_surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp")); // TODO: Preguntar
+        send_initial_configuration();
 
-        Texture cuerpo(renderer, cuerpo_surface);
-        
-        Surface piernas_surface(SDL_LoadBMP("../assets/gfx/player/legs.bmp"));
-        Texture piernas(renderer, piernas_surface);
+        InputHandler input_handler;
+        GameView game_view;
+        EventHandler event_handler(send_queue, stop_flag, input_handler);
+        UpdateHandler update_handler(recv_queue, stop_flag, game_view);
 
-        Surface mira_surface(SDL_LoadBMP("../assets/gfx/pointer.bmp"));
-        mira_surface.SetColorKey(true, SDL_MapRGB(mira_surface.Get()->format, 255, 0, 255));
-        Texture mira(renderer, mira_surface);
+        event_handler.start();
+        update_handler.start();
 
-        InputHandler ih(renderer, cuerpo, piernas);
-
-        // LoopClient
-        while (true) {
-            try {
-                ActionDTO action = ih.receive_and_parse_action();
-                if (action.type == ActionType::QUIT)
-                    break;
-                if (action.type == ActionType::UNKNOWN) {
-                    ih.update_graphics(action);
-                    continue;
-                }
-                to_server.push(action);
-                
-                ActionDTO action_update = from_server.pop();
-        
-                if (action_update.type == ActionType::UNKNOWN) {
-                    continue;
-                }  
-                if (!ih.update_graphics(action_update))
-                    break;
-            } catch (...) {}  // Por el momento...
+         while (!stop_flag) {
+            game_view.render();
+            game_view.frame_sync();
         }
 
-         // TODO: Preguntar si está bien cerrar el socket acá y por qué en el servidor funciona...
-        client_socket.shutdown(2);  // Cierra lectura y escritura
+        event_handler.join();
+        update_handler.join();
+
+        client_socket.shutdown(2);
         client_socket.close();
 
         sender.stop();
@@ -92,6 +81,7 @@ public:
         sender.join();
         receiver.join();
     }
+
 };
 
 #endif  // CLIENT_H
