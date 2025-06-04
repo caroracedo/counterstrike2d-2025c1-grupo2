@@ -45,6 +45,11 @@ private:
     WeaponShop weapon_shop;
     bool exploded = false;
 
+    /***************************************************************************************************
+     *****************************************POSICIONES Y
+     *CELDAS***************************************
+     ***************************************************************************************************/
+
     // Obtiene la celda correspondiente a una posición dada.
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
 
@@ -52,10 +57,19 @@ private:
     std::vector<std::pair<uint16_t, uint16_t>> get_cells_within_radius(
             const std::pair<uint16_t, uint16_t>& cell, uint16_t radius);
 
+    // Calcula la distancia entre dos posiciones dadas.
+    uint16_t distance_between(const std::vector<uint16_t>& position1,
+                              const std::vector<uint16_t>& position2);
 
     // Obtiene los objetos en las celdas adyacentes a la celda dada.
     std::set<std::shared_ptr<Object>> get_adyacent_objects(
             const std::pair<uint16_t, uint16_t>& cell);
+
+
+    /***************************************************************************************************
+     ******************************************* MOVIMIENTO
+     *********************************************
+     ***************************************************************************************************/
 
     // Realiza el movimiento del objeto dado en la dirección dada.
     std::pair<bool, std::vector<uint16_t>> _move(const Object& obj,
@@ -74,6 +88,12 @@ private:
     bool update_object_in_matrix(const std::shared_ptr<Object>& obj,
                                  const std::vector<uint16_t>& old_position);
 
+
+    /***************************************************************************************************
+     *********************************ACTUALIZACIÓN DE JUGADORES Y
+     *BALAS********************************
+     ***************************************************************************************************/
+
     // Encuentra el jugador con el ID especificado y le inflige daño, devuelve si el jugador sigue
     // vivo.
     bool damage_player(uint16_t id, uint16_t damage);
@@ -85,13 +105,13 @@ private:
     void create_bullet(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                        const std::vector<uint16_t>& desired_position);
 
-    // Elimina la bala con el ID especificado de la matriz, del vector de objetos y del mapa de
-    // balas.
-    void delete_bullet(const uint16_t& bullet_id);
-
     // Devuelve el daño infligido por la bala y elimina la bala de la matriz, del vector de objetos
     // y del mapa de balas.
     uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
+
+    // Elimina la bala con el ID especificado de la matriz, del vector de objetos y del mapa de
+    // balas.
+    void delete_bullet(const uint16_t& bullet_id);
 
     // Incrementa el ID de la siguiente bala.
     void inc_bullet_id();
@@ -107,37 +127,60 @@ private:
     void shoot_ak47(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                     const std::vector<uint16_t>& desired_position);
 
+
+    /***************************************************************************************************
+     *******************************************INICIALIZACION******************************************
+     ***************************************************************************************************/
+
+    // Inicializa los jugadores con posiciones aleatorias dentro del mapa.
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
 
+    // Elige al azar un jugador terrorista para que tenga la bomba.
     void set_bomb_player();
 
+
+    /***************************************************************************************************
+     ************************************BOMBA Y
+     *DESACTIVACIÓN******************************************
+     ***************************************************************************************************/
+
+    // Crea la bomba en la posición del jugador y la agrega a los objetos y a la matriz.
     bool plant_bomb(const std::vector<uint16_t>& player_position);
 
+    // Desactiva la bomba si el jugador es un counter-terrorista y está dentro del rango de
+    // desactivación. Devuelve true si se desactiva correctamente, false en caso contrario.
     bool deactivate_bomb(const std::vector<uint16_t>& player_position);
 
+    // Actualiza el temporizador de la bomba y verifica si ha explotado.
     void update_bomb_countdown();
 
+    // Elimina la bomba de la matriz y del vector de objetos.
     void delete_bomb();
 
 public:
     explicit Game(Config& config);
 
-    bool move(Direction direction, const uint16_t& id);
-
-    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
-
-    bool interact_with_bomb(const uint16_t& player_id);
-
-    std::vector<std::shared_ptr<Object>>& get_objects();
-
-    void add_player(PlayerType player_type, uint16_t id);
-
-    bool is_over();
-
+    // Verifica que haya por lo menos un jugador de cada tipo.
     bool is_ready_to_start();
 
-    uint16_t distance_between(const std::vector<uint16_t>& position1,
-                              const std::vector<uint16_t>& position2);
+    // Devuelve el vector de objetos del juego.
+    std::vector<std::shared_ptr<Object>>& get_objects();
+
+    // Agrega un jugador al juego con el tipo y ID especificados.
+    void add_player(PlayerType player_type, uint16_t id);
+
+    // Mueve al jugador con el ID especificado en la dirección dada.
+    bool move(Direction direction, const uint16_t& id);
+
+    // Dispara una bala desde la posición del jugador hacia la posición deseada.
+    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
+
+    // Interactúa con la bomba: planta si es terrorista o desactiva si es counter-terrorista.
+    bool interact_with_bomb(const uint16_t& player_id);
+
+    // Indica si el juego ha terminado, es decir, si todos los jugadores de un equipo han muerto, si
+    // explotó la bomba o si se desactivo.
+    bool is_over();
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
