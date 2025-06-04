@@ -62,8 +62,9 @@ private:
 public:
     PLayerHUD(SDL2pp::Texture& texture, SDL2pp::Renderer& renderer):
             texture(texture),
-            vida(renderer, Surface(SDL_LoadBMP("../sprite_vida.bmp")).SetColorKey(true, 0)),
-            plata(renderer, Surface(SDL_LoadBMP("../sprite_plata.bmp")).SetColorKey(true, 0)),
+            vida(renderer, SDL2pp::Surface(SDL_LoadBMP("../sprite_vida.bmp")).SetColorKey(true, 0)),
+            plata(renderer,
+                  SDL2pp::Surface(SDL_LoadBMP("../sprite_plata.bmp")).SetColorKey(true, 0)),
             renderer(renderer),
             health(0),
             money(0),

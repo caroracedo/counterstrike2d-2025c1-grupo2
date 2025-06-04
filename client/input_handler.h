@@ -1,20 +1,20 @@
 #ifndef INPUT_HANDLER_H
 #define INPUT_HANDLER_H
 
+#include <vector>
+
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/action_DTO.h"
 #include "../common/constants.h"
 
-using namespace SDL2pp;
-
 class InputHandler {
 private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
 
-    public:
+public:
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
         SDL_Event event;
@@ -40,21 +40,17 @@ private:
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-                std::cout << "Mouse button pressed at: (" << event.button.x << ", " << event.button.y << ")\n";
-                std::cout << "Mouse button pressed at: (" << static_cast<uint16_t>(event.button.x) << ", " << static_cast<uint16_t>(event.button.y) << ")\n";
-                return {ActionType::SHOOT, std::vector<uint16_t>{static_cast<uint16_t>(event.button.x), static_cast<uint16_t>(event.button.y)}};
+                return {ActionType::SHOOT,
+                        std::vector<uint16_t>{static_cast<uint16_t>(event.button.x),
+                                              static_cast<uint16_t>(event.button.y)}};
             }
         }
         return {};
     }
 
-    bool is_fire_requested() const {
-        return fire_requested;
-    }
+    bool is_fire_requested() const { return fire_requested; }
 
-    float get_fire_angle() const {
-        return fire_angle;
-    }
+    float get_fire_angle() const { return fire_angle; }
 };
 
 #endif  // INPUT_HANDLER_H

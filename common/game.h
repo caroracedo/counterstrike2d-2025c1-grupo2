@@ -111,6 +111,8 @@ private:
 
     void update_bomb_countdown();
 
+    void delete_bomb();
+
 public:
     explicit Game(Config& config);
 

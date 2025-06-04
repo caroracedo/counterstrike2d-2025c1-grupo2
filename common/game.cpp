@@ -544,7 +544,8 @@ Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id
     std::random_device rd;
     std::mt19937 gen(rd());
     // std::uniform_int_distribution<uint16_t> dist(
-    //         0 + PLAYER_RADIUS, MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
+    //         0 + PLAYER_RADIUS, MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);  // TODO: Checkear
+    //         esto...
     std::uniform_int_distribution<uint16_t> dist(
             0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
 
@@ -661,28 +662,50 @@ bool Game::plant_bomb(const uint16_t& player_id) {
 
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
+        std::vector<uint16_t> position = player_it->second->get_position();
         if (!player_it->second->can_plant_bomb()) {
             std::cout << "\tEl jugador con ID: " << player_id << " no tiene una bomba para plantar."
                       << std::endl;
-            return false;  // El jugador no tiene bomba
+            if (bomb && get_cell_from_position(bomb->get_position()) ==
+                                get_cell_from_position(position)) {  // O algo así...
+                std::cout << "ENTROOOOOOOO" << std::endl;
+                delete_bomb();
+            }
+        } else {
+            auto bomb_ptr = std::make_shared<Bomb>(position);
+            // Agregar la bomba a la lista de objetos
+            objects.push_back(bomb_ptr);
+            // Agregar la bomba a la matriz
+            auto cell = get_cell_from_position(bomb_ptr->get_position());
+            matrix[cell.first][cell.second].push_back(bomb_ptr);
+            // Agregar a game
+            bomb = bomb_ptr;
+
+            bomb->start_countdown();
+            std::cout << "\tBomba plantada por el jugador con ID: " << player_id
+                      << " en la posición (" << position[0] << ", " << position[1] << ")"
+                      << std::endl;
         }
-        std::vector<uint16_t> position = player_it->second->get_position();
-
-        auto bomb_ptr = std::make_shared<Bomb>(position);
-        // Agregar la bomba a la lista de objetos
-        objects.push_back(bomb_ptr);
-        // Agregar la bomba a la matriz
-        auto cell = get_cell_from_position(bomb_ptr->get_position());
-        matrix[cell.first][cell.second].push_back(bomb_ptr);
-        // Agregar a game
-        bomb = bomb_ptr;
-
-        bomb->start_countdown();
-        std::cout << "\tBomba plantada por el jugador con ID: " << player_id << " en la posición ("
-                  << position[0] << ", " << position[1] << ")" << std::endl;
         return true;
     } else {
         std::cout << "No se encontró el jugador con ID: " << player_id << std::endl;
         return false;  // No se encontró el jugador
     }
+}
+
+void Game::delete_bomb() {
+    // Eliminar de la matriz
+    auto cell = get_cell_from_position(bomb->get_position());
+    auto& vec = matrix[cell.first][cell.second];
+    vec.erase(std::remove_if(vec.begin(), vec.end(),
+                             [this](const std::shared_ptr<Object>& o) { return o == bomb; }),
+              vec.end());
+
+    // Eliminar de objects
+    objects.erase(std::remove_if(objects.begin(), objects.end(),
+                                 [this](const std::shared_ptr<Object>& o) { return o == bomb; }),
+                  objects.end());
+
+    // Limpiar referencia
+    bomb = nullptr;
 }

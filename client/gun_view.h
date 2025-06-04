@@ -12,16 +12,14 @@
 #define GUN_WIDTH 32
 #define GUN_HEIGHT 32
 
-using namespace SDL2pp;
-
 class GunView {
 private:
-    Texture& texture;
+    SDL2pp::Texture& texture;
     float x, y;
     float angle = 0.0f;  // Grados
 
 public:
-    GunView(Texture& tex): texture(tex) {}
+    explicit GunView(SDL2pp::Texture& tex): texture(tex), x(0), y(0) {}
 
     void update(float px, float py) {
         x = px;
@@ -30,7 +28,7 @@ public:
 
     void update_angle(float new_angle) { angle = new_angle; }
 
-    void draw(Renderer& renderer, GameCamera& camera) {
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();
 
@@ -43,8 +41,8 @@ public:
         float dx = mouseX - centerX;
         float dy = mouseY - centerY;
 
-        float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-        this->angle = angle;
+        float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+        this->angle = new_angle;
 
         // Offset de la mano en reposo (cuando apunta hacia arriba)
         const float baseOffsetX = 0.0f;
@@ -58,10 +56,11 @@ public:
         float gunX = centerX + rotatedOffsetX;
         float gunY = centerY + rotatedOffsetY;
 
-        renderer.Copy(texture, Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
-                      Rect(static_cast<int>(gunX - GUN_WIDTH / 2.0f),
-                           static_cast<int>(gunY - GUN_HEIGHT / 2.0f), GUN_WIDTH, GUN_HEIGHT),
-                      angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
+        renderer.Copy(
+                texture, SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
+                SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH / 2.0f),
+                             static_cast<int>(gunY - GUN_HEIGHT / 2.0f), GUN_WIDTH, GUN_HEIGHT),
+                angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
 };
 

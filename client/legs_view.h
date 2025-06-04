@@ -1,11 +1,12 @@
 #ifndef LEGS_VIEW_H
 #define LEGS_VIEW_H
 
-#include <SDL2pp/SDL2pp.hh>
+#include <utility>
 #include <vector>
-#include "animation.h"
 
-using namespace SDL2pp;
+#include <SDL2pp/SDL2pp.hh>
+
+#include "animation.h"
 
 class LegsView {
 private:
@@ -13,19 +14,18 @@ private:
     float posX, posY;
 
 public:
-    LegsView(Texture& texture, std::vector<Rect> frames, Uint32 frame_duration_ms)
-        : walk_animation(texture, std::move(frames), frame_duration_ms), posX(0), posY(0) {}
-        
+    LegsView(SDL2pp::Texture& texture, std::vector<SDL2pp::Rect> frames,
+             uint32_t frame_duration_ms):
+            walk_animation(texture, std::move(frames), frame_duration_ms), posX(0), posY(0) {}
+
     void update_position(float x, float y) {
         posX = x;
         posY = y;
     }
 
-    void update_animation() {
-        walk_animation.update();
-    }
-    
-    void draw(Renderer& renderer, GameCamera& camera) {
+    void update_animation() { walk_animation.update(); }
+
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         float screenX = posX - camera.get_x();
         float screenY = posY - camera.get_y();
 
@@ -40,6 +40,5 @@ public:
 
         walk_animation.draw(renderer, screenX, screenY, 40, 40, angle, SDL_Point{16, 16});
     }
-
 };
 #endif

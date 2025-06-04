@@ -13,12 +13,14 @@ private:
     InputHandler& input_handler;
 
 public:
-    EventHandler(Queue<ActionDTO>& send_queue, std::atomic<bool>& stop_flag, InputHandler& input_handler):
+    EventHandler(Queue<ActionDTO>& send_queue, std::atomic<bool>& stop_flag,
+                 InputHandler& input_handler):
             send_queue(send_queue), stop_flag(stop_flag), input_handler(input_handler) {}
 
     void run() override {
         while (should_this_thread_keep_running()) {
             try {
+                // afuera del Thread
                 ActionDTO action = input_handler.receive_and_parse_action();
                 if (action.type == ActionType::QUIT) {
                     break;

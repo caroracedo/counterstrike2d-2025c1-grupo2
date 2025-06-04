@@ -3,8 +3,6 @@
 
 #include <SDL2pp/Rect.hh>
 
-using namespace SDL2pp;
-
 class GameCamera {
 private:
     int x, y;
@@ -16,7 +14,7 @@ public:
 
     void center_on(int target_x, int target_y);
 
-    Rect get_viewport() const;
+    SDL2pp::Rect get_viewport() const;
 
     int get_x() const { return x; }
     int get_y() const { return y; }

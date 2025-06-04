@@ -1,16 +1,9 @@
+file(GLOB SERVER_SOURCES *.cpp)
+file(GLOB SERVER_HEADERS *.h)
+
 target_sources(taller_server
     PRIVATE
-    # .cpp files
-    main.cpp
-    server_protocol.cpp
+        ${SERVER_SOURCES}
     PUBLIC
-    # .h files
-    acceptor.h
-    client_handler.h
-    game_loop.h
-    monitor_client_send_queues.h
-    server_protocol.h
-    server_receiver.h
-    server_sender.h
-    server.h
-    )
+        ${SERVER_HEADERS}
+)
