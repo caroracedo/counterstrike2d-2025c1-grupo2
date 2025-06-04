@@ -26,9 +26,11 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
             PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
             WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
             std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
+            std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
             objects.push_back({object_type, position, hex_big_endian_to_int_16(id), player_type,
-                               weapon_model, data[i + 9], hex_big_endian_to_int_16(money)});
-            i += 12;
+                               weapon_model, data[i + 9], hex_big_endian_to_int_16(money),
+                               hex_big_endian_to_int_16(ammo)});
+            i += 14;
         } else if (object_type == ObjectType::OBSTACLE) {
             std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
             std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);

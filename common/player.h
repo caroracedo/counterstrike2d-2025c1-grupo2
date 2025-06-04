@@ -52,8 +52,8 @@ public:
     /* Virtual puro */
     /* Getters */
     ObjectDTO get_dto() const override {
-        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health,
-                         money);
+        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health, money,
+                         current.get_ammo());
     }
 
     /* Verificaciones */

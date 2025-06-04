@@ -23,6 +23,7 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
             data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
             data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
             push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].money), data);
+            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].ammo), data);
         } else if (action_dto.objects[i].type == ObjectType::OBSTACLE) {
             push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
             push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);

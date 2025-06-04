@@ -32,6 +32,7 @@ public:
     }  // El daño depende de la distancia, se podría pasar y calcularlo desde ahí, la consigna dice
        // que es inversamente proporcional...
     WeaponModel get_model() const { return model; }
+    uint16_t get_ammo() const { return ammo; }
 
     /* Funcionalidades */
     void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
