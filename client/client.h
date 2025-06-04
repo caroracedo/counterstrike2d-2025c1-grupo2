@@ -6,16 +6,14 @@
 #include <utility>
 
 #include "../common/action_DTO.h"
-#include "../common/types.h"  // <-- Importa types.h
+#include "../common/types.h"
 
 #include "client_protocol.h"
 #include "client_receiver.h"
 #include "client_sender.h"
-#include "event_handler.h"
 #include "game_view.h"
 #include "input_handler.h"
 #include "mock_handler.h"
-#include "update_handler.h"
 
 class Client {
 private:
@@ -24,8 +22,6 @@ private:
 
     Queue<ActionDTO> send_queue;
     Queue<ActionDTO> recv_queue;
-
-    std::atomic<bool> stop_flag;
 
     Sender sender;
     Receiver receiver;
@@ -59,19 +55,31 @@ public:
 
         InputHandler input_handler;
         GameView game_view;
-        EventHandler event_handler(send_queue, stop_flag, input_handler);
-        UpdateHandler update_handler(recv_queue, stop_flag, game_view);
 
-        event_handler.start();
-        update_handler.start();
+        bool stop_flag = false;
+        while (!stop_flag) {
+            ActionDTO action = input_handler.receive_and_parse_action();
+            if (action.type == ActionType::QUIT) {
+                break;
+            } else if (action.type != ActionType::UNKNOWN) {
+                send_queue.push(action);
+            }
 
-         while (!stop_flag) {
+            ActionDTO update;
+            while (recv_queue.try_pop(update)) {
+                if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
+                    stop_flag = true;
+                    break;
+                } else if (update.type == ActionType::PLAYERID) {
+                    game_view.set_id(update.id);
+                } else if (update.type == ActionType::UPDATE) {
+                    game_view.update(update);
+                }
+            }
+
             game_view.render();
             game_view.frame_sync();
         }
-
-        event_handler.join();
-        update_handler.join();
 
         client_socket.shutdown(2);
         client_socket.close();
@@ -81,7 +89,6 @@ public:
         sender.join();
         receiver.join();
     }
-
 };
 
 #endif  // CLIENT_H
