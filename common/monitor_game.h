@@ -34,6 +34,18 @@ public:
         return game.is_over();
     }
 
+    /* Reinicialización */
+    void restart() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.restart();
+    }
+
+    /* Swap de PlayerType */
+    void switch_player_types() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.switch_player_types();
+    }
+
     /* Snapshot */
     std::vector<std::shared_ptr<Object>> get_objects() {
         std::lock_guard<std::mutex> lock(mutex);

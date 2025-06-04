@@ -145,6 +145,12 @@ public:
             shopping_phase(last_snapshot_time);
             game_phase(last_snapshot_time);
             std::cout << "[ROUND] Terminando ronda..." << std::endl;
+            // Para debuggear
+            if (ROUNDS > 1) {
+                monitor_game.restart();
+                if (round / 2 == ROUNDS / 2)
+                    monitor_game.switch_player_types();
+            }
         }
 
         send_end_to_all_clients();

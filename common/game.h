@@ -130,6 +130,25 @@ public:
 
     bool is_ready_to_start();
 
+    void restart() {
+        delete_bomb();
+        exploded = false;
+        // TODO: Acá los players deberían volver a la vida...
+        // Cada vez que se eliminan se deberían guardar en un buffer, entonces después se podría
+        // hacer: for player in players_dead:
+        //     player.cure(config.get:player_health())
+        //     players.add(player)
+        //     matrix.add(player)
+        //     objects.add(player)
+        // Y creo que con esto estaría...
+    }
+
+    void switch_player_types() {
+        // TODO: sería algo tipo:
+        // for player in players:
+        //     player.switch_player_type()
+    }
+
     bool shop_weapon(WeaponModel weapon, uint16_t id) {
         auto player_it = players.find(id);
         if (player_it != players.end()) {
