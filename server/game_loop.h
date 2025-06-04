@@ -68,7 +68,7 @@ private:
     }
 
     void game_loop() {
-        auto snapshot_interval = std::chrono::milliseconds(33); // ~30FPS
+        auto snapshot_interval = std::chrono::milliseconds(33);  // ~30FPS
 
         for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
             // monitor_game.start_new_round(round);  // Inicializa lógica de la ronda

@@ -19,7 +19,9 @@ public:
     std::pair<uint16_t, Weapon> buy_weapon(const WeaponModel& weapon_model, uint16_t player_money) {
         auto it = catalog.find(weapon_model);
         if (it != catalog.end() && player_money >= it->second.price) {
-            return {it->second.price, Weapon(weapon_model, it->second.range, it->second.damage)};
+            // algunos numeros hardcodeados para que me compile
+            return {it->second.price,
+                    Weapon(weapon_model, it->second.range, 10, it->second.damage, 1)};
         }
         return {0, Weapon()};
     }
