@@ -20,8 +20,8 @@ public:
         auto it = catalog.find(weapon_model);
         if (it != catalog.end() && player_money >= it->second.price) {
             // algunos numeros hardcodeados para que me compile
-            return {it->second.price,
-                    Weapon(weapon_model, it->second.range, 10, it->second.damage, 1)};
+            return {it->second.price, Weapon(weapon_model, it->second.range, it->second.min_damage,
+                                             it->second.max_damage, it->second.precision, 30)};
         }
         return {0, Weapon()};
     }

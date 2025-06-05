@@ -15,7 +15,9 @@
 struct WeaponConfig {
     uint16_t price;
     uint16_t range;
-    uint16_t damage;
+    uint16_t min_damage;
+    uint16_t max_damage;
+    uint16_t precision;
 };
 
 /* Obstáculos */
@@ -90,7 +92,9 @@ private:
                 WeaponConfig weapon_config;
                 weapon_config.price = it.second["price"].as<uint16_t>();
                 weapon_config.range = it.second["range"].as<uint16_t>();
-                weapon_config.damage = it.second["damage"].as<uint16_t>();
+                weapon_config.min_damage = it.second["min_damage"].as<uint16_t>();
+                weapon_config.max_damage = it.second["max_damage"].as<uint16_t>();
+                weapon_config.precision = it.second["precision"].as<uint16_t>();
                 weapon_catalog[weapon_model] = weapon_config;
             }
         }
