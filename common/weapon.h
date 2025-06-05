@@ -15,13 +15,13 @@ private:
     uint16_t range;
     uint16_t min_damage;
     uint16_t max_damage;
-    uint16_t precision;
+    float precision;
     uint16_t ammo;
 
 public:
     /* Constructor */
     Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t _max_damage,
-           uint16_t _precision, uint16_t ammo = 30):
+           float _precision, uint16_t ammo = 30):
             model(model),
             range(range),
             min_damage(_min_damage),
@@ -50,6 +50,10 @@ public:
     }
 
     WeaponModel get_model() const { return model; }
+    uint16_t get_ammo() const { return ammo; }
+
+    /* Funcionalidades */
+    void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
 
     bool operator==(const Weapon& other) const {
         // Compara los atributos relevantes, por ejemplo el modelo o id

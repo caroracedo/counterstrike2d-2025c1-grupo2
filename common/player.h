@@ -75,6 +75,14 @@ public:
         }
     }
 
+    void cure(uint16_t health_amount) { health = health_amount; }
+
+    void switch_player_type() {
+        player_type = (player_type == PlayerType::TERRORIST)        ? PlayerType::COUNTERTERRORIST :
+                      (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST :
+                                                                      PlayerType::UNKNOWN;
+    }
+
     /* Cambio de arma */
     void change_weapon() {
         // primary_weapon -> secondary_weapon -> knife -> primary_weapon
@@ -146,8 +154,7 @@ public:
         return new_position;
     }
 
-    /* Compra de arma */
-    // Igual esto sería otro comando...
+    /* Comprar Weapon */
     bool buy_weapon(const WeaponModel& weapon_model) {
         std::pair<uint16_t, Weapon> purchase = weapon_shop.buy_weapon(weapon_model, money);
         if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
@@ -155,6 +162,17 @@ public:
         }
         money -= purchase.first;
         primary_weapon = purchase.second;
+        return true;
+    }
+
+    /* Comprar Ammo */
+    bool buy_ammo(uint16_t ammo_amount) {
+        std::pair<uint16_t, bool> purchase = weapon_shop.buy_ammo(ammo_amount, money);
+        if (!purchase.second) {
+            return false;
+        }
+        money -= purchase.first;
+        primary_weapon.add_ammo(ammo_amount);
         return true;
     }
 };

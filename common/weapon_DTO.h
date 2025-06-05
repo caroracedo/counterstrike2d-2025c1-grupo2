@@ -11,11 +11,11 @@ struct WeaponDTO {
     uint16_t range;
     uint16_t min_damage;
     uint16_t max_damage;
-    uint16_t precision;
+    float precision;
     uint16_t ammo;
 
     WeaponDTO(const WeaponModel& _model, uint16_t _range, uint16_t _min_damage,
-              uint16_t _max_damage, uint16_t _precision, uint16_t _ammo):
+              uint16_t _max_damage, float _precision, uint16_t _ammo):
             model(_model),
             range(_range),
             min_damage(_min_damage),

@@ -25,6 +25,16 @@ public:
         }
         return {0, Weapon()};
     }
+
+    std::pair<uint16_t, bool> buy_ammo(uint16_t ammo_amount, uint16_t player_money) {
+        uint16_t price_per_ammo = 10;
+        uint16_t total_price = ammo_amount * price_per_ammo;
+
+        if (player_money >= total_price) {
+            return {total_price, true};
+        }
+        return {0, false};
+    }
 };
 
 #endif  // WEAPON_SHOP_H

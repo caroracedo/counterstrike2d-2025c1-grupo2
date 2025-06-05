@@ -38,12 +38,14 @@ private:
     std::vector<std::vector<std::vector<std::shared_ptr<Object>>>> matrix;
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
+    std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
     Config& config;
     WeaponShop weapon_shop;
     bool exploded = false;
+    bool deactivated = false;
 
     /***************************************************************************************************
      *****************************************POSICIONES Y
@@ -120,12 +122,15 @@ private:
     void update_bullets();
 
     // Dispara 3 balas en cono
-    void shoot_m3(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
+    bool shoot_m3(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                   const std::vector<uint16_t>& desired_position);
 
     // Dispara 3 balas en ráfaga (una atrás de la otra)
-    void shoot_ak47(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
+    bool shoot_ak47(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                     const std::vector<uint16_t>& desired_position);
+
+    void employ_knife(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
+                      const std::vector<uint16_t>& desired_position);
 
 
     /***************************************************************************************************
@@ -179,8 +184,25 @@ public:
     bool interact_with_bomb(const uint16_t& player_id);
 
     // Indica si el juego ha terminado, es decir, si todos los jugadores de un equipo han muerto, si
-    // explotó la bomba o si se desactivo.
+    // explotó la bomba o si se desactivó.
     bool is_over();
+
+    // Inicia la fase de juego de la ronda, eligiendo al jugador que tendrá la bomba.
+    void start_round_game_phase();
+
+    // Reinicia la fase de juego de la ronda, eliminando la bomba si existe y reestableciendo los
+    // jugadores muertos.
+    void end_round_game_phase();
+
+    // Cambia el tipo de todos los jugadores en el juego, de terrorista a counter-terrorista y
+    // viceversa.
+    void switch_player_types();
+
+    // Permite a los jugadores comprar un arma en la fase inicial
+    bool shop_weapon(WeaponModel weapon, uint16_t id);
+
+    // Permite a los jugadores comprar munición en la fase inicial
+    bool shop_ammo(uint ammo, uint16_t id);
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
