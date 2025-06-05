@@ -68,9 +68,9 @@ public:
             plata(renderer,
                   SDL2pp::Surface(SDL_LoadBMP("../sprite_plata.bmp")).SetColorKey(true, 0)),
             renderer(renderer),
-            health(0),
-            money(0),
-            bullets(0) {}
+            health(),
+            money(),
+            bullets() {}
 
     void update(const ObjectDTO& object) {
         health = object.health;

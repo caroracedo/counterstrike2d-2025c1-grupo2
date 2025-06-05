@@ -13,7 +13,7 @@
 
 // #define ROUNDS 10
 #define ROUNDS 1          // TODO: Desde config...
-#define SHOPPING_TIME 10  // 10 segundos para shopping
+#define SHOPPING_TIME 30  // 10 segundos para shopping
 #define SNAPSHOT_TIME 33  // ~30FPS
 
 class GameLoop: public Thread {

@@ -9,12 +9,15 @@
 #include "../common/action_DTO.h"
 #include "../common/constants.h"
 #include "game_camera.h"
+// #include "shop_view.h"
 
 class InputHandler {
 private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
     GameCamera& camera;
+    // ShopView& shop;
+
 
 public:
     InputHandler(GameCamera& cam): camera(cam) {}
@@ -39,6 +42,17 @@ public:
                         return {ActionType::MOVE, Direction::RIGHT};
                     case SDLK_b:
                         return ActionDTO{ActionType::BOMB};
+                     case SDLK_1:
+                        return ActionDTO{ActionType::WEAPON,WeaponModel::AK47};
+                    case SDLK_2:
+                        return ActionDTO{ActionType::WEAPON,WeaponModel::M3};
+                    case SDLK_3:
+                        return ActionDTO{ActionType::WEAPON,WeaponModel::AWP};
+                    case SDLK_4:
+                        return ActionDTO{ActionType::AMMO, 30};
+                    case SDLK_5:
+                        return ActionDTO{ActionType::AMMO, 30};
+
                 }
             }
 
