@@ -22,25 +22,30 @@ private:
 public:
     explicit MonitorGame(Config& config): game(config) {}
 
-    /* Inicialización */
-    size_t is_ready_to_start() {
+    /* Verificaciones */
+    bool is_ready_to_start() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.is_ready_to_start();
     }
 
-    /* Finalización */
     bool is_over() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.is_over();
     }
 
-    /* Reinicialización */
-    void restart() {
+    /* Inicialización */
+    void start_round_game_phase() {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.restart();
+        return game.start_round_game_phase();
     }
 
-    /* Swap de PlayerType */
+    /* Finalización */
+    void end_round_game_phase() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.end_round_game_phase();
+    }
+
+    /* Switch de PlayerType */
     void switch_player_types() {
         std::lock_guard<std::mutex> lock(mutex);
         return game.switch_player_types();

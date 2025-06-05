@@ -11,9 +11,8 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
-#define MAX_POSITION 50
 // #define ROUNDS 10
-#define ROUNDS 1
+#define ROUNDS 1          // TODO: Desde config...
 #define SHOPPING_TIME 10  // 10 segundos para shopping
 #define SNAPSHOT_TIME 33  // ~30FPS
 
@@ -89,7 +88,6 @@ private:
 
     void shopping_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
         std::cout << "[SHOP] Iniciando fase de compras..." << std::endl;
-
         send_shop_to_all_clients();  // Mostrar las armas
 
         auto shopping_interval = std::chrono::seconds(SHOPPING_TIME);
@@ -102,15 +100,17 @@ private:
             now = std::chrono::steady_clock::now();
         }
 
-        send_snapshot_to_all_clients();
         std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
     }
 
     void game_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
         std::cout << "[GAME] Iniciando fase de juego..." << std::endl;
+        send_snapshot_to_all_clients();  // Snapshot inicial
+        monitor_game.start_round_game_phase();
 
         auto snapshot_interval = std::chrono::milliseconds(SNAPSHOT_TIME);
         while (!monitor_game.is_over() && should_keep_running()) {
+            auto start = std::chrono::steady_clock::now();
             ActionDTO action;
             if (recv_queue.try_pop(action)) {
                 do_action(action);
@@ -121,9 +121,16 @@ private:
                 send_snapshot_to_all_clients();
                 last_snapshot_time = now;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+            // Dormir segundos faltantes...
+            auto end = std::chrono::steady_clock::now();
+            auto elapsed = end - start;
+            if (elapsed < snapshot_interval)
+                std::this_thread::sleep_for(snapshot_interval - elapsed);
         }
 
+        send_snapshot_to_all_clients();  // Snapshot final
+        monitor_game.end_round_game_phase();
         std::cout << "[GAME] Terminando fase de juego..." << std::endl;
     }
 
@@ -139,18 +146,14 @@ public:
         waiting_lobby();
         std::cout << "[GAME] ¡Que comience el juego!" << std::endl;
 
-        for (size_t round = 0; round < ROUNDS && should_keep_running(); ++round) {
+        for (size_t round = 1; round <= ROUNDS && should_keep_running(); ++round) {
             std::cout << "[ROUND] Iniciando ronda..." << std::endl;
             auto last_snapshot_time = std::chrono::steady_clock::now();
             shopping_phase(last_snapshot_time);
             game_phase(last_snapshot_time);
             std::cout << "[ROUND] Terminando ronda..." << std::endl;
-            // Para debuggear
-            if (ROUNDS > 1) {
-                monitor_game.restart();
-                if (round / 2 == ROUNDS / 2)
-                    monitor_game.switch_player_types();
-            }
+            if (round == ROUNDS / 2)
+                monitor_game.switch_player_types();
         }
 
         send_end_to_all_clients();

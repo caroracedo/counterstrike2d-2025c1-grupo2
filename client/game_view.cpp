@@ -138,7 +138,7 @@ void GameView::render() {
     if (it != players.end() && it->second) {
         float px = it->second->get_x();
         float py = it->second->get_y();
-        camera.center_on(px + PLAYER_WIDTH / 2, py + PLAYER_HEIGHT / 2);
+        camera.center_on(px, py);
     }
 
     renderer.SetDrawColor(255, 255, 255, 255);
@@ -161,10 +161,14 @@ void GameView::render() {
     }
 
     for (const auto& obs: obstacles) {
-        SDL_Rect dst_rect = {int(obs.x) - camera.get_x() + (OBSTACLE_WIDTH / 2),
-                             int(obs.y) - camera.get_y() + (OBSTACLE_HEIGHT / 2), int(obs.w),
-                             int(obs.h)};
-        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};  // O el tamaño real de la textura
+        float screenX = obs.x - camera.get_x();
+        float screenY = obs.y - camera.get_y();
+        SDL2pp::Rect dst_rect = {static_cast <int> (screenX) + (OBSTACLE_WIDTH / 2),
+                                 static_cast <int> (screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
+                                 int(obs.h)};
+        
+        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)}; 
+        
         if (obs.use_texture2) {
             renderer.Copy(box_texture2, src_rect, dst_rect);
         } else {

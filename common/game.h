@@ -5,7 +5,7 @@
 #define MOVE_STEP 5       // paso de movimiento
 #define CELL_SIZE 56      // tamaño de cada celda en la matriz
 #define PLAYER_RADIUS 16  // radio del jugador
-#define BULLET_RADIUS 4   // radio de la bala
+#define BULLET_RADIUS 2   // radio de la bala
 
 #include <algorithm>
 #include <cmath>
@@ -131,16 +131,18 @@ public:
 
     bool is_ready_to_start();
 
-    void restart() {
-        delete_bomb();
-        exploded = false;
+    void end_round_game_phase() {
+        if (bomb) {
+            delete_bomb();
+            exploded = false;
+        }
         for (auto& [id, player]: dead_players) {
             if (player) {
                 // Reestablece la salud del jugador muerto
                 player->cure(config.get_player_health());
 
                 // Reagrega al jugador a la lista de jugadores
-                players[id] = player;  
+                players[id] = player;
 
                 // Reagrega al jugador a la matriz
                 auto cell = get_cell_from_position(player->get_position());
@@ -152,12 +154,12 @@ public:
         }
         // Elimina los jugadores muertos de la lista de jugadores muertos
         dead_players.clear();
-        switch_player_types();
     }
 
     void switch_player_types() {
         for (auto& [id, player]: players) {
             if (player) {
+                std::cout << "Se lo cambio a player de ID" << id << std::endl;
                 player->switch_player_type();
             }
         }
@@ -178,6 +180,8 @@ public:
         }
         return false;
     }
+
+    void start_round_game_phase() { set_bomb_player(); }
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
