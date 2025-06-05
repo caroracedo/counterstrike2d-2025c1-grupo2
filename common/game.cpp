@@ -517,72 +517,23 @@ bool Game::shoot_ak47(const std::vector<uint16_t>& player_position, const Weapon
 
 void Game::employ_knife(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                         const std::vector<uint16_t>& desired_position) {
-    // Vector dirección
-    float dx = static_cast<float>(desired_position[0]) - static_cast<float>(player_position[0]);
-    float dy = static_cast<float>(desired_position[1]) - static_cast<float>(player_position[1]);
-    float magnitude = std::sqrt(dx * dx + dy * dy);
-    if (magnitude == 0)
-        return;
+    Knife knife(player_position, weapon_dto.range, weapon_dto.min_damage, weapon_dto.max_damage,
+                desired_position);
 
-    // Vector normalizado y punto final del ataque
-    float ux = dx / magnitude;
-    float uy = dy / magnitude;
-    float end_x = player_position[0] + ux * weapon_dto.range;
-    float end_y = player_position[1] + uy * weapon_dto.range;
-
-    // Daño aleatorio
-    static thread_local std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<uint16_t> dmg_dist(weapon_dto.min_damage, weapon_dto.max_damage);
-
-    // Obtener celdas adyacentes (incluida la actual)
     auto cell = get_cell_from_position(player_position);
     auto adyacent_cells = get_cells_within_radius(cell, 1);
 
-    // Recorrer solo los jugadores en esas celdas
     for (const auto& ady_cell: adyacent_cells) {
         const auto& cell_objects = matrix[ady_cell.first][ady_cell.second];
         for (const auto& obj: cell_objects) {
             if (!obj || obj->get_type() != ObjectType::PLAYER)
                 continue;
             const auto& target_pos = obj->get_position();
-
-            // No se puede atacar a sí mismo
             if (target_pos == player_position)
                 continue;
 
-            // Calcular distancia punto a segmento (trayectoria del cuchillo)
-            float px = static_cast<float>(target_pos[0]);
-            float py = static_cast<float>(target_pos[1]);
-            float vx = end_x - player_position[0];
-            float vy = end_y - player_position[1];
-            float wx = px - player_position[0];
-            float wy = py - player_position[1];
-
-            float c1 = vx * wx + vy * wy;
-            float c2 = vx * vx + vy * vy;
-            float b = (c2 == 0) ? 0 : c1 / c2;
-            b = std::clamp(b, 0.0f, 1.0f);
-
-            float closest_x = player_position[0] + b * vx;
-            float closest_y = player_position[1] + b * vy;
-            float dist = std::sqrt((px - closest_x) * (px - closest_x) +
-                                   (py - closest_y) * (py - closest_y));
-
-            // Distancia desde el atacante al punto más cercano sobre la trayectoria
-            float dist_to_attacker =
-                    std::sqrt((closest_x - player_position[0]) * (closest_x - player_position[0]) +
-                              (closest_y - player_position[1]) * (closest_y - player_position[1]));
-
-            // Distancia directa entre el atacante y el objetivo
-            float player_to_target =
-                    std::sqrt((px - player_position[0]) * (px - player_position[0]) +
-                              (py - player_position[1]) * (py - player_position[1]));
-
-            // Considera el radio del jugador para colisión, el rango del cuchillo y la distancia
-            // directa
-            if (dist <= PLAYER_RADIUS && dist_to_attacker <= weapon_dto.range &&
-                player_to_target <= weapon_dto.range) {
-                uint16_t damage = dmg_dist(rng);
+            if (knife.hits(target_pos)) {
+                uint16_t damage = knife.get_damage();
                 damage_player(obj->get_id(), damage);
                 std::cout << "Knife hit player " << obj->get_id() << " for " << damage
                           << " damage.\n";
@@ -596,13 +547,18 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
 
+        std::vector<uint16_t> player_position = player_it->second->get_position();
+
         WeaponDTO weapon_dto = player_it->second->get_current_weapon();
+        if (weapon_dto.model == WeaponModel::KNIFE) {
+            employ_knife(player_position, weapon_dto, desired_position);
+            return true;
+        }
+
         if (weapon_dto.ammo == 0) {
             std::cout << "Player " << player_id << " has no ammo left." << std::endl;
             return false;  // No hay munición
         }
-
-        std::vector<uint16_t> player_position = player_it->second->get_position();
 
         if (weapon_dto.model == WeaponModel::AWP || weapon_dto.model == WeaponModel::GLOCK) {
             create_bullet(player_position, weapon_dto, desired_position);
@@ -611,9 +567,6 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
             return shoot_m3(player_position, weapon_dto, desired_position);
         } else if (weapon_dto.model == WeaponModel::AK47) {
             return shoot_ak47(player_position, weapon_dto, desired_position);
-        } else if (weapon_dto.model == WeaponModel::KNIFE) {
-            employ_knife(player_position, weapon_dto, desired_position);
-            return true;
         }
 
         return false;

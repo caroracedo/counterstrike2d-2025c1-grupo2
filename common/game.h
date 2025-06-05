@@ -1,13 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MATRIX_SIZE 200           // posición máxima en la matriz (celdas)
-#define MOVE_STEP 5               // paso de movimiento
-#define CELL_SIZE 56              // tamaño de cada celda en la matriz
-#define PLAYER_RADIUS 16          // radio del jugador
-#define BULLET_RADIUS 2           // radio de la bala
-#define DEACTIVATION_DISTANCE 50  // distancia máxima para desactivar la bomba
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -24,6 +17,8 @@
 #include "action_DTO.h"
 #include "bomb.h"
 #include "config.h"
+#include "constants.h"
+#include "knife.h"
 #include "object.h"
 #include "object_DTO.h"
 #include "obstacle.h"

@@ -86,7 +86,7 @@ public:
 
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
-    
+
     void frame_sync();
 };
 

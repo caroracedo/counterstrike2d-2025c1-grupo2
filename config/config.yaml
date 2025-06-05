@@ -9,8 +9,8 @@ weapons:
   knife:
     price: 0
     range: 45
-    min_damage: 5
-    max_damage: 10
+    min_damage: 10
+    max_damage: 20
     precision: 1
 
   glock:

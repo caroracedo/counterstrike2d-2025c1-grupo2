@@ -47,7 +47,7 @@ public:
         money -= new_secondary_weapon.first;
         secondary_weapon = new_secondary_weapon.second;
 
-        current = secondary_weapon;
+        current = knife;  // para testear el cuchillo
     }
 
     /* Virtual puro */
@@ -75,13 +75,12 @@ public:
         }
     }
 
-    void cure(uint16_t health_amount) {
-        health = health_amount;
-    }
+    void cure(uint16_t health_amount) { health = health_amount; }
 
     void switch_player_type() {
-        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
-                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
+        player_type = (player_type == PlayerType::TERRORIST)        ? PlayerType::COUNTERTERRORIST :
+                      (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST :
+                                                                      PlayerType::UNKNOWN;
     }
 
     /* Cambio de arma */

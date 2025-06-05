@@ -163,12 +163,12 @@ void GameView::render() {
     for (const auto& obs: obstacles) {
         float screenX = obs.x - camera.get_x();
         float screenY = obs.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast <int> (screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast <int> (screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
+                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
                                  int(obs.h)};
-        
-        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)}; 
-        
+
+        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
+
         if (obs.use_texture2) {
             renderer.Copy(box_texture2, src_rect, dst_rect);
         } else {

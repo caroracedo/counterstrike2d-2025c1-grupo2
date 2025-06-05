@@ -30,7 +30,8 @@ public:
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         SDL2pp::Rect rect = {static_cast<int>(x - camera.get_x()) + BULLET_WIDTH / 2,
-                             static_cast<int>(y - camera.get_y()) + BULLET_HEIGHT / 2, BULLET_WIDTH, BULLET_HEIGHT};
+                             static_cast<int>(y - camera.get_y()) + BULLET_HEIGHT / 2, BULLET_WIDTH,
+                             BULLET_HEIGHT};
         renderer.SetDrawColor(0, 0, 0, 1);
         renderer.FillRect(rect);
     }

@@ -46,10 +46,11 @@ public:
         // Dibuja la bomba en la posición ajustada por la cámara
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast <int> (screenX) + (BOMB_WIDTH / 2),
-                                 static_cast <int> (screenY) + (BOMB_HEIGHT / 2), BOMB_WIDTH, BOMB_HEIGHT};
-        
-        SDL2pp::Rect src_rect = {0, 0, BOMB_WIDTH, BOMB_HEIGHT}; 
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (BOMB_WIDTH / 2),
+                                 static_cast<int>(screenY) + (BOMB_HEIGHT / 2), BOMB_WIDTH,
+                                 BOMB_HEIGHT};
+
+        SDL2pp::Rect src_rect = {0, 0, BOMB_WIDTH, BOMB_HEIGHT};
 
         renderer.Copy(texture, src_rect, dst_rect);
     }
