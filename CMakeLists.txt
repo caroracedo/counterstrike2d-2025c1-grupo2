@@ -66,6 +66,9 @@ target_link_libraries(taller_common PUBLIC yaml-cpp)
 # HEY!! TODO XXX: add more dependendies (either for client, server or editor)
 if(TALLER_CLIENT OR TALLER_EDITOR)
     include(FetchContent)
+
+    set(SDL2PP_WITH_MIXER YES)
+
     FetchContent_Declare(
         SDL2
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
