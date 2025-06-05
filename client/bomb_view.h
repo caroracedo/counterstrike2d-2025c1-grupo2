@@ -10,8 +10,8 @@
 #include "animation.h"
 #include "game_camera.h"
 
-#define GUN_WIDTH 32
-#define GUN_HEIGHT 32
+#define BOMB_WIDTH 32
+#define BOMB_HEIGHT 32
 
 class BombView {
 private:
@@ -44,9 +44,13 @@ public:
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         // Dibuja la bomba en la posición ajustada por la cámara
-        SDL2pp::Rect dst_rect = {int(x) - camera.get_x() + (GUN_WIDTH / 2),
-                                 int(y) - camera.get_y() + (GUN_HEIGHT / 2), GUN_WIDTH, GUN_HEIGHT};
-        SDL2pp::Rect src_rect = {0, 0, GUN_WIDTH, GUN_HEIGHT};  // O el tamaño real de la textura
+        float screenX = x - camera.get_x();
+        float screenY = y - camera.get_y();
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (BOMB_WIDTH / 2),
+                                 static_cast<int>(screenY) + (BOMB_HEIGHT / 2), BOMB_WIDTH,
+                                 BOMB_HEIGHT};
+
+        SDL2pp::Rect src_rect = {0, 0, BOMB_WIDTH, BOMB_HEIGHT};
 
         renderer.Copy(texture, src_rect, dst_rect);
     }
@@ -57,7 +61,7 @@ public:
 
         for (int i = 0; i < 10; ++i) {
             explotion_animation.update();
-            explotion_animation.draw(renderer, screenX, screenY, GUN_WIDTH, GUN_HEIGHT, 0.0,
+            explotion_animation.draw(renderer, screenX, screenY, BOMB_WIDTH, BOMB_HEIGHT, 0.0,
                                      SDL_Point{16, 16});
         }
     }
