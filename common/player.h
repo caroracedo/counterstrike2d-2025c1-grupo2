@@ -7,6 +7,7 @@
 
 #include "object.h"
 #include "weapon.h"
+#include "weapon_DTO.h"
 #include "weapon_shop.h"
 
 // #define PLAYER_SIZE 32
@@ -60,7 +61,8 @@ public:
     bool is_alive() const { return health > 0; }
 
     /* Getters */
-    Weapon get_current_weapon() const { return current; }
+    WeaponDTO get_current_weapon() const { return current.get_dto(); }
+
     PlayerType get_player_type() const { return player_type; }
 
     /* Funcionalidades */
