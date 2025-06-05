@@ -462,11 +462,6 @@ void Game::update_bullets() {
 
 bool Game::shoot_m3(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                     const std::vector<uint16_t>& desired_position) {
-    if (weapon_dto.ammo < 3) {
-        std::cout << "Not enough ammo to shoot M3." << std::endl;
-        return false;  // No hay munición suficiente
-    }
-
     double dx = static_cast<double>(desired_position[0] - player_position[0]);
     double dy = static_cast<double>(desired_position[1] - player_position[1]);
     double magnitude = std::sqrt(dx * dx + dy * dy);
@@ -504,10 +499,6 @@ bool Game::shoot_ak47(const std::vector<uint16_t>& player_position, const Weapon
     /*
         Dispara 3 balas en ráfaga (una atrás de la otra)
     */
-    if (weapon_dto.ammo < 3) {
-        std::cout << "Not enough ammo to shoot AK47." << std::endl;
-        return false;  // No hay munición suficiente
-    }
     for (int i = 0; i < 3; ++i) {
         create_bullet(player_position, weapon_dto, desired_position);
         // sleep(0.4)
@@ -547,18 +538,15 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     auto player_it = players.find(player_id);
     if (player_it != players.end()) {
 
+        if (!player_it->second->shoot()) {
+            std::cout << "Player " << player_id
+                      << " cannot shoot with the current weapon: not enough ammo." << std::endl;
+            return false;  // El jugador no puede disparar con el arma actual
+        }
         std::vector<uint16_t> player_position = player_it->second->get_position();
 
         WeaponDTO weapon_dto = player_it->second->get_current_weapon();
-        if (weapon_dto.model == WeaponModel::KNIFE) {
-            employ_knife(player_position, weapon_dto, desired_position);
-            return true;
-        }
 
-        if (weapon_dto.ammo == 0) {
-            std::cout << "Player " << player_id << " has no ammo left." << std::endl;
-            return false;  // No hay munición
-        }
 
         if (weapon_dto.model == WeaponModel::AWP || weapon_dto.model == WeaponModel::GLOCK) {
             create_bullet(player_position, weapon_dto, desired_position);
@@ -567,6 +555,9 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
             return shoot_m3(player_position, weapon_dto, desired_position);
         } else if (weapon_dto.model == WeaponModel::AK47) {
             return shoot_ak47(player_position, weapon_dto, desired_position);
+        } else if (weapon_dto.model == WeaponModel::KNIFE) {
+            employ_knife(player_position, weapon_dto, desired_position);
+            return true;
         }
 
         return false;
@@ -591,11 +582,8 @@ std::vector<std::shared_ptr<Object>>& Game::get_objects() {
 Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    // std::uniform_int_distribution<uint16_t> dist(
-    //         0 + PLAYER_RADIUS, MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);  // TODO: Checkear
-    //         esto...
-    std::uniform_int_distribution<uint16_t> dist(
-            0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);  // TODO: Checkear esto...
+    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS,
+                                                 MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
 
     while (true) {
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};

@@ -47,7 +47,7 @@ public:
         money -= new_secondary_weapon.first;
         secondary_weapon = new_secondary_weapon.second;
 
-        current = knife;  // para testear el cuchillo
+        current = secondary_weapon;
     }
 
     /* Virtual puro */
@@ -62,6 +62,8 @@ public:
 
     /* Getters */
     WeaponDTO get_current_weapon() const { return current.get_dto(); }
+
+    bool shoot() { return current.shoot(); }
 
     PlayerType get_player_type() const { return player_type; }
 

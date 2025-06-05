@@ -50,7 +50,38 @@ public:
     }
 
     WeaponModel get_model() const { return model; }
+
     uint16_t get_ammo() const { return ammo; }
+
+    bool shoot() {
+        switch (model) {
+            case WeaponModel::BOMB:
+            case WeaponModel::KNIFE:
+                return true;
+            case WeaponModel::GLOCK:
+            case WeaponModel::AWP:
+                if (ammo > 0) {
+                    std::cout << "\tCantidad de balas antes del disparo: " << ammo << std::endl;
+                    ammo--;
+                    std::cout << "\tCantidad de balas después del disparo: " << ammo << std::endl;
+                    return true;  // Disparo exitoso
+                }
+                std::cout << "No hay munición suficiente para disparar." << std::endl;
+                return false;  // Sin munición
+            case WeaponModel::AK47:
+            case WeaponModel::M3:
+                if (ammo >= 3) {
+                    std::cout << "\tCantidad de balas antes del disparo: " << ammo << std::endl;
+                    ammo -= 3;  // Disparo de ráfaga
+                    std::cout << "\tCantidad de balas después del disparo: " << ammo << std::endl;
+                    return true;  // Disparo exitoso
+                }
+                std::cout << "No hay munición suficiente para disparar." << std::endl;
+                return false;  // Sin munición
+            default:
+                return false;  // Modelo desconocido
+        }
+    }
 
     /* Funcionalidades */
     void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
