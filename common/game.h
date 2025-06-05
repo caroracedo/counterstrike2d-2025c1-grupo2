@@ -39,6 +39,7 @@ private:
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Player>> dead_players;
+    std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;

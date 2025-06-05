@@ -53,8 +53,8 @@ public:
     /* Virtual puro */
     /* Getters */
     ObjectDTO get_dto() const override {
-        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health,
-                         money);
+        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health, money,
+                         current.get_ammo());
     }
 
     /* Verificaciones */
@@ -75,12 +75,13 @@ public:
         }
     }
 
-    void cure(uint16_t health_amount) { health = health_amount; }
+    void cure(uint16_t health_amount) {
+        health = health_amount;
+    }
 
     void switch_player_type() {
-        player_type = (player_type == PlayerType::TERRORIST)        ? PlayerType::COUNTERTERRORIST :
-                      (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST :
-                                                                      PlayerType::UNKNOWN;
+        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
+                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
     }
 
     /* Cambio de arma */

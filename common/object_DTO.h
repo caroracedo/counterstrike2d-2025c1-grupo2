@@ -16,17 +16,19 @@ struct ObjectDTO {
     WeaponModel weapon_model;
     uint16_t health;
     uint16_t money;
+    uint16_t ammo;
 
     /* Obstáculo */
-    std::uint16_t width;
-    std::uint16_t height;
+    uint16_t width;
+    uint16_t height;
 
     /* Bomba */
     uint16_t bomb_countdown;
 
     /* Player */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t id,
-              PlayerType player_type, WeaponModel weapon_model, uint16_t health, uint16_t money):
+              PlayerType player_type, WeaponModel weapon_model, uint16_t health, uint16_t money,
+              uint16_t ammo):
             type(type),
             position(position),
             id(id),
@@ -34,6 +36,7 @@ struct ObjectDTO {
             weapon_model(weapon_model),
             health(health),
             money(money),
+            ammo(ammo),
             width(),
             height(),
             bomb_countdown() {}
@@ -48,6 +51,7 @@ struct ObjectDTO {
             weapon_model(),
             health(),
             money(),
+            ammo(),
             width(width),
             height(height),
             bomb_countdown() {}
@@ -61,6 +65,7 @@ struct ObjectDTO {
             weapon_model(),
             health(),
             money(),
+            ammo(),
             width(),
             height(),
             bomb_countdown() {}
@@ -74,6 +79,7 @@ struct ObjectDTO {
             weapon_model(),
             health(),
             money(),
+            ammo(),
             width(),
             height(),
             bomb_countdown(bomb_countdown) {}

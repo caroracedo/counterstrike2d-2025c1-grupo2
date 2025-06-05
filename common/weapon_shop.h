@@ -9,6 +9,8 @@
 #include "config.h"
 #include "weapon.h"
 
+#define AMMO_PRICE 1  // TODO: Agregar al config...
+
 class WeaponShop {
 private:
     std::unordered_map<WeaponModel, WeaponConfig> catalog;
@@ -27,11 +29,8 @@ public:
     }
 
     std::pair<uint16_t, bool> buy_ammo(uint16_t ammo_amount, uint16_t player_money) {
-        uint16_t price_per_ammo = 10;
-        uint16_t total_price = ammo_amount * price_per_ammo;
-
-        if (player_money >= total_price) {
-            return {total_price, true};
+        if (player_money >= ammo_amount * AMMO_PRICE) {
+            return {ammo_amount * AMMO_PRICE, true};
         }
         return {0, false};
     }
