@@ -8,7 +8,6 @@
 #include "../common/constants.h"
 #include "../common/object_DTO.h"
 
-// Agregar el 💲 y ❤️
 class PLayerHUD {
 private:
     SDL2pp::Texture& texture;
@@ -38,6 +37,7 @@ private:
                 } else {
                     texture.SetColorMod(255, 0, 0);  // rojo
                 }
+                texture.SetAlphaMod(127);  // opaco
                 renderer.Copy(texture, src, dst);
                 x_pos += digit_width * scale;
             }
@@ -48,12 +48,14 @@ private:
         if (vid) {
             SDL2pp::Rect src(0, 0, 64, 64);
             SDL2pp::Rect dst(x_pos, y_pos, 64 * scale, 64 * scale);
-            texture.SetColorMod(255, 255, 0);  // amarillo
+            vida.SetAlphaMod(127);
+            vida.SetColorMod(255, 255, 0);  // amarillo
             renderer.Copy(vida, src, dst);
         } else {
             SDL2pp::Rect src(0, 0, 64, 64);
             SDL2pp::Rect dst(x_pos, y_pos, 64 * scale, 64 * scale);
-            texture.SetColorMod(255, 255, 0);  // amarillo
+            plata.SetColorMod(255, 255, 0);  // amarillo
+            plata.SetAlphaMod(127);
             renderer.Copy(plata, src, dst);
         }
     }

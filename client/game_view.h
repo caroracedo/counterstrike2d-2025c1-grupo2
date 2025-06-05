@@ -19,6 +19,8 @@
 #include "legs_view.h"
 #include "player_HUD.h"
 #include "player_view.h"
+#include "sound_manager.h"
+#include "shop_view.h"
 
 
 struct ObstacleView {
@@ -51,10 +53,11 @@ private:
     uint32_t last_frame_time = 0;
     const uint32_t frame_delay = 1000 / 60;  // 60 FPS
 
-    // SoundManager sound_manager;
+    SoundManager sound_manager;
     GameCamera camera;
     PLayerHUD hud_view;
     BombView bomb_view;
+    ShopView shop_view;
 
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
