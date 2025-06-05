@@ -8,13 +8,16 @@
 
 #include "../common/action_DTO.h"
 #include "../common/constants.h"
+#include "game_camera.h"
 
 class InputHandler {
 private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
+    GameCamera& camera;
 
 public:
+    InputHandler(GameCamera& cam): camera(cam) {}
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
         SDL_Event event;
@@ -40,9 +43,10 @@ public:
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                uint16_t real_mouse_x = static_cast<uint16_t>(event.button.x) + static_cast <uint16_t> (camera.get_x());
+                uint16_t real_mouse_y = static_cast<uint16_t>(event.button.y) + static_cast <uint16_t> (camera.get_y());
                 return {ActionType::SHOOT,
-                        std::vector<uint16_t>{static_cast<uint16_t>(event.button.x),
-                                              static_cast<uint16_t>(event.button.y)}};
+                        std::vector<uint16_t>{real_mouse_x, real_mouse_y}};
             }
         }
         return {};

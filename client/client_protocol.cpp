@@ -1,5 +1,6 @@
 #include "client_protocol.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <utility>
@@ -25,9 +26,11 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
             PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
             WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
             std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
+            std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
             objects.push_back({object_type, position, hex_big_endian_to_int_16(id), player_type,
-                               weapon_model, data[i + 9], hex_big_endian_to_int_16(money)});
-            i += 12;
+                               weapon_model, data[i + 9], hex_big_endian_to_int_16(money),
+                               hex_big_endian_to_int_16(ammo)});
+            i += 14;
         } else if (object_type == ObjectType::OBSTACLE) {
             std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
             std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);
@@ -52,6 +55,13 @@ ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
 }
 
 ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
+
+ActionDTO ClientProtocol::deserialize_shop(std::vector<uint8_t>& data) {
+    std::vector<WeaponModel> weapons;
+    std::transform(data.begin(), data.end(), std::back_inserter(weapons),
+                   [](uint8_t byte) { return static_cast<WeaponModel>(byte); });
+    return {ActionType::SHOP, weapons};
+}
 
 /* Public */
 /* Recepción */
@@ -79,6 +89,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
             return deserialize_id(data);
         case ActionType::END:
             return deserialize_end();
+        case ActionType::SHOP:
+            return deserialize_shop(data);
         default:
             return {};
     }
@@ -108,6 +120,16 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::BOMB:
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
+        case ActionType::WEAPON: {
+            data.push_back(static_cast<uint8_t>(action.weapon));
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
+        case ActionType::AMMO: {
+            push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
+        }
         default:
             return false;
     }
