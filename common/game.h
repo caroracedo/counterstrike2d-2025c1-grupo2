@@ -38,6 +38,7 @@ private:
     std::vector<std::vector<std::vector<std::shared_ptr<Object>>>> matrix;
     std::vector<std::shared_ptr<Object>> objects;
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
+    std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
@@ -181,6 +182,58 @@ public:
     // Indica si el juego ha terminado, es decir, si todos los jugadores de un equipo han muerto, si
     // explotó la bomba o si se desactivo.
     bool is_over();
+
+    void end_round_game_phase() {
+        if (bomb) {
+            delete_bomb();
+            exploded = false;
+        }
+        for (auto& [id, player]: dead_players) {
+            if (player) {
+                // Reestablece la salud del jugador muerto
+                player->cure(config.get_player_health());
+
+                // Reagrega al jugador a la lista de jugadores
+                players[id] = player;
+
+                // Reagrega al jugador a la matriz
+                auto cell = get_cell_from_position(player->get_position());
+                matrix[cell.first][cell.second].push_back(player);
+
+                // Reagrega al jugador a la lista de objetos
+                objects.push_back(player);
+            }
+        }
+        // Elimina los jugadores muertos de la lista de jugadores muertos
+        dead_players.clear();
+    }
+
+    void switch_player_types() {
+        for (auto& [id, player]: players) {
+            if (player) {
+                std::cout << "Se lo cambio a player de ID" << id << std::endl;
+                player->switch_player_type();
+            }
+        }
+    }
+
+    bool shop_weapon(WeaponModel weapon, uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->buy_weapon(weapon);
+        }
+        return false;
+    }
+
+    bool shop_ammo(uint ammo, uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->buy_ammo(ammo);
+        }
+        return false;
+    }
+
+    void start_round_game_phase() { set_bomb_player(); }
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************

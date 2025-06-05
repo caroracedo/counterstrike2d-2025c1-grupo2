@@ -356,6 +356,9 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
         if (!player_it->second->is_alive()) {
             std::cout << "\tPlayer " << id << " is dead." << std::endl;
 
+            // Agregar el jugador a la lista de jugadores muertos
+            dead_players[id] = player_it->second;
+
             // Eliminar al jugador de la matriz
             auto player_cell = get_cell_from_position(player_it->second->get_position());
             auto& player_vec = matrix[player_cell.first][player_cell.second];
@@ -607,19 +610,13 @@ bool Game::is_over() {
 }
 
 bool Game::is_ready_to_start() {
-    bool is_ready_to_start =
-            std::any_of(players.begin(), players.end(),
-                        [](const auto& p) {
-                            return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
-                        }) &&
-            std::any_of(players.begin(), players.end(), [](const auto& p) {
-                return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-            });
-
-    if (is_ready_to_start) {
-        set_bomb_player();
-    }
-    return is_ready_to_start;
+    return std::any_of(players.begin(), players.end(),
+                       [](const auto& p) {
+                           return p.second && p.second->get_player_type() == PlayerType::TERRORIST;
+                       }) &&
+           std::any_of(players.begin(), players.end(), [](const auto& p) {
+               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+           });
 }
 
 void Game::set_bomb_player() {

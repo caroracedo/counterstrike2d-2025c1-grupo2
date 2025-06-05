@@ -5,19 +5,23 @@
 
 class GameCamera {
 private:
-    int x, y;
+    float x, y;
     int screen_width, screen_height;
-    int map_width, map_height;
+    float map_width, map_height;
 
 public:
-    GameCamera(int screen_w, int screen_h, int map_w, int map_h);
+    GameCamera(float screen_w, float screen_h, float map_w, float map_h);
 
-    void center_on(int target_x, int target_y);
+    void center_on(float target_x, float target_y);
+
+    SDL2pp::Point world_to_screen(float worldX, float worldY) {
+        return SDL2pp::Point(worldX - x, worldY - y);
+    }
 
     SDL2pp::Rect get_viewport() const;
 
-    int get_x() const { return x; }
-    int get_y() const { return y; }
+    float get_x() const { return x; }
+    float get_y() const { return y; }
 };
 
 #endif

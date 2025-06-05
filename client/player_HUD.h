@@ -73,7 +73,7 @@ public:
     void update(const ObjectDTO& object) {
         health = object.health;
         money = object.money;
-        bullets = 200;
+        bullets = object.ammo;
     }
 
     void update_timer(const ObjectDTO& object) { timer = object.bomb_countdown; }

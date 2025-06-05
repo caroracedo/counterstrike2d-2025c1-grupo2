@@ -50,6 +50,10 @@ public:
     }
 
     WeaponModel get_model() const { return model; }
+    uint16_t get_ammo() const { return ammo; }
+
+    /* Funcionalidades */
+    void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
 
     bool operator==(const Weapon& other) const {
         // Compara los atributos relevantes, por ejemplo el modelo o id

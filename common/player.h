@@ -53,8 +53,8 @@ public:
     /* Virtual puro */
     /* Getters */
     ObjectDTO get_dto() const override {
-        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health,
-                         money);
+        return ObjectDTO(object_type, position, id, player_type, current.get_model(), health, money,
+                         current.get_ammo());
     }
 
     /* Verificaciones */
@@ -73,6 +73,15 @@ public:
         } else {
             health = 0;  // El jugador muere
         }
+    }
+
+    void cure(uint16_t health_amount) {
+        health = health_amount;
+    }
+
+    void switch_player_type() {
+        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
+                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
     }
 
     /* Cambio de arma */
@@ -146,8 +155,7 @@ public:
         return new_position;
     }
 
-    /* Compra de arma */
-    // Igual esto sería otro comando...
+    /* Comprar Weapon */
     bool buy_weapon(const WeaponModel& weapon_model) {
         std::pair<uint16_t, Weapon> purchase = weapon_shop.buy_weapon(weapon_model, money);
         if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
@@ -155,6 +163,17 @@ public:
         }
         money -= purchase.first;
         primary_weapon = purchase.second;
+        return true;
+    }
+
+    /* Comprar Ammo */
+    bool buy_ammo(uint16_t ammo_amount) {
+        std::pair<uint16_t, bool> purchase = weapon_shop.buy_ammo(ammo_amount, money);
+        if (!purchase.second) {
+            return false;
+        }
+        money -= purchase.first;
+        primary_weapon.add_ammo(ammo_amount);
         return true;
     }
 };
