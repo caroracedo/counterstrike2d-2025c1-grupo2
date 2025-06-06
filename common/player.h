@@ -48,6 +48,13 @@ public:
         secondary_weapon = new_secondary_weapon.second;
 
         current = secondary_weapon;
+
+        // Prueba de AK-47
+        std::pair<uint16_t, Weapon> new_primary_weapon =
+                weapon_shop.buy_weapon(WeaponModel::AK47, money);
+        money -= new_primary_weapon.first;
+        primary_weapon = new_primary_weapon.second;
+        current = primary_weapon;
     }
 
     /* Virtual puro */
