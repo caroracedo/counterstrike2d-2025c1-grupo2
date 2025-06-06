@@ -71,10 +71,12 @@ private:
     }
 
     void waiting_phase() {
+        std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
         while (!monitor_game.is_ready_to_start() && should_keep_running()) {
             send_snapshot_to_all_clients();
         }
         send_snapshot_to_all_clients();  // Snapshot final...
+        std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
     }
 
     void shopping_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
