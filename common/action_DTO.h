@@ -19,6 +19,7 @@ enum class ActionType : uint8_t {
     SHOP = 0x57,
     WEAPON = 0x56,
     AMMO = 0x55,
+    CHANGE = 0x40,
     UNKNOWN = 0x00
 };
 

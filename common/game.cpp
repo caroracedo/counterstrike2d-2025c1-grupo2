@@ -817,3 +817,12 @@ bool Game::shop_ammo(uint ammo, uint16_t id) {
     }
     return false;
 }
+
+bool Game::change_weapon(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        player_it->second->change_weapon();
+        return true;
+    }
+    return false;
+}

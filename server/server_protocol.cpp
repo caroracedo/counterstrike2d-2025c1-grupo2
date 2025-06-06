@@ -79,6 +79,8 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::AMMO:
             return {type, hex_big_endian_to_int_16({data[1], data[2]}),
                     id};  // Agrega el id del jugador...
+        case ActionType::CHANGE:
+            return {type, id};  // Agrega el id del jugador...
         default:
             return {};
     }

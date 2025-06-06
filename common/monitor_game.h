@@ -93,6 +93,12 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         return game.shop_ammo(ammo_amount, id);
     }
+
+    /* Cambiar Weapon */
+    bool change_weapon(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.change_weapon(id);
+    }
 };
 
 #endif  // MONITOR_GAME_H
