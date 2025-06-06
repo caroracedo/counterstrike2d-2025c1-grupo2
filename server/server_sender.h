@@ -33,7 +33,8 @@ public:
     void stop() override {
         if (should_keep_running()) {
             Thread::stop();
-            send_queue->close();
+            if (send_queue)
+                send_queue->close();
         }
     }
 
