@@ -107,7 +107,7 @@ void GameView::update_player(const ObjectDTO& object) {
                                                                      SDL2pp::Rect(64, 0, 32, 32)},
                                            100));
 
-    guns.try_emplace(id, std::make_unique<GunView>(gun_texture));
+    guns.try_emplace(id, std::make_unique<GunView>(renderer));
 
 
     if (x - last_px || y - last_py == 5 || last_px == -1 || last_py == -1) {
@@ -117,6 +117,7 @@ void GameView::update_player(const ObjectDTO& object) {
         legs[id]->update_position(x, y);
         legs[id]->update_animation();
         guns[id]->update(x, y);
+        guns[id]->change_gun(object.weapon_model);
         // sound_manager.playFromGroup("steps",0);
     }
     if (id == local_id) {

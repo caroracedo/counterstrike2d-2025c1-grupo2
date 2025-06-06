@@ -15,7 +15,7 @@
 struct Button {
     SDL2pp::Rect rect;
     std::string text;
-    bool visible = true;
+    bool visible = false;
 };
 
 class ShopView {

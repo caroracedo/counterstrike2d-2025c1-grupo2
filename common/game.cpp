@@ -582,7 +582,8 @@ std::vector<std::shared_ptr<Object>>& Game::get_objects() {
 Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);
+    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS,
+                                                 MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
 
     while (true) {
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};
@@ -803,10 +804,12 @@ void Game::switch_player_types() {
 }
 
 bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
+    std::cout << "Compro arma" << std::endl;
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         return player_it->second->buy_weapon(weapon);
     }
+    std::cout << "Incorrecta arma" << std::endl;
     return false;
 }
 
@@ -821,8 +824,10 @@ bool Game::shop_ammo(uint ammo, uint16_t id) {
 bool Game::change_weapon(uint16_t id) {
     auto player_it = players.find(id);
     if (player_it != players.end()) {
+        std::cout << "Cambio arma" << std::endl;
         player_it->second->change_weapon();
         return true;
     }
+    std::cout << "No cambio arma" << std::endl;
     return false;
 }

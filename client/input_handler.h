@@ -53,6 +53,8 @@ public:
                         return ActionDTO{ActionType::AMMO, 30};
                     case SDLK_5:
                         return ActionDTO{ActionType::AMMO, 30};
+                    case SDLK_SPACE:
+                        return ActionDTO{ActionType::CHANGE};
                 }
             }
 
