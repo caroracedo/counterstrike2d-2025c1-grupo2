@@ -51,6 +51,40 @@ private:
         }
     }
 
+    void init_resources() {
+         // Renderizar el título "Buy"
+        SDL2pp::Texture title_texture(
+            renderer,
+            font.RenderText_Blended("Buy", SDL_Color{255, 255, 255, 255})
+        );
+
+        SDL2pp::Point title_pos(
+            overlay_rect.x + (overlay_rect.w - title_texture.GetWidth()) / 2,
+            overlay_rect.y + 10
+        );
+
+        renderer.Copy(title_texture, SDL2pp::NullOpt,
+                    SDL2pp::Rect(title_pos, title_texture.GetSize()));
+
+        int money = 1500; // Este valor debería venir de otro lado
+
+        std::string money_str = "$" + std::to_string(money);
+
+        SDL2pp::Texture money_texture(
+            renderer,
+            font.RenderText_Blended(money_str, SDL_Color{138, 206, 0, 255}) // Verde
+        );
+
+        SDL2pp::Point money_pos(
+            overlay_rect.x + overlay_rect.w - money_texture.GetWidth() - 20, // 20px de margen
+            overlay_rect.y + 10
+        );
+
+        renderer.Copy(money_texture, SDL2pp::NullOpt,
+                    SDL2pp::Rect(money_pos, money_texture.GetSize()));
+
+
+    }
 public:
     explicit ShopView(SDL2pp::Renderer& ren):
             renderer(ren),
@@ -63,21 +97,21 @@ public:
     void render() {
         if (!visible)
             return;  // Si no es visible, no hacemos nada
-
-        // Guardamos el color actual del renderer
+            // Guardamos el color actual del renderer
         SDL2pp::Color prevColor = renderer.GetDrawColor();
-
+        
         // Establecemos color gris semitransparente
         renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
         renderer.SetDrawColor(17, 17, 17, 200);
-
-
+        
+        
         renderer.FillRect(overlay_rect);
-
-
+        
+        
         // por las dudas...
         renderer.SetDrawColor(prevColor);
-
+        
+        init_resources();
         for (const Button& btn: buttons) {
             if (!btn.visible)
                 continue;
