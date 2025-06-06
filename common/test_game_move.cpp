@@ -1,7 +1,17 @@
 #include <iostream>
 
+#include "action_DTO.h"
 #include "config.h"
 #include "game.h"
+
+#define MOVE_INPUT "mover"
+#define SHOOT_INPUT "disparar"
+#define BOMB_INPUT "bomba"
+#define QUIT_INPUT "q"
+#define W_INPUT "w"
+#define A_INPUT "a"
+#define S_INPUT "s"
+#define D_INPUT "d"
 
 std::string direction_to_string(Direction direction) {
     switch (direction) {
@@ -22,7 +32,7 @@ void move_player(Game& game, Direction direction, uint16_t id) {
     if (game.move(direction, id)) {
         std::cout << "\tJugador " << static_cast<int>(id) << " movido hacia "
                   << direction_to_string(direction) << ": ";
-        for (auto v: game.get_position(id)) std::cout << v << " ";
+        for (auto v: game.get_player_position(id)) std::cout << v << " ";
         std::cout << std::endl;
     } else {
         std::cout << "\tNo se pudo mover al jugador " << static_cast<int>(id) << " hacia "
@@ -31,7 +41,7 @@ void move_player(Game& game, Direction direction, uint16_t id) {
 }
 
 void shoot(Game& game, Direction direction, uint16_t id) {
-    std::vector<uint16_t> position = game.get_position(id);
+    std::vector<uint16_t> position = game.get_player_position(id);
     switch (direction) {
         case Direction::UP:
             position[1] -= 40;
@@ -54,230 +64,72 @@ void shoot(Game& game, Direction direction, uint16_t id) {
 
 void show(Game& game) { game.show_objects(); }
 
+ActionDTO receive_and_parse_action() {
+    std::string input;
+    std::getline(std::cin, input);
+    std::istringstream iss(input);
+
+    std::string action_input;
+    if (!(iss >> action_input))
+        return {};
+
+    if (action_input == QUIT_INPUT) {
+        return ActionDTO(ActionType::QUIT);
+    } else if (action_input == MOVE_INPUT) {
+        std::string direction_input;
+        if (!(iss >> direction_input))
+            return {};
+        Direction direction;
+        if (direction_input == W_INPUT)
+            direction = Direction::UP;
+        else if (direction_input == A_INPUT)
+            direction = Direction::LEFT;
+        else if (direction_input == S_INPUT)
+            direction = Direction::DOWN;
+        else if (direction_input == D_INPUT)
+            direction = Direction::RIGHT;
+        else
+            return {};
+
+        return {ActionType::MOVE, direction};
+    } else if (action_input == SHOOT_INPUT) {
+        std::vector<uint16_t> desired_position(2);
+        if (!(iss >> desired_position[0] >> desired_position[1]))
+            return {};
+        return {ActionType::SHOOT, desired_position};
+    } else if (action_input == BOMB_INPUT) {
+        return ActionDTO(ActionType::BOMB);
+    }
+    return {};
+}
+
 int main() {
     Config config("config/config.yaml");
     Game game(config);
 
-    uint16_t i = 1;
-
-    while (!game.is_ready_to_start()) {
-        game.add_player(PlayerType::TERRORIST, i);
-        ++i;
-        game.add_player(PlayerType::COUNTERTERRORIST, i);
-        ++i;
-    }
-
+    game.add_player(PlayerType::TERRORIST, 1);
+    game.add_player(PlayerType::COUNTERTERRORIST, 2);
     show(game);
 
-    for (uint16_t j = 1; j < i; ++j) {
-        game.plant_bomb(j);
+    std::vector<uint16_t> player2_position = game.get_player_position(2);
+
+    while (true) {
+        ActionDTO action = receive_and_parse_action();
+        switch (action.type) {
+            case ActionType::MOVE:
+                game.move(action.direction, 1);
+                break;
+            case ActionType::SHOOT:
+                game.shoot(player2_position, 1);
+                break;
+            case ActionType::QUIT:
+                return 0;
+            default:
+                std::cout << "\tAccion desconocida" << std::endl;
+                break;
+        }
+        show(game);
     }
 
-    // // std::cout <<
-    // // "*********************************************************************************"
-    // //              "***********************************"
-    // //           << std::endl;
-    // // std::cout << "***********************************************PRUEBA DE "
-    // //              "MOVIMIENTOS************************************************"
-    // //           << std::endl;
-    // // std::cout <<
-    // // "*********************************************************************************"
-    // //              "***********************************"
-    // //           << std::endl;
-
-    // // // Pruebo todos los movimientos del jugador -> no hay colisión
-    // // move_player(game, Direction::RIGHT, 1);
-    // // move_player(game, Direction::DOWN, 1);
-    // // move_player(game, Direction::LEFT, 1);
-    // // move_player(game, Direction::UP, 1);
-
-    // // std::cout <<
-    // // "\n*******************************************************************************"
-    // //              "*************************************"
-    // //           << std::endl;
-    // // std::cout << "******************************************PRUEBA DE COLISIÓN CON "
-    // //              "OBSTÁCULO******************************************"
-    // //           << std::endl;
-    // // std::cout <<
-    // // "*********************************************************************************"
-    // //              "***********************************"
-    // //           << std::endl;
-
-    // // // Colisión con un obstáculo
-    // // move_player(game, Direction::RIGHT, 1);
-    // // move_player(game, Direction::RIGHT, 1);
-
-    // // std::cout <<
-    // // "\n*******************************************************************************"
-    // //              "*************************************"
-    // //           << std::endl;
-    // // std::cout << "*********************************************PRUEBA DE COLISIÓN CON "
-    // //              "BALA********************************************"
-    // //           << std::endl;
-    // // std::cout <<
-    // // "*********************************************************************************"
-    // //              "***********************************"
-    // //           << std::endl;
-
-    // // move_player(game, Direction::DOWN, 1);
-    // // move_player(game, Direction::DOWN, 1);
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-    // std::cout << "***************************************************PRUEBA "
-    //              "DISPARO***************************************************"
-    //           << std::endl;
-    // std::cout <<
-    // "*********************************************************************************"
-    //              "***********************************"
-    //           << std::endl;
-
-    // for (int i = 0; i < 5; ++i) {
-    //     shoot(game, Direction::LEFT, 2);
-    //     for (int j = 0; j < 5; ++j) {
-    //         game.update();
-    //     }
-    // }
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-    // std::cout << "******************************************************PRUEBA DISPARO AL "
-    //              "AIRE********"
-    //              "****************************************"
-    //           << std::endl;
-    // std::cout <<
-    // "*********************************************************************************"
-    //              "***********************************"
-    //           << std::endl;
-    // std::vector<std::vector<uint16_t>> positions = {{0, 0},     {0, 30},   {20, 100},
-    //                                                 {100, 100}, {200, 30}, {60, 0},
-    //                                                 {15, 0},    {20, 20},  {90, 50}};
-    // for (const auto& pos: positions) {
-    //     game.shoot(pos, 1);
-    //     for (int j = 0; j < 20; ++j) {
-    //         game.update();
-    //     }
-    //     std::cout << "*******************************" << std::endl;
-    // }
-
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-    // std::cout << "*********************************************PRUEBA DE COLISIÓN CON "
-    //              "BALA********************************************"
-    //           << std::endl;
-    // std::cout <<
-    // "*********************************************************************************"
-    //              "***********************************"
-    //           << std::endl;
-
-    // move_player(game, Direction::DOWN, 1);
-    // move_player(game, Direction::DOWN, 1);
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-    // std::cout << "***************************************************PRUEBA "
-    //              "DISPARO***************************************************"
-    //           << std::endl;
-    // std::cout <<
-    // "*********************************************************************************"
-    //              "***********************************"
-    //           << std::endl;
-
-    // for (int i = 0; i < 5; ++i) {
-    //     shoot(game, Direction::LEFT, 2);
-    //     for (int j = 0; j < 5; ++j) {
-    //         game.update();
-    //     }
-    // }
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-    // std::cout << "******************************************************PRUEBA DISPARO
-    // M3********"
-    //              "****************************************"
-    //           << std::endl;
-    // std::cout <<
-    // "*********************************************************************************"
-    //              "***********************************"
-    //           << std::endl;
-
-    // // TODO: ver por qué con estas posiciones los angulos entre los vectores es distinto
-    // {20,100},
-    // // {200,30}, {60,0}, {15,0}, {90, 50}
-    // std::vector<std::vector<uint16_t>> positions = {{0, 0},     {0, 30},   {20, 100},
-    //                                                 {100, 100}, {200, 30}, {60, 0},
-    //                                                 {15, 0},    {20, 20},  {90, 50}};
-
-
-    /*
-    Valores esperados de los disparos:
-            - Disparando a la posición: (0, 0)
-                - Bala 1 (14, 14), posición objetivo: (4, 4)
-                - Bala 2 (22, 10), posición objetivo: (20, 4)
-                - Bala 3 (10, 22), posición objetivo: (4, 20)
-            - Disparando a la posición: (0, 30)
-                - Bala 4 (9, 30), posición objetivo: (4, 30)
-                - Bala 5 (12, 20), posición objetivo: (4, 15)
-                - Bala 6 (12, 40), posición objetivo: (4, 45)
-       !    - Disparando a la posición: (20, 100)
-                - Bala 7 (27, 51), posición objetivo: (21, 95)
-                - Bala 8 (20, 48), posición objetivo: (4, 78)
-                - Bala 9 (38, 49), posición objetivo: (55, 91)
-            - Disparando a la posición: (100, 100)
-                - Bala 10 (45, 45), posición objetivo: (77, 77)
-                - Bala 11 (35, 50), posición objetivo: (47, 94)
-                - Bala 12 (50, 35), posición objetivo: (94, 47)
-       !    - Disparando a la posición: (200, 30)
-                - Bala 13 (51, 30), posición objetivo: (96, 30)
-                - Bala 14 (48, 41), posición objetivo: (87, 63)
-                - Bala 15 (51, 26), posición objetivo: (95, 17)
-       !    - Disparando a la posición: (60, 0)
-                - Bala 16 (45, 15), posición objetivo: (56, 4)
-                - Bala 17 (51, 24), posición objetivo: (94, 12)
-                - Bala 18 (37, 10), posición objetivo: (39, 4)
-       !    - Disparando a la posición: (15, 0)
-                - Bala 19 (21, 11), posición objetivo: (17, 4)
-                - Bala 20 (32, 9), posición objetivo: (32, 4)
-                - Bala 21 (12, 17), posición objetivo: (4, 12)
-            - Disparando a la posición: (20, 20)
-                - Bala 22 (14, 14), posición objetivo: (4, 4)
-                - Bala 23 (25, 10), posición objetivo: (23, 4)
-                - Bala 24 (10, 25), posición objetivo: (4, 23)
-       !    - Disparando a la posición: (90, 50)
-                - Bala 25 (51, 37), posición objetivo: (93, 51)
-                - Bala 26 (44, 46), posición objetivo: (73, 80)
-                - Bala 27 (52, 25), posición objetivo: (95, 16)
-
-
-    */
-    // for (const auto& pos: positions) {
-    //     std::cout << "\t\tDisparando a la posición: (" << pos[0] << ", " << pos[1] << ")"
-    //               << std::endl;
-    //     game.shoot(pos, 1);
-    //     for (int j = 0; j < 20; ++j) {
-    //         game.update();
-    //     }
-    //     std::cout << "*******************************" << std::endl;
-    // }
-
-
-    // std::cout <<
-    // "\n*******************************************************************************"
-    //              "*************************************"
-    //           << std::endl;
-
-    // show(game);
-
-    return 0;  // Comenté todo porque sino no me deja compilar
+    return 0;
 }

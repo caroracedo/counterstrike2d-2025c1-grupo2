@@ -19,8 +19,8 @@
 #include "legs_view.h"
 #include "player_HUD.h"
 #include "player_view.h"
-#include "sound_manager.h"
 #include "shop_view.h"
+#include "sound_manager.h"
 
 
 struct ObstacleView {
@@ -89,7 +89,7 @@ public:
 
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
-    
+
     void frame_sync();
 };
 

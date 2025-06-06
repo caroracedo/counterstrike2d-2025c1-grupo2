@@ -17,8 +17,10 @@ GameView::GameView():
                                  SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
         legs_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp"))),
         background(renderer, SDL2pp::Surface(SDL_LoadBMP("../dustroof.bmp"))),
-        box_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp")).SetBlendMode(SDL_BLENDMODE_BLEND)),
-        box_texture2(renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp")).SetBlendMode(SDL_BLENDMODE_BLEND)),
+        box_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))
+                                      .SetBlendMode(SDL_BLENDMODE_BLEND)),
+        box_texture2(renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))
+                                       .SetBlendMode(SDL_BLENDMODE_BLEND)),
         hud_numbres(
                 renderer,
                 SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
@@ -32,7 +34,7 @@ GameView::GameView():
 
 
 void GameView::update(const ActionDTO& action) {
-    if (action.type == ActionType::SHOP){
+    if (action.type == ActionType::SHOP) {
         std::cout << "Action Type: " << static_cast<int>(action.type) << std::endl;
         shop_view.set_visible(true);
     }
@@ -169,13 +171,13 @@ void GameView::render() {
     for (const auto& obs: obstacles) {
         float screenX = obs.x - camera.get_x();
         float screenY = obs.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast <int> (screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast <int> (screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
+                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
                                  int(obs.h)};
-        
-        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)}; 
-        box_texture2.SetAlphaMod(255); // 50% transparent
-		box_texture.SetAlphaMod(255);
+
+        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
+        box_texture2.SetAlphaMod(255);  // 50% transparent
+        box_texture.SetAlphaMod(255);
         if (obs.use_texture2) {
             renderer.Copy(box_texture2, src_rect, dst_rect);
         } else {
@@ -190,7 +192,7 @@ void GameView::render() {
     }
 
     hud_view.draw();
-    
+
     shop_view.render();
 
     renderer.Present();

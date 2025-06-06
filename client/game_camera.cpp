@@ -22,5 +22,5 @@ void GameCamera::center_on(float target_x, float target_y) {
 }
 
 SDL2pp::Rect GameCamera::get_viewport() const {
-    return SDL2pp::Rect(static_cast <int>(x), static_cast <int>(y), screen_width, screen_height);
+    return SDL2pp::Rect(static_cast<int>(x), static_cast<int>(y), screen_width, screen_height);
 }

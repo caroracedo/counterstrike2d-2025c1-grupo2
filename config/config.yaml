@@ -8,33 +8,45 @@ player:
 weapons:
   knife:
     price: 0
-    range: 1
-    damage: 10
+    range: 45
+    min_damage: 10
+    max_damage: 20
+    precision: 1
 
   glock:
     price: 0
-    range: 500
-    damage: 20
+    range: 100
+    min_damage: 10
+    max_damage: 20
+    precision: 0.8
 
   bomb:
     price: 0
     range: 0
-    damage: 500
+    min_damage: 500
+    max_damage: 500
+    precision: 1
 
   ak47:
     price: 100
-    range: 100
-    damage: 10
+    range: 150
+    min_damage: 20
+    max_damage: 30
+    precision: 0.8
 
   m3:
     price: 200
-    range: 50
-    damage: 30
+    range: 125
+    min_damage: 15
+    max_damage: 25
+    precision: 0.9
 
   awp:
     price: 300
     range: 200
-    damage: 40
+    min_damage: 30
+    max_damage: 40
+    precision: 0.95
 
 obstacles:
   - width: 32

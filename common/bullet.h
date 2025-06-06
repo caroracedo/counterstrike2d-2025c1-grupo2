@@ -10,21 +10,35 @@
 class Bullet: public Object {
 private:
     uint16_t range;
-    uint16_t damage;
+    uint16_t min_damage;
+    uint16_t max_damage;
+    uint16_t distance_moved = 0;
     uint16_t radius = BULLET_RADIUS;
     std::vector<uint16_t> target_position;
+    std::vector<uint16_t> start_position;
+    float precision;
 
 public:
     /* Constructor */
     Bullet(const uint16_t id, const std::vector<uint16_t>& player_position, uint16_t _range,
-           uint16_t _damage, const std::vector<uint16_t>& desired_position):
+           uint16_t _min_damage, uint16_t _max_damage, float _precision,
+           const std::vector<uint16_t>& desired_position):
             Object(ObjectType::BULLET, id, {player_position[0], player_position[1]},
                    BULLET_RADIUS * 2, BULLET_RADIUS * 2),
             range(_range),
-            damage(_damage),
-            target_position(player_position) {
+            min_damage(_min_damage),
+            max_damage(_max_damage),
+            target_position(player_position),
+            precision(_precision) {
         set_target_position(desired_position, player_position);
         set_starting_position(player_position);
+
+        std::cout << "Bullet created with ID: " << id << ", Position: (" << position[0] << ", "
+                  << position[1] << ")"
+                  << ", Target: (" << target_position[0] << ", " << target_position[1] << ")"
+                  << ", Range: " << range << ", Damage: [" << min_damage << ", " << max_damage
+                  << "]"
+                  << ", Precision: " << precision << std::endl;
     }
 
     /* Virtual puro */
@@ -33,7 +47,40 @@ public:
 
     /* Getters */
     uint16_t get_range() const { return range; }
-    uint16_t get_damage() const { return damage; }
+
+    uint16_t get_damage() const {
+        // Calcula distancia recorrida desde el origen de la bala
+        float px = static_cast<float>(position[0]);
+        float py = static_cast<float>(position[1]);
+        float sx = static_cast<float>(start_position[0]);
+        float sy = static_cast<float>(start_position[1]);
+        float distance = std::sqrt((px - sx) * (px - sx) + (py - sy) * (py - sy));
+
+        // Factor de daño por distancia (más lejos, menos daño)
+        float distance_factor = 1.0f - std::min(distance / ((float)range + distance), 1.0f);
+
+        // Daño aleatorio entre min y max
+        static thread_local std::mt19937 rng(std::random_device{}());
+        std::uniform_int_distribution<uint16_t> dmg_dist(min_damage, max_damage);
+        uint16_t base_damage = dmg_dist(rng);
+
+        // Aplica el factor de distancia
+        uint16_t final_damage = static_cast<uint16_t>(base_damage * distance_factor);
+
+        // Probabilidad de acertar según precisión
+        std::uniform_real_distribution<float> prob(0.0f, 1.0f);
+        if (prob(rng) > precision) {
+            return 0;  // Falló el disparo
+        }
+
+        std::cout << "\tBullet ID: " << id << ", Position: (" << position[0] << ", " << position[1]
+                  << ")"
+                  << ", Distance: " << distance << ", Base Damage: " << base_damage
+                  << ", Final Damage: " << final_damage << std::endl;
+
+        // Siempre al menos 1 de daño si acertó y el daño no es cero
+        return std::max<uint16_t>(final_damage, 1);
+    }
 
     void set_target_position(const std::vector<uint16_t>& desired_position,
                              const std::vector<uint16_t>& player_position) {
@@ -108,16 +155,13 @@ public:
         x_bullet = std::max(min_pos, std::min(x_bullet, max_pos));
         y_bullet = std::max(min_pos, std::min(y_bullet, max_pos));
 
-        position[0] = static_cast<uint16_t>(std::round(x_bullet));
-        position[1] = static_cast<uint16_t>(std::round(y_bullet));
+        position = {static_cast<uint16_t>(std::round(x_bullet)),
+                    static_cast<uint16_t>(std::round(y_bullet))};
 
-        // std::cout << "\nBala " << id << " creada con éxito en la posición (" << position[0] << ",
-        // "
-        //           << position[1] << "), posición objetivo: (" << target_position[0] << ", "
-        //           << target_position[1] << ")" << std::endl;
+        start_position = {static_cast<uint16_t>(std::round(x_bullet)),
+                          static_cast<uint16_t>(std::round(y_bullet))};
     }
 
-    // Devuelve el próximo centro de la bala
     std::vector<uint16_t> get_next_position() const {
         if (target_position.size() != 2)
             return position;
@@ -163,8 +207,9 @@ public:
         return range > 0 || !reached_target;
     }
 
-    void decrement_range(uint16_t distance_moved) {
-        range = (distance_moved >= range) ? 0 : range - distance_moved;
+    void decrement_range(uint16_t dist) {
+        range = (dist >= range) ? 0 : range - dist;
+        distance_moved += dist;
     }
 };
 

@@ -21,14 +21,14 @@ public:
         if (!games.count(game_name))
             return false;
         return games[game_name]->move(direction);
-    } 
+    }
 
     /* Getters */
     std::vector<uint16_t> get_position_game(const std::string& game_name) {
         std::lock_guard<std::mutex> lock(mutex);
         if (!games.count(game_name))
             return {};
-        return games[game_name]->get_position(); 
+        return games[game_name]->get_position();
     }
 
     /*

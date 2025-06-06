@@ -7,6 +7,7 @@
 
 #include "object.h"
 #include "weapon.h"
+#include "weapon_DTO.h"
 #include "weapon_shop.h"
 
 // #define PLAYER_SIZE 32
@@ -60,7 +61,10 @@ public:
     bool is_alive() const { return health > 0; }
 
     /* Getters */
-    Weapon get_current_weapon() const { return current; }
+    WeaponDTO get_current_weapon() const { return current.get_dto(); }
+
+    bool shoot() { return current.shoot(); }
+
     PlayerType get_player_type() const { return player_type; }
 
     /* Funcionalidades */
@@ -73,13 +77,12 @@ public:
         }
     }
 
-    void cure(uint16_t health_amount) {
-        health = health_amount;
-    }
+    void cure(uint16_t health_amount) { health = health_amount; }
 
     void switch_player_type() {
-        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
-                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
+        player_type = (player_type == PlayerType::TERRORIST)        ? PlayerType::COUNTERTERRORIST :
+                      (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST :
+                                                                      PlayerType::UNKNOWN;
     }
 
     /* Cambio de arma */

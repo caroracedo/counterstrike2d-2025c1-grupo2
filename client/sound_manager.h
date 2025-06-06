@@ -1,25 +1,27 @@
 #ifndef SOUND_MANAGER_H
 #define SOUND_MANAGER_H
 
+#include <string>
+#include <unordered_map>
+
 #include <SDL2/SDL.h>
-#include <SDL2pp/SDL2pp.hh>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2pp/Mixer.hh>
-#include <unordered_map>
+#include <SDL2pp/SDL2pp.hh>
 
 class SoundManager {
 private:
     SDL2pp::Mixer mixer;
 
-    //para las balas xq tienen != sonidos.
-    // std::unordered_map<std::string, Sound> bullets;
+    // para las balas xq tienen != sonidos.
+    //  std::unordered_map<std::string, Sound> bullets;
     std::unordered_map<std::string, SDL2pp::Chunk> sounds;
     // SDL2pp::Music background_music;
 
 public:
-    SoundManager(): 
-    mixer(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048)
-    // background_music() 
+    SoundManager():
+            mixer(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048)
+    // background_music()
     {
         // Cargar sonidos
         sounds.emplace("bullet", SDL2pp::Chunk("../assets/sfx/weapons/glock18.wav"));

@@ -2,24 +2,48 @@
 #define GUN_VIEW_H
 
 #include <cmath>
+#include <memory>
+#include <unordered_map>
 
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/constants.h"
+#include "../common/types.h"
 
 #include "game_camera.h"
 
 #define GUN_WIDTH 32
 #define GUN_HEIGHT 32
 
+
+// struct GunSpriteData {
+//     SDL2pp::Texture* texture;
+//     SDL_Rect sprite_clip;
+//     int width, height;
+//     float offset_x, offset_y;
+// };
+
 class GunView {
 private:
-    SDL2pp::Texture& texture;
-    float x, y;
+    std::unordered_map<WeaponModel, std::unique_ptr<SDL2pp::Texture>> gun_sprites;
+    WeaponModel current_type = WeaponModel::GLOCK;
+
+    float x = 0, y = 0;
     float angle = 0.0f;  // Grados
 
 public:
-    explicit GunView(SDL2pp::Texture& tex): texture(tex), x(0), y(0) {}
+    explicit GunView(SDL2pp::Renderer& renderer) {
+        gun_sprites[WeaponModel::GLOCK] =
+                std::make_unique<SDL2pp::Texture>(renderer, "../assets/gfx/weapons/glock.bmp");
+        gun_sprites[WeaponModel::AK47] =
+                std::make_unique<SDL2pp::Texture>(renderer, "../assets/gfx/weapons/ak47.bmp");
+        gun_sprites[WeaponModel::M3] =
+                std::make_unique<SDL2pp::Texture>(renderer, "../assets/gfx/weapons/m3.bmp");
+        gun_sprites[WeaponModel::AWP] =
+                std::make_unique<SDL2pp::Texture>(renderer, "../assets/gfx/weapons/awp.bmp");
+    }
+
+    void change_gun(WeaponModel type) { current_type = type; }
 
     void update(float px, float py) {
         x = px;
@@ -57,7 +81,7 @@ public:
         float gunY = centerY + rotatedOffsetY;
 
         renderer.Copy(
-                texture, SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
+                *gun_sprites[current_type], SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
                 SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH / 2.0f),
                              static_cast<int>(gunY - GUN_HEIGHT / 2.0f), GUN_WIDTH, GUN_HEIGHT),
                 angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);

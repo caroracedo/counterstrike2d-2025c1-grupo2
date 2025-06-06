@@ -130,6 +130,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
         }
+        case ActionType::CHANGE:
+            return skt_manager.send_two_bytes(skt, data.size()) &&
+                   skt_manager.send_bytes(skt, data);
         default:
             return false;
     }

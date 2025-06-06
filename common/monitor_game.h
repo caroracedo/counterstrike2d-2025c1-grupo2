@@ -76,10 +76,10 @@ public:
         return game.shoot(desired_position, id);
     }
 
-    /* Plantar bomba */
-    bool plant_bomb(uint16_t id) {
+    /* Interactuar con bomba */
+    bool interact_with_bomb(uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.plant_bomb(id);
+        return game.interact_with_bomb(id);
     }
 
     /* Compar Weapon */
@@ -92,6 +92,12 @@ public:
     bool shop_ammo(uint16_t ammo_amount, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
         return game.shop_ammo(ammo_amount, id);
+    }
+
+    /* Cambiar Weapon */
+    bool change_weapon(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        return game.change_weapon(id);
     }
 };
 
