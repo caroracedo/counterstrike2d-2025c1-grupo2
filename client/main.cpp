@@ -6,28 +6,37 @@
 
 #include "client.h"
 
-#define EXPECTED_ARGC 4
+#define EXPECTED_ARGC 6
 
 int main(int argc, char* argv[]) {
     try {
         // Momentáneamente agrego esto
         const char* hostname = NULL;
         const char* servname = NULL;
+        const char* operation = NULL;
+        const char* match = NULL;
         const char* player_type = NULL;
 
         if (argc != EXPECTED_ARGC) {
-            std::cerr << "Bad program call. Expected: " << argv[0] << " <hostname> <servname>\n";
+            std::cerr << "Bad program call. Expected: " << argv[0]
+                      << " <hostname> <servname> <operation> <match> <player_type>\n";
             return EXIT_FAILURE;
         }
-        if (std::string(argv[3]) != "Terrorist" && std::string(argv[3]) != "CounterTerrorist") {
+        if (std::string(argv[5]) != "Terrorist" && std::string(argv[5]) != "CounterTerrorist") {
             std::cerr << "Bad player type. Expected: Terrorist or CounterTerrorist\n";
+            return EXIT_FAILURE;
+        }
+        if (std::string(argv[3]) != "Create" && std::string(argv[3]) != "Join") {
+            std::cerr << "Bad operation. Expected: Create or Join\n";
             return EXIT_FAILURE;
         }
         hostname = argv[1];
         servname = argv[2];
-        player_type = argv[3];
+        operation = argv[3];
+        match = argv[4];
+        player_type = argv[5];
 
-        Client client(hostname, servname, player_type);
+        Client client(hostname, servname, operation, match, player_type);
         client.run();
         return EXIT_SUCCESS;
 

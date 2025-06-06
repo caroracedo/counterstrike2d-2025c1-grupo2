@@ -1,6 +1,8 @@
 #ifndef SERVER_RECEIVER_H
 #define SERVER_RECEIVER_H
 
+#include <memory>
+
 #include "../common/queue.h"
 #include "../common/thread.h"
 
@@ -9,11 +11,11 @@
 class ServerReceiver: public Thread {
 private:
     ServerProtocol& protocol;
-    Queue<ActionDTO>& recv_queue;
+    std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::atomic<bool>& stop_flag;
 
 public:
-    ServerReceiver(ServerProtocol& protocol, Queue<ActionDTO>& recv_queue,
+    ServerReceiver(ServerProtocol& protocol, std::shared_ptr<Queue<ActionDTO>> recv_queue,
                    std::atomic<bool>& stop_flag):
             protocol(protocol), recv_queue(recv_queue), stop_flag(stop_flag) {}
 
@@ -23,7 +25,7 @@ public:
                 ActionDTO action = protocol.receive_and_deserialize_action();
                 if (action.type == ActionType::UNKNOWN)
                     break;
-                recv_queue.push(action);
+                recv_queue->push(action);
             } catch (...) {
                 break;
             }
@@ -38,6 +40,10 @@ public:
         if (should_keep_running()) {
             Thread::stop();
         }
+    }
+
+    void bind_queue(std::shared_ptr<Queue<ActionDTO>> new_recv_queue) {
+        recv_queue = new_recv_queue;
     }
 };
 

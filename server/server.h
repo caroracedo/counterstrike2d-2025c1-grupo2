@@ -5,26 +5,25 @@
 
 #include "../common/config.h"
 
-#include "acceptor.h"
-#include "game_loop.h"
+#include "match_manager.h"
 
 class Server {
 private:
-    GameLoop game_loop;
+    MatchManager match_manager;
 
 public:
-    explicit Server(const char* yaml_path): game_loop(yaml_path) {}
+    explicit Server(const char* yaml_path): match_manager(yaml_path) {}
 
     void run() {
-        game_loop.start();
+        match_manager.start();
 
         char input;
         do {
             std::cin >> input;
         } while (input != QUIT_INPUT);
 
-        game_loop.stop();
-        game_loop.join();
+        match_manager.stop();
+        match_manager.join();
     }
 };
 
