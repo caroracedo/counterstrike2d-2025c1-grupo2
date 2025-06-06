@@ -19,9 +19,11 @@ private:
 public:
     explicit PlayerView(SDL2pp::Texture& cuerpo): cuerpo(cuerpo) {}
 
-    void update_position(float x, float y) {
+    bool update_position(float x, float y) {
+        if (posX == x && posY == y) return false; // No change in position
         posX = x;
         posY = y;
+        return true; // Position updated
     }
 
     float get_x() const { return posX; }

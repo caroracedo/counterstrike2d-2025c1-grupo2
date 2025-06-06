@@ -13,7 +13,7 @@
 
 // #define ROUNDS 10
 #define ROUNDS 1          // TODO: Desde config...
-#define SHOPPING_TIME 10  // 10 segundos para shopping
+#define SHOPPING_TIME 30  // 10 segundos para shopping
 #define SNAPSHOT_TIME 33  // ~30FPS
 
 class GameLoop: public Thread {
@@ -81,11 +81,10 @@ private:
     void waiting_lobby() {
         while (!monitor_game.is_ready_to_start() && should_keep_running()) {
             ActionDTO action;
-            if (recv_queue.try_pop(action)) {
+            if (recv_queue.try_pop(action))
                 do_initial_action(action);
-            }
-            send_snapshot_to_all_clients();
         }
+        send_snapshot_to_all_clients();
     }
 
     void shopping_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
@@ -94,11 +93,10 @@ private:
 
         auto shopping_interval = std::chrono::seconds(SHOPPING_TIME);
         auto now = std::chrono::steady_clock::now();
-        while (now - last_snapshot_time < shopping_interval) {
+        while (now - last_snapshot_time < shopping_interval && should_keep_running()) {
             ActionDTO action;
-            if (recv_queue.try_pop(action)) {
+            if (recv_queue.try_pop(action))
                 do_shop_action(action);
-            }
             now = std::chrono::steady_clock::now();
         }
 
@@ -114,9 +112,8 @@ private:
         while (!monitor_game.is_over() && should_keep_running()) {
             auto start = std::chrono::steady_clock::now();
             ActionDTO action;
-            if (recv_queue.try_pop(action)) {
+            if (recv_queue.try_pop(action))
                 do_action(action);
-            }
 
             auto now = std::chrono::steady_clock::now();
             if (now - last_snapshot_time >= snapshot_interval) {

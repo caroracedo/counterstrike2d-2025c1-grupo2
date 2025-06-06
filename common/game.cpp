@@ -582,7 +582,8 @@ std::vector<std::shared_ptr<Object>>& Game::get_objects() {
 Player Game::get_player_with_random_position(PlayerType player_type, uint16_t id) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);
+    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS,
+                                                 MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
 
     while (true) {
         std::vector<uint16_t> pos = {dist(gen), dist(gen)};

@@ -174,7 +174,7 @@ public:
             return false;
         }
         money -= purchase.first;
-        primary_weapon.add_ammo(ammo_amount);
+        current.add_ammo(ammo_amount);
         return true;
     }
 };

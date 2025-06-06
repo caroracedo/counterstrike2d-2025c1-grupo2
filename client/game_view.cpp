@@ -17,8 +17,10 @@ GameView::GameView():
                                  SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
         legs_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp"))),
         background(renderer, SDL2pp::Surface(SDL_LoadBMP("../dustroof.bmp"))),
-        box_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))),
-        box_texture2(renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))),
+        box_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))
+                                      .SetBlendMode(SDL_BLENDMODE_BLEND)),
+        box_texture2(renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))
+                                       .SetBlendMode(SDL_BLENDMODE_BLEND)),
         hud_numbres(
                 renderer,
                 SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
@@ -27,13 +29,19 @@ GameView::GameView():
         explotion_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../explosion.bmp"))),
         camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
         hud_view(hud_numbres, renderer),
-        bomb_view(bomb_texture, explotion_sprites) {}
+        bomb_view(bomb_texture, explotion_sprites),
+        shop_view(renderer) {}
 
 
 void GameView::update(const ActionDTO& action) {
+    if (action.type == ActionType::SHOP) {
+        std::cout << "Action Type: " << static_cast<int>(action.type) << std::endl;
+        shop_view.set_visible(true);
+    }
+
     if (action.type != ActionType::UPDATE)
         return;
-
+    shop_view.set_visible(false);
     obstacles.clear();
     bullets.clear();
     std::unordered_set<uint8_t> players_in_game;
@@ -103,9 +111,9 @@ void GameView::update_player(const ObjectDTO& object) {
 
 
     if (x - last_px || y - last_py == 5 || last_px == -1 || last_py == -1) {
-        last_px = x;
-        last_py = y;
         players[id]->update_position(x, y);
+        // last_px = x;
+        // last_py = y;
         legs[id]->update_position(x, y);
         legs[id]->update_animation();
         guns[id]->update(x, y);
@@ -168,7 +176,8 @@ void GameView::render() {
                                  int(obs.h)};
 
         SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
-
+        box_texture2.SetAlphaMod(255);  // 50% transparent
+        box_texture.SetAlphaMod(255);
         if (obs.use_texture2) {
             renderer.Copy(box_texture2, src_rect, dst_rect);
         } else {
@@ -183,6 +192,8 @@ void GameView::render() {
     }
 
     hud_view.draw();
+
+    shop_view.render();
 
     renderer.Present();
 }

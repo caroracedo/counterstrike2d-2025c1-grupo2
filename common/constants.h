@@ -10,7 +10,7 @@
 #define OBSTACLE_WIDTH 32
 #define OBSTACLE_HEIGHT 32
 
-#define MATRIX_SIZE 200           // posición máxima en la matriz (celdas)
+#define MATRIX_SIZE 20            // posición máxima en la matriz (celdas)
 #define MOVE_STEP 5               // paso de movimiento
 #define CELL_SIZE 56              // tamaño de cada celda en la matriz
 #define PLAYER_RADIUS 16          // radio del jugador
