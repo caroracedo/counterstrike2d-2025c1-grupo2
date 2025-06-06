@@ -31,7 +31,7 @@ private:
             case ActionType::SHOOT:
                 return monitor_game.shoot(action_dto.desired_position, action_dto.id);
             case ActionType::BOMB:
-                return monitor_game.plant_bomb(action_dto.id);
+                return monitor_game.interact_with_bomb(action_dto.id);
             default:
                 return false;
         }
