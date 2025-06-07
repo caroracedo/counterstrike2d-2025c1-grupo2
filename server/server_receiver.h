@@ -36,12 +36,6 @@ public:
 
     bool should_this_thread_keep_running() { return should_keep_running() && !stop_flag; }
 
-    void stop() override {
-        if (should_keep_running()) {
-            Thread::stop();
-        }
-    }
-
     void bind_queue(std::shared_ptr<Queue<ActionDTO>> new_recv_queue) {
         recv_queue = new_recv_queue;
     }

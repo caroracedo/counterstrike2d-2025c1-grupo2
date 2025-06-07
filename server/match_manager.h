@@ -103,14 +103,12 @@ public:
                 ActionDTO first_action;
                 while (!own_recv_queue->try_pop(first_action)) {}
 
-                if (first_action.type == ActionType::CREATE) {
+                bool have_to_initialize_match = first_action.type == ActionType::CREATE ||
+                                                (first_action.type == ActionType::JOIN &&
+                                                 !is_valid_match(first_action.match));
+
+                if (have_to_initialize_match)
                     initialize_match_resources(first_action.match);
-                } else if (first_action.type == ActionType::JOIN) {
-                    if (!is_valid_match(first_action.match)) {
-                        kill_client_handler(client_handler);
-                        continue;
-                    }
-                }
 
                 std::shared_ptr<Queue<ActionDTO>> shared_recv_queue =
                         shared_recv_queues[first_action.match];
@@ -126,9 +124,8 @@ public:
 
                 client_handlers_list.push_back(client_handler);
 
-                if (first_action.type == ActionType::CREATE) {
+                if (have_to_initialize_match)
                     match->start();
-                }
                 match->add_player(first_action);
                 reap();
             } catch (...) {
