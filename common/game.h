@@ -16,6 +16,7 @@
 
 #include "action_DTO.h"
 #include "bomb.h"
+#include "bomb_zone.h"
 #include "config.h"
 #include "constants.h"
 #include "knife.h"
@@ -41,6 +42,14 @@ private:
     WeaponShop weapon_shop;
     bool exploded = false;
     bool deactivated = false;
+    struct Ak47Burst {
+        std::vector<uint16_t> player_position;
+        WeaponDTO weapon_dto;
+        std::vector<uint16_t> desired_position;
+        int shots_left;
+        float time_until_next_shot;  // en segundos
+    };
+    std::vector<Ak47Burst> ak47_bursts;
 
     /***************************************************************************************************
      *****************************************POSICIONES Y
@@ -124,6 +133,8 @@ private:
     bool shoot_ak47(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                     const std::vector<uint16_t>& desired_position);
 
+    void update_ak47_bursts();
+
     void employ_knife(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                       const std::vector<uint16_t>& desired_position);
 
@@ -143,6 +154,9 @@ private:
      ************************************BOMBA Y
      *DESACTIVACIÓN******************************************
      ***************************************************************************************************/
+
+    // Devuelve si el jugador está dentro de la zona donde puede plantar la bomba.
+    bool is_in_bomb_zone(const std::vector<uint16_t>& position) const;
 
     // Crea la bomba en la posición del jugador y la agrega a los objetos y a la matriz.
     bool plant_bomb(const std::vector<uint16_t>& player_position);
@@ -213,6 +227,15 @@ public:
             auto cell = get_cell_from_position(obstacle->get_position());
             matrix[cell.first][cell.second].push_back(obstacle);
         }
+        for (const auto& bomb_zone_cfg: config.get_bomb_zones()) {
+            auto bomb_zone = std::make_shared<BombZone>(
+                    std::vector<uint16_t>{bomb_zone_cfg.x, bomb_zone_cfg.y}, bomb_zone_cfg.width,
+                    bomb_zone_cfg.height);
+            objects.push_back(bomb_zone);
+
+            auto cell = get_cell_from_position(bomb_zone->get_position());
+            matrix[cell.first][cell.second].push_back(bomb_zone);
+        }
     }
 
     void show_objects() {
@@ -256,6 +279,10 @@ public:
                 return "Bullet";
             case ObjectType::OBSTACLE:
                 return "Obstacle";
+            case ObjectType::BOMB:
+                return "Bomb";
+            case ObjectType::BOMBZONE:
+                return "BombZone";
             default:
                 return "Unknown";
         }

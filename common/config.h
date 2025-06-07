@@ -29,6 +29,13 @@ struct ObstacleConfig {
     uint16_t y;
 };
 
+struct BombZoneConfig {
+    uint16_t x;
+    uint16_t y;
+    uint16_t width;
+    uint16_t height;
+};
+
 class Config {
 private:
     /* Server */
@@ -47,6 +54,9 @@ private:
 
     /* Obstáculos */
     std::vector<ObstacleConfig> obstacles;
+
+    /* Zonas de bomba */
+    std::vector<BombZoneConfig> bomb_zones;
 
     WeaponModel weapon_name_to_weapon_model(const std::string& weapon_name) {
         static const std::unordered_map<std::string, WeaponModel> weapon_name_model = {
@@ -111,6 +121,18 @@ private:
                 obstacles.push_back(obs);
             }
         }
+
+        // Zonas de bomba
+        if (config["bomb_zones"]) {
+            for (const auto& node: config["bomb_zones"]) {
+                BombZoneConfig bomb_zone;
+                bomb_zone.x = node["position"]["x"].as<uint16_t>();
+                bomb_zone.y = node["position"]["y"].as<uint16_t>();
+                bomb_zone.width = node["width"].as<uint16_t>();
+                bomb_zone.height = node["height"].as<uint16_t>();
+                bomb_zones.push_back(bomb_zone);
+            }
+        }
     }
 
 public:
@@ -124,6 +146,7 @@ public:
     uint8_t get_rounds_total() const { return rounds_total; }
     uint8_t get_rounds_switch() const { return rounds_switch; }
     const std::vector<ObstacleConfig> get_obstacles() const { return obstacles; }
+    const std::vector<BombZoneConfig> get_bomb_zones() const { return bomb_zones; }
     std::unordered_map<WeaponModel, WeaponConfig> get_weapon_config() const {
         return weapon_catalog;
     }

@@ -21,29 +21,42 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
         std::vector<uint8_t> y(data.begin() + i + 3, data.begin() + i + 5);
         std::vector<uint16_t> position = {hex_big_endian_to_int_16(x), hex_big_endian_to_int_16(y)};
 
-        if (object_type == ObjectType::PLAYER) {
-            std::vector<uint8_t> id(data.begin() + i + 5, data.begin() + i + 7);
-            PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
-            WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
-            std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
-            std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
-            objects.push_back({object_type, position, hex_big_endian_to_int_16(id), player_type,
-                               weapon_model, data[i + 9], hex_big_endian_to_int_16(money),
-                               hex_big_endian_to_int_16(ammo)});
-            i += 14;
-        } else if (object_type == ObjectType::OBSTACLE) {
-            std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
-            std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);
-            objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
-                               hex_big_endian_to_int_16(height)});
-            i += 9;
-        } else if (object_type == ObjectType::BOMB) {
-            std::vector<uint8_t> bomb_countdown(data.begin() + i + 5, data.begin() + i + 7);
-            objects.push_back({object_type, position, hex_big_endian_to_int_16(bomb_countdown)});
-            i += 7;
-        } else {  // ObjectType::BULLET
-            objects.push_back({object_type, position});
-            i += 5;
+        switch (object_type) {
+            case ObjectType::PLAYER: {
+                std::vector<uint8_t> id(data.begin() + i + 5, data.begin() + i + 7);
+                PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
+                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
+                std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
+                std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
+                objects.push_back({object_type, position, hex_big_endian_to_int_16(id), player_type,
+                                   weapon_model, data[i + 9], hex_big_endian_to_int_16(money),
+                                   hex_big_endian_to_int_16(ammo)});
+                i += 14;
+                break;
+            }
+            case ObjectType::BOMBZONE:
+            case ObjectType::OBSTACLE: {
+                std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
+                std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);
+                objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
+                                   hex_big_endian_to_int_16(height)});
+                i += 9;
+                break;
+            }
+            case ObjectType::BOMB: {
+                std::vector<uint8_t> bomb_countdown(data.begin() + i + 5, data.begin() + i + 7);
+                objects.push_back(
+                        {object_type, position, hex_big_endian_to_int_16(bomb_countdown)});
+                i += 7;
+                break;
+            }
+            case ObjectType::BULLET: {
+                objects.push_back({object_type, position});
+                i += 5;
+                break;
+            }
+            default:
+                break;
         }
     }
     return {ActionType::UPDATE, objects};
@@ -101,35 +114,30 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     uint8_t opcode = static_cast<uint8_t>(action.type);
     std::vector<uint8_t> data = {opcode};
     switch (action.type) {
-        case ActionType::PLAYERTYPE: {
+        case ActionType::PLAYERTYPE:
             data.push_back(static_cast<uint8_t>(action.player_type));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        }
-        case ActionType::MOVE: {
+        case ActionType::MOVE:
             data.push_back(static_cast<uint8_t>(action.direction));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        }
-        case ActionType::SHOOT: {
+        case ActionType::SHOOT:
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        }
         case ActionType::BOMB:
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        case ActionType::WEAPON: {
+        case ActionType::WEAPON:
             data.push_back(static_cast<uint8_t>(action.weapon));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        }
-        case ActionType::AMMO: {
+        case ActionType::AMMO:
             push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        }
         case ActionType::CHANGE:
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
