@@ -50,6 +50,8 @@ private:
     SDL2pp::Texture bomb_texture;
     SDL2pp::Texture explotion_sprites;
 
+    SDL2pp::Texture bomb_zone;
+
     uint32_t last_frame_time = 0;
     const uint32_t frame_delay = 1000 / 60;  // 60 FPS
 
@@ -64,6 +66,8 @@ private:
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
     std::vector<ObstacleView> obstacles;
     std::vector<BulletView> bullets;
+    std::vector<SDL_Rect> bomb_zones;
+
 
     // posible eliminación
     float last_px = -1;
@@ -89,6 +93,10 @@ public:
 
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
+
+    SoundManager& get_manager() { return sound_manager; }
+
+    LegsView& get_legs() { return *legs[local_id]; }
 
     void frame_sync();
 };

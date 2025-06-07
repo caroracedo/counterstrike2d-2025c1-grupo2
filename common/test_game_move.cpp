@@ -109,6 +109,7 @@ int main() {
 
     game.add_player(PlayerType::TERRORIST, 1);
     game.add_player(PlayerType::COUNTERTERRORIST, 2);
+    game.start_round_game_phase();
     show(game);
 
     std::vector<uint16_t> player2_position = game.get_player_position(2);
@@ -118,9 +119,19 @@ int main() {
         switch (action.type) {
             case ActionType::MOVE:
                 game.move(action.direction, 1);
+                for (int i = 0; i < 30; ++i) {
+                    game.update();
+                }
                 break;
             case ActionType::SHOOT:
                 game.shoot(player2_position, 1);
+                for (int i = 0; i < 30; ++i) {
+                    game.update();
+                }
+                break;
+            case ActionType::BOMB:
+                std::cout << "interactuando con bomba" << std::endl;
+                game.interact_with_bomb(1);
                 break;
             case ActionType::QUIT:
                 return 0;

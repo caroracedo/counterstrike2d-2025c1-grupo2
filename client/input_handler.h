@@ -10,6 +10,10 @@
 #include "../common/constants.h"
 
 #include "game_camera.h"
+#include "legs_view.h"
+#include "player_view.h"
+#include "sound_manager.h"
+
 // #include "shop_view.h"
 
 class InputHandler {
@@ -18,10 +22,14 @@ private:
     bool fire_requested = false;
     GameCamera& camera;
     // ShopView& shop;
+    // PlayerView& player;
+    // LegsView& legs;
+
+    SoundManager& sounds;
 
 
 public:
-    explicit InputHandler(GameCamera& cam): camera(cam) {}
+    explicit InputHandler(GameCamera& cam, SoundManager& sound): camera(cam), sounds(sound) {}
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
         SDL_Event event;
@@ -33,14 +41,26 @@ public:
 
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
-                    case SDLK_w:
+                    case SDLK_w: {
+                        // sounds.play("steps_1",0);
                         return {ActionType::MOVE, Direction::UP};
-                    case SDLK_s:
+                    }
+
+                    case SDLK_s: {
+                        // sounds.play("steps_1",0);
                         return {ActionType::MOVE, Direction::DOWN};
-                    case SDLK_a:
+                    }
+
+                    case SDLK_a: {
+                        // sounds.play("steps_1",0);
                         return {ActionType::MOVE, Direction::LEFT};
-                    case SDLK_d:
+                    }
+
+                    case SDLK_d: {
+                        // sounds.play("steps_1",0);
                         return {ActionType::MOVE, Direction::RIGHT};
+                    }
+
                     case SDLK_b:
                         return ActionDTO{ActionType::BOMB};
                     case SDLK_1:

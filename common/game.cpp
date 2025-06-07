@@ -427,6 +427,8 @@ bool Game::move(Direction direction, const uint16_t& id) {
 }
 
 void Game::update_bullets() {
+    update_ak47_bursts();
+
     std::map<uint16_t, std::vector<uint16_t>> bullets_to_update;
     std::vector<uint16_t> bullets_to_delete;
 
@@ -499,11 +501,26 @@ bool Game::shoot_ak47(const std::vector<uint16_t>& player_position, const Weapon
     /*
         Dispara 3 balas en ráfaga (una atrás de la otra)
     */
-    for (int i = 0; i < 3; ++i) {
-        create_bullet(player_position, weapon_dto, desired_position);
-        // sleep(0.4)
-    }
+    Ak47Burst burst{player_position, weapon_dto, desired_position, 3, 0.0f};
+    ak47_bursts.push_back(burst);
     return true;
+}
+
+void Game::update_ak47_bursts() {
+    float delta_seconds = 1.0f / 30.0f;
+    for (auto it = ak47_bursts.begin(); it != ak47_bursts.end();) {
+        it->time_until_next_shot -= delta_seconds;
+        if (it->time_until_next_shot <= 0.0f && it->shots_left > 0) {
+            create_bullet(it->player_position, it->weapon_dto, it->desired_position);
+            it->shots_left--;
+            it->time_until_next_shot = 0.4f;
+        }
+        if (it->shots_left == 0) {
+            it = ak47_bursts.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void Game::employ_knife(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
@@ -699,12 +716,24 @@ bool Game::interact_with_bomb(const uint16_t& player_id) {
         if (player_type == PlayerType::COUNTERTERRORIST) {
             return deactivate_bomb(player_position);
         } else if (player_type == PlayerType::TERRORIST && player_it->second->can_plant_bomb()) {
-            return plant_bomb(player_position);
+            if (is_in_bomb_zone(player_position)) {
+                player_it->second->plant_bomb();
+                return plant_bomb(player_position);
+            }
         }
     } else {
         std::cout << "Player with ID " << player_id << " not found." << std::endl;
     }
     return false;
+}
+
+bool Game::is_in_bomb_zone(const std::vector<uint16_t>& position) const {
+    const auto& bomb_zones = config.get_bomb_zones();
+    return std::any_of(bomb_zones.begin(), bomb_zones.end(), [&position](const auto& zone) {
+        return circle_rectangle_collision(position, PLAYER_RADIUS,
+                                          std::vector<uint16_t>{zone.x, zone.y}, zone.width,
+                                          zone.height);
+    });
 }
 
 bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {

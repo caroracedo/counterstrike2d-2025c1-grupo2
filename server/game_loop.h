@@ -11,9 +11,7 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
-// #define ROUNDS 10
-#define ROUNDS 1          // TODO: Desde config...
-#define SHOPPING_TIME 30  // 10 segundos para shopping
+#define SHOPPING_TIME 15  // 15 segundos para shopping
 #define SNAPSHOT_TIME 33  // ~30FPS
 
 class GameLoop: public Thread {
@@ -145,13 +143,14 @@ public:
         waiting_lobby();
         std::cout << "[GAME] ¡Que comience el juego!" << std::endl;
 
-        for (size_t round = 1; round <= ROUNDS && should_keep_running(); ++round) {
+        for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running();
+             ++round) {
             std::cout << "[ROUND] Iniciando ronda..." << std::endl;
             auto last_snapshot_time = std::chrono::steady_clock::now();
             shopping_phase(last_snapshot_time);
             game_phase(last_snapshot_time);
             std::cout << "[ROUND] Terminando ronda..." << std::endl;
-            if (round == ROUNDS / 2)
+            if (round == config.get_rounds_total() / 2)
                 monitor_game.switch_player_types();
         }
 

@@ -27,6 +27,7 @@ GameView::GameView():
         gun_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/deagle.bmp"))),
         bomb_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/bomb.bmp"))),
         explotion_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../explosion.bmp"))),
+        bomb_zone(renderer, SDL2pp::Surface(SDL_LoadBMP("../bomb_zone.bmp"))),
         camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
         hud_view(hud_numbres, renderer),
         bomb_view(bomb_texture, explotion_sprites),
@@ -44,6 +45,7 @@ void GameView::update(const ActionDTO& action) {
     shop_view.set_visible(false);
     obstacles.clear();
     bullets.clear();
+    bomb_zones.clear();
     std::unordered_set<uint8_t> players_in_game;
     for (const auto& object: action.objects) {
 
@@ -62,6 +64,13 @@ void GameView::update(const ActionDTO& action) {
             }
             hud_view.update_timer(object);
             bomb_view.update(object.position[0], object.position[1]);
+        } else if (object.type == ObjectType::BOMBZONE) {
+            SDL_Rect rect;
+            rect.x = static_cast<int>(object.position[0]);
+            rect.y = static_cast<int>(object.position[1]);
+            rect.w = static_cast<int>(object.width);
+            rect.h = static_cast<int>(object.height);
+            bomb_zones.push_back(rect);
         }
     }
 
@@ -155,6 +164,19 @@ void GameView::render() {
 
     renderer.Copy(background, SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
+    for (const auto& zone: bomb_zones) {
+        float screenX = zone.x - camera.get_x();
+        float screenY = zone.y - camera.get_y();
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
+                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(zone.w),
+                                 int(zone.h)};
+
+        SDL_Rect src_rect = {0, 0, int(zone.w), int(zone.h)};
+        box_texture2.SetAlphaMod(255);  // 50% transparent
+        box_texture.SetAlphaMod(255);
+
+        renderer.Copy(bomb_zone, src_rect, dst_rect);
+    }
 
     for (auto& bullet: bullets) bullet.draw(renderer, camera);
 
