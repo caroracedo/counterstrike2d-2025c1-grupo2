@@ -95,10 +95,7 @@ void GameView::update_player(const ObjectDTO& object) {
     float y = object.position[1];
 
 
-    players.try_emplace(id,
-                        std::make_unique<PlayerView>(object.player_type == PlayerType::TERRORIST ?
-                                                             terrorist_sprites :
-                                                             counterterrorist_srpites));
+    players.try_emplace(id, std::make_unique<PlayerView>(renderer));
 
     legs.try_emplace(
             id, std::make_unique<LegsView>(legs_sprites,
@@ -112,6 +109,7 @@ void GameView::update_player(const ObjectDTO& object) {
 
     if (x - last_px || y - last_py == 5 || last_px == -1 || last_py == -1) {
         players[id]->update_position(x, y);
+        players[id]->update_styles(object.player_type, object.weapon_model);
         // last_px = x;
         // last_py = y;
         legs[id]->update_position(x, y);

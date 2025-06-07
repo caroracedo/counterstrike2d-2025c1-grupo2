@@ -33,21 +33,21 @@ private:
 
 public:
     explicit GunView(SDL2pp::Renderer& renderer) {
-        gun_sprites[WeaponModel::GLOCK] =
-                std::make_unique<SDL2pp::Texture>(renderer, SDL2pp::Surface(SDL_LoadBMP( "../assets/gfx/weapons/glock.bmp")));
-        gun_sprites[WeaponModel::AK47] =
-                std::make_unique<SDL2pp::Texture>(renderer, SDL2pp::Surface(SDL_LoadBMP( "../assets/gfx/weapons/ak47.bmp")));
-        gun_sprites[WeaponModel::M3] =
-                std::make_unique<SDL2pp::Texture>(renderer, SDL2pp::Surface(SDL_LoadBMP( "../assets/gfx/weapons/m3.bmp")));
-        gun_sprites[WeaponModel::AWP] =
-                std::make_unique<SDL2pp::Texture>(renderer, SDL2pp::Surface(SDL_LoadBMP( "../assets/gfx/weapons/awp.bmp")));
+        gun_sprites[WeaponModel::GLOCK] = std::make_unique<SDL2pp::Texture>(
+                renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/glock.bmp")));
+        gun_sprites[WeaponModel::AK47] = std::make_unique<SDL2pp::Texture>(
+                renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/ak47.bmp")));
+        gun_sprites[WeaponModel::M3] = std::make_unique<SDL2pp::Texture>(
+                renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/m3.bmp")));
+        gun_sprites[WeaponModel::AWP] = std::make_unique<SDL2pp::Texture>(
+                renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/awp.bmp")));
+        gun_sprites[WeaponModel::KNIFE] = std::make_unique<SDL2pp::Texture>(
+                renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/knife.bmp")));
     }
 
-    void change_gun(WeaponModel type) { 
-        std::cout << "Type: " << static_cast<int>(type) << std::endl;
-        current_type = type; }
+    void change_gun(WeaponModel type) { current_type = type; }
 
-    void update(float px, float py) { 
+    void update(float px, float py) {
         x = px;
         y = py;
     }
