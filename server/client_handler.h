@@ -39,15 +39,16 @@ public:
     void hard_kill() {
         Thread::stop();
 
-        sender.stop();
-        receiver.stop();
-        sender.join();
-        receiver.join();
-
         try {
             client_socket.shutdown(2);  // Cierra lectura y escritura
         } catch (...) {}
         client_socket.close();
+
+        sender.stop();
+        receiver.stop();
+
+        sender.join();
+        receiver.join();
     }
 
     bool is_alive() const override { return receiver.is_alive() || sender.is_alive(); }

@@ -85,10 +85,14 @@ private:
 
         auto shopping_interval = std::chrono::seconds(SHOPPING_TIME);
         auto now = std::chrono::steady_clock::now();
-        while (now - last_snapshot_time < shopping_interval) {
+        while (now - last_snapshot_time < shopping_interval && should_keep_running()) {
             ActionDTO action;
-            if (recv_queue->try_pop(action)) {
-                do_shop_action(action);
+            try {
+                if (recv_queue->try_pop(action)) {
+                    do_shop_action(action);
+                }
+            } catch (const ClosedQueue&) {
+                stop();
             }
             now = std::chrono::steady_clock::now();
         }
@@ -105,8 +109,12 @@ private:
         while (!monitor_game.is_over() && should_keep_running()) {
             auto start = std::chrono::steady_clock::now();
             ActionDTO action;
-            if (recv_queue->try_pop(action)) {
-                do_action(action);
+            try {
+                if (recv_queue->try_pop(action)) {
+                    do_action(action);
+                }
+            } catch (const ClosedQueue&) {
+                stop();
             }
 
             auto now = std::chrono::steady_clock::now();

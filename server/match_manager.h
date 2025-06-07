@@ -45,6 +45,7 @@ private:
             match.second->join();
         }
         matches.clear();
+
         shared_recv_queues.clear();
         monitors_client_send_queues.clear();
     }

@@ -27,15 +27,16 @@ public:
                 break;
             }
         }
+        stop_flag = true;
         stop();
     }
 
     void stop() override {
-        if (should_keep_running()) {
-            Thread::stop();
+        Thread::stop();
+        try {
             if (send_queue)
                 send_queue->close();
-        }
+        } catch (const std::runtime_error& e) {}
     }
 
     bool should_this_thread_keep_running() { return should_keep_running() && !stop_flag; }
