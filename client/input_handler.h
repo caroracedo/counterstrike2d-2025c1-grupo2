@@ -10,12 +10,18 @@
 #include "../common/constants.h"
 
 #include "game_camera.h"
+#include "legs_view.h"
+#include "player_view.h"
+#include "sound_manager.h"
+
+// #include "shop_view.h"
 
 class InputHandler {
 private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
     GameCamera& camera;
+
 
 public:
     explicit InputHandler(GameCamera& cam): camera(cam) {}
@@ -32,14 +38,36 @@ public:
                 switch (event.key.keysym.sym) {
                     case SDLK_w:
                         return {ActionType::MOVE, Direction::UP};
+
                     case SDLK_s:
                         return {ActionType::MOVE, Direction::DOWN};
+
                     case SDLK_a:
                         return {ActionType::MOVE, Direction::LEFT};
+
                     case SDLK_d:
                         return {ActionType::MOVE, Direction::RIGHT};
+
                     case SDLK_b:
                         return ActionDTO{ActionType::BOMB};
+
+                    case SDLK_1:
+                        return ActionDTO{ActionType::WEAPON, WeaponModel::AK47};
+
+                    case SDLK_2:
+                        return ActionDTO{ActionType::WEAPON, WeaponModel::M3};
+
+                    case SDLK_3:
+                        return ActionDTO{ActionType::WEAPON, WeaponModel::AWP};
+
+                    case SDLK_4:
+                        return ActionDTO{ActionType::AMMO, 30};
+
+                    case SDLK_5:
+                        return ActionDTO{ActionType::AMMO, 30};
+
+                    case SDLK_SPACE:
+                        return ActionDTO{ActionType::CHANGE};
                 }
             }
 

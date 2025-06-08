@@ -19,6 +19,8 @@
 #include "legs_view.h"
 #include "player_HUD.h"
 #include "player_view.h"
+#include "shop_view.h"
+#include "sound_manager.h"
 
 
 struct ObstacleView {
@@ -48,19 +50,24 @@ private:
     SDL2pp::Texture bomb_texture;
     SDL2pp::Texture explotion_sprites;
 
+    SDL2pp::Texture bomb_zone;
+
     uint32_t last_frame_time = 0;
     const uint32_t frame_delay = 1000 / 60;  // 60 FPS
 
-    // SoundManager sound_manager;
+    SoundManager sound_manager;
     GameCamera camera;
     PLayerHUD hud_view;
     BombView bomb_view;
+    ShopView shop_view;
 
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
     std::vector<ObstacleView> obstacles;
     std::vector<BulletView> bullets;
+    std::vector<SDL_Rect> bomb_zones;
+
 
     // posible eliminación
     float last_px = -1;
@@ -86,7 +93,7 @@ public:
 
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
-    
+
     void frame_sync();
 };
 

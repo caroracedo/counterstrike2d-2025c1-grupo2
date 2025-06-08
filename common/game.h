@@ -1,12 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define MATRIX_SIZE 200   // posición máxima en la matriz (celdas)
-#define MOVE_STEP 5       // paso de movimiento
-#define CELL_SIZE 56      // tamaño de cada celda en la matriz
-#define PLAYER_RADIUS 16  // radio del jugador
-#define BULLET_RADIUS 2   // radio de la bala
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -22,13 +16,17 @@
 
 #include "action_DTO.h"
 #include "bomb.h"
+#include "bomb_zone.h"
 #include "config.h"
+#include "constants.h"
+#include "knife.h"
 #include "object.h"
 #include "object_DTO.h"
 #include "obstacle.h"
 #include "player.h"
 #include "types.h"
 #include "weapon.h"
+#include "weapon_DTO.h"
 #include "weapon_shop.h"
 
 class Game {
@@ -43,6 +41,20 @@ private:
     Config& config;
     WeaponShop weapon_shop;
     bool exploded = false;
+    bool deactivated = false;
+    struct Ak47Burst {
+        std::vector<uint16_t> player_position;
+        WeaponDTO weapon_dto;
+        std::vector<uint16_t> desired_position;
+        int shots_left;
+        float time_until_next_shot;  // en segundos
+    };
+    std::vector<Ak47Burst> ak47_bursts;
+
+    /***************************************************************************************************
+     *****************************************POSICIONES Y
+     *CELDAS***************************************
+     ***************************************************************************************************/
 
     // Obtiene la celda correspondiente a una posición dada.
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
@@ -51,10 +63,19 @@ private:
     std::vector<std::pair<uint16_t, uint16_t>> get_cells_within_radius(
             const std::pair<uint16_t, uint16_t>& cell, uint16_t radius);
 
+    // Calcula la distancia entre dos posiciones dadas.
+    uint16_t distance_between(const std::vector<uint16_t>& position1,
+                              const std::vector<uint16_t>& position2);
 
     // Obtiene los objetos en las celdas adyacentes a la celda dada.
     std::set<std::shared_ptr<Object>> get_adyacent_objects(
             const std::pair<uint16_t, uint16_t>& cell);
+
+
+    /***************************************************************************************************
+     ******************************************* MOVIMIENTO
+     *********************************************
+     ***************************************************************************************************/
 
     // Realiza el movimiento del objeto dado en la dirección dada.
     std::pair<bool, std::vector<uint16_t>> _move(const Object& obj,
@@ -73,6 +94,12 @@ private:
     bool update_object_in_matrix(const std::shared_ptr<Object>& obj,
                                  const std::vector<uint16_t>& old_position);
 
+
+    /***************************************************************************************************
+     *********************************ACTUALIZACIÓN DE JUGADORES Y
+     *BALAS********************************
+     ***************************************************************************************************/
+
     // Encuentra el jugador con el ID especificado y le inflige daño, devuelve si el jugador sigue
     // vivo.
     bool damage_player(uint16_t id, uint16_t damage);
@@ -81,16 +108,16 @@ private:
     // void reap();
 
     // Crea una bala y la agrega a la matriz, al vector de objetos y al mapa de balas.
-    void create_bullet(const std::vector<uint16_t>& player_position, const uint16_t& range,
-                       const uint16_t& damage, const std::vector<uint16_t>& desired_position);
-
-    // Elimina la bala con el ID especificado de la matriz, del vector de objetos y del mapa de
-    // balas.
-    void delete_bullet(const uint16_t& bullet_id);
+    void create_bullet(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
+                       const std::vector<uint16_t>& desired_position);
 
     // Devuelve el daño infligido por la bala y elimina la bala de la matriz, del vector de objetos
     // y del mapa de balas.
     uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
+
+    // Elimina la bala con el ID especificado de la matriz, del vector de objetos y del mapa de
+    // balas.
+    void delete_bullet(const uint16_t& bullet_id);
 
     // Incrementa el ID de la siguiente bala.
     void inc_bullet_id();
@@ -99,89 +126,94 @@ private:
     void update_bullets();
 
     // Dispara 3 balas en cono
-    void shoot_m3(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+    bool shoot_m3(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                   const std::vector<uint16_t>& desired_position);
 
     // Dispara 3 balas en ráfaga (una atrás de la otra)
-    void shoot_ak47(const std::vector<uint16_t>& player_position, uint16_t range, uint16_t damage,
+    bool shoot_ak47(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
                     const std::vector<uint16_t>& desired_position);
 
+    void update_ak47_bursts();
+
+    void employ_knife(const std::vector<uint16_t>& player_position, const WeaponDTO& weapon_dto,
+                      const std::vector<uint16_t>& desired_position);
+
+
+    /***************************************************************************************************
+     *******************************************INICIALIZACION******************************************
+     ***************************************************************************************************/
+
+    // Inicializa los jugadores con posiciones aleatorias dentro del mapa.
     Player get_player_with_random_position(PlayerType player_type, uint16_t id);
 
+    // Elige al azar un jugador terrorista para que tenga la bomba.
     void set_bomb_player();
 
+
+    /***************************************************************************************************
+     ************************************BOMBA Y
+     *DESACTIVACIÓN******************************************
+     ***************************************************************************************************/
+
+    // Devuelve si el jugador está dentro de la zona donde puede plantar la bomba.
+    bool is_in_bomb_zone(const std::vector<uint16_t>& position) const;
+
+    // Crea la bomba en la posición del jugador y la agrega a los objetos y a la matriz.
+    bool plant_bomb(const std::vector<uint16_t>& player_position);
+
+    // Desactiva la bomba si el jugador es un counter-terrorista y está dentro del rango de
+    // desactivación. Devuelve true si se desactiva correctamente, false en caso contrario.
+    bool deactivate_bomb(const std::vector<uint16_t>& player_position);
+
+    // Actualiza el temporizador de la bomba y verifica si ha explotado.
     void update_bomb_countdown();
 
+    // Elimina la bomba de la matriz y del vector de objetos.
     void delete_bomb();
 
 public:
     explicit Game(Config& config);
 
-    bool move(Direction direction, const uint16_t& id);
-
-    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
-
-    bool plant_bomb(const uint16_t& player_id);
-
-    std::vector<std::shared_ptr<Object>>& get_objects();
-
-    void add_player(PlayerType player_type, uint16_t id);
-
-    bool is_over();
-
+    // Verifica que haya por lo menos un jugador de cada tipo.
     bool is_ready_to_start();
 
-    void end_round_game_phase() {
-        if (bomb) {
-            delete_bomb();
-            exploded = false;
-        }
-        for (auto& [id, player]: dead_players) {
-            if (player) {
-                // Reestablece la salud del jugador muerto
-                player->cure(config.get_player_health());
+    // Devuelve el vector de objetos del juego.
+    std::vector<std::shared_ptr<Object>>& get_objects();
 
-                // Reagrega al jugador a la lista de jugadores
-                players[id] = player;
+    // Agrega un jugador al juego con el tipo y ID especificados.
+    void add_player(PlayerType player_type, uint16_t id);
 
-                // Reagrega al jugador a la matriz
-                auto cell = get_cell_from_position(player->get_position());
-                matrix[cell.first][cell.second].push_back(player);
+    // Mueve al jugador con el ID especificado en la dirección dada.
+    bool move(Direction direction, const uint16_t& id);
 
-                // Reagrega al jugador a la lista de objetos
-                objects.push_back(player);
-            }
-        }
-        // Elimina los jugadores muertos de la lista de jugadores muertos
-        dead_players.clear();
-    }
+    // Dispara una bala desde la posición del jugador hacia la posición deseada.
+    bool shoot(const std::vector<uint16_t>& position, const uint16_t player_id);
 
-    void switch_player_types() {
-        for (auto& [id, player]: players) {
-            if (player) {
-                std::cout << "Se lo cambio a player de ID" << id << std::endl;
-                player->switch_player_type();
-            }
-        }
-    }
+    // Interactúa con la bomba: planta si es terrorista o desactiva si es counter-terrorista.
+    bool interact_with_bomb(const uint16_t& player_id);
 
-    bool shop_weapon(WeaponModel weapon, uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            return player_it->second->buy_weapon(weapon);
-        }
-        return false;
-    }
+    // Indica si el juego ha terminado, es decir, si todos los jugadores de un equipo han muerto, si
+    // explotó la bomba o si se desactivó.
+    bool is_over();
 
-    bool shop_ammo(uint ammo, uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            return player_it->second->buy_ammo(ammo);
-        }
-        return false;
-    }
+    // Inicia la fase de juego de la ronda, eligiendo al jugador que tendrá la bomba.
+    void start_round_game_phase();
 
-    void start_round_game_phase() { set_bomb_player(); }
+    // Reinicia la fase de juego de la ronda, eliminando la bomba si existe y reestableciendo los
+    // jugadores muertos.
+    void end_round_game_phase();
+
+    // Cambia el tipo de todos los jugadores en el juego, de terrorista a counter-terrorista y
+    // viceversa.
+    void switch_player_types();
+
+    // Permite a los jugadores comprar un arma en la fase inicial
+    bool shop_weapon(WeaponModel weapon, uint16_t id);
+
+    // Permite a los jugadores comprar munición en la fase inicial
+    bool shop_ammo(uint ammo, uint16_t id);
+
+    bool change_weapon(uint16_t id);
 
     /********************************************************************************************
      ************************************ FUNCIONES PARA TESTEAR ********************************
@@ -195,79 +227,46 @@ public:
             auto cell = get_cell_from_position(obstacle->get_position());
             matrix[cell.first][cell.second].push_back(obstacle);
         }
-        //  // Jugador en (30, 30)
-        // auto player1 = std::make_shared<Player>(1, std::vector<uint16_t>{30, 30},
-        //                                         PlayerType::TERRORIST, false, weapon_shop);
-        // player1->buy_weapon(WeaponModel::M3);
-        // player1->change_weapon();
-        // player1->change_weapon();
-        // std::cout << "Arma actual del jugador 1: " << player1->get_current_weapon_name()
-        //             << std::endl;
-        // players.insert({1, player1});
-        // objects.push_back(player1);
-        // auto cell = get_cell_from_position(player1->get_position());
-        // matrix[cell.first][cell.second].push_back(player1);
+        for (const auto& bomb_zone_cfg: config.get_bomb_zones()) {
+            auto bomb_zone = std::make_shared<BombZone>(
+                    std::vector<uint16_t>{bomb_zone_cfg.x, bomb_zone_cfg.y}, bomb_zone_cfg.width,
+                    bomb_zone_cfg.height);
+            objects.push_back(bomb_zone);
 
-
-        // // Obstáculo 1 en (50, 10)
-        // auto obstacle1 = std::make_shared<Obstacle>(std::vector<uint16_t>{50, 10}, 30, 6);
-        // objects.push_back(obstacle1);
-        // cell = get_cell_from_position(obstacle1->get_position());
-        // matrix[cell.first][cell.second].push_back(obstacle1);
-
-        // // // Bala en (45, 50)
-        // // auto bullet = std::make_shared<Bullet>(7, std::vector<uint16_t>{45, 50}, 10, 20);
-        // // bullets.insert({7, bullet});
-        // // objects.push_back(bullet);
-        // // cell = get_cell_from_position(bullet->get_position());
-        // // matrix[cell.first][cell.second].push_back(bullet);
-
-        // // Otro jugador en (80, 80)
-        // auto player2 = std::make_shared<Player>(2, std::vector<uint16_t>{80, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false,
-        //                                         weapon_shop);
-        // players.insert({2, player2});
-        // objects.push_back(player2);
-        // cell = get_cell_from_position(player2->get_position());
-        // matrix[cell.first][cell.second].push_back(player2);
-
-        // // Otro jugador en (30, 80)
-        // auto player3 = std::make_shared<Player>(3, std::vector<uint16_t>{30, 80},
-        //                                         PlayerType::COUNTERTERRORIST, false,
-        //                                         weapon_shop);
-        // players.insert({3, player3});
-        // objects.push_back(player3);
-        // cell = get_cell_from_position(player3->get_position());
-        // matrix[cell.first][cell.second].push_back(player3);
+            auto cell = get_cell_from_position(bomb_zone->get_position());
+            matrix[cell.first][cell.second].push_back(bomb_zone);
+        }
     }
 
     void show_objects() {
-        std::cout << "Objetos:" << std::endl;
+        std::cout << "Objects:" << std::endl;
         for (const auto& obj: objects) {
             std::cout << "\tID: " << obj->get_id()
-                      << ", Tipo: " << get_object_type(static_cast<ObjectType>(obj->get_type()))
-                      << ", Posición: (" << obj->get_position()[0] << ", " << obj->get_position()[1]
+                      << ", Type: " << get_object_type(static_cast<ObjectType>(obj->get_type()))
+                      << ", Position: (" << obj->get_position()[0] << ", " << obj->get_position()[1]
                       << ")" << std::endl;
         }
         std::cout << std::endl;
     }
 
     // void show_bullets() {
-    //     std::cout << "Balas:" << std::endl;
+    //     std::cout << "Bullets:" << std::endl;
     //     for (const auto& [id, bullet]: bullets) {
-    //         std::cout << "\tID: " << id << ", Posición: (" << bullet->get_position()[0] << ", "
-    //                   << bullet->get_position()[1] << "), Rango: " << bullet->get_range()
-    //                   << ", Daño: " << bullet->get_damage() << std::endl;
+    //         std::cout << "\tID: " << id << ", Position: (" << bullet->get_position()[0] << ", "
+    //                   << bullet->get_position()[1] << "), Range: " << bullet->get_range()
+    //                   << ", Damage: " << bullet->get_damage() << std::endl;
     //     }
     //     std::cout << std::endl;
     // }
 
-    std::vector<uint16_t> get_position(uint16_t id) const {
-        auto it = std::find_if(
-                objects.begin(), objects.end(),
-                [id](const std::shared_ptr<Object>& obj) { return obj->get_id() == id; });
-        if (it != objects.end()) {
-            return (*it)->get_position();
+    std::vector<uint16_t> get_player_position(uint16_t id) const {
+        /*
+         *    Obtiene la posición del jugador con el ID especificado.
+         *    Si no se encuentra, devuelve un vector vacío.
+         */
+        auto it = players.find(id);
+        if (it != players.end()) {
+            return it->second->get_position();
         }
         return {};
     }
@@ -275,13 +274,17 @@ public:
     std::string get_object_type(const ObjectType& type) const {
         switch (type) {
             case ObjectType::PLAYER:
-                return "Jugador";
+                return "Player";
             case ObjectType::BULLET:
-                return "Bala";
+                return "Bullet";
             case ObjectType::OBSTACLE:
-                return "Obstáculo";
+                return "Obstacle";
+            case ObjectType::BOMB:
+                return "Bomb";
+            case ObjectType::BOMBZONE:
+                return "BombZone";
             default:
-                return "Desconocido";
+                return "Unknown";
         }
     }
 
@@ -291,25 +294,16 @@ public:
          */
         switch (direction) {
             case Direction::UP:
-                return "arriba";
+                return "up";
             case Direction::DOWN:
-                return "abajo";
+                return "down";
             case Direction::LEFT:
-                return "izquierda";
+                return "left";
             case Direction::RIGHT:
-                return "derecha";
+                return "right";
             default:
-                return "desconocida";
+                return "unknown";
         }
-    }
-
-    uint16_t distance_moved(const std::vector<uint16_t>& old_position,
-                            const std::vector<uint16_t>& new_position) {
-        /*
-         *    Calcula la distancia recorrida entre dos posiciones.
-         */
-        return static_cast<uint16_t>(std::sqrt(std::pow(new_position[0] - old_position[0], 2) +
-                                               std::pow(new_position[1] - old_position[1], 2)));
     }
 
     void update() { update_bullets(); }

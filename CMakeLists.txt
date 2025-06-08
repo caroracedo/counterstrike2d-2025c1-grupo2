@@ -68,6 +68,7 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     include(FetchContent)
 
     set(SDL2PP_WITH_MIXER YES)
+    set(SDL2PP_WITH_TTF YES)
 
     FetchContent_Declare(
         SDL2

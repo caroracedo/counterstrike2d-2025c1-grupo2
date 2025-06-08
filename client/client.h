@@ -70,7 +70,7 @@ public:
                     break;
                 } else if (update.type == ActionType::PLAYERID) {
                     game_view.set_id(update.id);
-                } else if (update.type == ActionType::UPDATE) {
+                } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP) {
                     game_view.update(update);
                 }
             }

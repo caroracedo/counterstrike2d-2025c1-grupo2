@@ -7,6 +7,7 @@
 
 #include "object.h"
 #include "weapon.h"
+#include "weapon_DTO.h"
 #include "weapon_shop.h"
 
 // #define PLAYER_SIZE 32
@@ -47,6 +48,13 @@ public:
         secondary_weapon = new_secondary_weapon.second;
 
         current = secondary_weapon;
+
+        // Prueba de AK-47
+        std::pair<uint16_t, Weapon> new_primary_weapon =
+                weapon_shop.buy_weapon(WeaponModel::AK47, money);
+        money -= new_primary_weapon.first;
+        primary_weapon = new_primary_weapon.second;
+        current = primary_weapon;
     }
 
     /* Virtual puro */
@@ -60,7 +68,10 @@ public:
     bool is_alive() const { return health > 0; }
 
     /* Getters */
-    Weapon get_current_weapon() const { return current; }
+    WeaponDTO get_current_weapon() const { return current.get_dto(); }
+
+    bool shoot() { return current.shoot(); }
+
     PlayerType get_player_type() const { return player_type; }
 
     /* Funcionalidades */
@@ -73,13 +84,12 @@ public:
         }
     }
 
-    void cure(uint16_t health_amount) {
-        health = health_amount;
-    }
+    void cure(uint16_t health_amount) { health = health_amount; }
 
     void switch_player_type() {
-        player_type = (player_type == PlayerType::TERRORIST) ? PlayerType::COUNTERTERRORIST
-                                          : (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST : PlayerType::UNKNOWN;
+        player_type = (player_type == PlayerType::TERRORIST)        ? PlayerType::COUNTERTERRORIST :
+                      (player_type == PlayerType::COUNTERTERRORIST) ? PlayerType::TERRORIST :
+                                                                      PlayerType::UNKNOWN;
     }
 
     /* Cambio de arma */
@@ -171,7 +181,7 @@ public:
             return false;
         }
         money -= purchase.first;
-        primary_weapon.add_ammo(ammo_amount);
+        current.add_ammo(ammo_amount);
         return true;
     }
 };

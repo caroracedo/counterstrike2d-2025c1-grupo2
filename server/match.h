@@ -32,7 +32,9 @@ private:
             case ActionType::SHOOT:
                 return monitor_game.shoot(action_dto.desired_position, action_dto.id);
             case ActionType::BOMB:
-                return monitor_game.plant_bomb(action_dto.id);
+                return monitor_game.interact_with_bomb(action_dto.id);
+            case ActionType::CHANGE:
+                return monitor_game.change_weapon(action_dto.id);
             default:
                 return false;
         }
@@ -72,9 +74,9 @@ private:
 
     void waiting_phase() {
         std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
-        while (!monitor_game.is_ready_to_start() && should_keep_running()) {
-            send_snapshot_to_all_clients();
-        }
+
+        while (!monitor_game.is_ready_to_start() && should_keep_running()) {}
+
         send_snapshot_to_all_clients();  // Snapshot final...
         std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
     }
@@ -148,13 +150,14 @@ public:
 
         std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
 
-        for (size_t round = 1; round <= ROUNDS && should_keep_running(); ++round) {
+        for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running();
+             ++round) {
             std::cout << "[ROUND] Iniciando ronda..." << std::endl;
             auto last_snapshot_time = std::chrono::steady_clock::now();
             shopping_phase(last_snapshot_time);
             game_phase(last_snapshot_time);
             std::cout << "[ROUND] Terminando ronda..." << std::endl;
-            if (round == ROUNDS / 2)
+            if (round == config.get_rounds_total() / 2)
                 monitor_game.switch_player_types();
         }
 

@@ -22,6 +22,7 @@ enum class ActionType : uint8_t {
     AMMO = 0x55,
     CREATE = 0x42,
     JOIN = 0x43,
+    CHANGE = 0x40,
     UNKNOWN = 0x00
 };
 
@@ -32,8 +33,6 @@ enum class Direction : uint8_t {
     RIGHT = 0x04,
     UNKNOWN = 0x00
 };
-
-enum class ActionParamType { ID, AMMO, WEAPON };
 
 struct ActionDTO {
     ActionType type;
@@ -100,6 +99,7 @@ struct ActionDTO {
         switch (type) {
             case ActionType::PLAYERID:
             case ActionType::BOMB:
+            case ActionType::CHANGE:
                 id = value;
                 break;
             case ActionType::AMMO:

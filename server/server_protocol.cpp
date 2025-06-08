@@ -17,18 +17,25 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
         data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
         push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].position[0]), data);
         push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].position[1]), data);
-        if (action_dto.objects[i].type == ObjectType::PLAYER) {
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].id), data);
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_type));
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
-            data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].money), data);
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].ammo), data);
-        } else if (action_dto.objects[i].type == ObjectType::OBSTACLE) {
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
-        } else if (action_dto.objects[i].type == ObjectType::BOMB) {
-            push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
+        switch (action_dto.objects[i].type) {
+            case ObjectType::PLAYER:
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].id), data);
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_type));
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].money), data);
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].ammo), data);
+                break;
+            case ObjectType::BOMBZONE:
+            case ObjectType::OBSTACLE:
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
+                break;
+            case ObjectType::BOMB:
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
+                break;
+            default:
+                break;
         }
     }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
@@ -48,6 +55,7 @@ bool ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
                                              std::vector<uint8_t>& data) {
     std::transform(action_dto.weapons.begin(), action_dto.weapons.end(), std::back_inserter(data),
                    [](WeaponModel weapon) { return static_cast<uint8_t>(weapon); });
+    std::cout << "mando shop desde ID: " << id << std::endl;
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 
@@ -82,6 +90,8 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::AMMO:
             return {type, hex_big_endian_to_int_16({data[1], data[2]}),
                     id};  // Agrega el id del jugador...
+        case ActionType::CHANGE:
+            return {type, id};  // Agrega el id del jugador...
         default:
             return {};
     }
