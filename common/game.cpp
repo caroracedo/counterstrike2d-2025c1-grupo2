@@ -150,17 +150,39 @@ bool Game::is_over() {
          - desactivan bomba
          - todos los jugadores de un bando eliminados
     */
-    return !(std::any_of(players.begin(), players.end(),
-                         [](const auto& par) {
-                             return par.second &&
-                                    par.second->get_player_type() == PlayerType::TERRORIST;
-                         }) &&
-             std::any_of(players.begin(), players.end(),
-                         [](const auto& par) {
-                             return par.second &&
-                                    par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-                         })) ||
-           exploded || deactivated;
+
+    bool terrorists_alive = std::any_of(players.begin(), players.end(), [](const auto& par) {
+        return par.second && par.second->get_player_type() == PlayerType::TERRORIST;
+    });
+    bool cts_alive = std::any_of(players.begin(), players.end(), [](const auto& par) {
+        return par.second && par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+    });
+
+    bool finished = !(terrorists_alive && cts_alive) || exploded || deactivated;
+    if (finished) {
+        // Determinar qué equipo es team_a y team_b según el round
+        bool team_a_is_terrorist = (round_number <= 5);
+
+        PlayerType winner = PlayerType::UNKNOWN;
+        if ((!terrorists_alive && cts_alive) || deactivated) {
+            winner = PlayerType::COUNTERTERRORIST;
+        } else if ((!cts_alive && terrorists_alive) || exploded) {
+            winner = PlayerType::TERRORIST;
+        }
+
+        stats.last_winner = winner;
+
+        // Sumar ronda ganada al equipo correcto
+        if (winner != PlayerType::UNKNOWN) {
+            if ((winner == PlayerType::TERRORIST && team_a_is_terrorist) ||
+                (winner == PlayerType::COUNTERTERRORIST && !team_a_is_terrorist)) {
+                stats.team_a_wins++;
+            } else {
+                stats.team_b_wins++;
+            }
+        }
+    }
+    return finished;
 }
 
 void Game::start_round_game_phase() {
