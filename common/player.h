@@ -175,15 +175,26 @@ public:
     }
 
     /* Comprar Ammo */
-    bool buy_ammo(uint16_t ammo_amount) {
+    bool buy_ammo(WeaponType weapon, uint16_t ammo_amount) {
         std::pair<uint16_t, bool> purchase = weapon_shop.buy_ammo(ammo_amount, money);
         if (!purchase.second) {
             return false;
         }
         money -= purchase.first;
-        primary_weapon.add_ammo(ammo_amount);
+        switch (weapon) {
+            case WeaponType::PRIMARY:
+                primary_weapon.add_ammo(ammo_amount);
+                break;
+            case WeaponType::SECONDARY:
+                secondary_weapon.add_ammo(ammo_amount);
+                break;
+            default:
+                return false;  // Tipo de arma desconocido
+        }
         return true;
     }
+
+    void add_money(uint16_t amount) { money += amount; }
 };
 
 #endif  // PLAYER

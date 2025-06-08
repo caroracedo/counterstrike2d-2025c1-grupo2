@@ -9,6 +9,7 @@
 
 class Bullet: public Object {
 private:
+    uint16_t player_id;
     uint16_t range;
     uint16_t min_damage;
     uint16_t max_damage;
@@ -20,11 +21,12 @@ private:
 
 public:
     /* Constructor */
-    Bullet(const uint16_t id, const std::vector<uint16_t>& player_position, uint16_t _range,
-           uint16_t _min_damage, uint16_t _max_damage, float _precision,
-           const std::vector<uint16_t>& desired_position):
+    Bullet(const uint16_t id, const uint16_t _player_id,
+           const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
+           uint16_t _max_damage, float _precision, const std::vector<uint16_t>& desired_position):
             Object(ObjectType::BULLET, id, {player_position[0], player_position[1]},
                    BULLET_RADIUS * 2, BULLET_RADIUS * 2),
+            player_id(_player_id),
             range(_range),
             min_damage(_min_damage),
             max_damage(_max_damage),
@@ -211,6 +213,8 @@ public:
         range = (dist >= range) ? 0 : range - dist;
         distance_moved += dist;
     }
+
+    uint16_t get_player_id() const { return player_id; }
 };
 
 #endif  // BULLET_H

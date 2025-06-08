@@ -7,60 +7,12 @@
 #define MOVE_INPUT "mover"
 #define SHOOT_INPUT "disparar"
 #define BOMB_INPUT "bomba"
+#define SHOW_STATS "stats"
 #define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
 #define S_INPUT "s"
 #define D_INPUT "d"
-
-std::string direction_to_string(Direction direction) {
-    switch (direction) {
-        case Direction::UP:
-            return "arriba";
-        case Direction::DOWN:
-            return "abajo";
-        case Direction::LEFT:
-            return "la izquierda";
-        case Direction::RIGHT:
-            return "la derecha";
-        default:
-            return "UNKNOWN";
-    }
-}
-
-void move_player(Game& game, Direction direction, uint16_t id) {
-    if (game.move(direction, id)) {
-        std::cout << "\tJugador " << static_cast<int>(id) << " movido hacia "
-                  << direction_to_string(direction) << ": ";
-        for (auto v: game.get_player_position(id)) std::cout << v << " ";
-        std::cout << std::endl;
-    } else {
-        std::cout << "\tNo se pudo mover al jugador " << static_cast<int>(id) << " hacia "
-                  << direction_to_string(direction) << std::endl;
-    }
-}
-
-void shoot(Game& game, Direction direction, uint16_t id) {
-    std::vector<uint16_t> position = game.get_player_position(id);
-    switch (direction) {
-        case Direction::UP:
-            position[1] -= 40;
-            break;
-        case Direction::DOWN:
-            position[1] += 40;
-            break;
-        case Direction::LEFT:
-            position[0] -= 40;
-            break;
-        case Direction::RIGHT:
-            position[0] += 40;
-            break;
-        default:
-            break;
-    }
-
-    game.shoot(position, id);
-}
 
 void show(Game& game) { game.show_objects(); }
 
@@ -99,6 +51,8 @@ ActionDTO receive_and_parse_action() {
         return {ActionType::SHOOT, desired_position};
     } else if (action_input == BOMB_INPUT) {
         return ActionDTO(ActionType::BOMB);
+    } else if (action_input == SHOW_STATS) {
+        return ActionDTO(ActionType::UPDATE);
     }
     return {};
 }
@@ -119,19 +73,23 @@ int main() {
         switch (action.type) {
             case ActionType::MOVE:
                 game.move(action.direction, 1);
-                for (int i = 0; i < 30; ++i) {
+                for (int i = 0; i < 100; ++i) {
                     game.update();
                 }
                 break;
             case ActionType::SHOOT:
-                game.shoot(player2_position, 1);
-                for (int i = 0; i < 30; ++i) {
+                game.shoot(1, player2_position);
+                for (int i = 0; i < 100; ++i) {
                     game.update();
                 }
                 break;
             case ActionType::BOMB:
                 std::cout << "interactuando con bomba" << std::endl;
                 game.interact_with_bomb(1);
+                break;
+            case ActionType::UPDATE:
+                // Ahora lo uso para poder ver las stats
+                game.show_stats();
                 break;
             case ActionType::QUIT:
                 return 0;
@@ -140,6 +98,12 @@ int main() {
                 break;
         }
         show(game);
+        if (game.is_over()) {
+            std::cout << "Round Over!" << std::endl;
+            game.end_round_game_phase();
+            game.show_stats();
+            game.start_round_game_phase();
+        }
     }
 
     return 0;

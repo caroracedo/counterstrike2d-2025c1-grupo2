@@ -10,6 +10,7 @@
 #include "object_DTO.h"
 
 class Knife: public Object {
+    uint16_t player_id;
     uint16_t range;
     uint16_t min_damage;
     uint16_t max_damage;
@@ -17,9 +18,11 @@ class Knife: public Object {
     std::vector<uint16_t> end_position;
 
 public:
-    Knife(const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-          uint16_t _max_damage, const std::vector<uint16_t>& desired_position):
+    Knife(const std::vector<uint16_t>& player_position, const uint16_t player_id, uint16_t _range,
+          uint16_t _min_damage, uint16_t _max_damage,
+          const std::vector<uint16_t>& desired_position):
             Object(ObjectType::KNIFE, 0, player_position, 0, 0),
+            player_id(player_id),
             range(_range),
             min_damage(_min_damage),
             max_damage(_max_damage),
