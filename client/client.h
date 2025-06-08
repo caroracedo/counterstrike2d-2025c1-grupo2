@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QApplication>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -13,6 +14,7 @@
 #include "client_sender.h"
 #include "game_view.h"
 #include "input_handler.h"
+#include "mainwindow.h"
 #include "mock_handler.h"
 
 class Client {
@@ -26,36 +28,22 @@ private:
     Sender sender;
     Receiver receiver;
 
-    ActionType operation_type;
-    std::string match;
-    PlayerType player_type;
-
-    ActionType parse_operation(const char* operation_type_str) {
-        std::string operation(operation_type_str);
-        if (operation == "Create")
-            return ActionType::CREATE;
-        return ActionType::JOIN;
+    void send_initial_configuration() {
+        int argc = 0;
+        char** argv = nullptr;
+        QApplication app(argc, argv);
+        MainWindow window;
+        window.show();
+        app.exec();
+        send_queue.push(window.getInfo());
     }
-
-    PlayerType parse_player_type(const char* type_str) {
-        std::string type(type_str);
-        if (type == "Terrorist")
-            return PlayerType::TERRORIST;
-        return PlayerType::COUNTERTERRORIST;
-    }
-
-    void send_initial_configuration() { send_queue.push({operation_type, match, player_type}); }
 
 public:
-    Client(const char* hostname, const char* servname, const char* operation_type,
-           const char* match, const char* type_str):
+    Client(const char* hostname, const char* servname):
             client_socket(hostname, servname),
             protocol(this->client_socket),
             sender(protocol, send_queue),
-            receiver(protocol, recv_queue),
-            operation_type(parse_operation(operation_type)),
-            match(match),
-            player_type(parse_player_type(type_str)) {}
+            receiver(protocol, recv_queue) {}
 
     void run() {
         sender.start();
