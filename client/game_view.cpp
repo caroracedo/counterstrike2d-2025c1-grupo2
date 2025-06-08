@@ -39,7 +39,7 @@ void GameView::update(const ActionDTO& action) {
         std::cout << "Action Type: " << static_cast<int>(action.type) << std::endl;
         shop_view.set_visible(true);
     }
-
+    std::cout << "ola" << std::endl;
     if (action.type != ActionType::UPDATE)
         return;
     shop_view.set_visible(false);
@@ -63,7 +63,6 @@ void GameView::update(const ActionDTO& action) {
                 bomb_view.activate_bomb();
             }
             hud_view.update_timer(object);
-            std::cout << "timer: " << object.bomb_countdown << std::endl;
             bomb_view.update(object.position[0], object.position[1]);
 
         } else if (object.type == ObjectType::BOMBZONE) {

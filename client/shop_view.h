@@ -16,6 +16,8 @@ struct Button {
     SDL2pp::Rect rect;
     std::string text;
     bool visible = false;
+    bool pressed = false;
+    Uint32 press_time;
 };
 
 class ShopView {
@@ -41,50 +43,42 @@ private:
         int button_height = 35;
         int spacing = 30;
 
-        std::vector<std::string> texts = {"1 AK-47",  "2 M3", "3 AWP", "4 Primary Ammo",
+        std::vector<std::string> texts = {"1 AK-47", "2 M3", "3 AWP", "4 Primary Ammo",
                                           "5 Secondary Ammo"};
 
         for (size_t i = 0; i < texts.size(); ++i) {
             SDL2pp::Rect rect(x, y + static_cast<int>(i) * (button_height + spacing), button_width,
                               button_height);
-            buttons.push_back({rect, texts[i], true});
+            buttons.push_back({rect, texts[i], true, false, 0});
         }
     }
 
     void init_resources() {
-         // Renderizar el título "Buy"
+        // Renderizar el título "Buy"
         SDL2pp::Texture title_texture(
-            renderer,
-            font.RenderText_Blended("Buy", SDL_Color{255, 255, 255, 255})
-        );
+                renderer, font.RenderText_Blended("Buy", SDL_Color{255, 255, 255, 255}));
 
-        SDL2pp::Point title_pos(
-            overlay_rect.x + (overlay_rect.w - title_texture.GetWidth()) / 2,
-            overlay_rect.y + 10
-        );
+        SDL2pp::Point title_pos(overlay_rect.x + (overlay_rect.w - title_texture.GetWidth()) / 2,
+                                overlay_rect.y + 10);
 
         renderer.Copy(title_texture, SDL2pp::NullOpt,
-                    SDL2pp::Rect(title_pos, title_texture.GetSize()));
+                      SDL2pp::Rect(title_pos, title_texture.GetSize()));
 
-        int money = 1500; // Este valor debería venir de otro lado
+        int money = 1500;  // Este valor debería venir de otro lado
 
         std::string money_str = "$" + std::to_string(money);
 
         SDL2pp::Texture money_texture(
-            renderer,
-            font.RenderText_Blended(money_str, SDL_Color{138, 206, 0, 255}) // Verde
-        );
+                renderer, font.RenderText_Blended(money_str, SDL_Color{138, 206, 0, 255}));
 
         SDL2pp::Point money_pos(
-            overlay_rect.x + overlay_rect.w - money_texture.GetWidth() - 20, // 20px de margen
-            overlay_rect.y + 10
-        );
+                overlay_rect.x + overlay_rect.w - money_texture.GetWidth() - 20,  // 20px de margen
+                overlay_rect.y + 10);
 
         renderer.Copy(money_texture, SDL2pp::NullOpt,
-                    SDL2pp::Rect(money_pos, money_texture.GetSize()));
-
-
+                      SDL2pp::Rect(money_pos, money_texture.GetSize()));
     }
+
 public:
     explicit ShopView(SDL2pp::Renderer& ren):
             renderer(ren),
@@ -97,26 +91,35 @@ public:
     void render() {
         if (!visible)
             return;  // Si no es visible, no hacemos nada
-            // Guardamos el color actual del renderer
+        // Guardamos el color actual del renderer
         SDL2pp::Color prevColor = renderer.GetDrawColor();
-        
+
         // Establecemos color gris semitransparente
         renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
         renderer.SetDrawColor(17, 17, 17, 200);
-        
-        
+
+
         renderer.FillRect(overlay_rect);
-        
-        
+
+
         // por las dudas...
         renderer.SetDrawColor(prevColor);
-        
+
         init_resources();
-        for (const Button& btn: buttons) {
+        for (Button& btn: buttons) {
             if (!btn.visible)
                 continue;
 
-            renderer.SetDrawColor(17, 17, 17, 235);  // gris oscuro
+            Uint32 now = SDL_GetTicks();
+            bool show_pressed = btn.pressed && (now - btn.press_time < 200);
+
+            if (show_pressed) {
+                renderer.SetDrawColor(118, 118, 118, 235);
+            } else {
+                renderer.SetDrawColor(17, 17, 17, 235);  // gris oscuro
+                btn.pressed = false;
+            }
+
             renderer.FillRect(btn.rect);
 
             renderer.SetDrawColor(255, 255, 255, 235);  // borde blanco
@@ -136,6 +139,24 @@ public:
     void set_visible(bool visible) { this->visible = visible; }
 
     bool is_visible() const { return visible; }
+
+    void handle_button_pressed(int index_button) {
+        if (!visible || index_button < 0 || index_button >= static_cast<int>(buttons.size()))
+            return;
+
+        Button& btn = buttons[index_button];
+
+        if (!btn.visible)
+            return;
+
+        btn.visible = true;
+
+        btn.pressed = true;
+
+        btn.press_time = SDL_GetTicks();
+
+        // sonidos ...
+    }
 };
 
 #endif  // BUY_MENU_VIEW_H

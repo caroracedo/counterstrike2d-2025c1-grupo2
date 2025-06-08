@@ -12,19 +12,19 @@
 #include "game_camera.h"
 #include "legs_view.h"
 #include "player_view.h"
+#include "shop_view.h"
 #include "sound_manager.h"
-
-// #include "shop_view.h"
 
 class InputHandler {
 private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
     GameCamera& camera;
+    ShopView& shop;
 
 
 public:
-    explicit InputHandler(GameCamera& cam): camera(cam) {}
+    explicit InputHandler(GameCamera& cam, ShopView& shop): camera(cam), shop(shop) {}
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
         SDL_Event event;
@@ -51,20 +51,30 @@ public:
                     case SDLK_b:
                         return ActionDTO{ActionType::BOMB};
 
-                    case SDLK_1:
+                    case SDLK_1: {
+                        shop.handle_button_pressed(0);
                         return ActionDTO{ActionType::WEAPON, WeaponModel::AK47};
+                    }
 
-                    case SDLK_2:
+                    case SDLK_2: {
+                        shop.handle_button_pressed(1);
                         return ActionDTO{ActionType::WEAPON, WeaponModel::M3};
+                    }
 
-                    case SDLK_3:
+                    case SDLK_3: {
+                        shop.handle_button_pressed(2);
                         return ActionDTO{ActionType::WEAPON, WeaponModel::AWP};
+                    }
 
-                    case SDLK_4:
+                    case SDLK_4: {
+                        shop.handle_button_pressed(3);
                         return ActionDTO{ActionType::AMMO, 30};
+                    }
 
-                    case SDLK_5:
+                    case SDLK_5: {
+                        shop.handle_button_pressed(4);
                         return ActionDTO{ActionType::AMMO, 30};
+                    }
 
                     case SDLK_SPACE:
                         return ActionDTO{ActionType::CHANGE};

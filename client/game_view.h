@@ -86,13 +86,12 @@ public:
     void update(const ActionDTO& action);
     void render();
 
-    void set_id(uint16_t id) {
-        local_id = id;
-        std::cout << "local_id: " << local_id << std::endl;
-    }
+    void set_id(uint16_t id) { local_id = id; }
 
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
+
+    ShopView& get_shop() { return shop_view; }
 
     void frame_sync();
 };
