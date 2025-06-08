@@ -29,7 +29,17 @@ struct ObstacleConfig {
     uint16_t y;
 };
 
+/* Zonas de bomba */
 struct BombZoneConfig {
+    uint16_t x;
+    uint16_t y;
+    uint16_t width;
+    uint16_t height;
+};
+
+/* Zonas de equipo */
+struct TeamZoneConfig {
+    PlayerType team;
     uint16_t x;
     uint16_t y;
     uint16_t width;
@@ -57,6 +67,9 @@ private:
 
     /* Zonas de bomba */
     std::vector<BombZoneConfig> bomb_zones;
+
+    /* Zonas de equipo */
+    std::vector<TeamZoneConfig> team_zones;
 
     WeaponModel weapon_name_to_weapon_model(const std::string& weapon_name) {
         static const std::unordered_map<std::string, WeaponModel> weapon_name_model = {
@@ -133,6 +146,26 @@ private:
                 bomb_zones.push_back(bomb_zone);
             }
         }
+
+        // Zonas de equipo
+        if (config["team_zones"]) {
+            for (const auto& node: config["team_zones"]) {
+                TeamZoneConfig zone;
+                std::string team_str = node["team"].as<std::string>();
+                if (team_str == "TERRORIST") {
+                    zone.team = PlayerType::TERRORIST;
+                } else if (team_str == "COUNTERTERRORIST") {
+                    zone.team = PlayerType::COUNTERTERRORIST;
+                } else {
+                    zone.team = PlayerType::UNKNOWN;
+                }
+                zone.x = node["position"]["x"].as<uint16_t>();
+                zone.y = node["position"]["y"].as<uint16_t>();
+                zone.width = node["width"].as<uint16_t>();
+                zone.height = node["height"].as<uint16_t>();
+                team_zones.push_back(zone);
+            }
+        }
     }
 
 public:
@@ -147,6 +180,7 @@ public:
     uint8_t get_rounds_switch() const { return rounds_switch; }
     const std::vector<ObstacleConfig> get_obstacles() const { return obstacles; }
     const std::vector<BombZoneConfig> get_bomb_zones() const { return bomb_zones; }
+    const std::vector<TeamZoneConfig>& get_team_zones() const { return team_zones; }
     std::unordered_map<WeaponModel, WeaponConfig> get_weapon_config() const {
         return weapon_catalog;
     }

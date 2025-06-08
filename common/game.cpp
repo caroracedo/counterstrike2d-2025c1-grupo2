@@ -36,6 +36,11 @@ void Game::add_player(PlayerType player_type, uint16_t id) {
     /*
         Agrega un jugador al juego con el tipo y ID especificados.
     */
+    if (players.size() >= MAX_PLAYER_AMOUNT) {
+        std::cout << "Maximum amount of players reached. Limit: " << MAX_PLAYER_AMOUNT << std::endl;
+        return;
+    }
+
     std::vector<uint16_t> position = get_random_player_position(player_type, id);
 
     std::shared_ptr<Player> player =
@@ -196,8 +201,11 @@ void Game::start_round_game_phase() {
 
 void Game::end_round_game_phase() {
     /*
-        Reinicia la fase de juego de la ronda, eliminando la bomba si existe y reestableciendo los
-       jugadores muertos.
+        Reinicia la fase de juego de la ronda:
+            - Se elimina la bomba si existe -> exploded=false y deactivated=false
+            - Se reestablecen a los jugadores muertos
+            - Se reubican a todos los jugadores en posiciones aleatorias
+            - Se eliminan todas las balas que quedaron vivas y se reinicia el contador de balas
     */
     if (bomb) {
         delete_bomb();
@@ -223,6 +231,32 @@ void Game::end_round_game_phase() {
     }
     // Elimina los jugadores muertos de la lista de jugadores muertos
     dead_players.clear();
+
+    // Reubica los jugadores en posiciones aleatorias
+    for (auto& [id, player]: players) {
+        if (player) {
+            std::vector<uint16_t> new_position =
+                    get_random_player_position(player->get_player_type(), id);
+            player->move(new_position);
+            // Actualiza la posición del jugador en la matriz
+            auto cell = get_cell_from_position(player->get_position());
+            matrix[cell.first][cell.second].push_back(player);
+        }
+    }
+    // Obtener los ids de las balas
+    std::vector<uint16_t> bullet_ids;
+    for (const auto& [id, bullet]: bullets) {
+        if (bullet) {
+            bullet_ids.push_back(id);
+        }
+    }
+    // Elimina las balas del juego
+    for (const auto& id: bullet_ids) {
+        delete_bullet(id);
+    }
+
+    // Reinicia el contador de balas
+    bullet_id = 1;
 }
 
 void Game::switch_player_types() {
@@ -562,11 +596,11 @@ bool Game::handle_bullet_player_collision(const uint16_t& bullet_id, const uint1
         std::cout << "\tPlayer " << player_id << " was killed by player " << shooter_id
                   << " with bullet " << bullet_id << std::endl;
         // El jugador murió, se le da dinero al jugador que disparó
-        players.find(shooter_id)->second->add_money(100);
+        players.find(shooter_id)->second->add_money(KILL_REWARD);
 
         stats.kills[shooter_id]++;
         stats.deaths[player_id]++;
-        stats.money[shooter_id] += 100;
+        stats.money[shooter_id] += KILL_REWARD;
     }
     return player_is_alive;  // Devuelve si el jugador sigue vivo
 }
@@ -873,14 +907,31 @@ void Game::initialize_objects() {
 
 std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, uint16_t id) {
     /*
-        Devuelve una posición aleatoria válida para un jugador.
+        Devuelve una posición aleatoria válida para un jugador, dentro de la zona de su equipo.
+        Si no hay zona definida, busca en todo el mapa, siempre chequeando colisiones.
     */
+    const auto& zones = config.get_team_zones();
+    auto it = std::find_if(zones.begin(), zones.end(),
+                           [player_type](const auto& z) { return z.team == player_type; });
+
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint16_t> dist(0 + PLAYER_RADIUS, MATRIX_SIZE - PLAYER_RADIUS);
+    std::uniform_int_distribution<uint16_t> dist_x, dist_y;
+
+    if (it == zones.end() || it->width < PLAYER_RADIUS || it->height < PLAYER_RADIUS) {
+        // Fallback: todo el mapa
+        dist_x = std::uniform_int_distribution<uint16_t>(PLAYER_RADIUS,
+                                                         MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
+        dist_y = std::uniform_int_distribution<uint16_t>(PLAYER_RADIUS,
+                                                         MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
+    } else {
+        // Zona de equipo
+        dist_x = std::uniform_int_distribution<uint16_t>(it->x, it->x + it->width - PLAYER_RADIUS);
+        dist_y = std::uniform_int_distribution<uint16_t>(it->y, it->y + it->height - PLAYER_RADIUS);
+    }
 
     while (true) {
-        std::vector<uint16_t> pos = {dist(gen), dist(gen)};
+        std::vector<uint16_t> pos = {dist_x(gen), dist_y(gen)};
         auto cell = get_cell_from_position(pos);
         auto ady = get_adyacent_objects(cell);
 

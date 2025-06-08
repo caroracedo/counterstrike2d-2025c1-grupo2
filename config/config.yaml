@@ -75,3 +75,17 @@ bomb_zones:
       y: 300
     width: 100
     height: 100
+
+team_zones:
+  - team: TERRORIST
+    position:
+      x: 0
+      y: 0
+    width: 500
+    height: 500
+  - team: COUNTERTERRORIST
+    position:
+      x: 1000
+      y: 1000
+    width: 500
+    height: 500
