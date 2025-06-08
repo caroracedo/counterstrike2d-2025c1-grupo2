@@ -30,7 +30,7 @@ GameView::GameView():
         bomb_zone(renderer, SDL2pp::Surface(SDL_LoadBMP("../bomb_zone.bmp"))),
         camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
         hud_view(hud_numbres, renderer),
-        bomb_view(bomb_texture, explotion_sprites),
+        bomb_view(bomb_texture, explotion_sprites, sound_manager),
         shop_view(renderer) {}
 
 
@@ -63,7 +63,9 @@ void GameView::update(const ActionDTO& action) {
                 bomb_view.activate_bomb();
             }
             hud_view.update_timer(object);
+            std::cout << "timer: " << object.bomb_countdown << std::endl;
             bomb_view.update(object.position[0], object.position[1]);
+
         } else if (object.type == ObjectType::BOMBZONE) {
             SDL_Rect rect;
             rect.x = static_cast<int>(object.position[0]);
@@ -116,16 +118,14 @@ void GameView::update_player(const ObjectDTO& object) {
     guns.try_emplace(id, std::make_unique<GunView>(renderer));
 
 
-    if (x - last_px || y - last_py == 5 || last_px == -1 || last_py == -1) {
-        players[id]->update_position(x, y);
-        players[id]->update_styles(object.player_type, object.weapon_model);
-        // last_px = x;
-        // last_py = y;
+    players[id]->update_styles(object.player_type, object.weapon_model);
+    guns[id]->change_gun(object.weapon_model);
+
+    if (players[id]->update_position(x, y)) {
         legs[id]->update_position(x, y);
         legs[id]->update_animation();
         guns[id]->update(x, y);
-        guns[id]->change_gun(object.weapon_model);
-        // sound_manager.playFromGroup("steps",0);
+        // sound_manager.play("steps_1",0);
     }
     if (id == local_id) {
         hud_view.update(object);

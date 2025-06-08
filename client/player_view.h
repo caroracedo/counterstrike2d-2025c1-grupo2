@@ -32,11 +32,13 @@ public:
     }
 
     bool update_position(float x, float y) {
-        if (posX == x && posY == y)
-            return false;  // No change in position
+        const float epsilon = 0.01f;
+        if (std::abs(posX - x) < epsilon && std::abs(posY - y) < epsilon) {
+            return false;
+        }
         posX = x;
         posY = y;
-        return true;  // Position updated
+        return true;
     }
 
     void update_styles(PlayerType new_type, WeaponModel new_posture) {

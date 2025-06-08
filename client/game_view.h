@@ -94,10 +94,6 @@ public:
     // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
 
-    SoundManager& get_manager() { return sound_manager; }
-
-    LegsView& get_legs() { return *legs[local_id]; }
-
     void frame_sync();
 };
 

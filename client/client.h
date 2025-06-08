@@ -54,7 +54,7 @@ public:
         send_initial_configuration();
 
         GameView game_view;
-        InputHandler input_handler(game_view.get_camera(), game_view.get_manager());
+        InputHandler input_handler(game_view.get_camera());
 
         bool stop_flag = false;
         while (!stop_flag) {

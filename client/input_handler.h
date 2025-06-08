@@ -21,15 +21,10 @@ private:
     float fire_angle = 0.0f;
     bool fire_requested = false;
     GameCamera& camera;
-    // ShopView& shop;
-    // PlayerView& player;
-    // LegsView& legs;
-
-    SoundManager& sounds;
 
 
 public:
-    explicit InputHandler(GameCamera& cam, SoundManager& sound): camera(cam), sounds(sound) {}
+    explicit InputHandler(GameCamera& cam): camera(cam) {}
     ActionDTO receive_and_parse_action() {
         fire_requested = false;  // Reset
         SDL_Event event;
@@ -41,38 +36,36 @@ public:
 
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
-                    case SDLK_w: {
-                        // sounds.play("steps_1",0);
+                    case SDLK_w:
                         return {ActionType::MOVE, Direction::UP};
-                    }
 
-                    case SDLK_s: {
-                        // sounds.play("steps_1",0);
+                    case SDLK_s:
                         return {ActionType::MOVE, Direction::DOWN};
-                    }
 
-                    case SDLK_a: {
-                        // sounds.play("steps_1",0);
+                    case SDLK_a:
                         return {ActionType::MOVE, Direction::LEFT};
-                    }
 
-                    case SDLK_d: {
-                        // sounds.play("steps_1",0);
+                    case SDLK_d:
                         return {ActionType::MOVE, Direction::RIGHT};
-                    }
 
                     case SDLK_b:
                         return ActionDTO{ActionType::BOMB};
+
                     case SDLK_1:
                         return ActionDTO{ActionType::WEAPON, WeaponModel::AK47};
+
                     case SDLK_2:
                         return ActionDTO{ActionType::WEAPON, WeaponModel::M3};
+
                     case SDLK_3:
                         return ActionDTO{ActionType::WEAPON, WeaponModel::AWP};
+
                     case SDLK_4:
                         return ActionDTO{ActionType::AMMO, 30};
+
                     case SDLK_5:
                         return ActionDTO{ActionType::AMMO, 30};
+
                     case SDLK_SPACE:
                         return ActionDTO{ActionType::CHANGE};
                 }

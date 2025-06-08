@@ -9,6 +9,7 @@
 
 #include "animation.h"
 #include "game_camera.h"
+#include "sound_manager.h"
 
 #define BOMB_WIDTH 32
 #define BOMB_HEIGHT 32
@@ -20,6 +21,9 @@ private:
     float x, y;
     bool exploding = false;
     bool active = false;
+
+
+    SoundManager& sounds;
 
     std::vector<SDL2pp::Rect> get_rects() {
         std::vector<SDL2pp::Rect> rects;
@@ -34,8 +38,8 @@ private:
     }
 
 public:
-    BombView(SDL2pp::Texture& tex, SDL2pp::Texture& explotion):
-            explotion_animation(explotion, get_rects(), 25), texture(tex), x(0), y(0) {}
+    BombView(SDL2pp::Texture& tex, SDL2pp::Texture& explotion, SoundManager& sm):
+            explotion_animation(explotion, get_rects(), 30), texture(tex), x(0), y(0), sounds(sm) {}
 
     void update(float px, float py) {
         x = px;
