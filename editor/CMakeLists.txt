@@ -1,7 +1,10 @@
+file(GLOB EDITOR_SOURCES *.cpp)
+file(GLOB EDITOR_HEADERS *.h)
+
 target_sources(taller_editor
     PRIVATE
-    # .cpp files
-    main.cpp
+        ${EDITOR_SOURCES}
+        ${RESOURCES}
     PUBLIC
-    # .h files
-    )
+        ${EDITOR_HEADERS}
+)

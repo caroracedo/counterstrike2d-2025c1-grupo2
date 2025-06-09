@@ -1,0 +1,317 @@
+server:
+  port: 1500
+player:
+  health: 100
+  money: 500
+weapons:
+  knife:
+    price: 0
+    range: 45
+    min_damage: 10
+    max_damage: 20
+    precision: 1
+  glock:
+    price: 0
+    range: 100
+    min_damage: 10
+    max_damage: 20
+    precision: 0.80000000000000004
+  bomb:
+    price: 0
+    range: 0
+    min_damage: 500
+    max_damage: 500
+    precision: 1
+  ak47:
+    price: 100
+    range: 150
+    min_damage: 20
+    max_damage: 30
+    precision: 0.80000000000000004
+  m3:
+    price: 200
+    range: 125
+    min_damage: 15
+    max_damage: 25
+    precision: 0.90000000000000002
+  awp:
+    price: 300
+    range: 200
+    min_damage: 30
+    max_damage: 40
+    precision: 0.94999999999999996
+rounds:
+  total: 10
+obstacles:
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 0
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 32
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 64
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 96
+      y: 64
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 64
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 64
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 64
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 96
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 96
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 96
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 128
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 128
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 128
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 128
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 128
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 160
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 160
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 160
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 160
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 160
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 160
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 192
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 192
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 192
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 448
+      y: 192
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 448
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 480
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 544
+      y: 224
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 544
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 288
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 320
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 320
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 320
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 352
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 352
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 352
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 320
+      y: 352
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 352
+      y: 352
+  - tipo: CAJA2
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 352
+weaponsMapa:
+  []
+bomb_zones:
+  - position:
+      x: 512
+      y: 64
+    width: 32
+    height: 32
+  - position:
+      x: 64
+      y: 288
+    width: 32
+    height: 32
+terreno: azteca
