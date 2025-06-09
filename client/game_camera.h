@@ -1,6 +1,8 @@
 #ifndef GAME_CAMERA_H
 #define GAME_CAMERA_H
 
+#include <vector>
+
 #include <SDL2pp/Rect.hh>
 
 class GameCamera {
@@ -14,8 +16,8 @@ public:
 
     void center_on(float target_x, float target_y);
 
-    SDL2pp::Point world_to_screen(float worldX, float worldY) {
-        return SDL2pp::Point(worldX - x, worldY - y);
+    std::vector<float> world_to_screen(float worldX, float worldY) {
+        return std::vector<float>(worldX - x, worldY - y);
     }
 
     SDL2pp::Rect get_viewport() const;

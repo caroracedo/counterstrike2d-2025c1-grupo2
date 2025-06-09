@@ -21,6 +21,7 @@
 #include "player_view.h"
 #include "shop_view.h"
 #include "sound_manager.h"
+#include "textures_manager.h"
 
 
 struct ObstacleView {
@@ -34,30 +35,14 @@ private:
     SDL2pp::Window window;
     SDL2pp::Renderer renderer;
 
-    SDL2pp::Texture terrorist_sprites;
-    SDL2pp::Texture counterterrorist_srpites;
-    SDL2pp::Texture legs_sprites;
-
-    SDL2pp::Texture background;
-
-    SDL2pp::Texture box_texture;
-    SDL2pp::Texture box_texture2;
-
-    SDL2pp::Texture hud_numbres;
-
-    SDL2pp::Texture gun_texture;
-
-    SDL2pp::Texture bomb_texture;
-    SDL2pp::Texture explotion_sprites;
-
-    SDL2pp::Texture bomb_zone;
+    TextureManager texture_manager;
 
     uint32_t last_frame_time = 0;
-    const uint32_t frame_delay = 1000 / 60;  // 60 FPS
+    const uint32_t frame_delay = 1000 / 60;
 
     SoundManager sound_manager;
     GameCamera camera;
-    PLayerHUD hud_view;
+    PlayerHUD hud_view;
     BombView bomb_view;
     ShopView shop_view;
 
@@ -68,10 +53,6 @@ private:
     std::vector<BulletView> bullets;
     std::vector<SDL_Rect> bomb_zones;
 
-
-    // posible eliminación
-    float last_px = -1;
-    float last_py = -1;
     uint16_t local_id = 0;
 
 
@@ -79,16 +60,14 @@ private:
     void update_player(const ObjectDTO& object);
     void update_bullets(const ObjectDTO& object);
 
-    void calculate_fps();  // TODO: hacer
-
 public:
     GameView();
     void update(const ActionDTO& action);
+
     void render();
 
     void set_id(uint16_t id) { local_id = id; }
 
-    // void update_graphics(const ActionDTO& action);
     GameCamera& get_camera() { return camera; }
 
     ShopView& get_shop() { return shop_view; }
