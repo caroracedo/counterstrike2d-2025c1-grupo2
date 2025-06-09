@@ -170,6 +170,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event) {
         QMainWindow::mousePressEvent(event);
         return;
     }
+    mouseReleaseEvent(event);
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
