@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <string>
 
-#include "../common/action_DTO.h"
+#include "../../common/action_DTO.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

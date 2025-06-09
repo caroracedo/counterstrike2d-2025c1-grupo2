@@ -2,9 +2,10 @@
 
 #include <QApplication>
 
+#include "lobby/mainwindow.h"
+
 #include "game_view.h"
 #include "input_handler.h"
-#include "mainwindow.h"
 
 Client::Client(const char* hostname, const char* servname):
         client_socket(hostname, servname),
