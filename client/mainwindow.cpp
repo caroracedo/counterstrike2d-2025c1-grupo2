@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->setupUi(this);
 
     // Crear Unirse partida
-    ui->operacion->addItem("Seleccionar operación...");
+    ui->operacion->addItem("Select operation...");
 
     QStandardItemModel* model1 = qobject_cast<QStandardItemModel*>(ui->operacion->model());
     if (model1) {
@@ -21,8 +21,8 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
         }
     }
 
-    ui->operacion->addItem("Crear partida", QVariant("crear"));
-    ui->operacion->addItem("Unirse", QVariant("unirse"));
+    ui->operacion->addItem("Create match", QVariant("crear"));
+    ui->operacion->addItem("Join match", QVariant("unirse"));
 
     connect(ui->operacion, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &MainWindow::guardarOperacion);
@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
     connect(ui->saveBtn, &QPushButton::clicked, this, &MainWindow::guardarNombrePartida);
 
     // Elegir equipo
-    ui->equipo->addItem("Seleccionar equipo...");
+    ui->equipo->addItem("Select team...");
 
     QStandardItemModel* model2 = qobject_cast<QStandardItemModel*>(ui->equipo->model());
     if (model2) {

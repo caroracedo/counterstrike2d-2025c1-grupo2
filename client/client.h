@@ -15,7 +15,6 @@
 #include "game_view.h"
 #include "input_handler.h"
 #include "mainwindow.h"
-#include "mock_handler.h"
 
 class Client {
 private:
