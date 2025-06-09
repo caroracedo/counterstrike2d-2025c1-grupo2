@@ -27,9 +27,13 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].ammo), data);
                 break;
             case ObjectType::BOMBZONE:
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
+                push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
+                break;
             case ObjectType::OBSTACLE:
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].height), data);
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].obstacle_type));
                 break;
             case ObjectType::BOMB:
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
