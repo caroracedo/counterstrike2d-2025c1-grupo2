@@ -1,10 +1,7 @@
 #include "server_protocol.h"
 
 #include <algorithm>
-#include <sstream>
-#include <string>
 #include <utility>
-#include <vector>
 
 /* Constructor */
 ServerProtocol::ServerProtocol(Socket& skt, uint16_t id): skt(skt), id(id) {}
@@ -55,7 +52,6 @@ bool ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
                                              std::vector<uint8_t>& data) {
     std::transform(action_dto.weapons.begin(), action_dto.weapons.end(), std::back_inserter(data),
                    [](WeaponModel weapon) { return static_cast<uint8_t>(weapon); });
-    std::cout << "mando shop desde ID: " << id << std::endl;
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 

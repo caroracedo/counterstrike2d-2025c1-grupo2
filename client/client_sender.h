@@ -6,29 +6,16 @@
 
 #include "client_protocol.h"
 
-class Sender: public Thread {
+class ClientSender: public Thread {
 private:
     ClientProtocol& protocol;
     Queue<ActionDTO>& send_queue;
 
 public:
-    Sender(ClientProtocol& protocol, Queue<ActionDTO>& send_queue):
-            protocol(protocol), send_queue(send_queue) {}
+    ClientSender(ClientProtocol& protocol, Queue<ActionDTO>& send_queue);
 
-    void run() override {
-        while (should_keep_running()) {
-            try {
-                protocol.serialize_and_send_action(send_queue.pop());
-            } catch (...) {
-                break;
-            }
-        }
-    }
-
-    void stop() override {
-        Thread::stop();
-        send_queue.close();
-    }
+    void run() override;
+    void stop() override;
 };
 
 #endif  // CLIENT_SENDER_H
