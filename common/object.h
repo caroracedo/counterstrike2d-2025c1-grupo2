@@ -17,28 +17,24 @@ protected:
 public:
     /* Constructores */
     Object(ObjectType object_type, uint16_t id, const std::vector<uint16_t>& position,
-           uint16_t width, uint16_t height):
-            object_type(object_type), id(id), position(position), width(width), height(height) {}
+           uint16_t width, uint16_t height);
 
-    // Esto se usa?
-    Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), width(0), height(0) {}
+    Object();
 
     /* Virtual puro */
-    /* Getters */
     virtual ObjectDTO get_dto() const = 0;  // Método virtual puro para obtener el DTO del objeto
 
     /* Getters */
-    ObjectType get_type() const { return object_type; }
-    uint16_t get_id() const { return id; }
-    uint16_t get_width() const { return width; }
-    uint16_t get_height() const { return height; }
-    std::vector<uint16_t> get_position() const { return position; }
+    ObjectType get_type() const;
+    uint16_t get_id() const;
+    uint16_t get_width() const;
+    uint16_t get_height() const;
+    std::vector<uint16_t> get_position() const;
 
 
     /* Funcionalidad */
-    void move(const std::vector<uint16_t>& new_position) { position = new_position; }
+    void move(const std::vector<uint16_t>& new_position);
 
-    // Esto no se...
     template <typename T>
     bool operator<(const T& other) const {
         if (id != other.id)
@@ -52,12 +48,11 @@ public:
         return height < other.height;
     }
 
-    // A este si le veo sentido
     bool operator==(const Object& other) const {
         return id == other.id && object_type == other.object_type;
     }
 
-    virtual ~Object() = default;  // Agrego destructor virtual para permitir la herencia polimórfica
+    virtual ~Object() = default;  // Destructor virtual para permitir herencia polimórfica
 };
 
 #endif  // OBJECT_H

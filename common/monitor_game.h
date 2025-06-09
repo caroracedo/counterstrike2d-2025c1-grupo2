@@ -73,7 +73,7 @@ public:
     /* Disparar */
     bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.shoot(desired_position, id);
+        return game.shoot(id, desired_position);
     }
 
     /* Interactuar con bomba */
@@ -89,9 +89,9 @@ public:
     }
 
     /* Compar Ammo */
-    bool shop_ammo(uint16_t ammo_amount, uint16_t id) {
+    bool shop_ammo(uint16_t ammo_amount, uint16_t id, WeaponType weapon_type) {
         std::lock_guard<std::mutex> lock(mutex);
-        return game.shop_ammo(ammo_amount, id);
+        return game.shop_ammo(id, ammo_amount, weapon_type);
     }
 };
 

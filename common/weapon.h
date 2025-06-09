@@ -21,75 +21,30 @@ private:
 public:
     /* Constructor */
     Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t _max_damage,
-           float _precision, uint16_t ammo = 30):
-            model(model),
-            range(range),
-            min_damage(_min_damage),
-            max_damage(_max_damage),
-            precision(_precision),
-            ammo(ammo) {}
+           float _precision, uint16_t ammo = 30);
 
-    Weapon():
-            model(WeaponModel::UNKNOWN),
-            range(0),
-            min_damage(0),
-            max_damage(0),
-            precision(0),
-            ammo(0) {}
+    Weapon();
 
     /* Verificaciones */
-    bool is_bomb() { return model == WeaponModel::BOMB; }
+    bool is_bomb();
 
     /* Getters */
-    uint16_t get_range() { return range; }
+    uint16_t get_range();
 
-    std::vector<uint16_t> get_damage() { return {min_damage, max_damage}; }
+    std::vector<uint16_t> get_damage();
 
-    WeaponDTO get_dto() const {
-        return WeaponDTO(model, range, min_damage, max_damage, precision, ammo);
-    }
+    WeaponDTO get_dto() const;
 
-    WeaponModel get_model() const { return model; }
+    WeaponModel get_model() const;
 
-    uint16_t get_ammo() const { return ammo; }
+    uint16_t get_ammo() const;
 
-    bool shoot() {
-        switch (model) {
-            case WeaponModel::BOMB:
-            case WeaponModel::KNIFE:
-                return true;
-            case WeaponModel::GLOCK:
-            case WeaponModel::AWP:
-                if (ammo > 0) {
-                    std::cout << "\tCantidad de balas antes del disparo: " << ammo << std::endl;
-                    ammo--;
-                    std::cout << "\tCantidad de balas después del disparo: " << ammo << std::endl;
-                    return true;  // Disparo exitoso
-                }
-                std::cout << "No hay munición suficiente para disparar." << std::endl;
-                return false;  // Sin munición
-            case WeaponModel::AK47:
-            case WeaponModel::M3:
-                if (ammo >= 3) {
-                    std::cout << "\tCantidad de balas antes del disparo: " << ammo << std::endl;
-                    ammo -= 3;  // Disparo de ráfaga
-                    std::cout << "\tCantidad de balas después del disparo: " << ammo << std::endl;
-                    return true;  // Disparo exitoso
-                }
-                std::cout << "No hay munición suficiente para disparar." << std::endl;
-                return false;  // Sin munición
-            default:
-                return false;  // Modelo desconocido
-        }
-    }
+    bool shoot();
 
     /* Funcionalidades */
-    void add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
+    void add_ammo(uint16_t ammo_amount);
 
-    bool operator==(const Weapon& other) const {
-        // Compara los atributos relevantes, por ejemplo el modelo o id
-        return this->model == other.model;  // Ajusta según tu implementación
-    }
+    bool operator==(const Weapon& other) const;
 };
 
 #endif  // WEAPON_H

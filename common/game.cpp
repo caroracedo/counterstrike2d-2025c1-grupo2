@@ -221,10 +221,6 @@ void Game::end_round_game_phase() {
             // Reagrega al jugador a la lista de jugadores
             players[id] = player;
 
-            // Reagrega al jugador a la matriz
-            auto cell = get_cell_from_position(player->get_position());
-            matrix[cell.first][cell.second].push_back(player);
-
             // Reagrega al jugador a la lista de objetos
             objects.push_back(player);
         }
@@ -235,14 +231,27 @@ void Game::end_round_game_phase() {
     // Reubica los jugadores en posiciones aleatorias
     for (auto& [id, player]: players) {
         if (player) {
+            // Elimina al jugador de la celda actual de la matriz
+            auto old_cell = get_cell_from_position(player->get_position());
+            auto& old_cell_objects = matrix[old_cell.first][old_cell.second];
+            old_cell_objects.erase(std::remove_if(old_cell_objects.begin(), old_cell_objects.end(),
+                                                  [id](const std::shared_ptr<Object>& obj) {
+                                                      return obj->get_id() == id &&
+                                                             obj->get_type() == ObjectType::PLAYER;
+                                                  }),
+                                   old_cell_objects.end());
+
+            // Actualiza la posición del jugador
             std::vector<uint16_t> new_position =
                     get_random_player_position(player->get_player_type(), id);
             player->move(new_position);
+
             // Actualiza la posición del jugador en la matriz
             auto cell = get_cell_from_position(player->get_position());
             matrix[cell.first][cell.second].push_back(player);
         }
     }
+
     // Obtener los ids de las balas
     std::vector<uint16_t> bullet_ids;
     for (const auto& [id, bullet]: bullets) {

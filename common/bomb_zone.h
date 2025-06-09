@@ -8,10 +8,9 @@
 
 class BombZone: public Object {
 public:
-    BombZone(const std::vector<uint16_t>& position, uint16_t width, uint16_t height):
-            Object(ObjectType::BOMBZONE, 0, position, width, height) {}
+    BombZone(const std::vector<uint16_t>& position, uint16_t width, uint16_t height);
 
-    ObjectDTO get_dto() const override { return ObjectDTO(object_type, position, width, height); }
+    ObjectDTO get_dto() const override;
 };
 
 #endif  // BOMB_ZONE_H
