@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>928</width>
-    <height>463</height>
+    <width>884</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -92,7 +92,7 @@ QComboBox QAbstractItemView {
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Boxes</string>
+         <string>Obstacles</string>
         </property>
        </widget>
       </item>
@@ -448,7 +448,7 @@ QPushButton:pressed {
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Zona de activación de bombas</string>
+         <string>Bomb zone</string>
         </property>
        </widget>
       </item>
@@ -566,7 +566,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>928</width>
+     <width>884</width>
      <height>22</height>
     </rect>
    </property>
