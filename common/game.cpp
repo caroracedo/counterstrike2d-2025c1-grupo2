@@ -37,8 +37,10 @@ void Game::add_player(PlayerType player_type, uint16_t id) {
     /*
         Agrega un jugador al juego con el tipo y ID especificados.
     */
-    if (players.size() >= MAX_PLAYER_AMOUNT) {
-        std::cout << "Maximum amount of players reached. Limit: " << MAX_PLAYER_AMOUNT << std::endl;
+    uint8_t max_player_amount =
+            config.get_rounds_terrorist() + config.get_rounds_counterterrorist();
+    if (players.size() >= max_player_amount) {
+        std::cout << "Maximum amount of players reached. Limit: " << max_player_amount << std::endl;
         return;
     }
 
@@ -620,7 +622,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
         Si el jugador muere, lo elimina de la lista de jugadores, de la matriz y de los objetos.
     */
     auto player_it = players.find(id);
-    if (player_it != players.end() && damage > 0) {
+    if (player_it != players.end()) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
 

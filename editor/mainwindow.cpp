@@ -118,6 +118,7 @@ void MainWindow::conectarBtnPressed(QPushButton* btn, QString imagen) {
 
 void MainWindow::inicializarGrilla() {
     dibujarGrilla();
+    cantZonasBomba = 0;
 
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {

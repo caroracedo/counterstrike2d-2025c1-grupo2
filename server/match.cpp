@@ -77,8 +77,12 @@ void Match::shopping_phase() {
     std::this_thread::sleep_for(std::chrono::seconds(SHOPPING_TIME));
 
     ActionDTO action;
-    while (recv_queue->try_pop(action)) {
-        do_shop_action(action);
+    try {
+        while (recv_queue->try_pop(action)) {
+            do_shop_action(action);
+        }
+    } catch (const ClosedQueue&) {
+        stop();
     }
 
     std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
