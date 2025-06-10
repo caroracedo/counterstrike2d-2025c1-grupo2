@@ -21,6 +21,7 @@ struct ObjectDTO {
     /* Obstáculo */
     uint16_t width;
     uint16_t height;
+    ObstacleType obstacle_type;
 
     /* Bomba */
     uint16_t bomb_countdown;
@@ -39,9 +40,26 @@ struct ObjectDTO {
             ammo(ammo),
             width(),
             height(),
+            obstacle_type(),
             bomb_countdown() {}
 
     /* Obstáculo */
+    ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
+              uint16_t height, ObstacleType obstacle_type):
+            type(type),
+            position(position),
+            id(),
+            player_type(),
+            weapon_model(),
+            health(),
+            money(),
+            ammo(),
+            width(width),
+            height(height),
+            obstacle_type(obstacle_type),
+            bomb_countdown() {}
+
+    /* Zona de Bomba */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
               uint16_t height):
             type(type),
@@ -54,6 +72,7 @@ struct ObjectDTO {
             ammo(),
             width(width),
             height(height),
+            obstacle_type(),
             bomb_countdown() {}
 
     /* Bala */
@@ -68,6 +87,7 @@ struct ObjectDTO {
             ammo(),
             width(),
             height(),
+            obstacle_type(),
             bomb_countdown() {}
 
     /* Bomba */
@@ -82,6 +102,7 @@ struct ObjectDTO {
             ammo(),
             width(),
             height(),
+            obstacle_type(),
             bomb_countdown(bomb_countdown) {}
 };
 

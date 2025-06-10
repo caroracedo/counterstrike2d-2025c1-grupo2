@@ -21,12 +21,7 @@ public:
                 renderer, SDL2pp::Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp")));
         textures["background"] = std::make_shared<SDL2pp::Texture>(
                 renderer, SDL2pp::Surface(SDL_LoadBMP("../dustroof.bmp")));
-        textures["box_texture"] = std::make_shared<SDL2pp::Texture>(
-                renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))
-                                  .SetBlendMode(SDL_BLENDMODE_BLEND));
-        textures["box_texture_2"] = std::make_shared<SDL2pp::Texture>(
-                renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))
-                                  .SetBlendMode(SDL_BLENDMODE_BLEND));
+
         textures["hud_numbers"] = std::make_shared<SDL2pp::Texture>(
                 renderer,
                 SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0));
@@ -55,6 +50,12 @@ public:
                 renderer, SDL2pp::Surface(SDL_LoadBMP("../explosion.bmp")));
         textures["bomb_zone"] = std::make_shared<SDL2pp::Texture>(
                 renderer, SDL2pp::Surface(SDL_LoadBMP("../bomb_zone.bmp")));
+
+        for (int i = 1; i <= 5; ++i) {
+            std::string path = "../caja" + std::to_string(i) + ".bmp";
+            textures["box_" + std::to_string(i)] = std::make_shared<SDL2pp::Texture>(
+                    renderer, SDL2pp::Surface(SDL_LoadBMP(path.c_str())));
+        }
     }
 
     std::shared_ptr<SDL2pp::Texture> get_texture(const std::string& texture_name) {

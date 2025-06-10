@@ -25,6 +25,7 @@ struct WeaponConfig {
 struct ObstacleConfig {
     uint16_t width;
     uint16_t height;
+    ObstacleType type;
     uint16_t x;
     uint16_t y;
 };
@@ -71,6 +72,20 @@ private:
         return WeaponModel::UNKNOWN;
     }
 
+    ObstacleType box_to_obstacle_type(const std::string& type_string) {
+        if (type_string == "CAJA1")
+            return ObstacleType::OBSTACLE1;
+        if (type_string == "CAJA2")
+            return ObstacleType::OBSTACLE2;
+        if (type_string == "CAJA3")
+            return ObstacleType::OBSTACLE3;
+        if (type_string == "CAJA4")
+            return ObstacleType::OBSTACLE4;
+        if (type_string == "CAJA5")
+            return ObstacleType::OBSTACLE5;
+        return ObstacleType::UNKNOWN;
+    }
+
     void load_from_yaml(const std::string& yaml_path) {
         YAML::Node config = YAML::LoadFile(yaml_path);
 
@@ -97,9 +112,7 @@ private:
         // Armas
         if (config["weapons"]) {
             for (const auto& it: config["weapons"]) {
-                std::string weapon_name = it.first.as<std::string>();
-                WeaponModel weapon_model = weapon_name_to_weapon_model(weapon_name);
-
+                WeaponModel weapon_model = weapon_name_to_weapon_model(it.first.as<std::string>());
                 WeaponConfig weapon_config;
                 weapon_config.price = it.second["price"].as<uint16_t>();
                 weapon_config.range = it.second["range"].as<uint16_t>();
@@ -116,6 +129,7 @@ private:
                 ObstacleConfig obs;
                 obs.width = node["width"].as<uint16_t>();
                 obs.height = node["height"].as<uint16_t>();
+                obs.type = box_to_obstacle_type(node["tipo"].as<std::string>());
                 obs.x = node["position"]["x"].as<uint16_t>();
                 obs.y = node["position"]["y"].as<uint16_t>();
                 obstacles.push_back(obs);

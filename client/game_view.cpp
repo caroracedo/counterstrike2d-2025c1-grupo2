@@ -118,13 +118,11 @@ void GameView::update_bullets(const ObjectDTO& object) {
 }
 
 void GameView::update_obstacles(const ObjectDTO& object) {
-    ObstacleView obs;
-    obs.x = object.position[0];
-    obs.y = object.position[1];
-    obs.w = object.width;
-    obs.h = object.height;
+    ObstacleView obs(renderer, texture_manager);
 
-    obs.use_texture2 = (object.width == 64 && object.height == 64);  // ejemplo de uso de textura2
+    obs.update(object.position[0], object.position[1], object.width, object.height,
+               object.obstacle_type);
+
     obstacles.push_back(obs);
 }
 
@@ -167,21 +165,22 @@ void GameView::render() {
         gun->draw(renderer, camera);
     }
 
-    for (const auto& obs: obstacles) {
-        float screenX = obs.x - camera.get_x();
-        float screenY = obs.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
-                                 int(obs.h)};
+    for (auto& obstacle: obstacles) obstacle.draw(camera);
+    // for (const auto& obs: obstacles) {
+    //     float screenX = obs.x - camera.get_x();
+    //     float screenY = obs.y - camera.get_y();
+    //     SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
+    //                              static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
+    //                              int(obs.h)};
 
-        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
+    //     SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
 
-        if (obs.use_texture2) {
-            renderer.Copy(*texture_manager.get_texture("box_texture_2"), src_rect, dst_rect);
-        } else {
-            renderer.Copy(*texture_manager.get_texture("box_texture"), src_rect, dst_rect);
-        }
-    }
+    //     if (obs.use_texture2) {
+    //         renderer.Copy(*texture_manager.get_texture("box_texture_2"), src_rect, dst_rect);
+    //     } else {
+    //         renderer.Copy(*texture_manager.get_texture("box_texture"), src_rect, dst_rect);
+    //     }
+    // }
     if (bomb_view.is_exploding()) {
         bomb_view.drawExplosion(renderer, camera);
         bomb_view.reset();

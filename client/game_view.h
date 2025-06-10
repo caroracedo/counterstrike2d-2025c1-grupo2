@@ -17,17 +17,13 @@
 #include "game_camera.h"
 #include "gun_view.h"
 #include "legs_view.h"
+#include "obstacle_view.h"
 #include "player_HUD.h"
 #include "player_view.h"
 #include "shop_view.h"
 #include "sound_manager.h"
 #include "textures_manager.h"
 
-
-struct ObstacleView {
-    float x, y, w, h;
-    bool use_texture2 = false;
-};
 
 class GameView {
 private:

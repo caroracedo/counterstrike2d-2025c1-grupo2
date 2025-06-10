@@ -221,7 +221,7 @@ public:
     void initialize_demo_objects() {
         for (const auto& obs_cfg: config.get_obstacles()) {
             auto obstacle = std::make_shared<Obstacle>(std::vector<uint16_t>{obs_cfg.x, obs_cfg.y},
-                                                       obs_cfg.width, obs_cfg.height);
+                                                       obs_cfg.width, obs_cfg.height, obs_cfg.type);
             objects.push_back(obstacle);
 
             auto cell = get_cell_from_position(obstacle->get_position());
