@@ -439,6 +439,8 @@ void MainWindow::guardarMapaComoYaml(const QString& nombreArchivo) {
 
     out << YAML::Key << "rounds" << YAML::Value << YAML::BeginMap;
     out << YAML::Key << "total" << YAML::Value << 10;
+    out << YAML::Key << "terrorists" << YAML::Value << 1;
+    out << YAML::Key << "counterterrorists" << YAML::Value << 1;
     out << YAML::EndMap;
 
     // EDITOR

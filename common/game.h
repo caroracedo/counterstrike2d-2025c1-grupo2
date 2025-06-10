@@ -200,7 +200,7 @@ private:
 public:
     explicit Game(Config& config);
 
-    // Devuelve si hay por lo menos un jugador de cada tipo.
+    // Devuelve si hay jugadores suficientes en cada equipo.
     bool is_ready_to_start();
 
     // Devuelve el vector de objetos del juego.

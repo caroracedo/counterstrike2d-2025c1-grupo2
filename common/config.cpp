@@ -12,7 +12,9 @@ uint16_t Config::get_player_money() const { return player_money; }
 
 uint8_t Config::get_rounds_total() const { return rounds_total; }
 
-uint8_t Config::get_rounds_switch() const { return rounds_switch; }
+uint8_t Config::get_rounds_terrorist() const { return rounds_terrorists; }
+
+uint8_t Config::get_rounds_counterterrorist() const { return rounds_counterterrorists; }
 
 const std::vector<ObstacleConfig> Config::get_obstacles() const { return obstacles; }
 
@@ -77,8 +79,10 @@ void Config::load_from_yaml(const std::string& yaml_path) {
     if (config["rounds"]) {
         if (config["rounds"]["total"])
             rounds_total = config["rounds"]["total"].as<uint8_t>();
-        if (config["rounds"]["switch"])
-            rounds_switch = config["rounds"]["switch"].as<uint8_t>();
+        if (config["rounds"]["terrorists"])
+            rounds_terrorists = config["rounds"]["terrorists"].as<uint8_t>();
+        if (config["rounds"]["counterterrorists"])
+            rounds_counterterrorists = config["rounds"]["counterterrorists"].as<uint8_t>();
     }
 
     // Armas

@@ -58,7 +58,8 @@ private:
 
     /* Rondas */
     uint8_t rounds_total;
-    uint8_t rounds_switch;
+    uint8_t rounds_terrorists;
+    uint8_t rounds_counterterrorists;
 
     /* Armas */
     std::unordered_map<WeaponModel, WeaponConfig> weapon_catalog;
@@ -87,7 +88,8 @@ public:
     uint8_t get_player_health() const;
     uint16_t get_player_money() const;
     uint8_t get_rounds_total() const;
-    uint8_t get_rounds_switch() const;
+    uint8_t get_rounds_terrorist() const;
+    uint8_t get_rounds_counterterrorist() const;
     const std::vector<ObstacleConfig> get_obstacles() const;
     const std::vector<BombZoneConfig> get_bomb_zones() const;
     const std::vector<TeamZoneConfig>& get_team_zones() const;
