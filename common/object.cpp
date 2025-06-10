@@ -2,7 +2,7 @@
 
 /* Constructores */
 Object::Object(ObjectType object_type, uint16_t id, const std::vector<uint16_t>& position,
-        uint16_t width, uint16_t height):
+               uint16_t width, uint16_t height):
         object_type(object_type), id(id), position(position), width(width), height(height) {}
 
 Object::Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), width(0), height(0) {}

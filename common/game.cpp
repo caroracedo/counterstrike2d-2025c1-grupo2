@@ -96,8 +96,6 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     if (player_it != players.end()) {
 
         if (!player_it->second->shoot()) {
-            std::cout << "Player " << player_id
-                      << " cannot shoot with the current weapon: not enough ammo." << std::endl;
             return false;  // El jugador no puede disparar con el arma actual
         }
         std::vector<uint16_t> player_position = player_it->second->get_position();
@@ -276,7 +274,6 @@ void Game::switch_player_types() {
     */
     for (auto& [id, player]: players) {
         if (player) {
-            std::cout << "Se lo cambio a player de ID" << id << std::endl;
             player->switch_player_type();
         }
     }
@@ -603,8 +600,6 @@ bool Game::handle_bullet_player_collision(const uint16_t& bullet_id, const uint1
     uint16_t damage = get_damage_and_delete_bullet(bullet_id);
     bool player_is_alive = damage_player(player_id, damage);
     if (!player_is_alive) {
-        std::cout << "\tPlayer " << player_id << " was killed by player " << shooter_id
-                  << " with bullet " << bullet_id << std::endl;
         // El jugador murió, se le da dinero al jugador que disparó
         players.find(shooter_id)->second->add_money(KILL_REWARD);
 
@@ -628,10 +623,8 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
     if (player_it != players.end() && damage > 0) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
-        std::cout << "\tPlayer " << id << " received " << damage << " of damage." << std::endl;
 
         if (!player_it->second->is_alive()) {
-            std::cout << "\tPlayer " << id << " is dead." << std::endl;
 
             // Agregar el jugador a la lista de jugadores muertos
             dead_players[id] = player_it->second;
@@ -815,10 +808,6 @@ bool Game::shoot_m3(const std::vector<uint16_t>& player_position, const uint16_t
     uint16_t x2 = static_cast<uint16_t>(player_position[0] + dist * (ux * cos_30 + uy * sin_30));
     uint16_t y2 = static_cast<uint16_t>(player_position[1] + dist * (-ux * sin_30 + uy * cos_30));
 
-    std::cout << "Center: (" << desired_position[0] << ", " << desired_position[1] << ")\n"
-              << "Left: (" << x1 << ", " << y1 << ")\n"
-              << "Right: (" << x2 << ", " << y2 << ")\n";
-
     create_bullet(player_position, player_id, weapon_dto, desired_position);  // Disparo central
     create_bullet(player_position, player_id, weapon_dto, {x1, y1});          // Disparo izquierdo
     create_bullet(player_position, player_id, weapon_dto, {x2, y2});          // Disparo derecho
@@ -880,8 +869,6 @@ void Game::employ_knife(const std::vector<uint16_t>& player_position, const uint
             if (knife.hits(target_pos)) {
                 uint16_t damage = knife.get_damage();
                 damage_player(obj->get_id(), damage);
-                std::cout << "Knife hit player " << obj->get_id() << " for " << damage
-                          << " damage.\n";
                 return;  // Solo al primer jugador encontrado
             }
         }
@@ -1013,8 +1000,6 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
     bomb = bomb_ptr;
 
     bomb->start_countdown();
-    std::cout << "Bomb planted in position (" << player_position[0] << ", " << player_position[1]
-              << ")" << std::endl;
 
     return true;
 }
@@ -1064,6 +1049,10 @@ void Game::delete_bomb() {
 }
 
 bool Game::change_weapon(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado cambiar de arma.
+        Devuelve true si el cambio fue exitoso, false si no se encontró el jugador.
+    */
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         player_it->second->change_weapon();

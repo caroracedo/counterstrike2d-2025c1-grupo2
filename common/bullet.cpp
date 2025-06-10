@@ -1,14 +1,15 @@
 #include "bullet.h"
 
+#include <cmath>
 #include <iostream>
 #include <random>
-#include <cmath>
 
 Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
-        const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-        uint16_t _max_damage, float _precision, const std::vector<uint16_t>& desired_position):
-        Object(ObjectType::BULLET, id, {player_position[0], player_position[1]},
-                BULLET_RADIUS * 2, BULLET_RADIUS * 2),
+               const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
+               uint16_t _max_damage, float _precision,
+               const std::vector<uint16_t>& desired_position):
+        Object(ObjectType::BULLET, id, {player_position[0], player_position[1]}, BULLET_RADIUS * 2,
+               BULLET_RADIUS * 2),
         player_id(_player_id),
         range(_range),
         min_damage(_min_damage),
@@ -17,13 +18,6 @@ Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
         precision(_precision) {
     set_target_position(desired_position, player_position);
     set_starting_position(player_position);
-
-    std::cout << "Bullet created with ID: " << id << ", Position: (" << position[0] << ", "
-                << position[1] << ")"
-                << ", Target: (" << target_position[0] << ", " << target_position[1] << ")"
-                << ", Range: " << range << ", Damage: [" << min_damage << ", " << max_damage
-                << "]"
-                << ", Precision: " << precision << std::endl;
 }
 
 /* Virtual puro */
@@ -59,16 +53,16 @@ uint16_t Bullet::get_damage() const {
     }
 
     std::cout << "\tBullet ID: " << id << ", Position: (" << position[0] << ", " << position[1]
-                << ")"
-                << ", Distance: " << distance << ", Base Damage: " << base_damage
-                << ", Final Damage: " << final_damage << std::endl;
+              << ")"
+              << ", Distance: " << distance << ", Base Damage: " << base_damage
+              << ", Final Damage: " << final_damage << std::endl;
 
     // Siempre al menos 1 de daño si acertó y el daño no es cero
     return std::max<uint16_t>(final_damage, 1);
 }
 
 void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
-                            const std::vector<uint16_t>& player_position) {
+                                 const std::vector<uint16_t>& player_position) {
     if (desired_position.size() != 2 || player_position.size() != 2)
         return;
 
@@ -81,8 +75,7 @@ void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
     float min_pos = radius;
     float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
 
-    float t_max =
-            (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_RADIUS) / magnitude;
+    float t_max = (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_RADIUS) / magnitude;
 
     // Calcula el t permitido por los bordes del mapa
     if (dx != 0) {
@@ -105,7 +98,7 @@ void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
     float ty = py + dy * t_max;
 
     target_position = {static_cast<uint16_t>(std::round(tx)),
-                        static_cast<uint16_t>(std::round(ty))};
+                       static_cast<uint16_t>(std::round(ty))};
 }
 
 void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
@@ -130,8 +123,8 @@ void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
             x_bullet = cx + dx * (offset / mag);
             y_bullet = cy + dy * (offset / mag);
             offset += 1.0f;
-        } while (std::sqrt((x_bullet - cx) * (x_bullet - cx) +
-                            (y_bullet - cy) * (y_bullet - cy)) < min_dist);
+        } while (std::sqrt((x_bullet - cx) * (x_bullet - cx) + (y_bullet - cy) * (y_bullet - cy)) <
+                 min_dist);
     }
 
     // Clamp para que el centro de la bala nunca salga del mapa
@@ -144,7 +137,7 @@ void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
                 static_cast<uint16_t>(std::round(y_bullet))};
 
     start_position = {static_cast<uint16_t>(std::round(x_bullet)),
-                        static_cast<uint16_t>(std::round(y_bullet))};
+                      static_cast<uint16_t>(std::round(y_bullet))};
 }
 
 std::vector<uint16_t> Bullet::get_next_position() const {
@@ -188,7 +181,7 @@ bool Bullet::is_alive() const {
     float cx = position[0];
     float cy = position[1];
     bool reached_target = (static_cast<int>(cx) == static_cast<int>(target_position[0]) &&
-                            static_cast<int>(cy) == static_cast<int>(target_position[1]));
+                           static_cast<int>(cy) == static_cast<int>(target_position[1]));
     return range > 0 || !reached_target;
 }
 

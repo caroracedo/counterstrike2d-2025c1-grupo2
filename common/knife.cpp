@@ -1,8 +1,8 @@
 #include "knife.h"
 
-Knife::Knife(const std::vector<uint16_t>& player_position, const uint16_t player_id, uint16_t _range,
-        uint16_t _min_damage, uint16_t _max_damage,
-        const std::vector<uint16_t>& desired_position):
+Knife::Knife(const std::vector<uint16_t>& player_position, const uint16_t player_id,
+             uint16_t _range, uint16_t _min_damage, uint16_t _max_damage,
+             const std::vector<uint16_t>& desired_position):
         Object(ObjectType::KNIFE, 0, player_position, 0, 0),
         player_id(player_id),
         range(_range),
@@ -42,13 +42,13 @@ bool Knife::hits(const std::vector<uint16_t>& target_pos) const {
 
     float closest_x = start_position[0] + b * vx;
     float closest_y = start_position[1] + b * vy;
-    float dist = std::sqrt((px - closest_x) * (px - closest_x) +
-                            (py - closest_y) * (py - closest_y));
+    float dist =
+            std::sqrt((px - closest_x) * (px - closest_x) + (py - closest_y) * (py - closest_y));
     float dist_to_attacker =
             std::sqrt((closest_x - start_position[0]) * (closest_x - start_position[0]) +
-                        (closest_y - start_position[1]) * (closest_y - start_position[1]));
+                      (closest_y - start_position[1]) * (closest_y - start_position[1]));
     float player_to_target = std::sqrt((px - start_position[0]) * (px - start_position[0]) +
-                                        (py - start_position[1]) * (py - start_position[1]));
+                                       (py - start_position[1]) * (py - start_position[1]));
 
     return (dist <= PLAYER_RADIUS && dist_to_attacker <= range && player_to_target <= range);
 }

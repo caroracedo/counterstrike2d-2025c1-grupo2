@@ -240,85 +240,8 @@ public:
     // Permite a los jugadores comprar munición en la fase inicial
     bool shop_ammo(uint ammo, WeaponType weapon, uint16_t id);
 
+    // Permite al jugador con el ID especificado cambiar de arma.
     bool change_weapon(uint16_t id);
-
-    /********************************************************************************************
-     ************************************ FUNCIONES PARA TESTEAR ********************************
-     ********************************************************************************************/
-
-    void show_objects() {
-        std::cout << "Objects:" << std::endl;
-        for (const auto& obj: objects) {
-            std::cout << "\tID: " << obj->get_id()
-                      << ", Type: " << get_object_type(static_cast<ObjectType>(obj->get_type()))
-                      << ", Position: (" << obj->get_position()[0] << ", " << obj->get_position()[1]
-                      << ")" << std::endl;
-        }
-        std::cout << std::endl;
-    }
-
-    std::vector<uint16_t> get_player_position(uint16_t id) const {
-        /*
-         *    Obtiene la posición del jugador con el ID especificado.
-         *    Si no se encuentra, devuelve un vector vacío.
-         */
-        auto it = players.find(id);
-        if (it != players.end()) {
-            return it->second->get_position();
-        }
-        return {};
-    }
-
-    std::string get_object_type(const ObjectType& type) const {
-        switch (type) {
-            case ObjectType::PLAYER:
-                return "Player";
-            case ObjectType::BULLET:
-                return "Bullet";
-            case ObjectType::OBSTACLE:
-                return "Obstacle";
-            case ObjectType::BOMB:
-                return "Bomb";
-            case ObjectType::BOMBZONE:
-                return "BombZone";
-            default:
-                return "Unknown";
-        }
-    }
-
-    std::string direction_to_string(Direction direction) const {
-        /*
-         *    Convierte la dirección a una cadena de texto.
-         */
-        switch (direction) {
-            case Direction::UP:
-                return "up";
-            case Direction::DOWN:
-                return "down";
-            case Direction::LEFT:
-                return "left";
-            case Direction::RIGHT:
-                return "right";
-            default:
-                return "unknown";
-        }
-    }
-
-    void update() { update_bullets(); }
-
-    void show_stats() {
-        /*
-         *    Muestra las estadísticas del juego, incluyendo asesinatos, muertes y dinero de cada
-         * jugador.
-         */
-        std::cout << "Game Stats:" << std::endl;
-        for (const auto& [id, player]: players) {
-            std::cout << "Player ID: " << id << ", Kills: " << stats.kills[id]
-                      << ", Deaths: " << stats.deaths[id] << ", Money: " << stats.money[id]
-                      << std::endl;
-        }
-        std::cout << std::endl;
-    }
 };
 
 #endif  // GAME_H
