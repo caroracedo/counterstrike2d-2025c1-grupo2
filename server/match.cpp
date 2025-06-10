@@ -70,23 +70,17 @@ void Match::waiting_phase() {
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
 
-void Match::shopping_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
+void Match::shopping_phase() {
     std::cout << "[SHOP] Iniciando fase de compras..." << std::endl;
     send_shop_to_all_clients();
 
-    auto shopping_interval = std::chrono::seconds(SHOPPING_TIME);
-    auto now = std::chrono::steady_clock::now();
-    while (now - last_snapshot_time < shopping_interval && should_keep_running()) {
-        ActionDTO action;
-        try {
-            if (recv_queue->try_pop(action)) {
-                do_shop_action(action);
-            }
-        } catch (const ClosedQueue&) {
-            stop();
-        }
-        now = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(std::chrono::seconds(SHOPPING_TIME));
+
+    ActionDTO action;
+    while (recv_queue->try_pop(action)) {
+        do_shop_action(action);
     }
+
     std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
 }
 
@@ -132,7 +126,7 @@ void Match::run() {
     for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running(); ++round) {
         std::cout << "[ROUND] Iniciando ronda..." << std::endl;
         auto last_snapshot_time = std::chrono::steady_clock::now();
-        shopping_phase(last_snapshot_time);
+        shopping_phase();
         game_phase(last_snapshot_time);
         std::cout << "[ROUND] Terminando ronda..." << std::endl;
         if (round == config.get_rounds_total() / 2)
@@ -143,10 +137,19 @@ void Match::run() {
     std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }
 
+// Nota: En la waiting phase se verifica si están conectados los jugadores necesarios para iniciar
+// la partida o si la partida fue interrumpida. Esta condición se notifica al agregar un jugador o
+// al detener la partida.
+
 void Match::add_player(const ActionDTO& action_dto) {
     {
         std::lock_guard<std::mutex> lock(ready_mutex);
         monitor_game.add_player(action_dto.player_type, action_dto.id);
     }
+    ready_cv.notify_all();
+}
+
+void Match::stop() {
+    Thread::stop();
     ready_cv.notify_all();
 }

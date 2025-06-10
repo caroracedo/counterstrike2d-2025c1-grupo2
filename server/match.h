@@ -31,7 +31,7 @@ private:
     void send_end_to_all_clients();
     std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects);
     void waiting_phase();
-    void shopping_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time);
+    void shopping_phase();
     void game_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time);
 
 public:
@@ -40,6 +40,7 @@ public:
 
     void run() override;
     void add_player(const ActionDTO& action_dto);
+    void stop() override;
 };
 
 #endif  // MATCH_H
