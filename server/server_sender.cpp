@@ -6,7 +6,7 @@ ServerSender::ServerSender(ServerProtocol& protocol, std::atomic<bool>& stop_fla
 void ServerSender::run() {
     while (should_this_thread_keep_running()) {
         try {
-            if (send_queue && !protocol.serialize_and_send_action(send_queue->pop()))
+            if (!protocol.serialize_and_send_action(send_queue->pop()))
                 break;
         } catch (...) {
             break;

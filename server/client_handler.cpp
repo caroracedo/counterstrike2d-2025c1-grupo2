@@ -11,10 +11,7 @@ ClientHandler::ClientHandler(Socket&& socket, std::shared_ptr<Queue<ActionDTO>> 
         stop_flag(false),
         id(id) {}
 
-void ClientHandler::run() {
-    sender.start();
-    receiver.start();
-}
+void ClientHandler::run() { receiver.start(); }
 
 void ClientHandler::hard_kill() {
     Thread::stop();
@@ -37,4 +34,5 @@ void ClientHandler::bind_queues(std::shared_ptr<Queue<ActionDTO>> recv_queue,
                                 std::shared_ptr<Queue<ActionDTO>> send_queue) {
     receiver.bind_queue(recv_queue);
     sender.bind_queue(send_queue);
+    sender.start();
 }
