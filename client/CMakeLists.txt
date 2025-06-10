@@ -9,3 +9,5 @@ target_sources(taller_client
 )
 
 add_subdirectory(lobby)
+
+add_subdirectory(graphics)

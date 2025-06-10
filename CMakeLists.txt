@@ -32,7 +32,15 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
+set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/assets")
+
 include(FetchContent)
+
+if(DEFINED CUSTOM_ASSETS_PATH)
+    set(ASSETS_PATH "${CUSTOM_ASSETS_PATH}")
+endif()
+
+add_definitions(-DASSETS_PATH="${ASSETS_PATH}")
 
 FetchContent_Declare(
     yaml-cpp
