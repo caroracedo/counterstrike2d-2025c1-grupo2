@@ -53,16 +53,36 @@ rounds:
 
 # -- Editor de mapas --
 obstacles:
-  - width: 32
+  - tipo: CAJA1
+    width: 32
     height: 32
     position:
       x: 100
       y: 100
-  - width: 32
+  - tipo: CAJA2
+    width: 32
     height: 32
     position:
       x: 150
       y: 150
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 200
+      y: 200
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 250
+      y: 250
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 300
+      y: 300
 
 bomb_zones:
   - position:

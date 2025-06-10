@@ -59,9 +59,6 @@ bool MonitorGame::shop_weapon(WeaponModel weapon, uint16_t id) {
 
 bool MonitorGame::shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    std::cout << "Buying ammo: " << ammo_amount
-              << " for weapon: " << (weapon == WeaponType::SECONDARY ? "SECONDARY" : "NO SE")
-              << " for player ID: " << id << std::endl;
     return game.shop_ammo(ammo_amount, weapon, id);
 }
 

@@ -17,70 +17,37 @@
 class BombView {
 private:
     Animation explotion_animation;
-    SDL2pp::Texture& texture;
-    float x, y;
-    bool exploding = false;
-    bool active = false;
 
+    SDL2pp::Texture& bomb_texture;
+
+    float x, y;
+
+    bool exploding = false;
+
+    bool active = false;
 
     SoundManager& sounds;
 
-    std::vector<SDL2pp::Rect> get_rects() {
-        std::vector<SDL2pp::Rect> rects;
-
-        for (int j = 0; j < 320; j += 64) {
-            for (int i = 0; i < 320; i += 64) {
-                rects.push_back(SDL2pp::Rect(i, j, 64, 64));
-            }
-        }
-
-        return rects;
-    }
+    std::vector<SDL2pp::Rect> get_rects();
 
 public:
-    BombView(SDL2pp::Texture& tex, SDL2pp::Texture& explotion, SoundManager& sm):
-            explotion_animation(explotion, get_rects(), 30), texture(tex), x(0), y(0), sounds(sm) {}
+    BombView(SDL2pp::Texture& bomb_texture, SDL2pp::Texture& explotion, SoundManager& sm);
 
-    void update(float px, float py) {
-        x = px;
-        y = py;
-    }
+    void update(float px, float py);
 
-    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
-        // Dibuja la bomba en la posición ajustada por la cámara
-        float screenX = x - camera.get_x();
-        float screenY = y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX), static_cast<int>(screenY), BOMB_WIDTH,
-                                 BOMB_HEIGHT};
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
 
-        SDL2pp::Rect src_rect = {0, 0, BOMB_WIDTH, BOMB_HEIGHT};
+    void drawExplosion(SDL2pp::Renderer& renderer, const GameCamera& camera);
 
-        renderer.Copy(texture, src_rect, dst_rect);
-    }
+    void activate_bomb();
 
-    void drawExplosion(SDL2pp::Renderer& renderer, const GameCamera& camera) {
-        float screenX = x - camera.get_x();
-        float screenY = y - camera.get_y();
+    void explode();
 
-        for (int i = 0; i < 10; ++i) {
-            explotion_animation.update();
-            explotion_animation.draw(renderer, screenX, screenY, BOMB_WIDTH, BOMB_HEIGHT, 0.0,
-                                     SDL_Point{16, 16});
-        }
-    }
+    void reset();
 
-    void activate_bomb() { active = true; }
+    bool is_exploding() const;
 
-    void explode() { exploding = true; }
-
-    void reset() {
-        exploding = false;
-        active = false;
-    }
-
-    bool is_exploding() const { return exploding; }
-
-    bool is_active() const { return active; }
+    bool is_active() const;
 };
 
 #endif

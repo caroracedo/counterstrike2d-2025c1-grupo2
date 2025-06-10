@@ -21,6 +21,7 @@ struct ObjectDTO {
     /* Obstáculo */
     uint16_t width;
     uint16_t height;
+    ObstacleType obstacle_type;
 
     /* Bomba */
     uint16_t bomb_countdown;
@@ -31,6 +32,10 @@ struct ObjectDTO {
               uint16_t ammo);
 
     /* Obstáculo */
+    ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
+              uint16_t height, ObstacleType obstacle_type);
+
+    /* Zona de Bomba */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
               uint16_t height);
 

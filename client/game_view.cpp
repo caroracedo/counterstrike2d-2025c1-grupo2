@@ -12,31 +12,18 @@ GameView::GameView():
         window("CS2D", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
                SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
-        terrorist_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/player/t1.bmp"))),
-        counterterrorist_srpites(renderer,
-                                 SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/player/ct1.bmp"))),
-        legs_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../primer_fila_sin_padding.bmp"))),
-        background(renderer, SDL2pp::Surface(SDL_LoadBMP("../dustroof.bmp"))),
-        box_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../cuadro_fila5_columna3.bmp"))
-                                      .SetBlendMode(SDL_BLENDMODE_BLEND)),
-        box_texture2(renderer, SDL2pp::Surface(SDL_LoadBMP("../recorte_fila5-6_columna4-5.bmp"))
-                                       .SetBlendMode(SDL_BLENDMODE_BLEND)),
-        hud_numbres(
-                renderer,
-                SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/hud_nums.bmp")).SetColorKey(true, 0)),
-        gun_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/deagle.bmp"))),
-        bomb_texture(renderer, SDL2pp::Surface(SDL_LoadBMP("../assets/gfx/weapons/bomb.bmp"))),
-        explotion_sprites(renderer, SDL2pp::Surface(SDL_LoadBMP("../explosion.bmp"))),
-        bomb_zone(renderer, SDL2pp::Surface(SDL_LoadBMP("../bomb_zone.bmp"))),
+        texture_manager(renderer),
         camera(SCREEN_WIDTH, SCREEN_HEIGHT, 2048, 2048),
-        hud_view(hud_numbres, renderer),
-        bomb_view(bomb_texture, explotion_sprites, sound_manager),
+        hud_view(renderer, *texture_manager.get_texture("hud_numbers"),
+                 *texture_manager.get_texture("hud_life"),
+                 *texture_manager.get_texture("hud_money")),
+        bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
+                  sound_manager),
         shop_view(renderer) {}
 
 
 void GameView::update(const ActionDTO& action) {
     if (action.type == ActionType::SHOP) {
-        std::cout << "Action Type: " << static_cast<int>(action.type) << std::endl;
         shop_view.set_visible(true);
     }
 
@@ -63,7 +50,6 @@ void GameView::update(const ActionDTO& action) {
                 bomb_view.activate_bomb();
             }
             hud_view.update_timer(object);
-            std::cout << "timer: " << object.bomb_countdown << std::endl;
             bomb_view.update(object.position[0], object.position[1]);
 
         } else if (object.type == ObjectType::BOMBZONE) {
@@ -105,28 +91,21 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
+    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager));
 
-    players.try_emplace(id, std::make_unique<PlayerView>(renderer));
-
-    legs.try_emplace(
-            id, std::make_unique<LegsView>(legs_sprites,
-                                           std::vector<SDL2pp::Rect>{SDL2pp::Rect(0, 0, 32, 32),
-                                                                     SDL2pp::Rect(32, 0, 32, 32),
-                                                                     SDL2pp::Rect(64, 0, 32, 32)},
-                                           100));
+    legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
 
     guns.try_emplace(id, std::make_unique<GunView>(renderer));
 
-
     players[id]->update_styles(object.player_type, object.weapon_model);
+
     guns[id]->change_gun(object.weapon_model);
 
     if (players[id]->update_position(x, y)) {
-        legs[id]->update_position(x, y);
-        legs[id]->update_animation();
+        legs[id]->update(x, y);
         guns[id]->update(x, y);
-        // sound_manager.play("steps_1",0);
     }
+
     if (id == local_id) {
         hud_view.update(object);
     }
@@ -139,12 +118,11 @@ void GameView::update_bullets(const ObjectDTO& object) {
 }
 
 void GameView::update_obstacles(const ObjectDTO& object) {
-    ObstacleView obs;
-    obs.x = object.position[0];
-    obs.y = object.position[1];
-    obs.w = object.width;
-    obs.h = object.height;
-    obs.use_texture2 = (object.width == 64 && object.height == 64);  // ejemplo de uso de textura2
+    ObstacleView obs(renderer, texture_manager);
+
+    obs.update(object.position[0], object.position[1], object.width, object.height,
+               object.obstacle_type);
+
     obstacles.push_back(obs);
 }
 
@@ -162,7 +140,8 @@ void GameView::render() {
 
     // Rect view = camera.get_viewport();
 
-    renderer.Copy(background, SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+    renderer.Copy(*texture_manager.get_texture("background"),
+                  SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
     for (const auto& zone: bomb_zones) {
         float screenX = zone.x - camera.get_x();
@@ -172,10 +151,8 @@ void GameView::render() {
                                  int(zone.h)};
 
         SDL_Rect src_rect = {0, 0, int(zone.w), int(zone.h)};
-        box_texture2.SetAlphaMod(255);  // 50% transparent
-        box_texture.SetAlphaMod(255);
 
-        renderer.Copy(bomb_zone, src_rect, dst_rect);
+        renderer.Copy(*texture_manager.get_texture("bomb_zone"), src_rect, dst_rect);
     }
 
     for (auto& bullet: bullets) bullet.draw(renderer, camera);
@@ -185,26 +162,25 @@ void GameView::render() {
     for (auto& [id, player]: players) player->draw(renderer, camera);
 
     for (auto& [id, gun]: guns) {
-        // gun->update_angle(players[id]->get_angle());
         gun->draw(renderer, camera);
     }
 
-    for (const auto& obs: obstacles) {
-        float screenX = obs.x - camera.get_x();
-        float screenY = obs.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
-                                 int(obs.h)};
+    for (auto& obstacle: obstacles) obstacle.draw(camera);
+    // for (const auto& obs: obstacles) {
+    //     float screenX = obs.x - camera.get_x();
+    //     float screenY = obs.y - camera.get_y();
+    //     SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
+    //                              static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(obs.w),
+    //                              int(obs.h)};
 
-        SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
-        box_texture2.SetAlphaMod(255);  // 50% transparent
-        box_texture.SetAlphaMod(255);
-        if (obs.use_texture2) {
-            renderer.Copy(box_texture2, src_rect, dst_rect);
-        } else {
-            renderer.Copy(box_texture, src_rect, dst_rect);
-        }
-    }
+    //     SDL_Rect src_rect = {0, 0, int(obs.w), int(obs.h)};
+
+    //     if (obs.use_texture2) {
+    //         renderer.Copy(*texture_manager.get_texture("box_texture_2"), src_rect, dst_rect);
+    //     } else {
+    //         renderer.Copy(*texture_manager.get_texture("box_texture"), src_rect, dst_rect);
+    //     }
+    // }
     if (bomb_view.is_exploding()) {
         bomb_view.drawExplosion(renderer, camera);
         bomb_view.reset();

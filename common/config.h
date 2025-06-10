@@ -25,6 +25,7 @@ struct WeaponConfig {
 struct ObstacleConfig {
     uint16_t width;
     uint16_t height;
+    ObstacleType type;
     uint16_t x;
     uint16_t y;
 };
@@ -72,6 +73,8 @@ private:
     std::vector<TeamZoneConfig> team_zones;
 
     WeaponModel weapon_name_to_weapon_model(const std::string& weapon_name);
+
+    ObstacleType box_to_obstacle_type(const std::string& type_string);
 
     void load_from_yaml(const std::string& yaml_path);
 

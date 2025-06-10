@@ -34,13 +34,21 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 i += 14;
                 break;
             }
-            case ObjectType::BOMBZONE:
-            case ObjectType::OBSTACLE: {
+            case ObjectType::BOMBZONE: {
                 std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
                 std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);
                 objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
                                    hex_big_endian_to_int_16(height)});
                 i += 9;
+                break;
+            }
+            case ObjectType::OBSTACLE: {
+                std::vector<uint8_t> width(data.begin() + i + 5, data.begin() + i + 7);
+                std::vector<uint8_t> height(data.begin() + i + 7, data.begin() + i + 9);
+                ObstacleType obstacle_type = static_cast<ObstacleType>(data[i + 9]);
+                objects.push_back({object_type, position, hex_big_endian_to_int_16(width),
+                                   hex_big_endian_to_int_16(height), obstacle_type});
+                i += 10;
                 break;
             }
             case ObjectType::BOMB: {

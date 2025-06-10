@@ -12,13 +12,6 @@ GameCamera::GameCamera(float screen_w, float screen_h, float map_w, float map_h)
 void GameCamera::center_on(float target_x, float target_y) {
     x = target_x - screen_width / 2.0f;
     y = target_y - screen_height / 2.0f;
-
-
-    // if (x > map_width - screen_width)
-    //     x = map_width - screen_width;
-
-    // if (y > map_height - screen_height)
-    //     y = map_height - screen_height;
 }
 
 SDL2pp::Rect GameCamera::get_viewport() const {

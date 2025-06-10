@@ -44,6 +44,20 @@ WeaponModel Config::weapon_name_to_weapon_model(const std::string& weapon_name) 
     return WeaponModel::UNKNOWN;
 }
 
+ObstacleType Config::box_to_obstacle_type(const std::string& type_string) {
+    if (type_string == "CAJA1")
+        return ObstacleType::OBSTACLE1;
+    if (type_string == "CAJA2")
+        return ObstacleType::OBSTACLE2;
+    if (type_string == "CAJA3")
+        return ObstacleType::OBSTACLE3;
+    if (type_string == "CAJA4")
+        return ObstacleType::OBSTACLE4;
+    if (type_string == "CAJA5")
+        return ObstacleType::OBSTACLE5;
+    return ObstacleType::UNKNOWN;
+}
+
 void Config::load_from_yaml(const std::string& yaml_path) {
     YAML::Node config = YAML::LoadFile(yaml_path);
 
@@ -89,6 +103,7 @@ void Config::load_from_yaml(const std::string& yaml_path) {
             ObstacleConfig obs;
             obs.width = node["width"].as<uint16_t>();
             obs.height = node["height"].as<uint16_t>();
+            obs.type = box_to_obstacle_type(node["tipo"].as<std::string>());
             obs.x = node["position"]["x"].as<uint16_t>();
             obs.y = node["position"]["y"].as<uint16_t>();
             obstacles.push_back(obs);
