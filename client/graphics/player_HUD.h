@@ -43,7 +43,7 @@ public:
 
     void update_timer(const ObjectDTO& object);
 
-    void draw();
+    void draw(bool is_bomb_active);
 };
 
 #endif  // PLAYER_HUD_H

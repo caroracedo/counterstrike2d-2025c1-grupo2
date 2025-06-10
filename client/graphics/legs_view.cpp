@@ -36,5 +36,6 @@ void LegsView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float dy = mouseY - centerY;
     float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
 
-    walk_animation.draw(renderer, screenX, screenY, 40, 40, angle, SDL_Point{16, 16});
+    walk_animation.draw(renderer, screenX - LEGS_WIDTH / 2, screenY - LEGS_HEIGHT / 2, 40, 40,
+                        angle, SDL_Point{16, 16});
 }

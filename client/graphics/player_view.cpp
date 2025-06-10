@@ -46,7 +46,8 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_types[type]);
 
     renderer.Copy(texture, current_frame,
-                  SDL2pp::Rect(static_cast<int>(screenX), static_cast<int>(screenY), PLAYER_WIDTH,
+                  SDL2pp::Rect(static_cast<int>(screenX) - PLAYER_WIDTH / 2,
+                               static_cast<int>(screenY) - PLAYER_HEIGHT / 2, PLAYER_WIDTH,
                                PLAYER_HEIGHT),
                   angle, SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2}, SDL_FLIP_NONE);
 }

@@ -46,8 +46,8 @@ public:
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();
 
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(w), int(h)};
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX), static_cast<int>(screenY), int(w),
+                                 int(h)};
 
         SDL2pp::Texture& texture = *texture_manager.get_texture(boxes[type]);
         SDL_Rect src_rect = {0, 0, int(w), int(h)};
