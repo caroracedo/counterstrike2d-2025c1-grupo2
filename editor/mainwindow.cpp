@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget* parent):
 
     inicializarGrilla();
 
-    ui->terrenos->addItem("Seleccionar terreno...");
+    ui->terrenos->addItem("Choose terrain...");
 
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->terrenos->model());
     if (model) {
@@ -539,6 +539,7 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
             int col = x / TAM_CELDA;
 
             if (fila >= 0 && fila < FILAS && col >= 0 && col < COLUMNAS) {
+                cantZonasBomba++;
                 grilla[fila][col].zona = TIPO_ZONA::BOMBA;
                 grilla[fila][col].imagenElemento = IMAGEN_BOMBA;
             }
