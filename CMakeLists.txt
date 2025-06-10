@@ -32,7 +32,15 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
+set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/assets")
+
 include(FetchContent)
+
+if(DEFINED CUSTOM_ASSETS_PATH)
+    set(ASSETS_PATH "${CUSTOM_ASSETS_PATH}")
+endif()
+
+add_definitions(-DASSETS_PATH="${ASSETS_PATH}")
 
 FetchContent_Declare(
     yaml-cpp
@@ -66,6 +74,10 @@ target_link_libraries(taller_common PUBLIC yaml-cpp)
 # HEY!! TODO XXX: add more dependendies (either for client, server or editor)
 if(TALLER_CLIENT OR TALLER_EDITOR)
     include(FetchContent)
+
+    set(SDL2PP_WITH_MIXER YES)
+    set(SDL2PP_WITH_TTF YES)
+
     FetchContent_Declare(
         SDL2
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
@@ -115,6 +127,15 @@ endif()
 # ---------------
 if(TALLER_CLIENT)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
+    # Buscar Qt
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+    # Habilitar UIC, MOC, RCC automáticos
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+
     add_executable(taller_client)
 
     # Make them depend on taller_common lib
@@ -127,10 +148,10 @@ if(TALLER_CLIENT)
     set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # add libSDL2pp's headers
-    target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
+    target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR} ${Qt${QT_VERSION_MAJOR}_INCLUDE_DIRS})
 
     # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp yaml-cpp Qt${QT_VERSION_MAJOR}::Widgets)
 endif()
 
 if(TALLER_SERVER)
@@ -152,6 +173,20 @@ endif()
 
 if(TALLER_EDITOR)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
+    # Buscar Qt
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+    # Habilitar UIC, MOC, RCC automáticos
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+
+    #Agregar recursos Qt
+    qt_add_resources(RESOURCES
+        editor/resources.qrc
+    )
+
     add_executable(taller_editor)
 
     # Make them depend on taller_common lib
@@ -164,10 +199,10 @@ if(TALLER_EDITOR)
     set_project_warnings(taller_editor ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # add libSDL2pp's headers
-    target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR})
+    target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR} ${Qt${QT_VERSION_MAJOR}_INCLUDE_DIRS})
 
     # Link the taller_common lib target
-    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp Qt${QT_VERSION_MAJOR}::Widgets)
 endif()
 
 

@@ -1,7 +1,8 @@
 #ifndef CLIENT_HANDLER_H
 #define CLIENT_HANDLER_H
 
-#include <utility>
+#include <atomic>
+#include <memory>
 
 #include "../common/queue.h"
 #include "../common/socket.h"
@@ -15,40 +16,20 @@ class ClientHandler: public Thread {
 private:
     Socket client_socket;
     ServerProtocol protocol;
-    ServerSender sender;
     ServerReceiver receiver;
+    ServerSender sender;
     std::atomic<bool> stop_flag;
     uint16_t id;
 
 public:
-    ClientHandler(Socket&& socket, Queue<ActionDTO>& recv_queue, Queue<ActionDTO>& send_queue,
-                  uint16_t id):
-            client_socket(std::move(socket)),
-            protocol(this->client_socket, id),
-            sender(protocol, send_queue, stop_flag),
-            receiver(protocol, recv_queue, stop_flag),
-            id(id) {}
+    ClientHandler(Socket&& socket, std::shared_ptr<Queue<ActionDTO>> initial_recv_queue,
+                  uint16_t id);
 
-    void run() override {
-        sender.start();
-        receiver.start();
-    }
-
-    void hard_kill() {
-        Thread::stop();
-
-        sender.stop();
-        receiver.stop();
-        sender.join();
-        receiver.join();
-
-        try {
-            client_socket.shutdown(2);  // Cierra lectura y escritura
-        } catch (...) {}
-        client_socket.close();
-    }
-
-    bool is_alive() const override { return receiver.is_alive() || sender.is_alive(); }
+    void run() override;
+    void hard_kill();
+    bool is_alive() const override;
+    void bind_queues(std::shared_ptr<Queue<ActionDTO>> recv_queue,
+                     std::shared_ptr<Queue<ActionDTO>> send_queue);
 };
 
 #endif  // CLIENT_HANDLER_H

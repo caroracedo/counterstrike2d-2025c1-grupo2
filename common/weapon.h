@@ -7,36 +7,44 @@
 
 #include "bullet.h"
 #include "types.h"
+#include "weapon_DTO.h"
 
 class Weapon {
 private:
     WeaponModel model;
     uint16_t range;
-    uint16_t damage;
+    uint16_t min_damage;
+    uint16_t max_damage;
+    float precision;
     uint16_t ammo;
 
 public:
     /* Constructor */
-    Weapon(WeaponModel model, uint16_t range, u_int16_t damage, uint16_t ammo = 30):
-            model(model), range(range), damage(damage), ammo(ammo) {}
+    Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t _max_damage,
+           float _precision, uint16_t ammo = 30);
 
-    Weapon(): model(WeaponModel::UNKNOWN), range(), damage(), ammo() {}
+    Weapon();
 
     /* Verificaciones */
-    bool is_bomb() { return model == WeaponModel::BOMB; }
+    bool is_bomb();
 
     /* Getters */
-    uint16_t get_range() { return range; }
-    uint16_t get_damage() {
-        return damage;
-    }  // El daño depende de la distancia, se podría pasar y calcularlo desde ahí, la consigna dice
-       // que es inversamente proporcional...
-    WeaponModel get_model() const { return model; }
+    uint16_t get_range();
 
-    bool operator==(const Weapon& other) const {
-        // Compara los atributos relevantes, por ejemplo el modelo o id
-        return this->model == other.model;  // Ajusta según tu implementación
-    }
+    std::vector<uint16_t> get_damage();
+
+    WeaponDTO get_dto() const;
+
+    WeaponModel get_model() const;
+
+    uint16_t get_ammo() const;
+
+    bool shoot();
+
+    /* Funcionalidades */
+    void add_ammo(uint16_t ammo_amount);
+
+    bool operator==(const Weapon& other) const;
 };
 
 #endif  // WEAPON_H

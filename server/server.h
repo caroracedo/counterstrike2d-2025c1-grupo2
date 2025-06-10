@@ -1,31 +1,15 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#define QUIT_INPUT 'q'
-
-#include "../common/config.h"
-
-#include "acceptor.h"
-#include "game_loop.h"
+#include "match_manager.h"
 
 class Server {
 private:
-    GameLoop game_loop;
+    MatchManager match_manager;
 
 public:
-    explicit Server(const char* yaml_path): game_loop(yaml_path) {}
-
-    void run() {
-        game_loop.start();
-
-        char input;
-        do {
-            std::cin >> input;
-        } while (input != QUIT_INPUT);
-
-        game_loop.stop();
-        game_loop.join();
-    }
+    explicit Server(const char* yaml_path);
+    void run();
 };
 
 #endif  // SERVER_H

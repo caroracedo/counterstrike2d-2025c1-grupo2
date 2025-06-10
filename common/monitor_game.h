@@ -1,16 +1,11 @@
 #ifndef MONITOR_GAME_H
 #define MONITOR_GAME_H
 
-#include <condition_variable>
-#include <iostream>
 #include <memory>
 #include <mutex>
-#include <set>
-#include <string>
 #include <utility>
 #include <vector>
 
-#include "action_DTO.h"
 #include "game.h"
 #include "queue.h"
 
@@ -20,50 +15,24 @@ private:
     std::mutex mutex;
 
 public:
-    explicit MonitorGame(Config& config): game(config) {}
+    explicit MonitorGame(Config& config);
 
-    /* Inicialización */
-    size_t is_ready_to_start() {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.is_ready_to_start();
-    }
+    bool is_ready_to_start();
+    bool is_over();
 
-    /* Finalización */
-    bool is_over() {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.is_over();
-    }
+    void start_round_game_phase();
+    void end_round_game_phase();
+    void switch_player_types();
 
-    /* Snapshot */
-    std::vector<std::shared_ptr<Object>> get_objects() {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.get_objects();
-    }
+    std::vector<std::shared_ptr<Object>> get_objects();
 
-    /* Funcionalidades */
-    /* Agregar jugador */
-    void add_player(PlayerType player_type, uint16_t id) {
-        std::lock_guard<std::mutex> lock(mutex);
-        game.add_player(player_type, id);
-    }
-
-    /* Mover */
-    bool move(const Direction& direction, uint16_t id) {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.move(direction, id);
-    }
-
-    /* Disparar */
-    bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
-        std::lock_guard<std::mutex> lock(mutex);
-        return game.shoot(desired_position, id);
-    }
-
-    /* Plantar bomba */
-    void plant_bomb(uint16_t id) {
-        std::lock_guard<std::mutex> lock(mutex);
-        game.plant_bomb(id);
-    }
+    void add_player(PlayerType player_type, uint16_t id);
+    bool move(const Direction& direction, uint16_t id);
+    bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id);
+    bool interact_with_bomb(uint16_t id);
+    bool shop_weapon(WeaponModel weapon, uint16_t id);
+    bool shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id);
+    bool change_weapon(uint16_t id);
 };
 
 #endif  // MONITOR_GAME_H

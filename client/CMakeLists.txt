@@ -7,3 +7,7 @@ target_sources(taller_client
     PUBLIC
         ${CLIENT_SOURCES}
 )
+
+add_subdirectory(lobby)
+
+add_subdirectory(graphics)

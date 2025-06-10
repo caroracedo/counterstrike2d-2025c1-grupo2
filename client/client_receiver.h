@@ -6,24 +6,15 @@
 
 #include "client_protocol.h"
 
-class Receiver: public Thread {
+class ClientReceiver: public Thread {
 private:
     ClientProtocol& protocol;
     Queue<ActionDTO>& recv_queue;
 
 public:
-    Receiver(ClientProtocol& protocol, Queue<ActionDTO>& recv_queue):
-            protocol(protocol), recv_queue(recv_queue) {}
+    ClientReceiver(ClientProtocol& protocol, Queue<ActionDTO>& recv_queue);
 
-    void run() override {
-        while (should_keep_running()) {
-            try {
-                recv_queue.push(protocol.receive_and_deserialize_action());
-            } catch (...) {
-                break;
-            }
-        }
-    }
+    void run() override;
 };
 
 #endif  // CLIENT_RECEIVER_H

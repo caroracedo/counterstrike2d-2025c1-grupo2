@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 
 #include "../common/action_DTO.h"
-#include "../common/main_menu_DTO.h"
 #include "../common/socket.h"
 #include "../common/socket_manager.h"
 
@@ -40,6 +39,7 @@ private:
     ActionDTO deserialize_update(std::vector<uint8_t>& data);
     ActionDTO deserialize_id(std::vector<uint8_t>& data);
     ActionDTO deserialize_end();
+    ActionDTO deserialize_shop(std::vector<uint8_t>& data);
 
 public:
     /* Constructor */
