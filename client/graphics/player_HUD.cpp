@@ -50,7 +50,7 @@ void PlayerHUD::update(const ObjectDTO& object) {
 
 void PlayerHUD::update_timer(const ObjectDTO& object) { timer = object.bomb_countdown; }
 
-void PlayerHUD::draw() {
+void PlayerHUD::draw(bool is_bomb_active) {
     std::string health_str = std::to_string(health);
     std::string money_str = std::to_string(money);
     std::string bullets_str = std::to_string(bullets);
@@ -77,7 +77,7 @@ void PlayerHUD::draw() {
     // when bomb planted, render time remaining
     int timer_x = SCREEN_WIDTH / 2 - digit_width * timer_str.size() * scale;
 
-    if (timer > 0) {
+    if (timer > 0 && is_bomb_active) {
         render_number_string(timer_str, timer_x, 0, scale, false);
     }
 }

@@ -175,7 +175,7 @@ void GameView::render() {
         bomb_view.draw(renderer, camera);
     }
 
-    hud_view.draw();
+    hud_view.draw(bomb_view.is_active());
 
     shop_view.render();
 
