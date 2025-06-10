@@ -136,7 +136,8 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             data.push_back(static_cast<uint8_t>(action.weapon));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
-        case ActionType::AMMO:
+        case ActionType::AMMOPRIMARY:
+        case ActionType::AMMOSECONDARY:
             push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);

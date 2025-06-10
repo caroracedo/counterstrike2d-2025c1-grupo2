@@ -61,10 +61,10 @@ public:
                         return ActionDTO{ActionType::WEAPON, WeaponModel::AWP};
 
                     case SDLK_4:
-                        return ActionDTO{ActionType::AMMO, 30};
+                        return ActionDTO{ActionType::AMMOPRIMARY, 30};
 
                     case SDLK_5:
-                        return ActionDTO{ActionType::AMMO, 30};
+                        return ActionDTO{ActionType::AMMOSECONDARY, 30};
 
                     case SDLK_SPACE:
                         return ActionDTO{ActionType::CHANGE};

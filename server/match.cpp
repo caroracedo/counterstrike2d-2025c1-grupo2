@@ -32,8 +32,9 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::WEAPON:
             return monitor_game.shop_weapon(action_dto.weapon, action_dto.id);
-        case ActionType::AMMO:
-            return monitor_game.shop_ammo(action_dto.ammo, action_dto.id);
+        case ActionType::AMMOPRIMARY:
+        case ActionType::AMMOSECONDARY:
+            return monitor_game.shop_ammo(action_dto.ammo, action_dto.weapon_type, action_dto.id);
         default:
             return false;
     }

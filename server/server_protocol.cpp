@@ -1,6 +1,7 @@
 #include "server_protocol.h"
 
 #include <algorithm>
+#include <iostream>
 #include <utility>
 
 /* Constructor */
@@ -83,8 +84,14 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
             return {type, id};  // Agrega el id del jugador...
         case ActionType::WEAPON:
             return {type, static_cast<WeaponModel>(data[1]), id};  // Agrega el id del jugador...
-        case ActionType::AMMO:
-            return {type, hex_big_endian_to_int_16({data[1], data[2]}),
+        case ActionType::AMMOPRIMARY:
+            return {type, hex_big_endian_to_int_16({data[1], data[2]}), WeaponType::PRIMARY,
+                    id};  // Agrega el id del jugador...
+        case ActionType::AMMOSECONDARY:
+            std::cout << "AMMOSECONDARY" << std::endl;
+            std::cout << "ammo q llegó: " << hex_big_endian_to_int_16({data[1], data[2]})
+                      << std::endl;
+            return {type, hex_big_endian_to_int_16({data[1], data[2]}), WeaponType::SECONDARY,
                     id};  // Agrega el id del jugador...
         case ActionType::CHANGE:
             return {type, id};  // Agrega el id del jugador...

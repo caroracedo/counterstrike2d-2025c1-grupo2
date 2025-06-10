@@ -31,7 +31,7 @@ public:
     bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id);
     bool interact_with_bomb(uint16_t id);
     bool shop_weapon(WeaponModel weapon, uint16_t id);
-    bool shop_ammo(uint16_t ammo_amount, uint16_t id);
+    bool shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id);
     bool change_weapon(uint16_t id);
 };
 
