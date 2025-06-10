@@ -42,8 +42,8 @@ weapons:
     precision: 0.94999999999999996
 rounds:
   total: 10
-  terrorists: 2
-  counterterrorists: 2
+  terrorists: 1
+  counterterrorists: 1
 obstacles:
   - tipo: CAJA5
     width: 32

@@ -62,8 +62,10 @@ std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<
 }
 
 void Match::waiting_phase() {
+    std::unique_lock<std::mutex> lock(ready_mutex);
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
-    while (!monitor_game.is_ready_to_start() && should_keep_running()) {}
+    ready_cv.wait(lock,
+                  [this]() { return monitor_game.is_ready_to_start() || !should_keep_running(); });
     send_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
@@ -142,5 +144,9 @@ void Match::run() {
 }
 
 void Match::add_player(const ActionDTO& action_dto) {
-    monitor_game.add_player(action_dto.player_type, action_dto.id);
+    {
+        std::lock_guard<std::mutex> lock(ready_mutex);
+        monitor_game.add_player(action_dto.player_type, action_dto.id);
+    }
+    ready_cv.notify_all();
 }

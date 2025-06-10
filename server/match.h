@@ -21,6 +21,8 @@ private:
     MonitorGame monitor_game;
     std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues;
+    std::mutex ready_mutex;
+    std::condition_variable ready_cv;
 
     bool do_action(const ActionDTO& action_dto);
     bool do_shop_action(const ActionDTO& action_dto);

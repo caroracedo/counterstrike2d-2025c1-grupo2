@@ -75,9 +75,8 @@ void MatchManager::run() {
                     new ClientHandler(std::move(new_client_socket), own_recv_queue, ++id);
             client_handler->start();
 
-            ActionDTO first_action;
-            while (!own_recv_queue->try_pop(first_action)) {}
-
+            /* Sería como un mix entre Receiver y Sender */
+            ActionDTO first_action = own_recv_queue->pop();
             bool have_to_initialize_match =
                     first_action.type == ActionType::CREATE ||
                     (first_action.type == ActionType::JOIN && !is_valid_match(first_action.match));
