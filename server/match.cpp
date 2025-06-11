@@ -103,31 +103,36 @@ void Match::shopping_phase() {
     std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
 }
 
-void Match::game_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
+void Match::game_phase() {
     std::cout << "[GAME] Iniciando fase de juego..." << std::endl;
     send_snapshot_to_all_clients();
     monitor_game.start_round_game_phase();
 
     auto snapshot_interval = std::chrono::milliseconds(SNAPSHOT_TIME);
+    auto last_snapshot_time = std::chrono::steady_clock::now();
+
     while (!monitor_game.is_over() && should_keep_running()) {
         auto start = std::chrono::steady_clock::now();
+
+        auto now = start;
+
         ActionDTO action;
         try {
-            if (recv_queue->try_pop(action)) {
+            while (!monitor_game.is_over() && should_keep_running() &&
+                   (now - start < snapshot_interval) && recv_queue->try_pop(action)) {
                 do_action(action);
+                now = std::chrono::steady_clock::now();
             }
         } catch (const ClosedQueue&) {
             stop();
         }
 
-        auto now = std::chrono::steady_clock::now();
         if (now - last_snapshot_time >= snapshot_interval) {
             send_snapshot_to_all_clients();
             last_snapshot_time = now;
         }
 
-        auto end = std::chrono::steady_clock::now();
-        auto elapsed = end - start;
+        auto elapsed = now - start;
         if (elapsed < snapshot_interval)
             std::this_thread::sleep_for(snapshot_interval - elapsed);
     }
@@ -154,9 +159,8 @@ void Match::run() {
 
     for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running(); ++round) {
         std::cout << "[ROUND] Iniciando ronda..." << std::endl;
-        auto last_snapshot_time = std::chrono::steady_clock::now();
         shopping_phase();
-        game_phase(last_snapshot_time);
+        game_phase();
         stats_phase();
         std::cout << "[ROUND] Terminando ronda..." << std::endl;
         if (round == config.get_rounds_total() / 2)

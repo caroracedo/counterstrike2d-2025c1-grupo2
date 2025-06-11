@@ -33,7 +33,7 @@ private:
     std::vector<ObjectDTO> process_objects(const std::vector<std::shared_ptr<Object>>& objects);
     void waiting_phase();
     void shopping_phase();
-    void game_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time);
+    void game_phase();
     void stats_phase();
 
 public:
