@@ -10,6 +10,7 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "common/action_DTO.h"
+#include "common/constants.h"
 #include "common/obstacle.h"
 
 #include "bomb_view.h"
@@ -55,6 +56,7 @@ private:
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);
     void update_bullets(const ObjectDTO& object);
+    void render_cursor();
 
 public:
     GameView();

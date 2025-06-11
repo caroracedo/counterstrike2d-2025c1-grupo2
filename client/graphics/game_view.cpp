@@ -17,7 +17,9 @@ GameView::GameView():
                  *texture_manager.get_texture("hud_money")),
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
-        shop_view(renderer) {}
+        shop_view(renderer) {
+    SDL_ShowCursor(SDL_DISABLE);
+}
 
 
 void GameView::update(const ActionDTO& action) {
@@ -179,6 +181,8 @@ void GameView::render() {
 
     shop_view.render();
 
+    render_cursor();
+
     renderer.Present();
 }
 
@@ -195,4 +199,13 @@ void GameView::frame_sync() {
         SDL_Delay(frame_delay - elapsed);
 
     last_frame_time = SDL_GetTicks();
+}
+
+void GameView::render_cursor() {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    renderer.Copy(*texture_manager.get_texture("pointer"),
+                  SDL2pp::Rect(0, 0, POINTER_WIDTH, POINTER_HEIGHT),
+                  SDL2pp::Rect(mouseX - POINTER_WIDTH / 2, mouseY - POINTER_HEIGHT / 2,
+                               POINTER_WIDTH, POINTER_HEIGHT));
 }
