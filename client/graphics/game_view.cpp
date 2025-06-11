@@ -204,8 +204,11 @@ void GameView::frame_sync() {
 void GameView::render_cursor() {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
+    int scaled_width = POINTER_WIDTH / 2;
+    int scaled_height = POINTER_HEIGHT / 2;
+
     renderer.Copy(*texture_manager.get_texture("pointer"),
                   SDL2pp::Rect(0, 0, POINTER_WIDTH, POINTER_HEIGHT),
-                  SDL2pp::Rect(mouseX - POINTER_WIDTH / 2, mouseY - POINTER_HEIGHT / 2,
-                               POINTER_WIDTH, POINTER_HEIGHT));
+                  SDL2pp::Rect(mouseX - scaled_width / 2, mouseY - scaled_height / 2, scaled_width,
+                               scaled_height));
 }
