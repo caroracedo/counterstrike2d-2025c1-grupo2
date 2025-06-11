@@ -4,12 +4,14 @@
 #include <iostream>
 #include <utility>
 
+#include "../common/stats.h"
+
 /* Constructor */
 ServerProtocol::ServerProtocol(Socket& skt, uint16_t id): skt(skt), id(id) {}
 
 /* Private */
 /* Envío */
-bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
+void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                                                std::vector<uint8_t>& data) {
     for (uint16_t i = 0; i < action_dto.objects.size(); ++i) {
         data.push_back(static_cast<uint8_t>(action_dto.objects[i].type));
@@ -40,24 +42,31 @@ bool ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 break;
         }
     }
-    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 
-bool ServerProtocol::serialize_and_send_id(const ActionDTO& action_dto,
+void ServerProtocol::serialize_and_send_id(const ActionDTO& action_dto,
                                            std::vector<uint8_t>& data) {
     push_hexa_to(int_16_to_hex_big_endian(action_dto.id), data);
-    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
 
-bool ServerProtocol::serialize_and_send_end(const std::vector<uint8_t>& data) {
-    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
-}
-
-bool ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
+void ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
                                              std::vector<uint8_t>& data) {
     std::transform(action_dto.weapons.begin(), action_dto.weapons.end(), std::back_inserter(data),
                    [](WeaponModel weapon) { return static_cast<uint8_t>(weapon); });
-    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
+}
+
+void ServerProtocol::serialize_and_send_stats(const ActionDTO& action_dto,
+                                              std::vector<uint8_t>& data) {
+    const Stats& stats = action_dto.stats;
+    for (const auto& [id, kills]: stats.kills) {
+        push_hexa_to(int_16_to_hex_big_endian(id), data);
+        push_hexa_to(int_16_to_hex_big_endian(kills), data);
+        push_hexa_to(int_16_to_hex_big_endian(stats.deaths.find(id)->second), data);
+        push_hexa_to(int_16_to_hex_big_endian(stats.money.find(id)->second), data);
+    }
+    data.push_back(static_cast<uint8_t>(stats.last_winner));
+    push_hexa_to(int_16_to_hex_big_endian(stats.team_a_wins), data);
+    push_hexa_to(int_16_to_hex_big_endian(stats.team_b_wins), data);
 }
 
 /* Public */
@@ -105,13 +114,15 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
     std::vector<uint8_t> data = {static_cast<uint8_t>(action_dto.type)};
     if (action_dto.type == ActionType::UPDATE) {
-        return serialize_and_send_update(action_dto, data);
+        serialize_and_send_update(action_dto, data);
     } else if (action_dto.type == ActionType::PLAYERID) {
-        return serialize_and_send_id(action_dto, data);
-    } else if (action_dto.type == ActionType::END) {
-        return serialize_and_send_end(data);
+        serialize_and_send_id(action_dto, data);
     } else if (action_dto.type == ActionType::SHOP) {
-        return serialize_and_send_shop(action_dto, data);
+        serialize_and_send_shop(action_dto, data);
+    } else if (action_dto.type == ActionType::STATS) {
+        serialize_and_send_stats(action_dto, data);
+    } else if (action_dto.type != ActionType::END) {
+        return false;
     }
-    return false;
+    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "object_DTO.h"
+#include "stats.h"
 #include "types.h"
 
 enum class ActionType : uint8_t {
@@ -23,6 +24,7 @@ enum class ActionType : uint8_t {
     CREATE = 0x42,
     JOIN = 0x43,
     CHANGE = 0x40,
+    STATS = 0x9D,
     UNKNOWN = 0x00
 };
 
@@ -54,6 +56,8 @@ struct ActionDTO {
     std::vector<ObjectDTO> objects;
     /* Shop */
     std::vector<WeaponModel> weapons;
+    /* Stats */
+    Stats stats;
 
     /* Id */
     uint16_t id;
@@ -108,6 +112,9 @@ struct ActionDTO {
 
     /* Shop */
     ActionDTO(const ActionType& action, const std::vector<WeaponModel>& weapons);
+
+    /* Stats */
+    ActionDTO(const ActionType& action, const Stats& stats);
 };
 
 #endif  // ACTION_DTO_H

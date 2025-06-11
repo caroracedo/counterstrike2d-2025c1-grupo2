@@ -33,6 +33,8 @@ public:
     bool shop_weapon(WeaponModel weapon, uint16_t id);
     bool shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id);
     bool change_weapon(uint16_t id);
+
+    Stats get_stats() const { return game.get_stats(); }
 };
 
 #endif  // MONITOR_GAME_H

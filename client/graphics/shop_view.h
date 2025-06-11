@@ -32,7 +32,7 @@ private:
 
     SDL2pp::Font font;
 
-    bool visible = true;
+    bool visible = false;
 
     void init_buttons();
 

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "../common/object_DTO.h"
+#include "../common/stats.h"
 
 /* Constructor */
 ClientProtocol::ClientProtocol(Socket& skt): skt(skt) {}
@@ -84,6 +85,25 @@ ActionDTO ClientProtocol::deserialize_shop(std::vector<uint8_t>& data) {
     return {ActionType::SHOP, weapons};
 }
 
+ActionDTO ClientProtocol::deserialize_stats(std::vector<uint8_t>& data) {
+    Stats stats_out;
+    for (size_t i = 0; i < data.size(); i += 8) {
+        std::vector<uint8_t> id(data.begin() + i, data.begin() + i + 2);
+        std::vector<uint8_t> kills(data.begin() + i + 2, data.begin() + i + 4);
+        std::vector<uint8_t> deaths(data.begin() + i + 4, data.begin() + i + 6);
+        std::vector<uint8_t> money(data.begin() + i + 6, data.begin() + i + 8);
+
+        uint16_t id_value = hex_big_endian_to_int_16(id);
+        stats_out.kills[id_value] = hex_big_endian_to_int_16(kills);
+        stats_out.deaths[id_value] = hex_big_endian_to_int_16(deaths);
+        stats_out.money[id_value] = hex_big_endian_to_int_16(money);
+    }
+    stats_out.last_winner = static_cast<PlayerType>(data[data.size() - 3]);
+    stats_out.team_a_wins = data[data.size() - 2];
+    stats_out.team_b_wins = data[data.size() - 1];
+    return {ActionType::STATS, stats_out};
+}
+
 /* Public */
 /* Recepción */
 ActionDTO ClientProtocol::receive_and_deserialize_action() {
@@ -112,6 +132,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
             return deserialize_end();
         case ActionType::SHOP:
             return deserialize_shop(data);
+        case ActionType::STATS:
+            return deserialize_stats(data);
         default:
             return {};
     }
