@@ -24,6 +24,7 @@
 #include "object_DTO.h"
 #include "obstacle.h"
 #include "player.h"
+#include "stats.h"
 #include "types.h"
 #include "weapon.h"
 #include "weapon_DTO.h"
@@ -36,15 +37,6 @@ struct Ak47Burst {
     std::vector<uint16_t> desired_position;
     int shots_left;
     float time_until_next_shot;  // en segundos
-};
-
-struct Stats {
-    std::map<uint16_t, uint16_t> kills;            // ID del jugador -> cantidad de asesinatos
-    std::map<uint16_t, uint16_t> deaths;           // ID del jugador -> cantidad de muertes
-    std::map<uint16_t, uint16_t> money;            // ID del jugador -> dinero recolectado
-    PlayerType last_winner = PlayerType::UNKNOWN;  // Último ganador de la ronda
-    uint16_t team_a_wins = 0;
-    uint16_t team_b_wins = 0;
 };
 
 class Game {
@@ -242,6 +234,8 @@ public:
 
     // Permite al jugador con el ID especificado cambiar de arma.
     bool change_weapon(uint16_t id);
+
+    Stats get_stats() const { return stats; }
 };
 
 #endif  // GAME_H

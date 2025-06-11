@@ -13,6 +13,7 @@ ActionDTO::ActionDTO():
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 
 /* Action */
@@ -27,6 +28,7 @@ ActionDTO::ActionDTO(const ActionType& action):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Action con uint16_t */
 ActionDTO::ActionDTO(ActionType action, uint16_t value):
@@ -40,6 +42,7 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {
     switch (type) {
         case ActionType::PLAYERID:
@@ -70,6 +73,7 @@ ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Partida con id (en server) */
 ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
@@ -84,6 +88,7 @@ ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 /* Tipo de Jugador */
@@ -98,6 +103,7 @@ ActionDTO::ActionDTO(const ActionType& action, const PlayerType& player_type):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Tipo de Jugador con id (en server) */
 ActionDTO::ActionDTO(const ActionType& action, const PlayerType& player_type, uint16_t id):
@@ -111,6 +117,7 @@ ActionDTO::ActionDTO(const ActionType& action, const PlayerType& player_type, ui
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 
@@ -126,6 +133,7 @@ ActionDTO::ActionDTO(const ActionType& action, const Direction& direction):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Mover con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, const Direction& direction, uint16_t id):
@@ -139,6 +147,7 @@ ActionDTO::ActionDTO(const ActionType& action, const Direction& direction, uint1
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 
@@ -154,6 +163,7 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desi
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Disparar con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desired_position,
@@ -168,6 +178,7 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desi
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 
@@ -183,6 +194,7 @@ ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Comprar Weapon con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id):
@@ -196,6 +208,7 @@ ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id):
         weapon_type(),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 /* Comprar Ammo */
@@ -210,6 +223,7 @@ ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_
         weapon_type(weapon_type),
         objects(),
         weapons(),
+        stats(),
         id() {}
 /* Comprar Ammo con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id):
@@ -223,6 +237,7 @@ ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_
         weapon_type(weapon_type),
         objects(),
         weapons(),
+        stats(),
         id(id) {}
 
 
@@ -239,6 +254,7 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& obj
         weapon_type(),
         objects(objects),
         weapons(),
+        stats(),
         id() {}
 
 /* Shop */
@@ -253,4 +269,20 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<WeaponModel>& w
         weapon_type(),
         objects(),
         weapons(weapons),
+        stats(),
+        id() {}
+
+/* Stats */
+ActionDTO::ActionDTO(const ActionType& action, const Stats& stats):
+        type(action),
+        match(),
+        player_type(),
+        direction(),
+        desired_position(),
+        weapon(),
+        ammo(),
+        weapon_type(),
+        objects(),
+        weapons(),
+        stats(stats),
         id() {}
