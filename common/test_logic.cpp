@@ -16,15 +16,22 @@ int main() {
     game.shop_weapon(WeaponModel::AK47, 1);
     game.shop_weapon(WeaponModel::AWP, 2);
 
+    std::vector<uint16_t> player2_pos = game.get_player_position(2);
+    std::vector<uint16_t> player1_pos = game.get_player_position(1);
+
+
     std::cout << "\n[TEST] Player 2 dropping AWP" << std::endl;
-    WeaponDTO awp = game.drop_primary_weapon(2);
+    game.drop_primary_weapon(2);
     game.show_objects();
 
     std::cout << "\n[TEST] Player 1 picking up AWP => dropping AK-47" << std::endl;
-    game.pick_up_weapon(awp, 1);
+    game.pick_up_weapon(player2_pos, 1);
     game.show_objects();
 
     std::cout << "\n[TEST] Player 1 dropping all weapons (including bomb)" << std::endl;
     game.drop_weapons(1);
     game.show_objects();
+
+    std::cout << "\n[TEST] Player 1 picking up weapon just dropped" << std::endl;
+    game.pick_up_weapon(player1_pos, 1);
 }

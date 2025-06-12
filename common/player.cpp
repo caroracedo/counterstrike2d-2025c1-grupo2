@@ -74,7 +74,6 @@ WeaponDTO Player::drop_primary_weapon() {
     WeaponDTO weapon = primary_weapon.get_weapon_dto();
     std::cout << "[PLAYER] Weapon dropped: " << primary_weapon.get_name() << std::endl;
     primary_weapon = Weapon();
-    std::cout << "[PLAYER] New primary weapon: " << primary_weapon.get_name() << std::endl;
     return weapon;
 }
 

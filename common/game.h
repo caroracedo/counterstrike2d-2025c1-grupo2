@@ -54,6 +54,7 @@ private:
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
+    std::map<uint16_t, std::shared_ptr<Weapon>> weapons;  // Mapa de armas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
     uint16_t weapon_id = 1;
@@ -262,21 +263,54 @@ public:
         return result.first;
     }
 
-    WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto, uint16_t id) {
-        delete_weapon(weapon_dto);
-        WeaponDTO old_weapon = players.find(id)->second->pick_up_weapon(weapon_dto);
-        if (old_weapon.model != WeaponModel::UNKNOWN) {
-            create_weapon(old_weapon, players.find(id)->second->get_position());
-        }
-        return old_weapon;
-    }
+    WeaponDTO pick_up_weapon(std::vector<uint16_t> position, uint16_t id, uint16_t max_dist = 45) {
+        auto players_it = players.find(id);
+        if (players_it != players.end()) {
+            std::vector<uint16_t> player_position = players_it->second->get_position();
 
-    // --------------
+            auto cell = get_cell_from_position(position);
+            auto adyacent_objects = get_adyacent_objects(cell);
+            Obstacle pointer(position, 1, 1, ObstacleType::UNKNOWN);
+
+            for (const auto& obj: adyacent_objects) {
+                if (obj->get_type() == ObjectType::WEAPON) {
+                    auto result = collides(pointer, position, {obj});
+                    if (result.first != ObjectType::WEAPON) {
+                        continue;
+                    }
+                    if (distance_between(player_position, position) <= max_dist) {
+                        // Elimina el arma de la matriz y del vector de objetos
+                        WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
+                        // El jugador recoge el arma
+                        WeaponDTO old_weapon_dto =
+                                players_it->second->pick_up_weapon(new_weapon_dto);
+                        std::cout << "[GAME] Player with ID " << id
+                                  << " picked up weapon with ID: " << new_weapon_dto.id << "\n";
+                        if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
+                            create_weapon(old_weapon_dto, player_position);
+                        }
+                        return new_weapon_dto;
+
+                    } else {
+                        std::cout << "[GAME] Player with ID " << id
+                                  << " is too far to pick up weapon at position: " << position[0]
+                                  << ", " << position[1] << "\n";
+                        return WeaponDTO();
+                    }
+                }
+            }
+        }
+        std::cout << "[GAME] Player with ID " << id << " not found.\n";
+        return WeaponDTO();
+    }
 
     void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {
         Weapon _weapon(weapon_dto);
         _weapon.move(position);
         auto weapon = std::make_shared<Weapon>(_weapon);
+        // Agrega el arma al vector de armas
+        weapons[weapon_dto.id] = weapon;
+
         // Agrega el arma en la matriz
         auto cell = get_cell_from_position(position);
         matrix[cell.first][cell.second].push_back(weapon);
@@ -293,22 +327,23 @@ public:
         }
     }
 
-    void delete_weapon(const WeaponDTO& weapon_dto) {
-        std::cout << "[GAME] Deleting weapon with ID: " << weapon_dto.id << "\n";
-        // Busca el arma en los objetos
-        auto it = std::find_if(
-                objects.begin(), objects.end(), [&weapon_dto](const std::shared_ptr<Object>& obj) {
-                    return obj->get_type() == ObjectType::WEAPON && obj->get_id() == weapon_dto.id;
-                });
-        if (it != objects.end()) {
+    WeaponDTO delete_weapon(const uint16_t weapon_id) {
+        std::cout << "[GAME] Deleting weapon with ID: " << weapon_id << "\n";
+        auto it = weapons.find(weapon_id);
+        if (it != weapons.end()) {
+            auto weapon_ptr = it->second;
+            WeaponDTO weapon_dto = weapon_ptr->get_weapon_dto();
             // Elimina el arma de la matriz
-            auto cell = get_cell_from_position((*it)->get_position());
+            auto cell = get_cell_from_position(weapon_ptr->get_position());
             auto& vec = matrix[cell.first][cell.second];
-            vec.erase(std::remove(vec.begin(), vec.end(), *it), vec.end());
-
+            vec.erase(std::remove(vec.begin(), vec.end(), weapon_ptr), vec.end());
             // Elimina el arma del vector de objetos
-            objects.erase(it);
+            objects.erase(std::remove(objects.begin(), objects.end(), weapon_ptr), objects.end());
+            // Elimina del mapa de weapons
+            weapons.erase(it);
+            return weapon_dto;
         }
+        return WeaponDTO();
     }
 
     void create_bomb(const std::vector<uint16_t>& position) {
@@ -337,6 +372,14 @@ public:
                           << obj->get_position()[1] << "\n";
             }
         }
+    }
+
+    std::vector<uint16_t> get_player_position(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->get_position();
+        }
+        return {};
     }
 };
 

@@ -452,13 +452,17 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         Devuelve el tipo de objeto con el que colisiona y su ID.
     */
 
+    if (object.get_type() == ObjectType::UNKNOWN) {
+        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+    }
+
     uint16_t radius;
     if (object.get_type() == ObjectType::BULLET) {
         radius = BULLET_RADIUS;  // Radio de la bala
     } else if (object.get_type() == ObjectType::PLAYER) {
         radius = PLAYER_RADIUS;  // Radio del jugador
     } else {
-        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+        radius = object.get_width();
     }
 
     for (const auto& obj: objects) {
@@ -474,7 +478,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         } else if (obj->get_type() == ObjectType::PLAYER) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
                                               PLAYER_RADIUS);
-        } else if (obj->get_type() == ObjectType::OBSTACLE) {
+        } else {
             overlap = circle_rectangle_collision(new_position, radius, obj->get_position(),
                                                  obj->get_width(), obj->get_height());
         }
@@ -482,7 +486,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         if (overlap) {
             ObjectType type = static_cast<ObjectType>(obj->get_type());
             if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
-                type == ObjectType::PLAYER) {
+                type == ObjectType::PLAYER || type == ObjectType::WEAPON) {
                 return {type, obj->get_id()};
             }
             return {ObjectType::UNKNOWN, 0};
