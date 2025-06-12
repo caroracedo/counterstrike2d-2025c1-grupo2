@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "bullet.h"
@@ -25,6 +26,8 @@ public:
 
     Weapon();
 
+    explicit Weapon(const WeaponDTO& weapon_dto);
+
     /* Verificaciones */
     bool is_bomb();
 
@@ -45,6 +48,25 @@ public:
     void add_ammo(uint16_t ammo_amount);
 
     bool operator==(const Weapon& other) const;
+
+    std::string get_name() const {
+        switch (model) {
+            case WeaponModel::KNIFE:
+                return "Knife";
+            case WeaponModel::GLOCK:
+                return "Glock";
+            case WeaponModel::AK47:
+                return "AK-47";
+            case WeaponModel::M3:
+                return "M3";
+            case WeaponModel::AWP:
+                return "AWP";
+            case WeaponModel::BOMB:
+                return "Bomb";
+            default:
+                return "Unknown Weapon";
+        }
+    }
 };
 
 #endif  // WEAPON_H

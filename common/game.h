@@ -242,6 +242,22 @@ public:
 
     // Permite al jugador con el ID especificado cambiar de arma.
     bool change_weapon(uint16_t id);
+
+
+    // FUNCIONES PARA TESTEO LOCAL
+
+    WeaponDTO drop_primary_weapon(uint16_t id) {
+        return players.find(id)->second->drop_primary_weapon();
+    }
+
+    WeaponDTO drop_weapons(uint16_t id) {
+        auto result = players.find(id)->second->drop_weapons();
+        return result.first;
+    }
+
+    WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto, uint16_t id) {
+        return players.find(id)->second->pick_up_weapon(weapon_dto);
+    }
 };
 
 #endif  // GAME_H

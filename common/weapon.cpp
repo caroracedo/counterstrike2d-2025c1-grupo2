@@ -18,6 +18,14 @@ Weapon::Weapon():
         precision(0),
         ammo(0) {}
 
+Weapon::Weapon(const WeaponDTO& weapon_dto):
+        model(weapon_dto.model),
+        range(weapon_dto.range),
+        min_damage(weapon_dto.min_damage),
+        max_damage(weapon_dto.max_damage),
+        precision(weapon_dto.precision),
+        ammo(weapon_dto.ammo) {}
+
 /* Verificaciones */
 bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
 

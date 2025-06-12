@@ -22,6 +22,13 @@ struct WeaponDTO {
             max_damage(_max_damage),
             precision(_precision),
             ammo(_ammo) {}
+    WeaponDTO():
+            model(WeaponModel::UNKNOWN),
+            range(0),
+            min_damage(0),
+            max_damage(0),
+            precision(0.0f),
+            ammo(0) {}
 };
 
 #endif  // WEAPON_DTO_H

@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <iostream>
+
 /* Constructor */
 Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
                uint16_t initial_money, WeaponShop& weapon_shop):
@@ -66,6 +68,41 @@ void Player::change_weapon() {
     } else {
         current = &secondary_weapon;  // Si no hay primario, vuelve al secundario
     }
+}
+
+WeaponDTO Player::drop_primary_weapon() {
+    WeaponDTO weapon = primary_weapon.get_dto();
+    std::cout << "[PLAYER] Weapon dropped: " << primary_weapon.get_name() << std::endl;
+    primary_weapon = Weapon();
+    std::cout << "[PLAYER] New primary weapon: " << primary_weapon.get_name() << std::endl;
+    return weapon;
+}
+
+std::pair<WeaponDTO, bool> Player::drop_weapons() {
+    WeaponDTO weapon = drop_primary_weapon();
+    if (has_bomb) {
+        has_bomb = false;
+        std::cout << "[PLAYER] Bomb dropped." << std::endl;
+        return {weapon, true};
+    }
+    return {weapon, false};
+}
+
+WeaponDTO Player::pick_up_weapon(const WeaponDTO& weapon_dto) {
+    WeaponDTO weapon_dropped;
+    if (weapon_dto.model == WeaponModel::BOMB) {
+        has_bomb = (player_type == PlayerType::TERRORIST) ? true : false;
+        std::cout << "[PLAYER] Bomb found. Picked up: " << (has_bomb ? "true" : "false")
+                  << std::endl;
+        return weapon_dropped;
+    }
+    if (weapon_dto.model == WeaponModel::UNKNOWN) {
+        return weapon_dropped;
+    }
+    weapon_dropped = drop_primary_weapon();
+    primary_weapon = Weapon(weapon_dto);
+    std::cout << "[PLAYER] New primary weapon: " << primary_weapon.get_name() << std::endl;
+    return weapon_dropped;
 }
 
 bool Player::can_plant_bomb() const { return has_bomb; }
