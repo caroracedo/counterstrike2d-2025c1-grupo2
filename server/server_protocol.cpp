@@ -140,6 +140,9 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
         case ActionType::SHOP:
             serialize_and_send_shop(action_dto, data);
             break;
+        case ActionType::STATS:
+            serialize_and_send_stats(action_dto, data);
+            break;
         case ActionType::END:
             break;
         default:
