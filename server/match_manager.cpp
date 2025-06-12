@@ -62,10 +62,7 @@ void MatchManager::initialize_match_resources(const std::string& match, const st
                                              MAPS_RELATIVE_PATH + map + YAML_EXTENSION);
 }
 
-bool MatchManager::is_valid_match(const std::string& match) {
-    return !(shared_recv_queues.count(match) == 0 ||
-             monitors_client_send_queues.count(match) == 0 || matches.count(match) == 0);
-}
+bool MatchManager::is_valid_match(const std::string& match) { return !matches.count(match) == 0; }
 
 void MatchManager::run() {
 

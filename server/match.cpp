@@ -46,9 +46,14 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
     }
 }
 
-void Match::send_snapshot_to_all_clients() {
+void Match::send_initial_snapshot_to_all_clients() {
     monitor_client_send_queues->send_update(
             {ActionType::UPDATE, process_objects(monitor_game.get_objects())});
+}
+
+void Match::send_snapshot_to_all_clients() {
+    monitor_client_send_queues->send_update(
+            {ActionType::UPDATE, process_dynamic_objects(monitor_game.get_objects())});
 }
 
 void Match::send_shop_to_all_clients() {
@@ -71,6 +76,17 @@ std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<
     return object_dtos;
 }
 
+std::vector<ObjectDTO> Match::process_dynamic_objects(
+        const std::vector<std::shared_ptr<Object>>& objects) {
+    std::vector<ObjectDTO> object_dtos;
+    for (const auto& obj_ptr: objects) {
+        ObjectType type = obj_ptr->get_type();
+        if (type != ObjectType::OBSTACLE && type != ObjectType::BOMBZONE)
+            object_dtos.push_back(obj_ptr->get_dto());
+    }
+    return object_dtos;
+}
+
 void Match::waiting_phase() {
     std::unique_lock<std::mutex> lock(wait_mutex);
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
@@ -78,7 +94,7 @@ void Match::waiting_phase() {
     wait_cv.wait(lock,
                  [this]() { return monitor_game.is_ready_to_start() || !should_keep_running(); });
 
-    send_snapshot_to_all_clients();
+    send_initial_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
 

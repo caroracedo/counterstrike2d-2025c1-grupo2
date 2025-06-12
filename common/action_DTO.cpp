@@ -86,12 +86,30 @@ ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
         weapons(),
         stats(),
         id() {}
-/* Partida con id (en server) */
+/* Crear Partida con id (en server) */
 ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
                      const PlayerType& player_type, uint16_t id):
         type(action),
         match(match),
         map(map),
+        player_type(player_type),
+        direction(),
+        desired_position(),
+        weapon(),
+        ammo(),
+        weapon_type(),
+        matches(),
+        maps(),
+        objects(),
+        weapons(),
+        stats(),
+        id(id) {}
+/* Unirse a Partida con id (en server) */
+ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
+                     const PlayerType& player_type, uint16_t id):
+        type(action),
+        match(match),
+        map(),
         player_type(player_type),
         direction(),
         desired_position(),

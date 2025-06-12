@@ -94,13 +94,15 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 
     ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
-        case ActionType::CREATE:
-        case ActionType::JOIN: {
+        case ActionType::CREATE: {
             uint16_t match_size = hex_big_endian_to_int_16({data[1], data[2]});
             return {type, std::string(data.begin() + 3, data.begin() + 3 + match_size),
                     std::string(data.begin() + 3 + match_size, data.end() - 1),
                     static_cast<PlayerType>(data.back()), id};
         }
+        case ActionType::JOIN:
+            return {type, std::string(data.begin() + 1, data.end() - 1),
+                    static_cast<PlayerType>(data.back()), id};
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::SHOOT:
@@ -128,16 +130,20 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 /* Envío */
 bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
     std::vector<uint8_t> data = {static_cast<uint8_t>(action_dto.type)};
-    if (action_dto.type == ActionType::UPDATE) {
-        serialize_and_send_update(action_dto, data);
-    } else if (action_dto.type == ActionType::CONFIGURATION) {
-        serialize_and_send_configuration(action_dto, data);
-    } else if (action_dto.type == ActionType::SHOP) {
-        serialize_and_send_shop(action_dto, data);
-    } else if (action_dto.type == ActionType::STATS) {
-        serialize_and_send_stats(action_dto, data);
-    } else if (action_dto.type != ActionType::END) {
-        return false;
+    switch (action_dto.type) {
+        case ActionType::UPDATE:
+            serialize_and_send_update(action_dto, data);
+            break;
+        case ActionType::CONFIGURATION:
+            serialize_and_send_configuration(action_dto, data);
+            break;
+        case ActionType::SHOP:
+            serialize_and_send_shop(action_dto, data);
+            break;
+        case ActionType::END:
+            break;
+        default:
+            return false;
     }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

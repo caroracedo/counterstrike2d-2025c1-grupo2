@@ -79,9 +79,12 @@ struct ActionDTO {
     /* client -> server */
     /* Partida */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
-    /* Partida con id (en server) */
+    /* Crear Partida con id (en server) */
     ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
               const PlayerType& player_type, uint16_t id);
+    /* Unirse a Partida con id (en server) */
+    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
+              uint16_t id);
 
     /* Tipo de Jugador */
     ActionDTO(const ActionType& action, const PlayerType& player_type);

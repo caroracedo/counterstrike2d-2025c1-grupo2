@@ -178,37 +178,33 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     std::vector<uint8_t> data = {opcode};
     switch (action.type) {
         case ActionType::CREATE:
-        case ActionType::JOIN:
             push_hexa_to(int_16_to_hex_big_endian(action.match.size()), data);
             data.insert(data.end(), action.match.begin(), action.match.end());
             data.insert(data.end(), action.map.begin(), action.map.end());
             data.push_back(static_cast<uint8_t>(action.player_type));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
+        case ActionType::JOIN:
+            data.insert(data.end(), action.match.begin(), action.match.end());
+            data.push_back(static_cast<uint8_t>(action.player_type));
+            break;
         case ActionType::MOVE:
             data.push_back(static_cast<uint8_t>(action.direction));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::SHOOT:
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::BOMB:
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::WEAPON:
             data.push_back(static_cast<uint8_t>(action.weapon));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::AMMOPRIMARY:
         case ActionType::AMMOSECONDARY:
             push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::CHANGE:
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         // case ObjectType::TAKE:
         //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
         //     return skt_manager.send_two_bytes(skt, data.size()) &&
@@ -216,4 +212,5 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         default:
             return false;
     }
+    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }
