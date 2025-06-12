@@ -9,6 +9,7 @@
 #define PLAYER_HEIGHT 32
 #define OBSTACLE_WIDTH 32
 #define OBSTACLE_HEIGHT 32
+#define WEAPON_SIZE 15
 
 // TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
 #define MATRIX_SIZE 12            // posición máxima en la matriz (celdas)

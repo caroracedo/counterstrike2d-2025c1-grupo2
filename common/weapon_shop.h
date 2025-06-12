@@ -18,12 +18,13 @@ private:
 public:
     explicit WeaponShop(Config& config): catalog(config.get_weapon_config()) {}
 
-    std::pair<uint16_t, Weapon> buy_weapon(const WeaponModel& weapon_model, uint16_t player_money) {
+    std::pair<uint16_t, Weapon> buy_weapon(const WeaponModel& weapon_model,
+                                           const uint16_t weapon_id, uint16_t player_money) {
         auto it = catalog.find(weapon_model);
         if (it != catalog.end() && player_money >= it->second.price) {
-            // algunos numeros hardcodeados para que me compile
-            return {it->second.price, Weapon(weapon_model, it->second.range, it->second.min_damage,
-                                             it->second.max_damage, it->second.precision, 30)};
+            return {it->second.price,
+                    Weapon(weapon_id, weapon_model, it->second.range, it->second.min_damage,
+                           it->second.max_damage, it->second.precision, 30)};
         }
         return {0, Weapon()};
     }

@@ -286,8 +286,9 @@ bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
         Permite a los jugadores comprar un arma en la fase inicial
     */
     auto player_it = players.find(id);
-    if (player_it != players.end()) {
-        return player_it->second->buy_weapon(weapon);
+    if (player_it != players.end() && player_it->second->buy_weapon(weapon, weapon_id)) {
+        inc_weapon_id();
+        return true;
     }
     return false;
 }

@@ -56,6 +56,7 @@ private:
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
+    uint16_t weapon_id = 1;
     int round_number = 0;
     Config& config;
     WeaponShop weapon_shop;
@@ -247,16 +248,95 @@ public:
     // FUNCIONES PARA TESTEO LOCAL
 
     WeaponDTO drop_primary_weapon(uint16_t id) {
-        return players.find(id)->second->drop_primary_weapon();
+        WeaponDTO weapon = players.find(id)->second->drop_primary_weapon();
+        create_weapon(weapon, players.find(id)->second->get_position());
+        return weapon;
     }
 
     WeaponDTO drop_weapons(uint16_t id) {
         auto result = players.find(id)->second->drop_weapons();
+        create_weapon(result.first, players.find(id)->second->get_position());
+        if (result.second) {
+            create_bomb(players.find(id)->second->get_position());
+        }
         return result.first;
     }
 
     WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto, uint16_t id) {
-        return players.find(id)->second->pick_up_weapon(weapon_dto);
+        delete_weapon(weapon_dto);
+        WeaponDTO old_weapon = players.find(id)->second->pick_up_weapon(weapon_dto);
+        if (old_weapon.model != WeaponModel::UNKNOWN) {
+            create_weapon(old_weapon, players.find(id)->second->get_position());
+        }
+        return old_weapon;
+    }
+
+    // --------------
+
+    void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {
+        Weapon _weapon(weapon_dto);
+        _weapon.move(position);
+        auto weapon = std::make_shared<Weapon>(_weapon);
+        // Agrega el arma en la matriz
+        auto cell = get_cell_from_position(position);
+        matrix[cell.first][cell.second].push_back(weapon);
+
+        // Agrega el arma al vector de objetos
+        objects.push_back(weapon);
+    }
+
+    void inc_weapon_id() {
+        if (weapon_id < UINT16_MAX) {
+            weapon_id++;
+        } else {
+            weapon_id = 1;
+        }
+    }
+
+    void delete_weapon(const WeaponDTO& weapon_dto) {
+        std::cout << "[GAME] Deleting weapon with ID: " << weapon_dto.id << "\n";
+        // Busca el arma en los objetos
+        auto it = std::find_if(
+                objects.begin(), objects.end(), [&weapon_dto](const std::shared_ptr<Object>& obj) {
+                    return obj->get_type() == ObjectType::WEAPON && obj->get_id() == weapon_dto.id;
+                });
+        if (it != objects.end()) {
+            // Elimina el arma de la matriz
+            auto cell = get_cell_from_position((*it)->get_position());
+            auto& vec = matrix[cell.first][cell.second];
+            vec.erase(std::remove(vec.begin(), vec.end(), *it), vec.end());
+
+            // Elimina el arma del vector de objetos
+            objects.erase(it);
+        }
+    }
+
+    void create_bomb(const std::vector<uint16_t>& position) {
+        bomb = std::make_shared<Bomb>(position);
+        bomb->move(position);
+        // Agrega la bomba en la matriz
+        auto cell = get_cell_from_position(position);
+        matrix[cell.first][cell.second].push_back(bomb);
+
+        // Agrega la bomba al vector de objetos
+        objects.push_back(bomb);
+    }
+
+    void show_objects() {
+        for (const auto& obj: objects) {
+            if (obj->get_type() == ObjectType::WEAPON) {
+                std::cout << "[GAME] Weapon: " << obj->get_dto().get_weapon_model() << " "
+                          << obj->get_id() << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::PLAYER) {
+                std::cout << "[GAME] Player ID: " << obj->get_id()
+                          << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::BOMB) {
+                std::cout << "[GAME] Bomb at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            }
+        }
     }
 };
 

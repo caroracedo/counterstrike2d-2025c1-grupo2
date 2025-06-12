@@ -7,10 +7,11 @@
 #include <vector>
 
 #include "bullet.h"
+#include "object.h"
 #include "types.h"
 #include "weapon_DTO.h"
 
-class Weapon {
+class Weapon: public Object {
 private:
     WeaponModel model;
     uint16_t range;
@@ -21,8 +22,8 @@ private:
 
 public:
     /* Constructor */
-    Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t _max_damage,
-           float _precision, uint16_t ammo = 30);
+    Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
+           uint16_t _max_damage, float _precision, uint16_t ammo);
 
     Weapon();
 
@@ -36,7 +37,9 @@ public:
 
     std::vector<uint16_t> get_damage();
 
-    WeaponDTO get_dto() const;
+    WeaponDTO get_weapon_dto() const;
+
+    ObjectDTO get_dto() const override;
 
     WeaponModel get_model() const;
 
