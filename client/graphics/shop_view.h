@@ -9,9 +9,6 @@
 
 #include "common/constants.h"
 
-#define SCREEN_MARGIN 20
-
-
 struct Button {
     SDL2pp::Rect rect;
     std::string text;

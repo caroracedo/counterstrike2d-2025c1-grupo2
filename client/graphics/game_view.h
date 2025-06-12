@@ -23,6 +23,7 @@
 #include "player_view.h"
 #include "shop_view.h"
 #include "sound_manager.h"
+#include "stats_view.h"
 #include "textures_manager.h"
 
 
@@ -42,10 +43,12 @@ private:
     PlayerHUD hud_view;
     BombView bomb_view;
     ShopView shop_view;
+    StatsView stats_view;
 
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
+    std::unordered_map<uint16_t, PlayerType> types;
     std::vector<ObstacleView> obstacles;
     std::vector<BulletView> bullets;
     std::vector<SDL_Rect> bomb_zones;

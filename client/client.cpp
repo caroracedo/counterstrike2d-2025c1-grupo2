@@ -47,7 +47,8 @@ void Client::run() {
                 break;
             } else if (update.type == ActionType::PLAYERID) {
                 game_view.set_id(update.id);
-            } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP) {
+            } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
+                       update.type == ActionType::STATS) {
                 game_view.update(update);
             }
         }

@@ -37,19 +37,16 @@ void ShopView::init_resources() {
 }
 void ShopView::render() {
     if (!visible)
-        return;  // Si no es visible, no hacemos nada
-    // Guardamos el color actual del renderer
+        return;
+
     SDL2pp::Color prevColor = renderer.GetDrawColor();
 
-    // Establecemos color gris semitransparente
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     renderer.SetDrawColor(17, 17, 17, 200);
 
 
     renderer.FillRect(overlay_rect);
 
-
-    // por las dudas...
     renderer.SetDrawColor(prevColor);
 
     init_resources();

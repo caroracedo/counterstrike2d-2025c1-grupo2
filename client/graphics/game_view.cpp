@@ -17,7 +17,8 @@ GameView::GameView():
                  *texture_manager.get_texture("hud_money")),
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
-        shop_view(renderer) {
+        shop_view(renderer),
+        stats_view(renderer) {
     SDL_ShowCursor(SDL_DISABLE);
 }
 
@@ -26,12 +27,19 @@ void GameView::update(const ActionDTO& action) {
     if (action.type == ActionType::SHOP) {
         bomb_view.reset();
         shop_view.set_visible(true);
+        stats_view.set_visible(false);
+    }
+
+    if (action.type == ActionType::STATS) {
+        stats_view.update(action.stats, types);
+        stats_view.set_visible(true);
     }
 
     if (action.type != ActionType::UPDATE)
         return;
 
     shop_view.set_visible(false);
+    stats_view.set_visible(false);
     obstacles.clear();
     bullets.clear();
     bomb_zones.clear();
@@ -103,6 +111,8 @@ void GameView::update_player(const ObjectDTO& object) {
     players[id]->update_styles(object.player_type, object.weapon_model);
 
     guns[id]->change_gun(object.weapon_model);
+
+    types.try_emplace(id, object.player_type);
 
     if (players[id]->update_position(x, y)) {
         legs[id]->update(x, y);
@@ -180,6 +190,8 @@ void GameView::render() {
     hud_view.draw(bomb_view.is_active());
 
     shop_view.render();
+
+    stats_view.render();
 
     render_cursor();
 
