@@ -20,6 +20,7 @@
 #include "config.h"
 #include "constants.h"
 #include "knife.h"
+#include "map.h"
 #include "object.h"
 #include "object_DTO.h"
 #include "obstacle.h"
@@ -50,6 +51,7 @@ private:
     uint16_t bullet_id = 1;
     int round_number = 0;
     Config& config;
+    Map& map;
     WeaponShop weapon_shop;
     bool exploded = false;
     bool deactivated = false;
@@ -190,7 +192,7 @@ private:
     void delete_bomb();
 
 public:
-    explicit Game(Config& config);
+    explicit Game(Config& config, Map& map);
 
     // Devuelve si hay jugadores suficientes en cada equipo.
     bool is_ready_to_start();

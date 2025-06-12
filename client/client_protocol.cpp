@@ -64,6 +64,12 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 i += 5;
                 break;
             }
+            // case ObjectType::WEAPON: {
+            //     WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
+            //     objects.push_back({object_type, position, weapon_model});
+            //     i += 6;
+            //     break;
+            // }
             default:
                 break;
         }
@@ -71,9 +77,35 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
     return {ActionType::UPDATE, objects};
 }
 
-ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
-    std::vector<uint8_t> id(data.begin(), data.begin() + 2);
-    return {ActionType::PLAYERID, hex_big_endian_to_int_16(id)};
+ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) {
+    std::vector<std::string> matches;
+    std::vector<std::string> maps;
+
+    uint16_t matches_size = hex_big_endian_to_int_16({data[0], data[1]});
+    uint16_t maps_size = hex_big_endian_to_int_16({data[2], data[3]});
+
+    size_t i = 4;
+    size_t matches_end = i + matches_size;
+
+    while (i < matches_end) {
+        uint16_t match_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
+        i += 2;
+        std::string match(data.begin() + i, data.begin() + i + match_size);
+        matches.push_back(match);
+        i += match_size;
+    }
+
+    size_t maps_end = i + maps_size;
+    while (i < maps_end) {
+        uint16_t map_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
+        i += 2;
+        std::string map(data.begin() + i, data.begin() + i + map_size);
+        maps.push_back(map);
+        i += map_size;
+    }
+
+    uint16_t id = hex_big_endian_to_int_16({data[data.size() - 2], data[data.size() - 1]});
+    return {ActionType::CONFIGURATION, matches, maps, id};
 }
 
 ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
@@ -115,6 +147,7 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     if (!skt_manager.receive_byte(skt, type_code))
         return {};
 
+    // TURBIOOO
     std::vector<uint8_t> data;
     if (size > 1) {
         data.resize(size - 1);
@@ -126,8 +159,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::UPDATE:
             return deserialize_update(data);
-        case ActionType::PLAYERID:
-            return deserialize_id(data);
+        case ActionType::CONFIGURATION:
+            return deserialize_configuration(data);
         case ActionType::END:
             return deserialize_end();
         case ActionType::SHOP:
@@ -146,7 +179,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     switch (action.type) {
         case ActionType::CREATE:
         case ActionType::JOIN:
+            push_hexa_to(int_16_to_hex_big_endian(action.match.size()), data);
             data.insert(data.end(), action.match.begin(), action.match.end());
+            data.insert(data.end(), action.map.begin(), action.map.end());
             data.push_back(static_cast<uint8_t>(action.player_type));
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
@@ -174,6 +209,10 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::CHANGE:
             return skt_manager.send_two_bytes(skt, data.size()) &&
                    skt_manager.send_bytes(skt, data);
+        // case ObjectType::TAKE:
+        //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
+        //     return skt_manager.send_two_bytes(skt, data.size()) &&
+        //           skt_manager.send_bytes(skt, data);
         default:
             return false;
     }

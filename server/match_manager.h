@@ -1,12 +1,13 @@
 #ifndef MATCH_MANAGER_H
 #define MATCH_MANAGER_H
 
+#include <filesystem>
 #include <list>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
-#include "../common/monitor_game.h"
 #include "../common/socket.h"
 #include "../common/thread.h"
 
@@ -30,8 +31,24 @@ private:
     void kill_client_handler(ClientHandler* client_handler);
     void clear();
     void reap();
-    void initialize_match_resources(const std::string& match);
+    void initialize_match_resources(const std::string& match, const std::string& map);
     bool is_valid_match(const std::string& match);
+    std::vector<std::string> get_matches() const {
+        std::vector<std::string> matches_vector;
+        for (const auto& match: matches) {
+            matches_vector.push_back(match.first);
+        }
+        return matches_vector;
+    }
+    std::vector<std::string> get_maps() const {
+        std::vector<std::string> maps_vector;
+        for (const auto& entry: std::filesystem::directory_iterator("server/maps/")) {
+            if (entry.is_regular_file() && entry.path().extension() == ".yaml") {
+                maps_vector.push_back(entry.path().filename().string());
+            }
+        }
+        return maps_vector;
+    }
 
 public:
     explicit MatchManager(const char* yaml_path);

@@ -15,7 +15,7 @@ enum class ActionType : uint8_t {
     BOMB = 0x66,
     QUIT = 0x71,
     UPDATE = 0x75,
-    PLAYERID = 0x69,
+    CONFIGURATION = 0x69,
     END = 0x59,
     SHOP = 0x57,
     WEAPON = 0x56,
@@ -41,6 +41,7 @@ struct ActionDTO {
 
     /* Partida */
     std::string match;
+    std::string map;
     PlayerType player_type;
     /* Mover */
     Direction direction;
@@ -52,6 +53,9 @@ struct ActionDTO {
     uint16_t ammo;
     WeaponType weapon_type;
 
+    /* Configuration */
+    std::vector<std::string> matches;
+    std::vector<std::string> maps;
     /* Update */
     std::vector<ObjectDTO> objects;
     /* Shop */
@@ -76,8 +80,8 @@ struct ActionDTO {
     /* Partida */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
     /* Partida con id (en server) */
-    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
-              uint16_t id);
+    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
+              const PlayerType& player_type, uint16_t id);
 
     /* Tipo de Jugador */
     ActionDTO(const ActionType& action, const PlayerType& player_type);
@@ -107,6 +111,10 @@ struct ActionDTO {
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id);
 
     /* server -> client */
+    /* Configuration */
+    ActionDTO(const ActionType& action, const std::vector<std::string>& matches,
+              const std::vector<std::string>& maps, uint16_t id);
+
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects);
 

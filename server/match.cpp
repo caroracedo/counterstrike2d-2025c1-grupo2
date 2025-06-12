@@ -9,9 +9,11 @@
 #define STATS_TIME 5
 
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
-             std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues):
+             std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
+             const std::string& map_str):
         config(config),
-        monitor_game(config),
+        map(map_str.c_str()),
+        monitor_game(config, map),
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 
@@ -25,6 +27,8 @@ bool Match::do_action(const ActionDTO& action_dto) {
             return monitor_game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:
             return monitor_game.change_weapon(action_dto.id);
+        // case ActionType::TAKE:
+        //     return monitor_game.take_weapon(action_dto.id);
         default:
             return false;
     }

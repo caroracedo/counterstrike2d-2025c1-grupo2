@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
-Game::Game(Config& config):
+Game::Game(Config& config, Map& map):
         matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
         config(config),
+        map(map),
         weapon_shop(config) {
     initialize_objects();
 }
@@ -885,7 +886,7 @@ void Game::initialize_objects() {
     /*
         Inicializa los obstáculos y zonas de bomba del juego a partir de la configuración.
     */
-    for (const auto& obs_cfg: config.get_obstacles()) {
+    for (const auto& obs_cfg: map.get_obstacles()) {
         auto obstacle = std::make_shared<Obstacle>(std::vector<uint16_t>{obs_cfg.x, obs_cfg.y},
                                                    obs_cfg.width, obs_cfg.height, obs_cfg.type);
         objects.push_back(obstacle);
@@ -893,7 +894,7 @@ void Game::initialize_objects() {
         auto cell = get_cell_from_position(obstacle->get_position());
         matrix[cell.first][cell.second].push_back(obstacle);
     }
-    for (const auto& bomb_zone_cfg: config.get_bomb_zones()) {
+    for (const auto& bomb_zone_cfg: map.get_bomb_zones()) {
         auto bomb_zone =
                 std::make_shared<BombZone>(std::vector<uint16_t>{bomb_zone_cfg.x, bomb_zone_cfg.y},
                                            bomb_zone_cfg.width, bomb_zone_cfg.height);
@@ -909,7 +910,7 @@ std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, u
         Devuelve una posición aleatoria válida para un jugador, dentro de la zona de su equipo.
         Si no hay zona definida, busca en todo el mapa, siempre chequeando colisiones.
     */
-    const auto& zones = config.get_team_zones();
+    const auto& zones = map.get_team_zones();
     auto it = std::find_if(zones.begin(), zones.end(),
                            [player_type](const auto& z) { return z.team == player_type; });
 
@@ -975,7 +976,7 @@ bool Game::is_in_bomb_zone(const std::vector<uint16_t>& position) const {
     /*
         Devuelve si el jugador está dentro de la zona donde puede plantar la bomba.
     */
-    const auto& bomb_zones = config.get_bomb_zones();
+    const auto& bomb_zones = map.get_bomb_zones();
     return std::any_of(bomb_zones.begin(), bomb_zones.end(), [this, &position](const auto& zone) {
         return this->circle_rectangle_collision(position, PLAYER_RADIUS,
                                                 std::vector<uint16_t>{zone.x, zone.y}, zone.width,

@@ -38,7 +38,7 @@ private:
 
     /* Envío */
     void serialize_and_send_update(const ActionDTO& action_dto, std::vector<uint8_t>& data);
-    void serialize_and_send_id(const ActionDTO& action_dto, std::vector<uint8_t>& data);
+    void serialize_and_send_configuration(const ActionDTO& action_dto, std::vector<uint8_t>& data);
     void serialize_and_send_shop(const ActionDTO& action_dto, std::vector<uint8_t>& data);
     void serialize_and_send_stats(const ActionDTO& action_dto, std::vector<uint8_t>& data);
 

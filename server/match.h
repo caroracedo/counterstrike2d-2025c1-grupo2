@@ -4,20 +4,22 @@
 #include <chrono>
 #include <list>
 #include <memory>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include "../common/action_DTO.h"
-#include "../common/monitor_game.h"
 #include "../common/object_DTO.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
 
 #include "monitor_client_send_queues.h"
+#include "monitor_game.h"
 
 class Match: public Thread {
 private:
     Config& config;
+    Map map;
     MonitorGame monitor_game;
     std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues;
@@ -38,7 +40,8 @@ private:
 
 public:
     explicit Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
-                   std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues);
+                   std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
+                   const std::string& map_str);
 
     void run() override;
     void add_player(const ActionDTO& action_dto);

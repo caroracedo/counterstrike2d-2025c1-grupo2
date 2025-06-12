@@ -12,23 +12,32 @@ Client::Client(const char* hostname, const char* servname):
         sender(protocol, send_queue),
         receiver(protocol, recv_queue) {}
 
-void Client::send_initial_configuration() {
+uint16_t Client::receive_and_send_initial_configuration() {  // TODO: Esto esta un poco feo...
+    ActionDTO configuration =
+            recv_queue.pop();  // TODO: Ver si esto está bien o mal... porque técnicamente se
+                               // debería bloquear hasta recibir la configuración
+
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
     MainWindow window;
     window.show();
     app.exec();
-    send_queue.push(window.getInfo());
+
+    ActionDTO info = window.getInfo();
+    info.map = "map1";  // Harcodeado mal
+    send_queue.push(info);
+    return configuration.id;
 }
 
 void Client::run() {
     sender.start();
     receiver.start();
 
-    send_initial_configuration();
+    uint16_t id = receive_and_send_initial_configuration();
 
     GameView game_view;
+    game_view.set_id(id);
     InputHandler input_handler(game_view.get_camera(), game_view.get_shop());
 
     bool stop_flag = false;
@@ -45,8 +54,6 @@ void Client::run() {
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
-            } else if (update.type == ActionType::PLAYERID) {
-                game_view.set_id(update.id);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP) {
                 game_view.update(update);
             }
