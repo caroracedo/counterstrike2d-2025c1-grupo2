@@ -59,7 +59,7 @@ void MatchManager::initialize_match_resources(const std::string& match, const st
     shared_recv_queues[match] = shared_recv_queue;
     monitors_client_send_queues[match] = monitor_client_send_queues;
     matches[match] = std::make_shared<Match>(config, shared_recv_queue, monitor_client_send_queues,
-                                             "server/maps/" + map + ".yaml");
+                                             MAPS_RELATIVE_PATH + map + YAML_EXTENSION);
 }
 
 bool MatchManager::is_valid_match(const std::string& match) {

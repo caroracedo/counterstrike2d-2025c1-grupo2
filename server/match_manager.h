@@ -1,6 +1,7 @@
 #ifndef MATCH_MANAGER_H
 #define MATCH_MANAGER_H
 
+#include <algorithm>
 #include <filesystem>
 #include <list>
 #include <memory>
@@ -14,6 +15,10 @@
 #include "client_handler.h"
 #include "match.h"
 #include "monitor_client_send_queues.h"
+
+// TODO: Preguntar si podemos asumir que siempre se está en build...
+#define MAPS_RELATIVE_PATH "../server/maps/"
+#define YAML_EXTENSION ".yaml"
 
 class MatchManager: public Thread {
 private:
@@ -35,15 +40,15 @@ private:
     bool is_valid_match(const std::string& match);
     std::vector<std::string> get_matches() const {
         std::vector<std::string> matches_vector;
-        for (const auto& match: matches) {
-            matches_vector.push_back(match.first);
-        }
+        matches_vector.reserve(matches.size());  // opcional pero eficiente
+        std::transform(matches.begin(), matches.end(), std::back_inserter(matches_vector),
+                       [](const auto& match) { return match.first; });
         return matches_vector;
     }
     std::vector<std::string> get_maps() const {
         std::vector<std::string> maps_vector;
-        for (const auto& entry: std::filesystem::directory_iterator("server/maps/")) {
-            if (entry.is_regular_file() && entry.path().extension() == ".yaml") {
+        for (const auto& entry: std::filesystem::directory_iterator(MAPS_RELATIVE_PATH)) {
+            if (entry.is_regular_file() && entry.path().extension() == YAML_EXTENSION) {
                 maps_vector.push_back(entry.path().filename().string());
             }
         }
