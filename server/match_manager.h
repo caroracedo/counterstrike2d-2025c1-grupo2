@@ -16,8 +16,6 @@
 #include "match.h"
 #include "monitor_client_send_queues.h"
 
-// TODO: Preguntar si podemos asumir que siempre se está en build...
-#define MAPS_RELATIVE_PATH "../server/maps/"
 #define YAML_EXTENSION ".yaml"
 
 class MatchManager: public Thread {
@@ -47,7 +45,7 @@ private:
     }
     std::vector<std::string> get_maps() const {
         std::vector<std::string> maps_vector;
-        for (const auto& entry: std::filesystem::directory_iterator(MAPS_RELATIVE_PATH)) {
+        for (const auto& entry: std::filesystem::directory_iterator(MAPS_PATH)) {
             if (entry.is_regular_file() && entry.path().extension() == YAML_EXTENSION) {
                 maps_vector.push_back(entry.path().filename().string());
             }

@@ -59,7 +59,7 @@ void MatchManager::initialize_match_resources(const std::string& match, const st
     shared_recv_queues[match] = shared_recv_queue;
     monitors_client_send_queues[match] = monitor_client_send_queues;
     matches[match] = std::make_shared<Match>(config, shared_recv_queue, monitor_client_send_queues,
-                                             MAPS_RELATIVE_PATH + map + YAML_EXTENSION);
+                                             MAPS_PATH + map + YAML_EXTENSION);
 }
 
 bool MatchManager::is_valid_match(const std::string& match) { return !matches.count(match) == 0; }
@@ -76,7 +76,6 @@ void MatchManager::run() {
             ClientHandler* client_handler = new ClientHandler(
                     std::move(new_client_socket), own_recv_queue, client_send_queue, ++id);
             client_handler->start();
-
 
             /* Envío de id y partidas y mapas disponibles */
             client_send_queue->push(

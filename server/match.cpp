@@ -111,8 +111,10 @@ void Match::shopping_phase() {
         std::this_thread::sleep_for(std::chrono::seconds(TIME));
         ActionDTO action;
         try {
-            while (recv_queue->try_pop(action)) {
+            while (now - shop_start < shop_time && should_keep_running() &&
+                   recv_queue->try_pop(action)) {
                 do_shop_action(action);
+                now = std::chrono::steady_clock::now();
             }
         } catch (const ClosedQueue&) {
             stop();
