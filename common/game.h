@@ -263,25 +263,26 @@ public:
         return result.first;
     }
 
-    WeaponDTO pick_up_weapon(std::vector<uint16_t> position, uint16_t id, uint16_t max_dist = 45) {
+    void pick_up_weapon(std::vector<uint16_t> position, uint16_t id, uint16_t max_dist = 20) {
         auto players_it = players.find(id);
         if (players_it != players.end()) {
             std::vector<uint16_t> player_position = players_it->second->get_position();
+            if (distance_between(player_position, position) > max_dist) {
+                std::cout << "[GAME] Player with ID " << id
+                          << " is too far from position: " << position[0] << ", " << position[1]
+                          << "\n";
+                return;
+            }
 
             auto cell = get_cell_from_position(position);
             auto adyacent_objects = get_adyacent_objects(cell);
             Obstacle pointer(position, 1, 1, ObstacleType::UNKNOWN);
 
             for (const auto& obj: adyacent_objects) {
-                if (obj->get_type() == ObjectType::WEAPON) {
+                if (obj->get_type() == ObjectType::WEAPON || obj->get_type() == ObjectType::BOMB) {
                     auto result = collides(pointer, position, {obj});
-                    if (result.first != ObjectType::WEAPON) {
-                        continue;
-                    }
-                    if (distance_between(player_position, position) <= max_dist) {
-                        // Elimina el arma de la matriz y del vector de objetos
+                    if (result.first == ObjectType::WEAPON) {
                         WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
-                        // El jugador recoge el arma
                         WeaponDTO old_weapon_dto =
                                 players_it->second->pick_up_weapon(new_weapon_dto);
                         std::cout << "[GAME] Player with ID " << id
@@ -289,19 +290,27 @@ public:
                         if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
                             create_weapon(old_weapon_dto, player_position);
                         }
-                        return new_weapon_dto;
+                        return;
 
-                    } else {
+                    } else if (result.first == ObjectType::BOMB) {
                         std::cout << "[GAME] Player with ID " << id
-                                  << " is too far to pick up weapon at position: " << position[0]
-                                  << ", " << position[1] << "\n";
-                        return WeaponDTO();
+                                  << " trying to pick up a bomb at position: " << position[0]
+                                  << ", " << position[1];
+                        delete_bomb();
+                        WeaponDTO bomb_dto;
+                        bomb_dto.model = WeaponModel::BOMB;
+                        players_it->second->pick_up_weapon(bomb_dto);
+                        std::cout << " - Bomb picked up successfully: "
+                                  << (players_it->second->can_plant_bomb() ? "true" : "false")
+                                  << std::endl;
+                        return;
                     }
                 }
             }
+        } else {
+            std::cout << "[GAME] Player with ID " << id << " not found.\n";
+            return;
         }
-        std::cout << "[GAME] Player with ID " << id << " not found.\n";
-        return WeaponDTO();
     }
 
     void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {

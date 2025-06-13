@@ -44,17 +44,17 @@ ActionDTO receive_and_parse_action() {
 
         return {ActionType::MOVE, direction};
     } else if (action_input == SHOOT_INPUT) {
-        std::vector<uint16_t> desired_position(2);
-        if (!(iss >> desired_position[0] >> desired_position[1]))
-            return {};
-        return {ActionType::SHOOT, desired_position};
+        return {ActionType::SHOOT, {0, 0}};
     } else if (action_input == BOMB_INPUT) {
         return ActionDTO(ActionType::BOMB);
     } else if (action_input == SHOW_STATS) {
         return ActionDTO(ActionType::UPDATE);
     } else if (action_input == PICK_UP) {
         std::vector<uint16_t> position(2);
-        return {ActionType::WEAPON, {0, 0}};
+        if (iss >> position[0] >> position[1]) {
+            return ActionDTO(ActionType::PICKUP, position);
+        }
+        return ActionDTO(ActionType::PICKUP);
     } else {
         std::cerr << "Unknown action: " << action_input << std::endl;
         return {};
@@ -95,6 +95,9 @@ int main() {
             case ActionType::BOMB:
                 std::cout << "interactuando con bomba" << std::endl;
                 game.interact_with_bomb(1);
+                break;
+            case ActionType::PICKUP:
+                game.pick_up_weapon(action.desired_position, 1);
                 break;
             case ActionType::QUIT:
                 return 0;
