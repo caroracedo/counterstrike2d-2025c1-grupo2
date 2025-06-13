@@ -24,6 +24,10 @@ void BombView::update(float px, float py, uint16_t time_to_explode) {
     x = px;
     y = py;
 
+    if (time_to_explode == 14) {
+        sounds.playWithCooldown("bombpl", 1000);
+    }
+
     if (time_to_explode == 0 && sounds_played == false) {
         explode();
         sounds.play("explotion");

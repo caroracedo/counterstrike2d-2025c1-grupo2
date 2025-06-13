@@ -55,6 +55,9 @@ private:
 
     uint16_t local_id = 0;
 
+    bool sounds_played = false;
+    bool is_first_update = true;
+
 
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);

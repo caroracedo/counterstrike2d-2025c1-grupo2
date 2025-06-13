@@ -39,6 +39,10 @@ public:
         sounds.emplace("explotion", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/c4_explode.wav"));
         sounds.emplace("terwin", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/terwin.ogg"));
         sounds.emplace("ctwin", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/ctwin.ogg"));
+        sounds.emplace("hud_slct", SDL2pp::Chunk(ASSETS_PATH "/sfx/wpn_hudoff.wav"));
+        sounds.emplace("go", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/go.ogg"));
+        sounds.emplace("bombdef", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/bombdef.ogg"));
+        sounds.emplace("bombpl", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/bombpl.ogg"));
     }
 
     void play(const std::string& name, int loops = 0) {

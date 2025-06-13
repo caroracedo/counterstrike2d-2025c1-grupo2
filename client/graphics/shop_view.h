@@ -9,6 +9,8 @@
 
 #include "common/constants.h"
 
+#include "sound_manager.h"
+
 struct Button {
     SDL2pp::Rect rect;
     std::string text;
@@ -23,11 +25,14 @@ private:
 
     SDL2pp::Renderer& renderer;
 
+
     std::vector<Button> buttons;
 
     SDL2pp::Rect overlay_rect;
 
     SDL2pp::Font font;
+
+    SoundManager& sound_manager;
 
     bool visible = false;
 
@@ -36,7 +41,7 @@ private:
     void init_resources();
 
 public:
-    explicit ShopView(SDL2pp::Renderer& renderer);
+    ShopView(SDL2pp::Renderer& renderer, SoundManager& sound_manager);
 
     void render();
 

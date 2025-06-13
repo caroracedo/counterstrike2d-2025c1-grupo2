@@ -1,12 +1,21 @@
 #include "player_view.h"
 
-PlayerView::PlayerView(TextureManager& texture_manager): texture_manager(texture_manager) {
+PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_manager):
+        texture_manager(texture_manager), sound_manager(sound_manager) {
     player_types[PlayerType::TERRORIST] = "terrorists";
     player_types[PlayerType::COUNTERTERRORIST] = "counter_terrorists";
 }
 
-bool PlayerView::update_position(float x, float y) {
+bool PlayerView::update_position(float x, float y, uint16_t new_life) {
     const float epsilon = 0.01f;
+
+    if (new_life < life) {
+        sound_manager.play("hit");
+    }
+
+    this->life = new_life;
+
+
     if (std::abs(posX - x) < epsilon && std::abs(posY - y) < epsilon) {
         return false;
     }

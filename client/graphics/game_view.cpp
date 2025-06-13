@@ -17,7 +17,7 @@ GameView::GameView():
                  *texture_manager.get_texture("hud_money")),
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
-        shop_view(renderer),
+        shop_view(renderer, sound_manager),
         stats_view(renderer, sound_manager) {
     SDL_ShowCursor(SDL_DISABLE);
 }
@@ -29,6 +29,8 @@ void GameView::update(const ActionDTO& action) {
         shop_view.set_visible(true);
         stats_view.set_visible(false);
         bomb_view.reset_sounds();
+        sounds_played = false;
+        is_first_update = false;
     }
 
     if (action.type == ActionType::STATS) {
@@ -39,6 +41,11 @@ void GameView::update(const ActionDTO& action) {
 
     if (action.type != ActionType::UPDATE)
         return;
+
+    if (!sounds_played && !is_first_update) {
+        sound_manager.play("go", 0);
+        sounds_played = true;
+    }
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
@@ -104,7 +111,7 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager));
+    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager));
 
     legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
 
@@ -116,10 +123,12 @@ void GameView::update_player(const ObjectDTO& object) {
 
     types.try_emplace(id, object.player_type);
 
-    if (players[id]->update_position(x, y)) {
+    if (players[id]->update_position(x, y, object.health)) {
         legs[id]->update(x, y);
         guns[id]->update(x, y);
-        sound_manager.play("steps_" + std::to_string(rand() % 4 + 1));
+        if (!is_first_update) {
+            sound_manager.play("steps_" + std::to_string(rand() % 4 + 1));
+        }
     }
 
     if (id == local_id) {
