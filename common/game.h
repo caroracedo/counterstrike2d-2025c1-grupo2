@@ -346,15 +346,17 @@ public:
         return WeaponDTO();
     }
 
-    void create_bomb(const std::vector<uint16_t>& position) {
-        bomb = std::make_shared<Bomb>(position);
-        bomb->move(position);
+    std::shared_ptr<Bomb> create_bomb(const std::vector<uint16_t>& position) {
+        auto bomb_ptr = std::make_shared<Bomb>(position);
+
         // Agrega la bomba en la matriz
         auto cell = get_cell_from_position(position);
-        matrix[cell.first][cell.second].push_back(bomb);
+        matrix[cell.first][cell.second].push_back(bomb_ptr);
 
         // Agrega la bomba al vector de objetos
-        objects.push_back(bomb);
+        objects.push_back(bomb_ptr);
+
+        return bomb_ptr;
     }
 
     void show_objects() {
@@ -381,6 +383,8 @@ public:
         }
         return {};
     }
+
+    void update() { update_bullets(); }
 };
 
 #endif  // GAME_H

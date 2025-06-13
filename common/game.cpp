@@ -630,8 +630,11 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
     if (player_it != players.end()) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
+        std::cout << "[GAME] Player " << id << " took " << damage << " damage." << std::endl;
 
         if (!player_it->second->is_alive()) {
+            // Suelta las armas del jugador muerto
+            drop_weapons(player_it->second->get_id());
 
             // Agregar el jugador a la lista de jugadores muertos
             dead_players[id] = player_it->second;
@@ -994,14 +997,11 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
         Devuelve true si se planta la bomba, false si no se puede.
     */
 
-    auto bomb_ptr = std::make_shared<Bomb>(player_position);
+    auto bomb_ptr = create_bomb(player_position);
 
-    // Agregar la bomba a la lista de objetos
-    objects.push_back(bomb_ptr);
-
-    // Agregar la bomba a la matriz
-    auto cell = get_cell_from_position(bomb_ptr->get_position());
-    matrix[cell.first][cell.second].push_back(bomb_ptr);
+    if (!bomb_ptr) {
+        return false;  // No se pudo crear la bomba
+    }
 
     // Agregar a game
     bomb = bomb_ptr;
