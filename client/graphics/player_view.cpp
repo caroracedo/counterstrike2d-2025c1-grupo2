@@ -1,6 +1,7 @@
 #include "player_view.h"
 
-PlayerView::PlayerView(TextureManager& texture_manager): texture_manager(texture_manager) {
+PlayerView::PlayerView(TextureManager& texture_manager, uint16_t id):
+        texture_manager(texture_manager), id(id) {
     player_types[PlayerType::TERRORIST] = "terrorists";
     player_types[PlayerType::COUNTERTERRORIST] = "counter_terrorists";
 }
@@ -28,6 +29,9 @@ void PlayerView::update_styles(PlayerType new_type, WeaponModel new_posture) {
 }
 
 void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+    if (!camera.is_visible(posX, posY))
+        return;
+
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
 

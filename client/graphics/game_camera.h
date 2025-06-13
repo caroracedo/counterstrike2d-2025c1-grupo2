@@ -24,6 +24,11 @@ public:
 
     float get_x() const { return x; }
     float get_y() const { return y; }
+
+    bool is_visible(float worldX, float worldY) const {
+        return worldX >= x && worldX <= x + screen_width && worldY >= y &&
+               worldY <= y + screen_height;
+    }
 };
 
 #endif

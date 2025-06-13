@@ -29,6 +29,8 @@ public:
     }
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+        if (!camera.is_visible(x, y))
+            return;
         SDL2pp::Rect rect = {static_cast<int>(x - camera.get_x()),
                              static_cast<int>(y - camera.get_y()), BULLET_WIDTH, BULLET_HEIGHT};
         renderer.SetDrawColor(0, 0, 0, 255);

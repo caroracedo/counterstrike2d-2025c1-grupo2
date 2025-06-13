@@ -102,7 +102,7 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager));
+    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, id));
 
     legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
 

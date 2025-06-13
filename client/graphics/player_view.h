@@ -28,8 +28,10 @@ private:
 
     std::unordered_map<PlayerType, std::string> player_types;
 
+    uint16_t id;
+
 public:
-    explicit PlayerView(TextureManager& texture_manager);
+    explicit PlayerView(TextureManager& texture_manager, uint16_t id);
 
     bool update_position(float x, float y);
 

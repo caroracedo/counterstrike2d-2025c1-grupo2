@@ -36,6 +36,8 @@ void BombView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 }
 
 void BombView::drawExplosion(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+    if (!camera.is_visible(x, y))
+        return;
     float screenX = x - camera.get_x();
     float screenY = y - camera.get_y();
 
