@@ -7,7 +7,7 @@ Game::Game(Config& config):
         matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
         config(config),
         weapon_shop(config) {
-    // initialize_objects();
+     initialize_objects();
 }
 
 bool Game::is_ready_to_start() {
