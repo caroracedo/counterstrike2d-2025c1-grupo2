@@ -1,3 +1,4 @@
+# -- Map Configuration --
 obstacles:
   - tipo: CAJA5
     width: 32

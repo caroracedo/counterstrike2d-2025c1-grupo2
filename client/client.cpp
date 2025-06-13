@@ -55,7 +55,8 @@ void Client::run() {
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
-            } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP) {
+            } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
+                       update.type == ActionType::STATS) {
                 game_view.update(update);
             }
         }

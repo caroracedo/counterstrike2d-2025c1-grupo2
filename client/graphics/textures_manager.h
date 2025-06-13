@@ -30,6 +30,7 @@ public:
         load(renderer, "bomb", ASSETS_PATH "/gfx/weapons/bomb.bmp");
         load(renderer, "explotion", ASSETS_PATH "/gfx/sprites/explosion.bmp");
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
+        load(renderer, "pointer", ASSETS_PATH "/gfx/player/pointer.bmp", true, {255, 0, 255, 0});
 
         for (int i = 1; i <= 5; ++i) {
             std::string name = "box_" + std::to_string(i);
@@ -40,7 +41,7 @@ public:
     }
 
     void load(SDL2pp::Renderer& renderer, const std::string& name, const std::string& path,
-              bool colorkey = false) {
+              bool colorkey = false, SDL_Color key_color = {0, 0, 0, 0}) {
         SDL_Surface* surface = SDL_LoadBMP(path.c_str());
         if (!surface) {
             std::cerr << "[ERROR] Failed to load texture '" << name << "' from '" << path
@@ -50,7 +51,8 @@ public:
 
         SDL2pp::Surface wrapped(surface);
         if (colorkey) {
-            wrapped.SetColorKey(true, 0);
+            Uint32 key = SDL_MapRGB(wrapped.Get()->format, key_color.r, key_color.g, key_color.b);
+            wrapped.SetColorKey(true, key);
         }
 
         textures[name] = std::make_shared<SDL2pp::Texture>(renderer, wrapped);

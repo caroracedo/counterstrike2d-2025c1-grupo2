@@ -34,37 +34,19 @@ void ShopView::init_resources() {
                             overlay_rect.y + 10);
 
     renderer.Copy(title_texture, SDL2pp::NullOpt, SDL2pp::Rect(title_pos, title_texture.GetSize()));
-
-    // int money = 1500;
-
-    // std::string money_str = "$" + std::to_string(money);
-
-    // SDL2pp::Texture money_texture(renderer,
-    //                               font.RenderText_Blended(money_str, SDL_Color{138, 206, 0,
-    //                               255}));
-
-    // SDL2pp::Point money_pos(
-    //         overlay_rect.x + overlay_rect.w - money_texture.GetWidth() - 20,  // 20px de margen
-    //         overlay_rect.y + 10);
-
-    // renderer.Copy(money_texture, SDL2pp::NullOpt, SDL2pp::Rect(money_pos,
-    // money_texture.GetSize()));
 }
 void ShopView::render() {
     if (!visible)
-        return;  // Si no es visible, no hacemos nada
-    // Guardamos el color actual del renderer
+        return;
+
     SDL2pp::Color prevColor = renderer.GetDrawColor();
 
-    // Establecemos color gris semitransparente
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     renderer.SetDrawColor(17, 17, 17, 200);
 
 
     renderer.FillRect(overlay_rect);
 
-
-    // por las dudas...
     renderer.SetDrawColor(prevColor);
 
     init_resources();

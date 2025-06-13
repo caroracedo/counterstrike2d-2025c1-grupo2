@@ -17,22 +17,30 @@ GameView::GameView():
                  *texture_manager.get_texture("hud_money")),
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
-        shop_view(renderer) {}
+        shop_view(renderer),
+        stats_view(renderer) {
+    SDL_ShowCursor(SDL_DISABLE);
+}
 
 
 void GameView::update(const ActionDTO& action) {
     if (action.type == ActionType::SHOP) {
         bomb_view.reset();
         shop_view.set_visible(true);
+        stats_view.set_visible(false);
+    }
+
+    if (action.type == ActionType::STATS) {
+        stats_view.update(action.stats, types);
+        stats_view.set_visible(true);
     }
 
     if (action.type != ActionType::UPDATE)
         return;
 
     shop_view.set_visible(false);
-    obstacles.clear();
+    stats_view.set_visible(false);
     bullets.clear();
-    bomb_zones.clear();
 
     std::unordered_set<uint8_t> players_in_game;
     for (const auto& object: action.objects) {
@@ -101,6 +109,8 @@ void GameView::update_player(const ObjectDTO& object) {
     players[id]->update_styles(object.player_type, object.weapon_model);
 
     guns[id]->change_gun(object.weapon_model);
+
+    types.try_emplace(id, object.player_type);
 
     if (players[id]->update_position(x, y)) {
         legs[id]->update(x, y);
@@ -179,6 +189,10 @@ void GameView::render() {
 
     shop_view.render();
 
+    stats_view.render();
+
+    render_cursor();
+
     renderer.Present();
 }
 
@@ -195,4 +209,16 @@ void GameView::frame_sync() {
         SDL_Delay(frame_delay - elapsed);
 
     last_frame_time = SDL_GetTicks();
+}
+
+void GameView::render_cursor() {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    int scaled_width = POINTER_WIDTH / 2;
+    int scaled_height = POINTER_HEIGHT / 2;
+
+    renderer.Copy(*texture_manager.get_texture("pointer"),
+                  SDL2pp::Rect(0, 0, POINTER_WIDTH, POINTER_HEIGHT),
+                  SDL2pp::Rect(mouseX - scaled_width / 2, mouseY - scaled_height / 2, scaled_width,
+                               scaled_height));
 }

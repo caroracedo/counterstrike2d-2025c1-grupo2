@@ -9,9 +9,6 @@
 
 #include "common/constants.h"
 
-#define SCREEN_MARGIN 20
-
-
 struct Button {
     SDL2pp::Rect rect;
     std::string text;
@@ -32,7 +29,7 @@ private:
 
     SDL2pp::Font font;
 
-    bool visible = true;
+    bool visible = false;
 
     void init_buttons();
 
