@@ -18,7 +18,7 @@ GameView::GameView():
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
         shop_view(renderer),
-        stats_view(renderer) {
+        stats_view(renderer, sound_manager) {
     SDL_ShowCursor(SDL_DISABLE);
 }
 
@@ -28,11 +28,13 @@ void GameView::update(const ActionDTO& action) {
         bomb_view.reset();
         shop_view.set_visible(true);
         stats_view.set_visible(false);
+        bomb_view.reset_sounds();
     }
 
     if (action.type == ActionType::STATS) {
         stats_view.update(action.stats, types);
         stats_view.set_visible(true);
+        stats_view.reset_sounds();
     }
 
     if (action.type != ActionType::UPDATE)
@@ -61,7 +63,7 @@ void GameView::update(const ActionDTO& action) {
                 bomb_view.activate_bomb();
             }
             hud_view.update_timer(object);
-            bomb_view.update(object.position[0], object.position[1]);
+            bomb_view.update(object.position[0], object.position[1], object.bomb_countdown);
 
         } else if (object.type == ObjectType::BOMBZONE) {
             SDL_Rect rect;
@@ -117,6 +119,7 @@ void GameView::update_player(const ObjectDTO& object) {
     if (players[id]->update_position(x, y)) {
         legs[id]->update(x, y);
         guns[id]->update(x, y);
+        sound_manager.play("steps_" + std::to_string(rand() % 4 + 1));
     }
 
     if (id == local_id) {
@@ -126,7 +129,6 @@ void GameView::update_player(const ObjectDTO& object) {
 
 void GameView::update_bullets(const ObjectDTO& object) {
     BulletView bullet(object.position[0], object.position[1]);
-    // bullet.angle = object.angle; // Asumiendo que el DTO tiene un campo de ángulo
     bullets.push_back(bullet);
 }
 

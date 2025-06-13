@@ -19,9 +19,30 @@ std::vector<SDL2pp::Rect> BombView::get_rects() {
     return rects;
 }
 
-void BombView::update(float px, float py) {
+// recibe el tiempo que falta para explotar en SEGUNDOS
+void BombView::update(float px, float py, uint16_t time_to_explode) {
     x = px;
     y = py;
+
+    if (time_to_explode == 0 && sounds_played == false) {
+        explode();
+        sounds.play("explotion");
+        sounds_played = true;
+        return;
+    }
+
+    uint32_t beep_interval_ms;
+    if (time_to_explode > 10) {
+        beep_interval_ms = 1200;
+    } else if (time_to_explode > 5) {
+        beep_interval_ms = 1000;
+    } else if (time_to_explode > 3) {
+        beep_interval_ms = 500;
+    } else {
+        beep_interval_ms = 150;
+    }
+
+    sounds.playWithCooldown("beep", beep_interval_ms);
 }
 
 void BombView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {

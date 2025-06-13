@@ -26,6 +26,8 @@ private:
 
     bool active = false;
 
+    bool sounds_played = false;
+
     SoundManager& sounds;
 
     std::vector<SDL2pp::Rect> get_rects();
@@ -33,7 +35,7 @@ private:
 public:
     BombView(SDL2pp::Texture& bomb_texture, SDL2pp::Texture& explotion, SoundManager& sm);
 
-    void update(float px, float py);
+    void update(float px, float py, uint16_t time_to_explode);
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
 
@@ -48,6 +50,8 @@ public:
     bool is_exploding() const;
 
     bool is_active() const;
+
+    void reset_sounds() { sounds_played = false; }
 };
 
 #endif
