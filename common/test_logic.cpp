@@ -9,6 +9,7 @@
 #define BOMB_INPUT "bomba"
 #define SHOW_STATS "stats"
 #define PICK_UP "recoger"
+#define DROP_ALL "soltar"
 #define QUIT_INPUT "q"
 #define W_INPUT "w"
 #define A_INPUT "a"
@@ -55,6 +56,8 @@ ActionDTO receive_and_parse_action() {
             return ActionDTO(ActionType::PICKUP, position);
         }
         return ActionDTO(ActionType::PICKUP);
+    } else if (action_input == DROP_ALL) {
+        return ActionDTO(ActionType::DROP);
     } else {
         std::cerr << "Unknown action: " << action_input << std::endl;
         return {};
@@ -99,6 +102,9 @@ int main() {
             case ActionType::PICKUP:
                 game.pick_up_weapon(action.desired_position, 1);
                 break;
+            case ActionType::DROP:
+                game.drop_weapons(2);
+                break;
             case ActionType::QUIT:
                 return 0;
             default:
@@ -110,6 +116,7 @@ int main() {
             std::cout << "Round Over!" << std::endl;
             game.end_round_game_phase();
             game.start_round_game_phase();
+            game.show_objects();
         }
     }
 

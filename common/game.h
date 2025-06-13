@@ -247,6 +247,7 @@ public:
 
 
     // FUNCIONES PARA TESTEO LOCAL
+    // TODO: AGREGAR CHEQUEO DE QUE EXISTE EL JUGADOR CON EL ID ESPECIFICADO
 
     WeaponDTO drop_primary_weapon(uint16_t id) {
         WeaponDTO weapon = players.find(id)->second->drop_primary_weapon();
@@ -256,9 +257,11 @@ public:
 
     WeaponDTO drop_weapons(uint16_t id) {
         auto result = players.find(id)->second->drop_weapons();
-        create_weapon(result.first, players.find(id)->second->get_position());
+        std::vector<uint16_t> position = players.find(id)->second->get_position();
+        const uint16_t offset = 10;
+        create_weapon(result.first, {position[0], static_cast<uint16_t>(position[1] - offset)});
         if (result.second) {
-            create_bomb(players.find(id)->second->get_position());
+            create_bomb({position[0], static_cast<uint16_t>(position[1] + offset)});
         }
         return result.first;
     }
