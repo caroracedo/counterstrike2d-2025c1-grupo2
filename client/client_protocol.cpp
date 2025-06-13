@@ -130,9 +130,11 @@ ActionDTO ClientProtocol::deserialize_stats(std::vector<uint8_t>& data) {
         stats_out.deaths[id_value] = hex_big_endian_to_int_16(deaths);
         stats_out.money[id_value] = hex_big_endian_to_int_16(money);
     }
-    stats_out.last_winner = static_cast<PlayerType>(data[data.size() - 3]);
-    stats_out.team_a_wins = data[data.size() - 2];
-    stats_out.team_b_wins = data[data.size() - 1];
+    stats_out.last_winner = static_cast<PlayerType>(data[data.size() - 5]);
+    std::vector<uint8_t> team_a_wins(data.end() - 3, data.end() - 1);
+    std::vector<uint8_t> team_b_wins(data.end() - 1, data.end());
+    stats_out.team_a_wins = hex_big_endian_to_int_16(team_a_wins);
+    stats_out.team_b_wins = hex_big_endian_to_int_16(team_b_wins);
     return {ActionType::STATS, stats_out};
 }
 
