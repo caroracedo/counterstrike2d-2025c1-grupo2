@@ -64,12 +64,12 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 i += 5;
                 break;
             }
-            // case ObjectType::WEAPON: {
-            //     WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
-            //     objects.push_back({object_type, position, weapon_model});
-            //     i += 6;
-            //     break;
-            // }
+            case ObjectType::WEAPON: {
+                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
+                objects.push_back({object_type, position, weapon_model});
+                i += 9;
+                break;
+            }
             default:
                 break;
         }

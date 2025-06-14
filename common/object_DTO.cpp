@@ -14,11 +14,7 @@ ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uin
         width(0),
         height(0),
         obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0),
-        range(0),
-        min_damage(0),
-        max_damage(0),
-        precision(0.0f) {}
+        bomb_countdown(0) {}
 
 /* Obstáculo */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
@@ -34,11 +30,7 @@ ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uin
         width(width),
         height(height),
         obstacle_type(obstacle_type),
-        bomb_countdown(0),
-        range(0),
-        min_damage(0),
-        max_damage(0),
-        precision(0.0f) {}
+        bomb_countdown(0) {}
 
 /* Zona de Bomba */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
@@ -54,11 +46,7 @@ ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uin
         width(width),
         height(height),
         obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0),
-        range(0),
-        min_damage(0),
-        max_damage(0),
-        precision(0.0f) {}
+        bomb_countdown(0) {}
 
 /* Bala */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position):
@@ -73,11 +61,7 @@ ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position):
         width(0),
         height(0),
         obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0),
-        range(0),
-        min_damage(0),
-        max_damage(0),
-        precision(0.0f) {}
+        bomb_countdown(0) {}
 
 /* Bomba */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
@@ -93,28 +77,20 @@ ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
         width(0),
         height(0),
         obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(bomb_countdown),
-        range(0),
-        min_damage(0),
-        max_damage(0),
-        precision(0.0f) {}
+        bomb_countdown(bomb_countdown) {}
 
 /* Arma */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
-                     const WeaponDTO& weapon_dto):
+                     const WeaponModel& weapon_model):
         type(type),
         position(position),
-        id(weapon_dto.id),
+        id(0),
         player_type(PlayerType::UNKNOWN),
-        weapon_model(weapon_dto.model),
+        weapon_model(weapon_model),
         health(0),
         money(0),
-        ammo(weapon_dto.ammo),
+        ammo(0),
         width(0),
         height(0),
         obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0),
-        range(weapon_dto.range),
-        min_damage(weapon_dto.min_damage),
-        max_damage(weapon_dto.max_damage),
-        precision(weapon_dto.precision) {}
+        bomb_countdown(0) {}

@@ -10,16 +10,9 @@ Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType ty
         health(health),
         money(initial_money),
         weapon_shop(weapon_shop),
-        knife(initial_buy(WeaponModel::KNIFE)),
-        secondary_weapon(initial_buy(WeaponModel::GLOCK)),
+        knife(weapon_shop.give_weapon(WeaponModel::KNIFE)),
+        secondary_weapon(weapon_shop.give_weapon(WeaponModel::GLOCK)),
         current(&secondary_weapon) {}
-
-/* Auxiliar */
-Weapon Player::initial_buy(WeaponModel weapon_model) {
-    std::pair<uint16_t, Weapon> new_knife = weapon_shop.buy_weapon(weapon_model, 1, money);
-    money -= new_knife.first;
-    return new_knife.second;
-}
 
 /* Virtual puro */
 /* Getters */
@@ -158,8 +151,8 @@ std::vector<uint16_t> Player::get_next_position(Direction direction) const {
 }
 
 /* Comprar Weapon */
-bool Player::buy_weapon(const WeaponModel& weapon_model, uint16_t weapon_id) {
-    std::pair<uint16_t, Weapon> purchase = weapon_shop.buy_weapon(weapon_model, weapon_id, money);
+bool Player::buy_weapon(const WeaponModel& weapon_model) {
+    std::pair<uint16_t, Weapon> purchase = weapon_shop.sell_weapon(weapon_model, money);
     if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
         return false;
     }
@@ -170,7 +163,7 @@ bool Player::buy_weapon(const WeaponModel& weapon_model, uint16_t weapon_id) {
 
 /* Comprar Ammo */
 bool Player::buy_ammo(WeaponType weapon_type, uint16_t ammo_amount) {
-    std::pair<uint16_t, bool> purchase = weapon_shop.buy_ammo(ammo_amount, money);
+    std::pair<uint16_t, bool> purchase = weapon_shop.sell_ammo(ammo_amount, money);
     if (!purchase.second) {
         return false;
     }

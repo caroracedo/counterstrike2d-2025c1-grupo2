@@ -23,7 +23,7 @@ private:
 public:
     /* Constructor */
     Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
-           uint16_t _max_damage, float _precision, uint16_t ammo);
+           uint16_t _max_damage, float _precision, uint16_t ammo = 30);
 
     Weapon();
 
@@ -44,6 +44,9 @@ public:
     WeaponModel get_model() const;
 
     uint16_t get_ammo() const;
+
+    /* Setters */
+    void set_position(const std::vector<uint16_t>& new_position) { position = new_position; }
 
     bool shoot();
 

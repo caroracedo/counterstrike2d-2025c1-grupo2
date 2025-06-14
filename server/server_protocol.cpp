@@ -120,7 +120,7 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
                     id};  // Agrega el id del jugador...
         case ActionType::BOMB:
         case ActionType::CHANGE:
-            // case ActionType::TAKE:
+        case ActionType::PICKUP:
             return {type, id};  // Agrega el id del jugador...
         default:
             return {};

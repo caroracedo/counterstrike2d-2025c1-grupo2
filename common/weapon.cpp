@@ -41,9 +41,7 @@ WeaponDTO Weapon::get_weapon_dto() const {
     return WeaponDTO(id, model, range, min_damage, max_damage, precision, ammo);
 }
 
-ObjectDTO Weapon::get_dto() const {
-    return ObjectDTO(ObjectType::WEAPON, position, get_weapon_dto());
-}
+ObjectDTO Weapon::get_dto() const { return ObjectDTO(ObjectType::WEAPON, position, model); }
 
 WeaponModel Weapon::get_model() const { return model; }
 

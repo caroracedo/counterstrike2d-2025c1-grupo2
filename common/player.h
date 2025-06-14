@@ -75,7 +75,7 @@ public:
     std::vector<uint16_t> get_next_position(Direction direction) const;
 
     /* Comprar Weapon */
-    bool buy_weapon(const WeaponModel& weapon_model, uint16_t weapon_id);
+    bool buy_weapon(const WeaponModel& weapon_model);
 
     /* Comprar Ammo */
     bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
