@@ -81,58 +81,57 @@ int main() {
     std::vector<uint16_t> player1_pos = game.get_player_position(1);
 
     while (true) {
-        ActionDTO action = receive_and_parse_action();
-        switch (action.type) {
-            case ActionType::MOVE:
-                game.move(action.direction, 1);
-                for (int i = 0; i < 100; ++i) {
-                    game.update();
-                }
+        std::string input;
+        std::getline(std::cin, input);
+        std::istringstream iss(input);
+
+        std::string action_input;
+        if (!(iss >> action_input))
+            continue;
+
+        if (action_input == QUIT_INPUT) {
+            return 0;
+        } else if (action_input == MOVE_INPUT) {
+            std::string direction_input;
+            if (!(iss >> direction_input))
                 break;
-            case ActionType::SHOOT:
-                game.shoot(player2_pos, 1);
-                for (int i = 0; i < 100; ++i) {
-                    game.update();
-                }
+            if (direction_input == W_INPUT)
+                game.move(Direction::UP, 1);
+            else if (direction_input == A_INPUT)
+                game.move(Direction::LEFT, 1);
+            else if (direction_input == S_INPUT)
+                game.move(Direction::DOWN, 1);
+            else if (direction_input == D_INPUT)
+                game.move(Direction::RIGHT, 1);
+            else
                 break;
-            case ActionType::BOMB:
-                std::cout << "interactuando con bomba" << std::endl;
-                game.interact_with_bomb(1);
-                break;
-            case ActionType::PICKUP:
-                game.pick_up_weapon(action.desired_position, 1);
-                break;
-            case ActionType::DROP:
-                game.drop_weapons(2);
-                break;
-            case ActionType::QUIT:
-                return 0;
-            default:
-                std::cout << "\tAccion desconocida" << std::endl;
-                break;
+
+            for (int i = 0; i < 100; ++i) {
+                game.update();
+            }
+        } else if (action_input == SHOOT_INPUT) {
+            game.shoot(player2_pos, 1);
+            for (int i = 0; i < 100; ++i) {
+                game.update();
+            }
+        } else if (action_input == BOMB_INPUT) {
+            game.interact_with_bomb(1);
+        } else if (action_input == PICK_UP) {
+            game.pick_up_weapon(1);
+        } else if (action_input == DROP_ALL) {
+            game.drop_weapons(2);
+        } else {
+            std::cout << "Unknown action: " << action_input << std::endl;
+            continue;
         }
         game.show_objects();
         if (game.is_over()) {
-            std::cout << "Round Over!" << std::endl;
+            std::cout << "\n********************************************" << std::endl;
+            std::cout << "*************** ROUND OVER *****************" << std::endl;
+            std::cout << "********************************************" << std::endl;
             game.end_round_game_phase();
             game.start_round_game_phase();
             game.show_objects();
         }
     }
-
-    // std::cout << "\n[TEST] Player 2 dropping AWP" << std::endl;
-    // game.drop_primary_weapon(2);
-    // game.show_objects();
-
-    // std::cout << "\n[TEST] Player 1 picking up AWP => dropping AK-47" << std::endl;
-    // game.pick_up_weapon(player2_pos, 1);
-    // game.show_objects();
-
-    // std::cout << "\n[TEST] Player 1 dropping all weapons (including bomb)" << std::endl;
-    // game.drop_weapons(1);
-    // game.show_objects();
-
-    // std::cout << "\n[TEST] Player 1 picking up weapon just dropped" << std::endl;
-    // game.pick_up_weapon(player1_pos, 1);
-    // game.show_objects();
 }
