@@ -7,7 +7,7 @@ Game::Game(Config& config):
         matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
         config(config),
         weapon_shop(config) {
-    // initialize_objects();
+    initialize_objects();
 }
 
 bool Game::is_ready_to_start() {
@@ -666,7 +666,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
 
         return true;  // El jugador sigue vivo
     }
-    std::cout << "\tPlayer " << id << " not found or no damage inflicted." << std::endl;
+    std::cout << "\tPlayer " << id << " not found." << std::endl;
     return false;  // No se encontró el jugador o no se infligió daño
 }
 

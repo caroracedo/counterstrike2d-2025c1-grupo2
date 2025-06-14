@@ -246,21 +246,30 @@ public:
     bool change_weapon(uint16_t id);
 
 
-    // FUNCIONES PARA TESTEO LOCAL
-    // TODO: AGREGAR CHEQUEO DE QUE EXISTE EL JUGADOR CON EL ID ESPECIFICADO
+    // FUNCIONES EN DESARROLLO
 
     WeaponDTO drop_primary_weapon(uint16_t id) {
-        WeaponDTO weapon = players.find(id)->second->drop_primary_weapon();
-        create_weapon(weapon, players.find(id)->second->get_position());
+        auto players_it = players.find(id);
+        if (players_it == players.end()) {
+            std::cout << "[GAME] Player with ID " << id << " not found.\n";
+            return;
+        }
+        WeaponDTO weapon = players_it->second->drop_primary_weapon();
+        create_weapon(weapon, players_it->second->get_position());
         return weapon;
     }
 
     WeaponDTO drop_weapons(uint16_t id) {
-        auto result = players.find(id)->second->drop_weapons();
+        auto players_it = players.find(id);
+        if (players_it == players.end()) {
+            std::cout << "[GAME] Player with ID " << id << " not found.\n";
+            return;
+        }
+        auto result = players_it->second->drop_weapons();
         std::cout << "[GAME] Player with ID " << id
                   << " dropped weapons. Primary: " << result.first.id
                   << ", Bomb: " << (result.second ? "Yes" : "No") << "\n";
-        std::vector<uint16_t> position = players.find(id)->second->get_position();
+        std::vector<uint16_t> position = players_it->second->get_position();
         std::vector<uint16_t> weapon_position = {
                 static_cast<uint16_t>(position[0] - PLAYER_RADIUS),
                 static_cast<uint16_t>(position[1] - PLAYER_RADIUS)};
@@ -275,48 +284,46 @@ public:
 
     void pick_up_weapon(uint16_t id) {
         auto players_it = players.find(id);
-        if (players_it != players.end()) {
-            std::vector<uint16_t> player_position = players_it->second->get_position();
-            auto cell = get_cell_from_position(player_position);
-            auto adyacent_objects = get_adyacent_objects(cell);
-            auto player_ptr = players_it->second;
-
-            for (const auto& obj: adyacent_objects) {
-                if (obj->get_type() == ObjectType::WEAPON) {
-                    bool is_near_weapon = circle_rectangle_collision(
-                            player_position, PLAYER_RADIUS + 1, obj->get_position(),
-                            obj->get_width(), obj->get_height());
-                    if (is_near_weapon) {
-                        WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
-                        WeaponDTO old_weapon_dto = player_ptr->pick_up_weapon(new_weapon_dto);
-                        std::cout << "[GAME] Player with ID " << id
-                                  << " picked up weapon with ID: " << new_weapon_dto.id << "\n";
-                        if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
-                            create_weapon(old_weapon_dto, player_position);
-                            std::cout << "[GAME] Player with ID " << id
-                                      << " dropped old weapon with ID: " << old_weapon_dto.id
-                                      << "\n";
-                        }
-                        return;
-                    }
-                } else if (obj->get_type() == ObjectType::BOMB &&
-                           distance_between(player_position, obj->get_position()) <=
-                                   PLAYER_RADIUS + BOMB_RADIUS + 1) {
-                    std::cout << "[GAME] Player with ID " << id
-                              << " trying to pick up a bomb at position: " << player_position[0]
-                              << ", " << player_position[1];
-                    WeaponDTO bomb_dto;
-                    bomb_dto.model = WeaponModel::BOMB;
-                    player_ptr->pick_up_weapon(bomb_dto);
-                    if (player_ptr->can_plant_bomb()) {
-                        delete_bomb();
-                        return;
-                    }
-                }
-            }
-        } else {
+        if (players_it == players.end()) {
             std::cout << "[GAME] Player with ID " << id << " not found.\n";
             return;
+        }
+        std::vector<uint16_t> player_position = players_it->second->get_position();
+        auto cell = get_cell_from_position(player_position);
+        auto adyacent_objects = get_adyacent_objects(cell);
+        auto player_ptr = players_it->second;
+
+        for (const auto& obj: adyacent_objects) {
+            if (obj->get_type() == ObjectType::WEAPON) {
+                bool is_near_weapon = circle_rectangle_collision(
+                        player_position, PLAYER_RADIUS + 1, obj->get_position(), obj->get_width(),
+                        obj->get_height());
+                if (is_near_weapon) {
+                    WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
+                    WeaponDTO old_weapon_dto = player_ptr->pick_up_weapon(new_weapon_dto);
+                    std::cout << "[GAME] Player with ID " << id
+                              << " picked up weapon with ID: " << new_weapon_dto.id << "\n";
+                    if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
+                        create_weapon(old_weapon_dto, player_position);
+                        std::cout << "[GAME] Player with ID " << id
+                                  << " dropped old weapon with ID: " << old_weapon_dto.id << "\n";
+                    }
+                    return;
+                }
+            } else if (obj->get_type() == ObjectType::BOMB &&
+                       distance_between(player_position, obj->get_position()) <=
+                               PLAYER_RADIUS + BOMB_RADIUS + 1) {
+                std::cout << "[GAME] Player with ID " << id
+                          << " trying to pick up a bomb at position: (" << player_position[0]
+                          << ", " << player_position[1] << ")" << std::endl;
+                WeaponDTO bomb_dto;
+                bomb_dto.model = WeaponModel::BOMB;
+                player_ptr->pick_up_weapon(bomb_dto);
+                if (player_ptr->can_plant_bomb()) {
+                    delete_bomb();
+                    return;
+                }
+            }
         }
     }
 
