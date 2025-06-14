@@ -26,7 +26,7 @@ uint16_t Client::receive_and_send_initial_configuration() {  // TODO: Esto esta 
 
     ActionDTO info = window.getInfo();
     if (info.type == ActionType::CREATE)
-        info.map = "map1";  // Harcodeado mal
+        info.map = "map_weapon_test";  // Harcodeado mal
     send_queue.push(info);
     return configuration.id;
 }

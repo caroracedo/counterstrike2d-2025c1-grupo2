@@ -911,19 +911,8 @@ void Game::initialize_objects() {
         matrix[cell.first][cell.second].push_back(bomb_zone);
     }
     for (const auto& weapon_object_cfg: map.get_weapon_objects()) {
-        auto weapon_object =
-                std::make_shared<Weapon>(weapon_shop.give_weapon(weapon_object_cfg.type));
-        weapon_object->set_position({weapon_object_cfg.x, weapon_object_cfg.y});
-
-        // Agrega el arma al vector de armas
-        weapons[weapon_object->get_id()] = weapon_object;
-
-        // Agrega el arma en la matriz
-        auto cell = get_cell_from_position(weapon_object->get_position());
-        matrix[cell.first][cell.second].push_back(weapon_object);
-
-        // Agrega el arma al vector de objetos
-        objects.push_back(weapon_object);
+        create_weapon(weapon_shop.give_weapon(weapon_object_cfg.type).get_weapon_dto(),
+                      {weapon_object_cfg.x, weapon_object_cfg.y});
     }
 }
 
