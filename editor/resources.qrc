@@ -12,5 +12,7 @@
         <file>imagenes/office.png</file>
         <file>imagenes/sand1.jpg</file>
         <file>imagenes/zona_bomba.png</file>
+        <file>imagenes/zonaA.png</file>
+        <file>imagenes/zonaB.png</file>
     </qresource>
 </RCC>

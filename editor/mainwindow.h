@@ -29,6 +29,7 @@ struct Celda {
     TIPO_CAJA tipoCaja = TIPO_CAJA::NINGUNO;
     TIPO_ARMA tipoArma = TIPO_ARMA::NINGUNO;
     QString imagenElemento;
+    QGraphicsPixmapItem* item = nullptr;
 };
 
 class MainWindow: public QMainWindow {
@@ -40,7 +41,8 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
-    virtual void mouseReleaseEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     Ui::MainWindow* ui;
@@ -48,22 +50,30 @@ private:
     QString imagenSeleccionada;
     QString terreno;
     int cantZonasBomba;
+    bool hayZonaA;
+    bool hayZonaB;
+    bool mousePresionado = false;
+    int ultimaFila = -1;
+    int ultimaCol = -1;
     Celda grilla[21][21];
 
     void dibujarGrilla();
     void inicializarGrilla();
     void cargarImagenTerreno();
     void rellenarGrillaConTerreno(int index);
+    void eliminarElemento(int fila, int col);
+    void colocarElemento(int fila, int col, bool mostrarWarning);
     bool verificarZonaBomba();
     bool agregarZonaBomba();
 
+    void limpiarMapa();
     void guardarCajas(YAML::Emitter& out);
     void guardarArmas(YAML::Emitter& out);
     void guardarZonasBomba(YAML::Emitter& out);
+    void guardarZonasInicio(YAML::Emitter& out);
     void guardarMapaComoYaml(const QString&);
     void abrirMapaDesdeYaml(const QString&);
 
     void conectarBtnClicked(QPushButton* btn, QString imagen);
-    void conectarBtnPressed(QPushButton* btn, QString imagen);
 };
 #endif  // MAINWINDOW_H
