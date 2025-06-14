@@ -47,8 +47,10 @@ private:
     std::map<uint16_t, std::shared_ptr<Player>> players;  // Mapa de jugadores por ID
     std::map<uint16_t, std::shared_ptr<Player>> dead_players;
     std::map<uint16_t, std::shared_ptr<Bullet>> bullets;  // Mapa de balas por ID
+    std::map<uint16_t, std::shared_ptr<Weapon>> weapons;  // Mapa de armas por ID
     std::shared_ptr<Bomb> bomb;
     uint16_t bullet_id = 1;
+    uint16_t weapon_id = 1;
     int round_number = 0;
     Config& config;
     Map& map;
@@ -238,6 +240,159 @@ public:
     bool change_weapon(uint16_t id);
 
     Stats get_stats() const { return stats; }
+
+
+    // FUNCIONES PARA TESTEO LOCAL
+    // TODO: AGREGAR CHEQUEO DE QUE EXISTE EL JUGADOR CON EL ID ESPECIFICADO
+
+    WeaponDTO drop_primary_weapon(uint16_t id) {
+        WeaponDTO weapon = players.find(id)->second->drop_primary_weapon();
+        create_weapon(weapon, players.find(id)->second->get_position());
+        return weapon;
+    }
+
+    WeaponDTO drop_weapons(uint16_t id) {
+        auto result = players.find(id)->second->drop_weapons();
+        std::vector<uint16_t> position = players.find(id)->second->get_position();
+        const uint16_t offset = 10;
+        create_weapon(result.first, {position[0], static_cast<uint16_t>(position[1] - offset)});
+        if (result.second) {
+            create_bomb({position[0], static_cast<uint16_t>(position[1] + offset)});
+        }
+        return result.first;
+    }
+
+    void pick_up_weapon(std::vector<uint16_t> position, uint16_t id, uint16_t max_dist = 20) {
+        auto players_it = players.find(id);
+        if (players_it != players.end()) {
+            std::vector<uint16_t> player_position = players_it->second->get_position();
+            if (distance_between(player_position, position) > max_dist) {
+                std::cout << "[GAME] Player with ID " << id
+                          << " is too far from position: " << position[0] << ", " << position[1]
+                          << "\n";
+                return;
+            }
+
+            auto cell = get_cell_from_position(position);
+            auto adyacent_objects = get_adyacent_objects(cell);
+            Obstacle pointer(position, 1, 1, ObstacleType::UNKNOWN);
+
+            for (const auto& obj: adyacent_objects) {
+                if (obj->get_type() == ObjectType::WEAPON || obj->get_type() == ObjectType::BOMB) {
+                    auto result = collides(pointer, position, {obj});
+                    if (result.first == ObjectType::WEAPON) {
+                        WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
+                        WeaponDTO old_weapon_dto =
+                                players_it->second->pick_up_weapon(new_weapon_dto);
+                        std::cout << "[GAME] Player with ID " << id
+                                  << " picked up weapon with ID: " << new_weapon_dto.id << "\n";
+                        if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
+                            create_weapon(old_weapon_dto, player_position);
+                        }
+                        return;
+
+                    } else if (result.first == ObjectType::BOMB) {
+                        std::cout << "[GAME] Player with ID " << id
+                                  << " trying to pick up a bomb at position: " << position[0]
+                                  << ", " << position[1];
+                        delete_bomb();
+                        WeaponDTO bomb_dto;
+                        bomb_dto.model = WeaponModel::BOMB;
+                        players_it->second->pick_up_weapon(bomb_dto);
+                        std::cout << " - Bomb picked up successfully: "
+                                  << (players_it->second->can_plant_bomb() ? "true" : "false")
+                                  << std::endl;
+                        return;
+                    }
+                }
+            }
+        } else {
+            std::cout << "[GAME] Player with ID " << id << " not found.\n";
+            return;
+        }
+    }
+
+    void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {
+        Weapon _weapon(weapon_dto);
+        _weapon.move(position);
+        auto weapon = std::make_shared<Weapon>(_weapon);
+        // Agrega el arma al vector de armas
+        weapons[weapon_dto.id] = weapon;
+
+        // Agrega el arma en la matriz
+        auto cell = get_cell_from_position(position);
+        matrix[cell.first][cell.second].push_back(weapon);
+
+        // Agrega el arma al vector de objetos
+        objects.push_back(weapon);
+    }
+
+    void inc_weapon_id() {
+        if (weapon_id < UINT16_MAX) {
+            weapon_id++;
+        } else {
+            weapon_id = 1;
+        }
+    }
+
+    WeaponDTO delete_weapon(const uint16_t weapon_id) {
+        std::cout << "[GAME] Deleting weapon with ID: " << weapon_id << "\n";
+        auto it = weapons.find(weapon_id);
+        if (it != weapons.end()) {
+            auto weapon_ptr = it->second;
+            WeaponDTO weapon_dto = weapon_ptr->get_weapon_dto();
+            // Elimina el arma de la matriz
+            auto cell = get_cell_from_position(weapon_ptr->get_position());
+            auto& vec = matrix[cell.first][cell.second];
+            vec.erase(std::remove(vec.begin(), vec.end(), weapon_ptr), vec.end());
+            // Elimina el arma del vector de objetos
+            objects.erase(std::remove(objects.begin(), objects.end(), weapon_ptr), objects.end());
+            // Elimina del mapa de weapons
+            weapons.erase(it);
+            return weapon_dto;
+        }
+        return WeaponDTO();
+    }
+
+    std::shared_ptr<Bomb> create_bomb(const std::vector<uint16_t>& position) {
+        auto bomb_ptr = std::make_shared<Bomb>(position);
+
+        // Agrega la bomba en la matriz
+        auto cell = get_cell_from_position(position);
+        matrix[cell.first][cell.second].push_back(bomb_ptr);
+
+        // Agrega la bomba al vector de objetos
+        objects.push_back(bomb_ptr);
+
+        return bomb_ptr;
+    }
+
+    void show_objects() {
+        for (const auto& obj: objects) {
+            if (obj->get_type() == ObjectType::WEAPON) {
+                std::cout << "[GAME] Weapon: " << obj->get_dto().get_weapon_model() << " "
+                          << obj->get_id() << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::PLAYER) {
+                std::cout << "[GAME] Player ID: " << obj->get_id()
+                          << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::BOMB) {
+                std::cout << "[GAME] Bomb at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            }
+        }
+    }
+
+    std::vector<uint16_t> get_player_position(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            return player_it->second->get_position();
+        }
+        return {};
+    }
+
+    void update() { update_bullets(); }
 };
 
 #endif  // GAME_H

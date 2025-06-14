@@ -13,6 +13,7 @@
 #define POINTER_HEIGHT 46
 #define SCREEN_MARGIN 20
 #define ROW_MARGIN 24
+#define WEAPON_SIZE 15
 
 // TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
 #define MATRIX_SIZE 12            // posición máxima en la matriz (celdas)

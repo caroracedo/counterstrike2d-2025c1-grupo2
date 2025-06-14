@@ -287,8 +287,9 @@ bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
         Permite a los jugadores comprar un arma en la fase inicial
     */
     auto player_it = players.find(id);
-    if (player_it != players.end()) {
-        return player_it->second->buy_weapon(weapon);
+    if (player_it != players.end() && player_it->second->buy_weapon(weapon, weapon_id)) {
+        inc_weapon_id();
+        return true;
     }
     return false;
 }
@@ -452,13 +453,17 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         Devuelve el tipo de objeto con el que colisiona y su ID.
     */
 
+    if (object.get_type() == ObjectType::UNKNOWN) {
+        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+    }
+
     uint16_t radius;
     if (object.get_type() == ObjectType::BULLET) {
         radius = BULLET_RADIUS;  // Radio de la bala
     } else if (object.get_type() == ObjectType::PLAYER) {
         radius = PLAYER_RADIUS;  // Radio del jugador
     } else {
-        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+        radius = object.get_width();
     }
 
     for (const auto& obj: objects) {
@@ -474,7 +479,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         } else if (obj->get_type() == ObjectType::PLAYER) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
                                               PLAYER_RADIUS);
-        } else if (obj->get_type() == ObjectType::OBSTACLE) {
+        } else {
             overlap = circle_rectangle_collision(new_position, radius, obj->get_position(),
                                                  obj->get_width(), obj->get_height());
         }
@@ -482,7 +487,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         if (overlap) {
             ObjectType type = static_cast<ObjectType>(obj->get_type());
             if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
-                type == ObjectType::PLAYER) {
+                type == ObjectType::PLAYER || type == ObjectType::WEAPON) {
                 return {type, obj->get_id()};
             }
             return {ObjectType::UNKNOWN, 0};
@@ -626,8 +631,11 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
     if (player_it != players.end()) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
+        std::cout << "[GAME] Player " << id << " took " << damage << " damage." << std::endl;
 
         if (!player_it->second->is_alive()) {
+            // Suelta las armas del jugador muerto
+            drop_weapons(player_it->second->get_id());
 
             // Agregar el jugador a la lista de jugadores muertos
             dead_players[id] = player_it->second;
@@ -990,14 +998,11 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
         Devuelve true si se planta la bomba, false si no se puede.
     */
 
-    auto bomb_ptr = std::make_shared<Bomb>(player_position);
+    auto bomb_ptr = create_bomb(player_position);
 
-    // Agregar la bomba a la lista de objetos
-    objects.push_back(bomb_ptr);
-
-    // Agregar la bomba a la matriz
-    auto cell = get_cell_from_position(bomb_ptr->get_position());
-    matrix[cell.first][cell.second].push_back(bomb_ptr);
+    if (!bomb_ptr) {
+        return false;  // No se pudo crear la bomba
+    }
 
     // Agregar a game
     bomb = bomb_ptr;

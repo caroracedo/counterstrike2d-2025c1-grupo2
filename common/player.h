@@ -59,6 +59,10 @@ public:
     /* Cambio de arma */
     void change_weapon();
 
+    WeaponDTO drop_primary_weapon();
+    std::pair<WeaponDTO, bool> drop_weapons();
+    WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
+
     bool can_plant_bomb() const;
 
     void plant_bomb();
@@ -71,7 +75,7 @@ public:
     std::vector<uint16_t> get_next_position(Direction direction) const;
 
     /* Comprar Weapon */
-    bool buy_weapon(const WeaponModel& weapon_model);
+    bool buy_weapon(const WeaponModel& weapon_model, uint16_t weapon_id);
 
     /* Comprar Ammo */
     bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);

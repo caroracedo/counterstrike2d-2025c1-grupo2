@@ -1,8 +1,9 @@
 #include "weapon.h"
 
 /* Constructor */
-Weapon::Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t _max_damage,
-               float _precision, uint16_t ammo):
+Weapon::Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
+               uint16_t _max_damage, float _precision, uint16_t ammo):
+        Object(ObjectType::WEAPON, id, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
         model(model),
         range(range),
         min_damage(_min_damage),
@@ -11,12 +12,22 @@ Weapon::Weapon(WeaponModel model, uint16_t range, uint16_t _min_damage, uint16_t
         ammo(ammo) {}
 
 Weapon::Weapon():
+        Object(ObjectType::WEAPON, 0, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
         model(WeaponModel::UNKNOWN),
         range(0),
         min_damage(0),
         max_damage(0),
         precision(0),
         ammo(0) {}
+
+Weapon::Weapon(const WeaponDTO& weapon_dto):
+        Object(ObjectType::WEAPON, weapon_dto.id, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
+        model(weapon_dto.model),
+        range(weapon_dto.range),
+        min_damage(weapon_dto.min_damage),
+        max_damage(weapon_dto.max_damage),
+        precision(weapon_dto.precision),
+        ammo(weapon_dto.ammo) {}
 
 /* Verificaciones */
 bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
@@ -26,8 +37,12 @@ uint16_t Weapon::get_range() { return range; }
 
 std::vector<uint16_t> Weapon::get_damage() { return {min_damage, max_damage}; }
 
-WeaponDTO Weapon::get_dto() const {
-    return WeaponDTO(model, range, min_damage, max_damage, precision, ammo);
+WeaponDTO Weapon::get_weapon_dto() const {
+    return WeaponDTO(id, model, range, min_damage, max_damage, precision, ammo);
+}
+
+ObjectDTO Weapon::get_dto() const {
+    return ObjectDTO(ObjectType::WEAPON, position, get_weapon_dto());
 }
 
 WeaponModel Weapon::get_model() const { return model; }
