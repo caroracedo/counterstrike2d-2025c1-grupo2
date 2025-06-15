@@ -41,7 +41,6 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
@@ -49,9 +48,9 @@ private:
     QGraphicsScene* scene;
     QString imagenSeleccionada;
     QString terreno;
-    int cantZonasBomba;
-    bool hayZonaA;
-    bool hayZonaB;
+    int cantZonasBomba = 0;
+    bool hayZonaA = false;
+    bool hayZonaB = false;
     bool mousePresionado = false;
     int ultimaFila = -1;
     int ultimaCol = -1;
@@ -59,11 +58,13 @@ private:
 
     void dibujarGrilla();
     void inicializarGrilla();
+    QString seleccionarImagenTerreno();
     void cargarImagenTerreno();
     void rellenarGrillaConTerreno(int index);
     void eliminarElemento(int fila, int col);
     void colocarElemento(int fila, int col, bool mostrarWarning);
     bool verificarZonaBomba();
+    bool verificarZonasDeInicio();
     bool agregarZonaBomba();
 
     void limpiarMapa();
@@ -73,6 +74,11 @@ private:
     void guardarZonasInicio(YAML::Emitter& out);
     void guardarMapaComoYaml(const QString&);
     void abrirMapaDesdeYaml(const QString&);
+
+    void cargarObstaculosEnElMapa(const YAML::Node& archivo);
+    void cargarArmasEnElMapa(const YAML::Node& archivo);
+    void cargarZonasBombasEnElMapa(const YAML::Node& archivo);
+    void cargarZonasDeInicioEnElMapa(const YAML::Node& archivo);
 
     void conectarBtnClicked(QPushButton* btn, QString imagen);
 };
