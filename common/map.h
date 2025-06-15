@@ -49,6 +49,9 @@ private:
     /* Zonas de equipo */
     std::vector<TeamZoneConfig> team_zones;
 
+    /* Terreno */
+    TerrainType terrain;
+
     ObstacleType box_to_obstacle_type(const std::string& type_string);
 
     void load_from_yaml(const std::string& yaml_path);
@@ -61,6 +64,7 @@ public:
     const std::vector<ObstacleConfig> get_obstacles() const;
     const std::vector<BombZoneConfig> get_bomb_zones() const;
     const std::vector<TeamZoneConfig>& get_team_zones() const;
+    TerrainType get_terrain() const { return terrain; }
 };
 
 #endif  // MAP_H

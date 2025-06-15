@@ -48,6 +48,7 @@ public:
 
     void run() override;
     void add_player(const ActionDTO& action_dto);
+    TerrainType get_terrain() { return map.get_terrain(); }
     void stop() override;
 };
 

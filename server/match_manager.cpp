@@ -78,9 +78,7 @@ void MatchManager::run() {
             client_handler->start();
 
             /* Envío de id y partidas y mapas disponibles */
-            client_send_queue->push(
-                    ActionDTO(ActionType::CONFIGURATION, get_matches(), get_maps(), id));
-
+            client_send_queue->push(ActionDTO(ActionType::INFORMATION, get_matches(), get_maps()));
 
             /* Sería como un mix entre Receiver y Sender */
             ActionDTO first_action = own_recv_queue->pop();
@@ -105,6 +103,9 @@ void MatchManager::run() {
             if (have_to_initialize_match)
                 match->start();
             match->add_player(first_action);
+
+            /* Envío de id y partidas y mapas disponibles */
+            client_send_queue->push(ActionDTO(ActionType::CONFIGURATION, match->get_terrain(), id));
             reap();
         } catch (const std::runtime_error& e) {
             std::cerr << "Runtime error: " << e.what() << std::endl;

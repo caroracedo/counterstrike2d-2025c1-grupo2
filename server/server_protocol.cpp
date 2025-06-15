@@ -47,8 +47,8 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
     }
 }
 
-void ServerProtocol::serialize_and_send_configuration(const ActionDTO& action_dto,
-                                                      std::vector<uint8_t>& data) {
+void ServerProtocol::serialize_and_send_information(const ActionDTO& action_dto,
+                                                    std::vector<uint8_t>& data) {
     push_hexa_to(int_16_to_hex_big_endian(action_dto.matches.size()), data);
     push_hexa_to(int_16_to_hex_big_endian(action_dto.maps.size()), data);
     for (const auto& match: action_dto.matches) {
@@ -59,6 +59,11 @@ void ServerProtocol::serialize_and_send_configuration(const ActionDTO& action_dt
         push_hexa_to(int_16_to_hex_big_endian(map.size()), data);
         data.insert(data.end(), map.begin(), map.end());
     }
+}
+
+void ServerProtocol::serialize_and_send_configuration(const ActionDTO& action_dto,
+                                                      std::vector<uint8_t>& data) {
+    data.push_back(static_cast<uint8_t>(action_dto.terrain_type));
     push_hexa_to(int_16_to_hex_big_endian(action_dto.id), data);
 }
 
@@ -133,6 +138,9 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::UPDATE:
             serialize_and_send_update(action_dto, data);
+            break;
+        case ActionType::INFORMATION:
+            serialize_and_send_information(action_dto, data);
             break;
         case ActionType::CONFIGURATION:
             serialize_and_send_configuration(action_dto, data);

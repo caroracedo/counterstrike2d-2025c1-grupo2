@@ -167,8 +167,7 @@ void MainWindow::saveDTO() {
         info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
                          info_aux.player_type);
     } else if (info_aux.type == ActionType::JOIN) {
-        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
-                         info_aux.player_type);  // TODO: Cambiar esto
+        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.player_type);
     }
 
     // ui->operacion->setCurrentIndex(0);

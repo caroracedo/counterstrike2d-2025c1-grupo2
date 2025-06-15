@@ -73,4 +73,12 @@ void Map::load_from_yaml(const std::string& yaml_path) {
             team_zones.push_back(zone);
         }
     }
+
+    // Obtener terreno
+    if (config["terreno"]) {
+        std::string tipoTerreno = config["terreno"].as<std::string>();
+        terrain = (tipoTerreno == "desierto"            ? TerrainType::DESIERTO :
+                   tipoTerreno == "zonadeentrenamiento" ? TerrainType::ZONAENTRENAMIENTO :
+                                                          TerrainType::PUEBLOAZTECA);
+    }
 }

@@ -15,6 +15,7 @@ enum class ActionType : uint8_t {
     BOMB = 0x66,
     QUIT = 0x71,
     UPDATE = 0x75,
+    INFORMATION = 0x70,
     CONFIGURATION = 0x69,
     END = 0x59,
     SHOP = 0x57,
@@ -43,6 +44,7 @@ struct ActionDTO {
     std::string match;
     std::string map;
     PlayerType player_type;
+    TerrainType terrain_type;
     /* Mover */
     Direction direction;
     /* Disparar */
@@ -77,21 +79,10 @@ struct ActionDTO {
     ActionDTO(ActionType action, uint16_t value);
 
     /* client -> server */
-    /* Partida */
+    /* Configuration */
     ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
               const PlayerType& player_type);
-    /* Crear Partida con id (en server) */
-    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-              const PlayerType& player_type, uint16_t id);
-    /* Unirse a Partida con id (en server) */
-    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
-              uint16_t id);
-
-    /* Tipo de Jugador */
-    ActionDTO(const ActionType& action, const PlayerType& player_type);
-
-    /* Tipo de Jugador con id (en server) */
-    ActionDTO(const ActionType& action, const PlayerType& player_type, uint16_t id);
+    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
 
     /* Mover */
     ActionDTO(const ActionType& action, const Direction& direction);
@@ -117,7 +108,12 @@ struct ActionDTO {
     /* server -> client */
     /* Configuration */
     ActionDTO(const ActionType& action, const std::vector<std::string>& matches,
-              const std::vector<std::string>& maps, uint16_t id);
+              const std::vector<std::string>& maps);
+    ActionDTO(const ActionType& action, const TerrainType& terrain_type, uint16_t id);
+    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
+              const PlayerType& player_type, uint16_t id);
+    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
+              uint16_t id);
 
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects);

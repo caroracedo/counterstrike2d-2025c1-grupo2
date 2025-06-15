@@ -77,17 +77,16 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
     return {ActionType::UPDATE, objects};
 }
 
-ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) {
+ActionDTO ClientProtocol::deserialize_information(std::vector<uint8_t>& data) {
+    size_t match_count = static_cast<size_t>(hex_big_endian_to_int_16({data[0], data[1]}));
+    size_t map_count = static_cast<size_t>(hex_big_endian_to_int_16({data[2], data[3]}));
+
     std::vector<std::string> matches;
     std::vector<std::string> maps;
 
-    uint16_t matches_size = hex_big_endian_to_int_16({data[0], data[1]});
-    uint16_t maps_size = hex_big_endian_to_int_16({data[2], data[3]});
-
     size_t i = 4;
-    size_t matches_end = i + matches_size;
 
-    while (i < matches_end) {
+    for (size_t j = 0; j < match_count; ++j) {
         uint16_t match_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
         i += 2;
         std::string match(data.begin() + i, data.begin() + i + match_size);
@@ -95,8 +94,7 @@ ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) 
         i += match_size;
     }
 
-    size_t maps_end = i + maps_size;
-    while (i < maps_end) {
+    for (size_t j = 0; j < map_count; ++j) {
         uint16_t map_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
         i += 2;
         std::string map(data.begin() + i, data.begin() + i + map_size);
@@ -104,8 +102,13 @@ ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) 
         i += map_size;
     }
 
-    uint16_t id = hex_big_endian_to_int_16({data[data.size() - 2], data[data.size() - 1]});
-    return {ActionType::CONFIGURATION, matches, maps, id};
+    return {ActionType::INFORMATION, matches, maps};
+}
+
+ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) {
+    std::vector<uint8_t> id(data.begin() + 1, data.end());
+    return {ActionType::CONFIGURATION, static_cast<TerrainType>(data[0]),
+            hex_big_endian_to_int_16(id)};
 }
 
 ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
@@ -161,6 +164,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::UPDATE:
             return deserialize_update(data);
+        case ActionType::INFORMATION:
+            return deserialize_information(data);
         case ActionType::CONFIGURATION:
             return deserialize_configuration(data);
         case ActionType::END:

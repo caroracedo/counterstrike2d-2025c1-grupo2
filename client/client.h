@@ -19,7 +19,7 @@ private:
     ClientSender sender;
     ClientReceiver receiver;
 
-    uint16_t receive_and_send_initial_configuration();
+    void receive_and_send_initial_configuration();
 
 public:
     Client(const char* hostname, const char* servname);
