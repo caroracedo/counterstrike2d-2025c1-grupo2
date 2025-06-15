@@ -35,8 +35,9 @@ void GameView::update(const ActionDTO& action) {
         stats_view.set_visible(true);
     }
 
-    if (action.type != ActionType::UPDATE)
+    if (action.type != ActionType::UPDATE) {
         return;
+    }
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
@@ -68,6 +69,13 @@ void GameView::update(const ActionDTO& action) {
             rect.w = static_cast<int>(object.width);
             rect.h = static_cast<int>(object.height);
             bomb_zones.push_back(rect);
+        } else if (object.type == ObjectType::WEAPON) {
+            uint16_t x = object.position[0];
+            uint16_t y = object.position[1];
+            renderer.SetDrawColor(255, 255, 255, 255);
+            SDL2pp::Rect dst_rect(x - static_cast<int>(camera.get_x()),
+                                  y - static_cast<int>(camera.get_y()), 32, 32);
+            renderer.FillRect(dst_rect);
         }
     }
 
@@ -202,14 +210,16 @@ void GameView::render() {
 // }
 
 void GameView::frame_sync() {
+    static uint32_t last_frame = SDL_GetTicks();
     uint32_t now = SDL_GetTicks();
-    uint32_t elapsed = now - last_frame_time;
+    uint32_t elapsed = now - last_frame;
 
     if (elapsed < frame_delay)
         SDL_Delay(frame_delay - elapsed);
 
-    last_frame_time = SDL_GetTicks();
+    last_frame = SDL_GetTicks();
 }
+
 
 void GameView::render_cursor() {
     int mouseX, mouseY;

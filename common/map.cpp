@@ -67,8 +67,8 @@ void Map::load_from_yaml(const std::string& yaml_path) {
     }
 
     // WeaponsMapa
-    if (config["WeaponsMapa"]) {
-        for (const auto& node: config["WeaponsMapa"]) {
+    if (config["weaponsMapa"]) {
+        for (const auto& node: config["weaponsMapa"]) {
             WeaponObjectConfig weapon;
             weapon.type = weapon_type_to_weapon_model(node["tipo"].as<std::string>());
             weapon.x = node["position"]["x"].as<uint16_t>();
