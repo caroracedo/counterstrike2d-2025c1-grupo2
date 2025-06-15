@@ -44,7 +44,7 @@ endif()
 add_definitions(-DASSETS_PATH="${ASSETS_PATH}")
 
 # -- MAPS_PATH --
-set(MAPS_PATH "${PROJECT_SOURCE_DIR}/server/maps/")
+set(MAPS_PATH "${PROJECT_SOURCE_DIR}/editor/maps/")
 
 if(DEFINED CUSTOM_MAPS_PATH)
     set(MAPS_PATH "${CUSTOM_MAPS_PATH}")

@@ -69,11 +69,11 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value):
 
 /* client -> server */
 /* Partida */
-ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
+ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
                      const PlayerType& player_type):
         type(action),
         match(match),
-        map(),
+        map(map),
         player_type(player_type),
         direction(),
         desired_position(),

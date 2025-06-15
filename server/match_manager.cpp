@@ -106,7 +106,11 @@ void MatchManager::run() {
                 match->start();
             match->add_player(first_action);
             reap();
-        } catch (...) {
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Runtime error: " << e.what() << std::endl;
+            break;
+        } catch (const std::exception& e) {
+            std::cerr << "Excepción estándar: " << e.what() << std::endl;
             break;
         }
     }

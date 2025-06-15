@@ -20,14 +20,11 @@ uint16_t Client::receive_and_send_initial_configuration() {  // TODO: Esto esta 
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
-    MainWindow window;
+    MainWindow window(configuration.maps, configuration.matches);
     window.show();
     app.exec();
 
-    ActionDTO info = window.getInfo();
-    if (info.type == ActionType::CREATE)
-        info.map = "map1";  // Harcodeado mal
-    send_queue.push(info);
+    send_queue.push(window.getInfo());
     return configuration.id;
 }
 

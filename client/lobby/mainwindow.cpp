@@ -1,13 +1,19 @@
 #include "mainwindow.h"
 
 #include <QComboBox>
+#include <QDebug>
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QString>
 
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(const std::vector<std::string>& mapasIngresados,
+                       const std::vector<std::string>& partidasIngresadas, QWidget* parent):
+        QMainWindow(parent),
+        ui(new Ui::MainWindow),
+        mapas(mapasIngresados),
+        partidas(partidasIngresadas) {
     ui->setupUi(this);
 
     // Crear Unirse partida
@@ -24,11 +30,14 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->operacion->addItem("Create match", QVariant("crear"));
     ui->operacion->addItem("Join match", QVariant("unirse"));
 
+    ui->create->hide();
+    ui->join->hide();
+
     connect(ui->operacion, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &MainWindow::guardarOperacion);
 
     // Ingresar nombre partida
-    connect(ui->saveBtn, &QPushButton::clicked, this, &MainWindow::guardarNombrePartida);
+    // connect(ui->saveBtn, &QPushButton::clicked, this, &MainWindow::guardarNombrePartida);
 
     // Elegir equipo
     ui->equipo->addItem("Select team...");
@@ -57,16 +66,57 @@ void MainWindow::guardarOperacion(int index) {
     QString action = ui->operacion->itemData(index).toString();
 
     if (action == "crear") {
+        ui->maps->clear();
         info_aux.type = ActionType::CREATE;
+        ui->create->show();
+        ui->join->hide();
+        ui->maps->addItem("Select map...");
+        for (const std::string& mapa: mapas) {
+            QString m = QString::fromStdString(mapa);
+            ui->maps->addItem(m, QVariant(m));
+        }
+        QStandardItemModel* modelMap = qobject_cast<QStandardItemModel*>(ui->maps->model());
+        if (modelMap) {
+            QStandardItem* item = modelMap->item(0);
+            if (item) {
+                item->setEnabled(false);
+            }
+        }
     } else {
+        ui->partidas->clear();
         info_aux.type = ActionType::JOIN;
+        ui->create->hide();
+        ui->join->show();
+        ui->partidas->addItem("Select match...");
+        for (const std::string& partida: partidas) {
+            QString p = QString::fromStdString(partida);
+            ui->partidas->addItem(p, QVariant(p));
+        }
+        QStandardItemModel* modelPartidas =
+                qobject_cast<QStandardItemModel*>(ui->partidas->model());
+        if (modelPartidas) {
+            QStandardItem* item = modelPartidas->item(0);
+            if (item) {
+                item->setEnabled(false);
+            }
+        }
     }
+}
+
+void MainWindow::guardarMapa(int index) {
+    std::string mapa = ui->maps->itemData(index).toString().toStdString();
+    info_aux.mapSelected = mapa;
 }
 
 void MainWindow::guardarNombrePartida() {
     QString name = ui->matchName->text();
 
-    info_aux.match = name.toStdString();
+    info_aux.matchName = name.toStdString();
+}
+
+void MainWindow::guardarPartidaElegida(int index) {
+    std::string partidaElegida = ui->partidas->itemData(index).toString().toStdString();
+    info_aux.matchName = partidaElegida;
 }
 
 void MainWindow::guardarEquipo(int index) {
@@ -84,8 +134,13 @@ bool MainWindow::validarInfo() {
         QMessageBox::warning(this, "Error", "Select an option");
         return false;
     }
-    if (info_aux.match.empty()) {
-        QMessageBox::warning(this, "Error", "Enter a match name");
+    if (info_aux.type == ActionType::CREATE &&
+        (info_aux.mapSelected.empty() || info_aux.matchName.empty())) {
+        QMessageBox::warning(this, "Error", "Empty fields");
+        return false;
+    }
+    if (info_aux.type == ActionType::JOIN && info_aux.matchName.empty()) {
+        QMessageBox::warning(this, "Error", "Select a match");
         return false;
     }
     if (info_aux.player_type == PlayerType::UNKNOWN) {
@@ -96,9 +151,34 @@ bool MainWindow::validarInfo() {
 }
 
 void MainWindow::saveDTO() {
-    if (!validarInfo())
+    if (info_aux.type == ActionType::CREATE) {
+        int indexMap = ui->maps->currentIndex();
+        guardarMapa(indexMap);
+        guardarNombrePartida();
+    } else if (info_aux.type == ActionType::JOIN) {
+        int indexPartida = ui->partidas->currentIndex();
+        guardarPartidaElegida(indexPartida);
+    }
+
+    if (!validarInfo()) {
         return;
-    info = ActionDTO(info_aux.type, info_aux.match, info_aux.player_type);
+    }
+    if (info_aux.type == ActionType::CREATE) {
+        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
+                         info_aux.player_type);
+    } else if (info_aux.type == ActionType::JOIN) {
+        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
+                         info_aux.player_type);  // TODO: Cambiar esto
+    }
+
+    // ui->operacion->setCurrentIndex(0);
+    // ui->maps->setCurrentIndex(0);
+    // ui->matchName->clear();
+    // ui->partidas->setCurrentIndex(0);
+    // ui->equipo->setCurrentIndex(0);
+    // ui->create->hide();
+    // ui->join->hide();
+
     QApplication::quit();
 }
 
