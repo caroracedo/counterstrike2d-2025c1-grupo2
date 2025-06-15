@@ -428,7 +428,6 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
             } else if (collider_type == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                 max_position = test_position;
-
             } else if (collider_type == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                 // obstáculo
@@ -461,8 +460,6 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         radius = BULLET_RADIUS;  // Radio de la bala
     } else if (object.get_type() == ObjectType::PLAYER) {
         radius = PLAYER_RADIUS;  // Radio del jugador
-    } else {
-        radius = object.get_width();
     }
 
     for (const auto& obj: objects) {
@@ -478,6 +475,9 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         } else if (obj->get_type() == ObjectType::PLAYER) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
                                               PLAYER_RADIUS);
+        } else if (obj->get_type() == ObjectType::BOMB) {
+            overlap =
+                    circle_circle_collision(new_position, radius, obj->get_position(), BOMB_RADIUS);
         } else {
             overlap = circle_rectangle_collision(new_position, radius, obj->get_position(),
                                                  obj->get_width(), obj->get_height());
@@ -485,8 +485,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
 
         if (overlap) {
             ObjectType type = static_cast<ObjectType>(obj->get_type());
-            if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
-                type == ObjectType::PLAYER || type == ObjectType::WEAPON) {
+            if (type != ObjectType::UNKNOWN) {
                 return {type, obj->get_id()};
             }
             return {ObjectType::UNKNOWN, 0};
@@ -667,7 +666,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
 
         return true;  // El jugador sigue vivo
     }
-    std::cout << "\tPlayer " << id << " not found or no damage inflicted." << std::endl;
+    std::cout << "\tPlayer " << id << " not found." << std::endl;
     return false;  // No se encontró el jugador o no se infligió daño
 }
 
