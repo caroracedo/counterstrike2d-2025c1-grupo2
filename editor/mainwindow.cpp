@@ -36,6 +36,7 @@
 #define FILAS 21
 #define COLUMNAS 21
 #define TAM_CELDA 32
+#define TAM_ARMA 16
 
 MainWindow::MainWindow(QWidget* parent):
         QMainWindow(parent), ui(new Ui::MainWindow), scene(new QGraphicsScene(this)) {
@@ -167,8 +168,14 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
         return;
 
     QPixmap pixmap(imagenSeleccionada);
+    int tamImagen;
+    if (imagenSeleccionada.contains("arma")) {
+        tamImagen = TAM_ARMA;
+    } else {
+        tamImagen = TAM_CELDA;
+    }
     QPixmap pixmapEscalado =
-            pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
         grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
@@ -187,7 +194,9 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
     }
 
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
-    item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+    int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+    int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
     scene->addItem(item);
 
     Celda celda;
@@ -307,7 +316,9 @@ void MainWindow::cargarImagenTerreno() {
 
             QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
 
-            item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+            int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+            int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+            item->setPos(x, y);
             scene->addItem(item);
         }
     }
@@ -347,7 +358,9 @@ void MainWindow::eliminarElemento(int fila, int col) {
             pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
 
-    item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+    int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+    int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
     item->setZValue(-1);
     scene->addItem(item);
 }
@@ -449,8 +462,8 @@ void MainWindow::guardarArmas(YAML::Emitter& out) {
             if (celda.tipoElemento == TIPO_ELEMENTO::ARMA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoArmaToString(celda.tipoArma);
-                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
-                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "width" << YAML::Value << TAM_ARMA;
+                out << YAML::Key << "height" << YAML::Value << TAM_ARMA;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
                 out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
                 out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
@@ -663,18 +676,24 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
             Celda& celda = grilla[fila][col];
-            int x = col * TAM_CELDA;
-            int y = fila * TAM_CELDA;
 
             if (!celda.imagenElemento.isEmpty()) {
                 QPixmap pixmap(celda.imagenElemento);
                 if (pixmap.isNull()) {
                     continue;
                 }
-                QPixmap pixmapEscalado = pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio,
+                int tamImagen;
+                if (celda.imagenElemento.contains("arma")) {
+                    tamImagen = TAM_ARMA;
+                } else {
+                    tamImagen = TAM_CELDA;
+                }
+                QPixmap pixmapEscalado = pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio,
                                                        Qt::SmoothTransformation);
                 QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
                 celda.item = item;
+                int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+                int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
                 item->setPos(x, y);
                 scene->addItem(item);
             }
