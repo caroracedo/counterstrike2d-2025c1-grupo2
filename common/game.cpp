@@ -475,10 +475,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         } else if (obj->get_type() == ObjectType::PLAYER) {
             overlap = circle_circle_collision(new_position, radius, obj->get_position(),
                                               PLAYER_RADIUS);
-        } else if (obj->get_type() == ObjectType::BOMB) {
-            overlap =
-                    circle_circle_collision(new_position, radius, obj->get_position(), BOMB_RADIUS);
-        } else {
+        } else if (obj->get_type() == ObjectType::OBSTACLE) {
             overlap = circle_rectangle_collision(new_position, radius, obj->get_position(),
                                                  obj->get_width(), obj->get_height());
         }
@@ -1005,9 +1002,6 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
     if (!bomb_ptr) {
         return false;  // No se pudo crear la bomba
     }
-
-    // Agregar a game
-    bomb = bomb_ptr;
 
     bomb->start_countdown();
 

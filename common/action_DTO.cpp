@@ -56,6 +56,7 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value):
     switch (type) {
         case ActionType::BOMB:
         case ActionType::CHANGE:
+        case ActionType::PICKUP:
             id = value;
             break;
         case ActionType::AMMOPRIMARY:

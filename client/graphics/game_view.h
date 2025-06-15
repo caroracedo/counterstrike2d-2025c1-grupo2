@@ -15,6 +15,7 @@
 
 #include "bomb_view.h"
 #include "bullet_view.h"
+#include "drop_view.h"
 #include "game_camera.h"
 #include "gun_view.h"
 #include "legs_view.h"
@@ -48,6 +49,7 @@ private:
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
+    std::vector<DropView> drops;
     std::unordered_map<uint16_t, PlayerType> types;
     std::vector<ObstacleView> obstacles;
     std::vector<BulletView> bullets;
@@ -59,6 +61,7 @@ private:
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);
     void update_bullets(const ObjectDTO& object);
+    void update_drops(const ObjectDTO& object);
     void render_cursor();
 
 public:

@@ -77,6 +77,7 @@ std::pair<WeaponDTO, bool> Player::drop_weapons() {
         std::cout << "[PLAYER] Bomb dropped." << std::endl;
         return {weapon, true};
     }
+    current = &secondary_weapon;
     return {weapon, false};
 }
 

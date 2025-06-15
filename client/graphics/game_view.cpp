@@ -42,8 +42,10 @@ void GameView::update(const ActionDTO& action) {
     shop_view.set_visible(false);
     stats_view.set_visible(false);
     bullets.clear();
+    drops.clear();
 
     std::unordered_set<uint8_t> players_in_game;
+
     for (const auto& object: action.objects) {
 
         if (object.type == ObjectType::PLAYER) {
@@ -70,12 +72,7 @@ void GameView::update(const ActionDTO& action) {
             rect.h = static_cast<int>(object.height);
             bomb_zones.push_back(rect);
         } else if (object.type == ObjectType::WEAPON) {
-            uint16_t x = object.position[0];
-            uint16_t y = object.position[1];
-            renderer.SetDrawColor(255, 255, 255, 255);
-            SDL2pp::Rect dst_rect(x - static_cast<int>(camera.get_x()),
-                                  y - static_cast<int>(camera.get_y()), 32, 32);
-            renderer.FillRect(dst_rect);
+            update_drops(object);
         }
     }
 
@@ -145,6 +142,13 @@ void GameView::update_obstacles(const ObjectDTO& object) {
     obstacles.push_back(obs);
 }
 
+void GameView::update_drops(const ObjectDTO& object) {
+    DropView drop_view(renderer, texture_manager);
+
+    drop_view.update(object.position[0], object.position[1], object.weapon_model);
+
+    drops.push_back(drop_view);
+}
 
 void GameView::render() {
     auto it = players.find(local_id);
@@ -165,13 +169,23 @@ void GameView::render() {
     for (const auto& zone: bomb_zones) {
         float screenX = zone.x - camera.get_x();
         float screenY = zone.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(zone.w),
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX), static_cast<int>(screenY), int(zone.w),
                                  int(zone.h)};
 
         SDL_Rect src_rect = {0, 0, int(zone.w), int(zone.h)};
 
         renderer.Copy(*texture_manager.get_texture("bomb_zone"), src_rect, dst_rect);
+    }
+
+    for (auto& obstacle: obstacles) obstacle.draw(camera);
+
+    for (auto& drop: drops) drop.draw(camera);
+
+    if (bomb_view.is_exploding()) {
+        bomb_view.drawExplosion(renderer, camera);
+        bomb_view.reset();
+    } else if (bomb_view.is_active()) {
+        bomb_view.draw(renderer, camera);
     }
 
     for (auto& bullet: bullets) bullet.draw(renderer, camera);
@@ -182,15 +196,6 @@ void GameView::render() {
 
     for (auto& [id, gun]: guns) {
         gun->draw(renderer, camera);
-    }
-
-    for (auto& obstacle: obstacles) obstacle.draw(camera);
-
-    if (bomb_view.is_exploding()) {
-        bomb_view.drawExplosion(renderer, camera);
-        bomb_view.reset();
-    } else if (bomb_view.is_active()) {
-        bomb_view.draw(renderer, camera);
     }
 
     hud_view.draw(bomb_view.is_active());

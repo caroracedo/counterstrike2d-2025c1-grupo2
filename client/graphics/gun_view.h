@@ -12,10 +12,6 @@
 
 #include "game_camera.h"
 
-#define GUN_WIDTH 32
-#define GUN_HEIGHT 32
-
-
 // struct GunSpriteData {
 //     SDL2pp::Texture* texture;
 //     SDL_Rect sprite_clip;

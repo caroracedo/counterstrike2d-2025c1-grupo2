@@ -278,6 +278,7 @@ public:
     }
 
     void pick_up_weapon(uint16_t id) {
+        std::cout << "[GAME] Player with ID: " << id << "trying to pick up weapon.\n";
         auto players_it = players.find(id);
         if (players_it == players.end()) {
             std::cout << "[GAME] Player with ID " << id << " not found.\n";
@@ -321,6 +322,7 @@ public:
             }
         }
     }
+
 
     void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {
         Weapon weapon(weapon_dto);
@@ -366,6 +368,8 @@ public:
 
         // Agrega la bomba al vector de objetos
         objects.push_back(bomb_ptr);
+
+        bomb = bomb_ptr;
 
         return bomb_ptr;
     }

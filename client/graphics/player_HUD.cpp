@@ -1,5 +1,7 @@
 #include "player_HUD.h"
 
+#include <limits>
+
 PlayerHUD::PlayerHUD(SDL2pp::Renderer& renderer, SDL2pp::Texture& numbers_texture,
                      SDL2pp::Texture& life_texture, SDL2pp::Texture& money_texture):
         renderer(renderer),
@@ -77,7 +79,7 @@ void PlayerHUD::draw(bool is_bomb_active) {
     // when bomb planted, render time remaining
     int timer_x = SCREEN_WIDTH / 2 - digit_width * timer_str.size() * scale;
 
-    if (timer > 0 && is_bomb_active) {
+    if (timer > 0 && is_bomb_active && timer != std::numeric_limits<uint16_t>::max()) {
         render_number_string(timer_str, timer_x, 0, scale, false);
     }
 }

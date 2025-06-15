@@ -23,7 +23,7 @@ public:
         load(renderer, "hud_money", ASSETS_PATH "/gfx/money.bmp", true);
 
         load(renderer, "glock", ASSETS_PATH "/gfx/weapons/glock.bmp");
-        load(renderer, "ak-47", ASSETS_PATH "/gfx/weapons/ak47.bmp");
+        load(renderer, "ak47", ASSETS_PATH "/gfx/weapons/ak47.bmp");
         load(renderer, "m3", ASSETS_PATH "/gfx/weapons/m3.bmp");
         load(renderer, "awp", ASSETS_PATH "/gfx/weapons/awp.bmp");
         load(renderer, "knife", ASSETS_PATH "/gfx/weapons/knife.bmp");
@@ -31,6 +31,11 @@ public:
         load(renderer, "explotion", ASSETS_PATH "/gfx/sprites/explosion.bmp");
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
         load(renderer, "pointer", ASSETS_PATH "/gfx/player/pointer.bmp", true, {255, 0, 255, 0});
+
+        load(renderer, "glock_d", ASSETS_PATH "/gfx/weapons/glock_d.bmp");
+        load(renderer, "ak47_d", ASSETS_PATH "/gfx/weapons/ak47_d.bmp");
+        load(renderer, "m3_d", ASSETS_PATH "/gfx/weapons/m3_d.bmp");
+        load(renderer, "awp_d", ASSETS_PATH "/gfx/weapons/awp_d.bmp");
 
         for (int i = 1; i <= 5; ++i) {
             std::string name = "box_" + std::to_string(i);
