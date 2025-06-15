@@ -28,8 +28,8 @@ bool Match::do_action(const ActionDTO& action_dto) {
         case ActionType::CHANGE:
             return monitor_game.change_weapon(action_dto.id);
         case ActionType::PICKUP:
-            // cppcheck-suppress knownConditionTrueFalse
-            return monitor_game.pick_up_weapon(action_dto.id);
+            monitor_game.pick_up_weapon(action_dto.id);
+            return true;
         default:
             return false;
     }
