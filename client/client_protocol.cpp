@@ -111,8 +111,6 @@ ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) 
             hex_big_endian_to_int_16(id)};
 }
 
-ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
-
 ActionDTO ClientProtocol::deserialize_shop(std::vector<uint8_t>& data) {
     std::vector<WeaponModel> weapons;
     std::transform(data.begin(), data.end(), std::back_inserter(weapons),
@@ -169,7 +167,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
         case ActionType::CONFIGURATION:
             return deserialize_configuration(data);
         case ActionType::END:
-            return deserialize_end();
+        case ActionType::WAIT:
+            return ActionDTO(type);
         case ActionType::SHOP:
             return deserialize_shop(data);
         case ActionType::STATS:
@@ -201,8 +200,6 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
             break;
-        case ActionType::BOMB:
-            break;
         case ActionType::WEAPON:
             data.push_back(static_cast<uint8_t>(action.weapon));
             break;
@@ -210,7 +207,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::AMMOSECONDARY:
             push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
             break;
+        case ActionType::BOMB:
         case ActionType::CHANGE:
+        case ActionType::START:
             break;
         // case ObjectType::TAKE:
         //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));

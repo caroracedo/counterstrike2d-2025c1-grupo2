@@ -57,6 +57,7 @@ private:
     bool deactivated = false;
     Stats stats;
     std::vector<Ak47Burst> ak47_bursts;
+    bool _is_ready_to_start = false;
 
     /*******************************************************************************************
      *****************************************POSICIONES Y CELDAS*******************************
@@ -238,6 +239,8 @@ public:
     bool change_weapon(uint16_t id);
 
     Stats get_stats() const { return stats; }
+
+    void set_ready_to_start() { _is_ready_to_start = true; }
 };
 
 #endif  // GAME_H

@@ -7,6 +7,7 @@
 #define SHOP_TIME 10
 #define SNAPSHOT_TIME 33  // ~30FPS
 #define STATS_TIME 5
+#define WAIT_TIME 100
 
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
@@ -68,6 +69,10 @@ void Match::send_stats_to_all_clients() {
     monitor_client_send_queues->send_update({ActionType::STATS, monitor_game.get_stats()});
 }
 
+void Match::send_waiting_room_to_all_clients() {
+    monitor_client_send_queues->send_update(ActionDTO(ActionType::WAIT));
+}
+
 std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
     std::vector<ObjectDTO> object_dtos;
     object_dtos.reserve(objects.size());
@@ -88,11 +93,25 @@ std::vector<ObjectDTO> Match::process_dynamic_objects(
 }
 
 void Match::waiting_phase() {
-    std::unique_lock<std::mutex> lock(wait_mutex);
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
+    send_waiting_room_to_all_clients();
 
-    wait_cv.wait(lock,
-                 [this]() { return monitor_game.is_ready_to_start() || !should_keep_running(); });
+    // Polling
+    while (!monitor_game.is_ready_to_start() && should_keep_running()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
+        try {
+            ActionDTO action;
+            if (recv_queue->try_pop(action)) {
+                if (action.type == ActionType::START) {
+                    // do_start_action
+                    monitor_game.set_ready_to_start();
+                    break;
+                }
+            }
+        } catch (const ClosedQueue&) {
+            stop();
+        }
+    }
 
     send_initial_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
@@ -193,16 +212,6 @@ void Match::run() {
     std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }
 
-// Nota: En la waiting phase se verifica si están conectados los jugadores necesarios para iniciar
-// la partida o si la partida fue interrumpida. Esta condición se notifica al agregar un jugador o
-// al detener la partida.
-
 void Match::add_player(const ActionDTO& action_dto) {
     monitor_game.add_player(action_dto.player_type, action_dto.id);
-    wait_cv.notify_all();
-}
-
-void Match::stop() {
-    Thread::stop();
-    wait_cv.notify_all();
 }

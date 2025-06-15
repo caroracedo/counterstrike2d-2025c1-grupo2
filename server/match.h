@@ -23,12 +23,11 @@ private:
     MonitorGame monitor_game;
     std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues;
-    std::mutex wait_mutex;
-    std::condition_variable wait_cv;
 
     bool do_action(const ActionDTO& action_dto);
     bool do_shop_action(const ActionDTO& action_dto);
     void send_initial_snapshot_to_all_clients();
+    void send_waiting_room_to_all_clients();
     void send_snapshot_to_all_clients();
     void send_shop_to_all_clients();
     void send_end_to_all_clients();
@@ -49,7 +48,6 @@ public:
     void run() override;
     void add_player(const ActionDTO& action_dto);
     TerrainType get_terrain() { return map.get_terrain(); }
-    void stop() override;
 };
 
 #endif  // MATCH_H

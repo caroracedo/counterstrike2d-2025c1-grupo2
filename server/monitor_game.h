@@ -37,6 +37,7 @@ public:
     //     std::lock_guard<std::mutex> lock(mutex);
     //     return game.take_weapon(id);
     // }
+    void set_ready_to_start() { game.set_ready_to_start(); }
 
     Stats get_stats() const { return game.get_stats(); }
 };

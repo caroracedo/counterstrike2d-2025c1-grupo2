@@ -125,6 +125,7 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
                     id};  // Agrega el id del jugador...
         case ActionType::BOMB:
         case ActionType::CHANGE:
+        case ActionType::START:
             // case ActionType::TAKE:
             return {type, id};  // Agrega el id del jugador...
         default:
@@ -152,6 +153,7 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
             serialize_and_send_stats(action_dto, data);
             break;
         case ActionType::END:
+        case ActionType::WAIT:
             break;
         default:
             return false;

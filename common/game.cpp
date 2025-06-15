@@ -15,14 +15,15 @@ bool Game::is_ready_to_start() {
     /*
         Devuelve si hay jugadores suficientes en cada equipo.
     */
-    return std::count_if(players.begin(), players.end(),
-                         [](const auto& p) {
-                             return p.second &&
-                                    p.second->get_player_type() == PlayerType::TERRORIST;
-                         }) == config.get_rounds_terrorist() &&
-           std::count_if(players.begin(), players.end(), [](const auto& p) {
-               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-           }) == config.get_rounds_counterterrorist();
+    return _is_ready_to_start ||
+           (std::count_if(players.begin(), players.end(),
+                          [](const auto& p) {
+                              return p.second &&
+                                     p.second->get_player_type() == PlayerType::TERRORIST;
+                          }) == config.get_rounds_terrorist() &&
+            std::count_if(players.begin(), players.end(), [](const auto& p) {
+                return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+            }) == config.get_rounds_counterterrorist());
 }
 
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {

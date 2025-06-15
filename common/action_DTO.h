@@ -26,6 +26,8 @@ enum class ActionType : uint8_t {
     JOIN = 0x43,
     CHANGE = 0x40,
     STATS = 0x9D,
+    START = 0x3D,
+    WAIT = 0x1D,
     UNKNOWN = 0x00
 };
 
