@@ -91,6 +91,18 @@ bool Game::move(Direction direction, const uint16_t& id) {
     return false;
 }
 
+void Game::rotate_player(uint16_t id, float angle) {
+    /*
+        Rota al jugador con el ID especificado en el ángulo dado.
+    */
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        player_it->second->rotate(angle);
+    } else {
+        std::cout << "[GAME] Player with ID " << id << " not found.\n";
+    }
+}
+
 bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
     /*
         Dispara desde la posición del jugador hacia la posición deseada, con el arma actual del
@@ -124,6 +136,46 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
     } else {
         std::cout << "Player with ID " << player_id << " not found." << std::endl;
         return false;
+    }
+}
+
+void Game::pick_up_weapon(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado recoger un arma o una bomba si está cerca.
+    */
+    auto players_it = players.find(id);
+    if (players_it == players.end()) {
+        return;
+    }
+    std::vector<uint16_t> player_position = players_it->second->get_position();
+    auto cell = get_cell_from_position(player_position);
+    auto adyacent_objects = get_adyacent_objects(cell);
+    auto player_ptr = players_it->second;
+
+    for (const auto& obj: adyacent_objects) {
+        if (obj->get_type() == ObjectType::WEAPON) {
+            bool is_near_weapon = circle_rectangle_collision(player_position, PLAYER_RADIUS + 1,
+                                                             obj->get_position(), obj->get_width(),
+                                                             obj->get_height());
+            if (is_near_weapon) {
+                WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
+                WeaponDTO old_weapon_dto = player_ptr->pick_up_weapon(new_weapon_dto);
+                if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
+                    create_weapon(old_weapon_dto, player_position);
+                }
+                return;
+            }
+        } else if (obj->get_type() == ObjectType::BOMB &&
+                   distance_between(player_position, obj->get_position()) <=
+                           PLAYER_RADIUS + BOMB_RADIUS + 1) {
+            WeaponDTO bomb_dto;
+            bomb_dto.model = WeaponModel::BOMB;
+            player_ptr->pick_up_weapon(bomb_dto);
+            if (player_ptr->can_plant_bomb()) {
+                delete_bomb();
+                return;
+            }
+        }
     }
 }
 
@@ -882,6 +934,83 @@ void Game::employ_knife(const std::vector<uint16_t>& player_position, const uint
     }
 }
 
+void Game::create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position) {
+    /*
+        Crea un arma a partir de un WeaponDTO y la agrega a la matriz, al vector de objetos y al
+        mapa de armas. La posición del arma se establece en la posición dada.
+    */
+    Weapon weapon(weapon_dto);
+    weapon.move(position);
+
+    auto weapon_ptr = std::make_shared<Weapon>(weapon);
+    // Agrega el arma al vector de armas
+    weapons[weapon_dto.id] = weapon_ptr;
+
+    // Agrega el arma en la matriz
+    auto cell = get_cell_from_position(position);
+    matrix[cell.first][cell.second].push_back(weapon_ptr);
+
+    // Agrega el arma al vector de objetos
+    objects.push_back(weapon_ptr);
+}
+
+WeaponDTO Game::delete_weapon(const uint16_t weapon_id) {
+    /*
+        Elimina el arma con el ID especificado y devuelve su WeaponDTO.
+    */
+    auto it = weapons.find(weapon_id);
+    if (it != weapons.end()) {
+        auto weapon_ptr = it->second;
+        WeaponDTO weapon_dto = weapon_ptr->get_weapon_dto();
+        // Elimina el arma de la matriz
+        auto cell = get_cell_from_position(weapon_ptr->get_position());
+        auto& vec = matrix[cell.first][cell.second];
+        vec.erase(std::remove(vec.begin(), vec.end(), weapon_ptr), vec.end());
+        // Elimina el arma del vector de objetos
+        objects.erase(std::remove(objects.begin(), objects.end(), weapon_ptr), objects.end());
+        // Elimina del mapa de weapons
+        weapons.erase(it);
+        return weapon_dto;
+    }
+    return WeaponDTO();
+}
+
+void Game::drop_primary_weapon(uint16_t id) {
+    /*
+        Suelta el arma principal del jugador con el ID especificado
+    */
+    auto players_it = players.find(id);
+    if (players_it == players.end()) {
+        std::cout << "[GAME] Player with ID " << id << " not found.\n";
+        return;
+    }
+    WeaponDTO weapon = players_it->second->drop_primary_weapon();
+    create_weapon(weapon, players_it->second->get_position());
+    return;
+}
+
+void Game::drop_weapons(uint16_t id) {
+    /*
+        Suelta el arma principal y la bomba (si la tiene) del jugador con el ID especificado
+    */
+    auto players_it = players.find(id);
+    if (players_it == players.end()) {
+        std::cout << "[GAME] Player with ID " << id << " not found.\n";
+        return;
+    }
+    auto result = players_it->second->drop_weapons();
+    std::vector<uint16_t> position = players_it->second->get_position();
+    std::vector<uint16_t> weapon_position = {static_cast<uint16_t>(position[0] - PLAYER_RADIUS),
+                                             static_cast<uint16_t>(position[1] - PLAYER_RADIUS)};
+    create_weapon(result.first, weapon_position);
+    if (result.second) {
+        std::vector<uint16_t> bomb_position = {static_cast<uint16_t>(position[0] + 8),
+                                               static_cast<uint16_t>(position[1] + 8)};
+        create_bomb(bomb_position);
+    }
+    return;
+}
+
 /*******************************************************************************************
  *******************************************INICIALIZACION**********************************
  ******************************************************************************************/
@@ -1055,6 +1184,21 @@ void Game::update_bomb_countdown() {
     */
     if (bomb)
         exploded = bomb->update_countdown();
+}
+
+std::shared_ptr<Bomb> Game::create_bomb(const std::vector<uint16_t>& position) {
+    auto bomb_ptr = std::make_shared<Bomb>(position);
+
+    // Agrega la bomba en la matriz
+    auto cell = get_cell_from_position(position);
+    matrix[cell.first][cell.second].push_back(bomb_ptr);
+
+    // Agrega la bomba al vector de objetos
+    objects.push_back(bomb_ptr);
+
+    bomb = bomb_ptr;
+
+    return bomb_ptr;
 }
 
 void Game::delete_bomb() {
