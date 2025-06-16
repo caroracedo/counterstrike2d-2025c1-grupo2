@@ -2,6 +2,7 @@
 #define SERVER_PROTOCOL_H
 
 #include <cstring>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -31,22 +32,26 @@ private:
         return hex_big_endian;
     }
 
-    std::vector<uint8_t> float_16_to_hex_big_endian(_Float16 valor) {
-        uint16_t raw;
-        std::memcpy(&raw, &valor, sizeof(_Float16));
-        return int_16_to_hex_big_endian(raw);
+    float hex_big_endian_to_float(const std::vector<uint8_t>& hex_big_endian) {
+        uint32_t int_32;
+        std::memcpy(&int_32, hex_big_endian.data(), sizeof(int_32));
+        int_32 = ntohl(int_32);
+        float valor;
+        std::memcpy(&valor, &int_32, sizeof(valor));
+        return valor;
     }
 
-    _Float16 hex_big_endian_to_float_16(const std::vector<uint8_t>& hex_big_endian) {
-        uint16_t raw = hex_big_endian_to_int_16(hex_big_endian);
-        _Float16 result;
-        std::memcpy(&result, &raw, sizeof(result));
-        return result;
+    std::vector<uint8_t> float_to_hex_big_endian(float valor) {
+        uint32_t raw;
+        std::memcpy(&raw, &valor, sizeof(raw));
+        raw = htonl(raw);
+        std::vector<uint8_t> hex_big_endian(sizeof(raw));
+        std::memcpy(hex_big_endian.data(), &raw, sizeof(raw));
+        return hex_big_endian;
     }
 
     void push_hexa_to(const std::vector<uint8_t>& hexa, std::vector<uint8_t>& vector) {
-        vector.push_back(hexa[0]);
-        vector.push_back(hexa[1]);
+        vector.insert(vector.end(), hexa.begin(), hexa.end());
     }
 
     /* Envío */

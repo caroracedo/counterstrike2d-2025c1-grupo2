@@ -1,89 +1,89 @@
-#include <iostream>
+// #include <iostream>
 
-#include "game.h"
-#include "player.h"
-#include "weapon.h"
+// #include "game.h"
+// #include "player.h"
+// #include "weapon.h"
 
-#define MOVE_INPUT "mover"
-#define SHOOT_INPUT "disparar"
-#define BOMB_INPUT "bomba"
-#define SHOW_STATS "stats"
-#define PICK_UP "recoger"
-#define DROP_ALL "soltar"
-#define QUIT_INPUT "q"
-#define W_INPUT "w"
-#define A_INPUT "a"
-#define S_INPUT "s"
-#define D_INPUT "d"
+// #define MOVE_INPUT "mover"
+// #define SHOOT_INPUT "disparar"
+// #define BOMB_INPUT "bomba"
+// #define SHOW_STATS "stats"
+// #define PICK_UP "recoger"
+// #define DROP_ALL "soltar"
+// #define QUIT_INPUT "q"
+// #define W_INPUT "w"
+// #define A_INPUT "a"
+// #define S_INPUT "s"
+// #define D_INPUT "d"
 
-int main() {
-    Config config("config/config2.yaml");
-    Map map("editor/maps/holu.yaml");
-    Game game(config, map);
+// int main() {
+//     Config config("config/config2.yaml");
+//     Map map("editor/maps/holu.yaml");
+//     Game game(config, map);
 
-    game.add_player(PlayerType::COUNTERTERRORIST, 1);
-    game.add_player(PlayerType::TERRORIST, 2);
-    game.start_round_game_phase();
-    game.show_objects();
+//     game.add_player(PlayerType::COUNTERTERRORIST, 1);
+//     game.add_player(PlayerType::TERRORIST, 2);
+//     game.start_round_game_phase();
+//     game.show_objects();
 
-    game.shop_weapon(WeaponModel::AK47, 1);
-    game.shop_weapon(WeaponModel::AWP, 2);
+//     game.shop_weapon(WeaponModel::AK47, 1);
+//     game.shop_weapon(WeaponModel::AWP, 2);
 
-    std::vector<uint16_t> player2_pos = game.get_player_position(2);
-    std::vector<uint16_t> player1_pos = game.get_player_position(1);
+//     std::vector<uint16_t> player2_pos = game.get_player_position(2);
+//     std::vector<uint16_t> player1_pos = game.get_player_position(1);
 
-    while (true) {
-        std::string input;
-        std::getline(std::cin, input);
-        std::istringstream iss(input);
+//     while (true) {
+//         std::string input;
+//         std::getline(std::cin, input);
+//         std::istringstream iss(input);
 
-        std::string action_input;
-        if (!(iss >> action_input))
-            continue;
+//         std::string action_input;
+//         if (!(iss >> action_input))
+//             continue;
 
-        if (action_input == QUIT_INPUT) {
-            return 0;
-        } else if (action_input == MOVE_INPUT) {
-            std::string direction_input;
-            if (!(iss >> direction_input))
-                break;
-            if (direction_input == W_INPUT)
-                game.move(Direction::UP, 1);
-            else if (direction_input == A_INPUT)
-                game.move(Direction::LEFT, 1);
-            else if (direction_input == S_INPUT)
-                game.move(Direction::DOWN, 1);
-            else if (direction_input == D_INPUT)
-                game.move(Direction::RIGHT, 1);
-            else
-                break;
+//         if (action_input == QUIT_INPUT) {
+//             return 0;
+//         } else if (action_input == MOVE_INPUT) {
+//             std::string direction_input;
+//             if (!(iss >> direction_input))
+//                 break;
+//             if (direction_input == W_INPUT)
+//                 game.move(Direction::UP, 1);
+//             else if (direction_input == A_INPUT)
+//                 game.move(Direction::LEFT, 1);
+//             else if (direction_input == S_INPUT)
+//                 game.move(Direction::DOWN, 1);
+//             else if (direction_input == D_INPUT)
+//                 game.move(Direction::RIGHT, 1);
+//             else
+//                 break;
 
-            for (int i = 0; i < 100; ++i) {
-                game.update();
-            }
-        } else if (action_input == SHOOT_INPUT) {
-            game.shoot(player2_pos, 1);
-            for (int i = 0; i < 100; ++i) {
-                game.update();
-            }
-        } else if (action_input == BOMB_INPUT) {
-            game.interact_with_bomb(1);
-        } else if (action_input == PICK_UP) {
-            game.pick_up_weapon(1);
-        } else if (action_input == DROP_ALL) {
-            game.drop_weapons(2);
-        } else {
-            std::cout << "Unknown action: " << action_input << std::endl;
-            continue;
-        }
-        game.show_objects();
-        if (game.is_over()) {
-            std::cout << "\n********************************************" << std::endl;
-            std::cout << "*************** ROUND OVER *****************" << std::endl;
-            std::cout << "********************************************" << std::endl;
-            game.end_round_game_phase();
-            game.start_round_game_phase();
-            game.show_objects();
-        }
-    }
-}
+//             for (int i = 0; i < 100; ++i) {
+//                 game.update();
+//             }
+//         } else if (action_input == SHOOT_INPUT) {
+//             game.shoot(player2_pos, 1);
+//             for (int i = 0; i < 100; ++i) {
+//                 game.update();
+//             }
+//         } else if (action_input == BOMB_INPUT) {
+//             game.interact_with_bomb(1);
+//         } else if (action_input == PICK_UP) {
+//             game.pick_up_weapon(1);
+//         } else if (action_input == DROP_ALL) {
+//             game.drop_weapons(2);
+//         } else {
+//             std::cout << "Unknown action: " << action_input << std::endl;
+//             continue;
+//         }
+//         game.show_objects();
+//         if (game.is_over()) {
+//             std::cout << "\n********************************************" << std::endl;
+//             std::cout << "*************** ROUND OVER *****************" << std::endl;
+//             std::cout << "********************************************" << std::endl;
+//             game.end_round_game_phase();
+//             game.start_round_game_phase();
+//             game.show_objects();
+//         }
+//     }
+// }

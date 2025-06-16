@@ -37,11 +37,9 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         game.pick_up_weapon(id);
     }
-    void rotate(_Float16 angle, uint16_t id) {
+    void rotate(float angle, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
         game.rotate_player(angle, id);
-        (void)angle;
-        (void)id;
     }
     void set_ready_to_start() { game.set_ready_to_start(); }
 

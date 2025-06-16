@@ -29,12 +29,11 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
                 std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
                 std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
-                std::vector<uint8_t> angle(data.begin() + i + 14, data.begin() + i + 16);
+                std::vector<uint8_t> angle(data.begin() + i + 14, data.begin() + i + 18);
                 objects.push_back({object_type, position, hex_big_endian_to_int_16(id), player_type,
                                    weapon_model, data[i + 9], hex_big_endian_to_int_16(money),
-                                   hex_big_endian_to_int_16(ammo),
-                                   hex_big_endian_to_float_16(angle)});
-                i += 16;
+                                   hex_big_endian_to_int_16(ammo), hex_big_endian_to_float(angle)});
+                i += 18;
                 break;
             }
             case ObjectType::BOMBZONE: {
@@ -215,7 +214,7 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::PICKUP:
             break;
         case ActionType::ROTATE:
-            push_hexa_to(int_16_to_hex_big_endian(action.angle), data);
+            push_hexa_to(float_to_hex_big_endian(action.angle), data);
             break;
         default:
             return false;
