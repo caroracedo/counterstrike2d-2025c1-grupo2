@@ -377,6 +377,15 @@ public:
         return bomb_ptr;
     }
 
+    void rotate_player(uint16_t id, float angle) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            player_it->second->rotate(angle);
+        } else {
+            std::cout << "[GAME] Player with ID " << id << " not found.\n";
+        }
+    }
+
     // void show_objects() {
     //     for (const auto& obj: objects) {
     //         if (obj->get_type() == ObjectType::WEAPON) {

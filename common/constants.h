@@ -25,6 +25,7 @@
 #define BULLET_RADIUS 2   // radio de la bala
 #define BOMB_RADIUS 8
 #define DEACTIVATION_DISTANCE 50  // distancia máxima para desactivar la bomba
+#define INITIAL_PLAYER_ANGLE 90   // ángulo inicial del jugador
 
 #define KILL_REWARD 100  // recompensa por matar a un jugador
 

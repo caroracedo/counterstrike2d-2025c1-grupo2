@@ -39,7 +39,7 @@ public:
     }
     void rotate(_Float16 angle, uint16_t id) {
         std::lock_guard<std::mutex> lock(mutex);
-        // game.rotate(angle, id);
+        game.rotate_player(angle, id);
         (void)angle;
         (void)id;
     }

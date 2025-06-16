@@ -17,6 +17,7 @@ private:
     uint16_t health;
     uint16_t money;
     uint16_t radius = PLAYER_RADIUS;
+    float angle = INITIAL_PLAYER_ANGLE;
 
     WeaponShop& weapon_shop;
 
@@ -32,55 +33,35 @@ public:
     Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
            uint16_t initial_money, WeaponShop& weapon_shop);
 
-    /* Auxiliar */
-    Weapon initial_buy(WeaponModel weapon_model);
-
-    /* Virtual puro */
     ObjectDTO get_dto() const override;
 
-    /* Verificaciones */
     bool is_alive() const;
 
-    /* Getters */
     WeaponDTO get_current_weapon() const;
-
-    bool shoot();
-
-    PlayerType get_player_type() const;
-
-    /* Funcionalidades */
-    /* Daño */
-    void take_damage(uint16_t damage);
-
-    void cure(uint16_t health_amount);
-
-    void switch_player_type();
-
-    /* Cambio de arma */
     void change_weapon();
-
+    std::string get_current_weapon_name() const;
     WeaponDTO drop_primary_weapon();
     std::pair<WeaponDTO, bool> drop_weapons();
     WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
 
+    bool buy_weapon(const WeaponModel& weapon_model);
+    bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
+    void add_money(uint16_t amount);
+
+    bool shoot();
+
     bool can_plant_bomb() const;
-
     void plant_bomb();
-
-    /* Setters */
     void set_bomb();
 
-    std::string get_current_weapon_name() const;
+    PlayerType get_player_type() const;
+    void switch_player_type();
+
+    void take_damage(uint16_t damage);
+    void cure(uint16_t health_amount);
 
     std::vector<uint16_t> get_next_position(Direction direction) const;
-
-    /* Comprar Weapon */
-    bool buy_weapon(const WeaponModel& weapon_model);
-
-    /* Comprar Ammo */
-    bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
-
-    void add_money(uint16_t amount);
+    void rotate(float new_angle);
 };
 
 #endif  // PLAYER
