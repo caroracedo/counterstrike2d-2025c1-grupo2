@@ -933,9 +933,33 @@ std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, u
         dist_y = std::uniform_int_distribution<uint16_t>(PLAYER_RADIUS,
                                                          MATRIX_SIZE * CELL_SIZE - PLAYER_RADIUS);
     } else {
+        uint16_t ZONE_SIZE = 500;
         // Zona de equipo
-        dist_x = std::uniform_int_distribution<uint16_t>(it->x, it->x + it->width - PLAYER_RADIUS);
-        dist_y = std::uniform_int_distribution<uint16_t>(it->y, it->y + it->height - PLAYER_RADIUS);
+        uint16_t center_x = it->x + it->width / 2;
+        uint16_t center_y = it->y + it->height / 2;
+
+        std::cout << "[GAME] Generating random position for player " << id
+                  << " in zone centered at (" << center_x << ", " << center_y << ") with size "
+                  << ZONE_SIZE << std::endl;
+
+        int32_t temp_x0 = static_cast<int32_t>(center_x) - ZONE_SIZE / 2;
+        int32_t temp_y0 = static_cast<int32_t>(center_y) - ZONE_SIZE / 2;
+
+        std::cout << "[GAME] Zone coordinates: (" << temp_x0 << ", " << temp_y0 << ")" << std::endl;
+
+        uint16_t x0 = static_cast<uint16_t>(
+                std::clamp(temp_x0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE - ZONE_SIZE)));
+        uint16_t y0 = static_cast<uint16_t>(
+                std::clamp(temp_y0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE - ZONE_SIZE)));
+
+        uint16_t x1 = temp_x0 + ZONE_SIZE;
+        uint16_t y1 = temp_y0 + ZONE_SIZE;
+
+        std::cout << "[GAME] Zone boundaries: (" << x0 << ", " << y0 << ") to (" << x1 << ", " << y1
+                  << ")" << std::endl;
+
+        dist_x = std::uniform_int_distribution<uint16_t>(x0, x1 - PLAYER_RADIUS);
+        dist_y = std::uniform_int_distribution<uint16_t>(y0, y1 - PLAYER_RADIUS);
     }
 
     while (true) {

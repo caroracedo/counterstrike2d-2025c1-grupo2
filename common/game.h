@@ -386,22 +386,22 @@ public:
         }
     }
 
-    // void show_objects() {
-    //     for (const auto& obj: objects) {
-    //         if (obj->get_type() == ObjectType::WEAPON) {
-    //             std::cout << "[GAME] Weapon: " << obj->get_dto().get_weapon_model() << " "
-    //                       << obj->get_id() << " at position: " << obj->get_position()[0] << ", "
-    //                       << obj->get_position()[1] << "\n";
-    //         } else if (obj->get_type() == ObjectType::PLAYER) {
-    //             std::cout << "[GAME] Player ID: " << obj->get_id()
-    //                       << " at position: " << obj->get_position()[0] << ", "
-    //                       << obj->get_position()[1] << "\n";
-    //         } else if (obj->get_type() == ObjectType::BOMB) {
-    //             std::cout << "[GAME] Bomb at position: " << obj->get_position()[0] << ", "
-    //                       << obj->get_position()[1] << "\n";
-    //         }
-    //     }
-    // }
+    void show_objects() {
+        for (const auto& obj: objects) {
+            if (obj->get_type() == ObjectType::WEAPON) {
+                std::cout << "[GAME] Weapon: " << obj->get_id()
+                          << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::PLAYER) {
+                std::cout << "[GAME] Player ID: " << obj->get_id()
+                          << " at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            } else if (obj->get_type() == ObjectType::BOMB) {
+                std::cout << "[GAME] Bomb at position: " << obj->get_position()[0] << ", "
+                          << obj->get_position()[1] << "\n";
+            }
+        }
+    }
 
     std::vector<uint16_t> get_player_position(uint16_t id) {
         auto player_it = players.find(id);
