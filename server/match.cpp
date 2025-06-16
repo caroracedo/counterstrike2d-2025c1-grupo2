@@ -28,8 +28,9 @@ bool Match::do_action(const ActionDTO& action_dto) {
             return monitor_game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:
             return monitor_game.change_weapon(action_dto.id);
-        // case ActionType::TAKE:
-        //     return monitor_game.take_weapon(action_dto.id);
+        case ActionType::PICKUP:
+            monitor_game.pick_up_weapon(action_dto.id);
+            return true;
         default:
             return false;
     }

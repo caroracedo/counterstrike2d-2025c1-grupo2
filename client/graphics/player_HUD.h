@@ -23,7 +23,7 @@ private:
     uint16_t health = 0;
     uint16_t money = 0;
     uint16_t bullets = 0;
-    int timer = -1;
+    uint16_t timer = -1;
 
     // cambiar el static
     static constexpr int digit_width = 48;

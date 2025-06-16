@@ -36,11 +36,13 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].obstacle_type));
                 break;
             case ObjectType::BOMB:
+                std::cout << "Bomb countdown: "
+                          << static_cast<int>(action_dto.objects[i].bomb_countdown) << std::endl;
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
                 break;
-            // case ObjectType::WEAPON:
-            //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
-            //     break;
+            case ObjectType::WEAPON:
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
+                break;
             default:
                 break;
         }
@@ -126,7 +128,7 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::BOMB:
         case ActionType::CHANGE:
         case ActionType::START:
-            // case ActionType::TAKE:
+        case ActionType::PICKUP:
             return {type, id};  // Agrega el id del jugador...
         default:
             return {};

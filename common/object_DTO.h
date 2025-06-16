@@ -2,9 +2,11 @@
 #define OBJECT_DTO_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "types.h"
+#include "weapon_DTO.h"
 
 struct ObjectDTO {
     ObjectType type;
@@ -13,6 +15,7 @@ struct ObjectDTO {
     /* Player */
     uint16_t id;
     PlayerType player_type;
+    /* Arma */
     WeaponModel weapon_model;
     uint16_t health;
     uint16_t money;
@@ -44,6 +47,10 @@ struct ObjectDTO {
 
     /* Bomba */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t bomb_countdown);
+
+    /* Arma */
+    ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
+              const WeaponModel& weapon_model);
 };
 
 #endif  // OBJECT_DTO_H

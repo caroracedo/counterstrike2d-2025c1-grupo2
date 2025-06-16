@@ -1,0 +1,148 @@
+# -- Map Configuration --
+obstacles:
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 352
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 0
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 32
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 32
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 608
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 608
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 640
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 640
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 640
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 352
+      y: 640
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 640
+  - tipo: CAJA5
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 640
+weaponsMapa:
+  - tipo: M3
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 32
+  - tipo: AK47
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 32
+  - tipo: AWP
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 608
+  - tipo: AK47
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 608
+bomb_zones:
+  - position:
+      x: 320
+      y: 0
+    width: 32
+    height: 32
+  - position:
+      x: 320
+      y: 640
+    width: 32
+    height: 32
+# team_zones:
+#   - team: TERRORIST
+#     position:
+#       x: 0
+#       y: 0
+#     width: 500
+#     height: 500
+#   - team: COUNTERTERRORIST
+#     position:
+#       x: 1000
+#       y: 1000
+#     width: 500
+#     height: 500
+terreno: desierto

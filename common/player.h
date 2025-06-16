@@ -59,6 +59,10 @@ public:
     /* Cambio de arma */
     void change_weapon();
 
+    WeaponDTO drop_primary_weapon();
+    std::pair<WeaponDTO, bool> drop_weapons();
+    WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
+
     bool can_plant_bomb() const;
 
     void plant_bomb();

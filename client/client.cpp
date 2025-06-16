@@ -52,13 +52,14 @@ void Client::run() {
                 break;
             } else if (update.type == ActionType::CONFIGURATION) {
                 game_view.set_id(update.id);
-                // game_view.set_terrain(update.terrain_type);
+                // 1. game_view.set_terrain(update.terrain_type);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
+                // 2. else if (update.type == ActionType::WAIT) para pre-lobby
+                // Para START mandar ActionDTO(ActionType::START) y debería funcionar je
                 game_view.update(update);
             }
         }
-
         game_view.render();
         game_view.frame_sync();
     }

@@ -6,11 +6,13 @@
 Map::Map(const std::string& yaml_path) { load_from_yaml(yaml_path); }
 
 /* Getters */
-const std::vector<ObstacleConfig> Map::get_obstacles() const { return obstacles; }
+const std::vector<ObstacleConfig>& Map::get_obstacles() const { return obstacles; }
 
-const std::vector<BombZoneConfig> Map::get_bomb_zones() const { return bomb_zones; }
+const std::vector<BombZoneConfig>& Map::get_bomb_zones() const { return bomb_zones; }
 
 const std::vector<TeamZoneConfig>& Map::get_team_zones() const { return team_zones; }
+
+const std::vector<WeaponObjectConfig>& Map::get_weapon_objects() const { return weapon_objects; }
 
 ObstacleType Map::box_to_obstacle_type(const std::string& type_string) {
     if (type_string == "CAJA1")
@@ -24,6 +26,16 @@ ObstacleType Map::box_to_obstacle_type(const std::string& type_string) {
     if (type_string == "CAJA5")
         return ObstacleType::OBSTACLE5;
     return ObstacleType::UNKNOWN;
+}
+
+WeaponModel Map::weapon_type_to_weapon_model(const std::string& type_string) {
+    if (type_string == "AK47")
+        return WeaponModel::AK47;
+    if (type_string == "AWP")
+        return WeaponModel::AWP;
+    if (type_string == "M3")
+        return WeaponModel::M3;
+    return WeaponModel::UNKNOWN;
 }
 
 void Map::load_from_yaml(const std::string& yaml_path) {
@@ -51,6 +63,17 @@ void Map::load_from_yaml(const std::string& yaml_path) {
             bomb_zone.width = node["width"].as<uint16_t>();
             bomb_zone.height = node["height"].as<uint16_t>();
             bomb_zones.push_back(bomb_zone);
+        }
+    }
+
+    // WeaponsMapa
+    if (config["weaponsMapa"]) {
+        for (const auto& node: config["weaponsMapa"]) {
+            WeaponObjectConfig weapon;
+            weapon.type = weapon_type_to_weapon_model(node["tipo"].as<std::string>());
+            weapon.x = node["position"]["x"].as<uint16_t>();
+            weapon.y = node["position"]["y"].as<uint16_t>();
+            weapon_objects.push_back(weapon);
         }
     }
 
