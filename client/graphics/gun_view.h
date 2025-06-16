@@ -43,10 +43,9 @@ public:
 
     void change_gun(WeaponModel type) { current_type = type; }
 
-    void update(float px, float py, float new_angle) {
+    void update(float px, float py) {
         x = px;
         y = py;
-        angle = new_angle;
     }
 
 
@@ -85,6 +84,8 @@ public:
                                    static_cast<int>(gunY - GUN_HEIGHT), GUN_WIDTH, GUN_HEIGHT),
                       angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
+
+    void update_angle(float angle) { this->angle = angle; }
 };
 
 #endif

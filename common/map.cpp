@@ -78,13 +78,13 @@ void Map::load_from_yaml(const std::string& yaml_path) {
     }
 
     // Zonas de equipo
-    if (config["team_zones"]) {
-        for (const auto& node: config["team_zones"]) {
+    if (config["init_zones"]) {
+        for (const auto& node: config["init_zones"]) {
             TeamZoneConfig zone;
-            std::string team_str = node["team"].as<std::string>();
-            if (team_str == "TERRORIST") {
+            std::string team_str = node["tipo"].as<std::string>();
+            if (team_str == "Terrorist") {
                 zone.team = PlayerType::TERRORIST;
-            } else if (team_str == "COUNTERTERRORIST") {
+            } else if (team_str == "CounterTerrorist") {
                 zone.team = PlayerType::COUNTERTERRORIST;
             } else {
                 zone.team = PlayerType::UNKNOWN;

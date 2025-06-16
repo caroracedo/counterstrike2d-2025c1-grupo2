@@ -33,7 +33,7 @@ private:
 public:
     explicit PlayerView(TextureManager& texture_manager, uint16_t id);
 
-    bool update_position(float x, float y, float angle);
+    bool update_position(float x, float y);
 
     void update_styles(PlayerType new_type, WeaponModel new_posture);
 
@@ -44,6 +44,8 @@ public:
     float get_x() const;
 
     float get_y() const;
+
+    void update_angle(float angle) { this->angle = angle; }
 };
 
 #endif

@@ -9,24 +9,23 @@
 #include "common/action_DTO.h"
 #include "common/constants.h"
 
-#include "game_camera.h"
-#include "legs_view.h"
-#include "player_view.h"
-#include "shop_view.h"
-#include "sound_manager.h"
+#include "game_view.h"
 
 class InputHandler {
 private:
     float last_angle_sent = 0.0f;
-    bool fire_requested = false;
-    GameCamera& camera;
-    ShopView& shop;
+
+    GameView& game_view;
+
+    GameCamera& camera = game_view.get_camera();
+
+    ShopView& shop = game_view.get_shop();
 
 
 public:
-    explicit InputHandler(GameCamera& cam, ShopView& shop): camera(cam), shop(shop) {}
-    std::vector<ActionDTO> receive_and_parse_actions(const std::vector<uint16_t>& player_pos) {
-        fire_requested = false;
+    explicit InputHandler(GameView& game_view): game_view(game_view) {}
+
+    std::vector<ActionDTO> receive_and_parse_actions() {
         SDL_Event event;
         std::vector<ActionDTO> actions;
 
@@ -97,9 +96,10 @@ public:
                                             std::vector<uint16_t>{real_mouse_x, real_mouse_y}});
             }
 
+            auto player_pos = game_view.player_position();
             if (event.type == SDL_MOUSEMOTION && player_pos.size() == 2) {
                 float angle = calculate_angle(player_pos);
-                actions.push_back(ActionDTO{ActionType::ROTATE, (_Float16)angle});
+                actions.push_back(ActionDTO{ActionType::ROTATE, angle});
             }
         }
 
@@ -125,10 +125,6 @@ public:
 
         return angle;
     }
-
-    bool is_fire_requested() const { return fire_requested; }
-
-    // float get_fire_angle() const { return fire_angle; }
 };
 
 #endif  // INPUT_HANDLER_H

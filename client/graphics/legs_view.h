@@ -22,8 +22,10 @@ private:
 public:
     LegsView(SDL2pp::Texture& texture, uint32_t frame_duration_ms);
 
-    void update(float x, float y, float angle);
+    void update(float x, float y);
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
+
+    void update_angle(float angle) { this->angle = angle; }
 };
 #endif

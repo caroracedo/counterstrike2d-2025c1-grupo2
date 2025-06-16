@@ -275,7 +275,7 @@ ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_
         id(id) {}
 
 /* Rotar */
-ActionDTO::ActionDTO(const ActionType& action, _Float16 angle):
+ActionDTO::ActionDTO(const ActionType& action, float angle):
         type(action),
         match(),
         map(),
@@ -294,7 +294,7 @@ ActionDTO::ActionDTO(const ActionType& action, _Float16 angle):
         stats(),
         id() {}
 /* Rotar con id (en server)*/
-ActionDTO::ActionDTO(const ActionType& action, _Float16 angle, uint16_t id):
+ActionDTO::ActionDTO(const ActionType& action, float angle, uint16_t id):
         type(action),
         match(),
         map(),

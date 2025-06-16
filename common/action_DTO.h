@@ -59,7 +59,7 @@ struct ActionDTO {
     uint16_t ammo;
     WeaponType weapon_type;
     /* Rotar */
-    _Float16 angle;
+    float angle;
 
     /* Configuration */
     std::vector<std::string> matches;
@@ -112,9 +112,9 @@ struct ActionDTO {
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id);
 
     /* Rotar */
-    ActionDTO(const ActionType& action, _Float16 angle);
+    ActionDTO(const ActionType& action, float angle);
     /* Rotar con id (en server)*/
-    ActionDTO(const ActionType& action, _Float16 angle, uint16_t id);
+    ActionDTO(const ActionType& action, float angle, uint16_t id);
 
     /* server -> client */
     /* Configuration */

@@ -17,10 +17,9 @@ LegsView::LegsView(SDL2pp::Texture& texture, uint32_t frame_duration_ms):
 //     return rects;
 // }
 
-void LegsView::update(float x, float y, float angle) {
+void LegsView::update(float x, float y) {
     pos_x = x;
     pos_y = y;
-    this->angle = angle;
     walk_animation.update();
 }
 

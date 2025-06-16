@@ -118,9 +118,13 @@ void GameView::update_player(const ObjectDTO& object) {
 
     types.try_emplace(id, object.player_type);
 
-    if (players[id]->update_position(x, y, object.angle)) {
-        legs[id]->update(x, y, object.angle);
-        guns[id]->update(x, y, object.angle);
+    players[id]->update_angle(object.angle);
+    legs[id]->update_angle(object.angle);
+    guns[id]->update_angle(object.angle);
+
+    if (players[id]->update_position(x, y)) {
+        legs[id]->update(x, y);
+        guns[id]->update(x, y);
     }
 
     if (id == local_id) {

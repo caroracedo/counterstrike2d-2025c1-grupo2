@@ -16,58 +16,10 @@
 // #define S_INPUT "s"
 // #define D_INPUT "d"
 
-// ActionDTO receive_and_parse_action() {
-//     std::string input;
-//     std::getline(std::cin, input);
-//     std::istringstream iss(input);
-
-//     std::string action_input;
-//     if (!(iss >> action_input))
-//         return {};
-
-//     if (action_input == QUIT_INPUT) {
-//         return ActionDTO(ActionType::QUIT);
-//     } else if (action_input == MOVE_INPUT) {
-//         std::string direction_input;
-//         if (!(iss >> direction_input))
-//             return {};
-//         Direction direction;
-//         if (direction_input == W_INPUT)
-//             direction = Direction::UP;
-//         else if (direction_input == A_INPUT)
-//             direction = Direction::LEFT;
-//         else if (direction_input == S_INPUT)
-//             direction = Direction::DOWN;
-//         else if (direction_input == D_INPUT)
-//             direction = Direction::RIGHT;
-//         else
-//             return {};
-
-//         return {ActionType::MOVE, direction};
-//     } else if (action_input == SHOOT_INPUT) {
-//         return {ActionType::SHOOT, {0, 0}};
-//     } else if (action_input == BOMB_INPUT) {
-//         return ActionDTO(ActionType::BOMB);
-//     } else if (action_input == SHOW_STATS) {
-//         return ActionDTO(ActionType::UPDATE);
-//     } else if (action_input == PICK_UP) {
-//         std::vector<uint16_t> position(2);
-//         if (iss >> position[0] >> position[1]) {
-//             return ActionDTO(ActionType::PICKUP, position);
-//         }
-//         return ActionDTO(ActionType::PICKUP);
-//     } else if (action_input == DROP_ALL) {
-//         return ActionDTO(ActionType::DROP);
-//     } else {
-//         std::cerr << "Unknown action: " << action_input << std::endl;
-//         return {};
-//     }
-//     return {};
-// }
-
 // int main() {
 //     Config config("config/config2.yaml");
-//     Game game(config);
+//     Map map("editor/maps/holu.yaml");
+//     Game game(config, map);
 
 //     game.add_player(PlayerType::COUNTERTERRORIST, 1);
 //     game.add_player(PlayerType::TERRORIST, 2);

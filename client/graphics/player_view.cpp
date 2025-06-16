@@ -6,12 +6,12 @@ PlayerView::PlayerView(TextureManager& texture_manager, uint16_t id):
     player_types[PlayerType::COUNTERTERRORIST] = "counter_terrorists";
 }
 
-bool PlayerView::update_position(float x, float y, float angle) {
+bool PlayerView::update_position(float x, float y) {
     const float epsilon = 0.01f;
     if (std::abs(posX - x) < epsilon && std::abs(posY - y) < epsilon) {
         return false;
     }
-    this->angle = angle;
+
     posX = x;
     posY = y;
     return true;

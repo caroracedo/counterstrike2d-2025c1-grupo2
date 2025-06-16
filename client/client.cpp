@@ -35,12 +35,11 @@ void Client::run() {
     receive_and_send_initial_configuration();
 
     GameView game_view;
-    InputHandler input_handler(game_view.get_camera(), game_view.get_shop());
+    InputHandler input_handler(game_view);
 
     bool stop_flag = false;
     while (!stop_flag) {
-        std::vector<ActionDTO> actions =
-                input_handler.receive_and_parse_actions(game_view.player_position());
+        std::vector<ActionDTO> actions = input_handler.receive_and_parse_actions();
         for (const auto& action: actions) {
             if (action.type == ActionType::QUIT) {
                 stop_flag = true;
