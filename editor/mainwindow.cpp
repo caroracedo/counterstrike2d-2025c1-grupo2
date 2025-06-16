@@ -37,6 +37,7 @@
 #define FILAS 21
 #define COLUMNAS 21
 #define TAM_CELDA 32
+#define TAM_ARMA 16
 
 MainWindow::MainWindow(QWidget* parent):
         QMainWindow(parent), ui(new Ui::MainWindow), scene(new QGraphicsScene(this)) {
@@ -84,8 +85,7 @@ MainWindow::MainWindow(QWidget* parent):
     connect(ui->btnGuardar, &QPushButton::clicked, this, [this]() {
         if (!verificarZonaBomba()) {
             return;
-        } else if (!hayZonaA || !hayZonaB) {
-            QMessageBox::warning(this, "Error de validación", "Deben estar las zonas de inicio.");
+        } else if (!verificarZonasDeInicio()) {
             return;
         }
         QString nombreArchivo = QFileDialog::getSaveFileName(
@@ -117,7 +117,6 @@ void MainWindow::conectarBtnClicked(QPushButton* btn, QString imagen) {
 
 void MainWindow::inicializarGrilla() {
     dibujarGrilla();
-    cantZonasBomba = 0;
 
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
@@ -170,8 +169,14 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
         return;
 
     QPixmap pixmap(imagenSeleccionada);
+    int tamImagen;
+    if (imagenSeleccionada.contains("arma")) {
+        tamImagen = TAM_ARMA;
+    } else {
+        tamImagen = TAM_CELDA;
+    }
     QPixmap pixmapEscalado =
-            pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
         grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
@@ -181,19 +186,18 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
             return;
         }
     }
-
     if (imagenSeleccionada.contains("zona_bomba") && !agregarZonaBomba()) {
         return;
     }
-
     if ((imagenSeleccionada.contains("zonaA") && hayZonaA) ||
         (imagenSeleccionada.contains("zonaB") && hayZonaB)) {
         return;
     }
 
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
-
-    item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+    int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+    int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
     scene->addItem(item);
 
     Celda celda;
@@ -214,17 +218,14 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
         cantZonasBomba++;
         celda.zona = TIPO_ZONA::BOMBA;
     }
-
     if (imagenSeleccionada.contains("zonaA") && !hayZonaA) {
         celda.zona = TIPO_ZONA::TERRORISTA;
         hayZonaA = true;
     }
-
     if (imagenSeleccionada.contains("zonaB") && !hayZonaB) {
         celda.zona = TIPO_ZONA::COUNTERTERRORISTA;
         hayZonaB = true;
     }
-
     grilla[fila][col] = celda;
 }
 
@@ -284,25 +285,16 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
             }
             return true;
         } else if (event->type() == QEvent::MouseButtonRelease) {
-            // Cuando suelten el botón del mouse sobre el viewport, reseteo el estado
             mousePresionado = false;
             ultimaFila = -1;
             ultimaCol = -1;
-            return true;  // marcamos que consumimos el evento
+            return true;
         }
     }
     return QMainWindow::eventFilter(obj, event);
 }
 
-// void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
-//     mousePresionado = false;
-//     ultimaFila = -1;
-//     ultimaCol = -1;
-//     QMainWindow::mouseReleaseEvent(event);
-//     qDebug() << "Hola";
-// }
-
-void MainWindow::cargarImagenTerreno() {
+QString MainWindow::seleccionarImagenTerreno() {
     QString imagen;
     if (terreno == "azteca") {
         imagen = IMAGEN_AZTECA;
@@ -311,6 +303,11 @@ void MainWindow::cargarImagenTerreno() {
     } else if (terreno == "desierto") {
         imagen = IMAGEN_DESIERTO;
     }
+    return imagen;
+}
+
+void MainWindow::cargarImagenTerreno() {
+    QString imagen = seleccionarImagenTerreno();
 
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
@@ -320,7 +317,9 @@ void MainWindow::cargarImagenTerreno() {
 
             QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
 
-            item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+            int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+            int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+            item->setPos(x, y);
             scene->addItem(item);
         }
     }
@@ -353,25 +352,16 @@ void MainWindow::eliminarElemento(int fila, int col) {
             hayZonaB = false;
         }
     }
-
     celda = Celda();
-
-    QString imagen;
-    if (terreno == "azteca") {
-        imagen = IMAGEN_AZTECA;
-    } else if (terreno == "entrenamiento") {
-        imagen = IMAGEN_ENTRENAMIENTO;
-    } else if (terreno == "desierto") {
-        imagen = IMAGEN_DESIERTO;
-    }
-
+    QString imagen = seleccionarImagenTerreno();
     QPixmap pixmap(imagen);
     QPixmap pixmapEscalado =
             pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
 
-    item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+    int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+    int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
     item->setZValue(-1);
     scene->addItem(item);
 }
@@ -393,11 +383,20 @@ bool MainWindow::verificarZonaBomba() {
     return true;
 }
 
+bool MainWindow::verificarZonasDeInicio() {
+    if (!hayZonaA || !hayZonaB) {
+        QMessageBox::warning(this, "Error de validación", "Deben estar las zonas de inicio.");
+        return false;
+    }
+    return true;
+}
+
 void MainWindow::limpiarMapa() {
     scene->clear();
     terreno.clear();
     imagenSeleccionada.clear();
 
+    cantZonasBomba = 0;
     hayZonaA = false;
     hayZonaB = false;
 
@@ -464,8 +463,8 @@ void MainWindow::guardarArmas(YAML::Emitter& out) {
             if (celda.tipoElemento == TIPO_ELEMENTO::ARMA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoArmaToString(celda.tipoArma);
-                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
-                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "width" << YAML::Value << TAM_ARMA;
+                out << YAML::Key << "height" << YAML::Value << TAM_ARMA;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
                 out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
                 out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
@@ -582,17 +581,7 @@ TIPO_ARMA stringToTipoArma(const std::string& str) {
         return TIPO_ARMA::M3;
 }
 
-void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
-    YAML::Node archivo = YAML::LoadFile(nombreArchivo.toStdString());
-
-    if (archivo["terreno"]) {
-        terreno = QString::fromStdString(archivo["terreno"].as<std::string>());
-    }
-
-    cargarImagenTerreno();
-
-    inicializarGrilla();
-
+void MainWindow::cargarObstaculosEnElMapa(const YAML::Node& archivo) {
     if (archivo["obstacles"]) {
         for (const auto& caja: archivo["obstacles"]) {
             int x = caja["position"]["x"].as<int>();
@@ -608,7 +597,9 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
             }
         }
     }
+}
 
+void MainWindow::cargarArmasEnElMapa(const YAML::Node& archivo) {
     if (archivo["weaponsMapa"]) {
         for (const auto& arma: archivo["weaponsMapa"]) {
             int x = arma["position"]["x"].as<int>();
@@ -624,7 +615,9 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
             }
         }
     }
+}
 
+void MainWindow::cargarZonasBombasEnElMapa(const YAML::Node& archivo) {
     if (archivo["bomb_zones"]) {
         for (const auto& zona: archivo["bomb_zones"]) {
             int x = zona["position"]["x"].as<int>();
@@ -639,7 +632,9 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
             }
         }
     }
+}
 
+void MainWindow::cargarZonasDeInicioEnElMapa(const YAML::Node& archivo) {
     if (archivo["init_zones"]) {
         for (const auto& zona: archivo["init_zones"]) {
             int x = zona["position"]["x"].as<int>();
@@ -661,23 +656,45 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
             }
         }
     }
+}
+
+void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
+    YAML::Node archivo = YAML::LoadFile(nombreArchivo.toStdString());
+
+    if (archivo["terreno"]) {
+        terreno = QString::fromStdString(archivo["terreno"].as<std::string>());
+    }
+
+    cargarImagenTerreno();
+    inicializarGrilla();
+
+    cargarObstaculosEnElMapa(archivo);
+    cargarArmasEnElMapa(archivo);
+    cargarZonasBombasEnElMapa(archivo);
+    cargarZonasDeInicioEnElMapa(archivo);
 
     QGraphicsScene* scene = ui->graphicsView->scene();
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
             Celda& celda = grilla[fila][col];
-            int x = col * TAM_CELDA;
-            int y = fila * TAM_CELDA;
 
             if (!celda.imagenElemento.isEmpty()) {
                 QPixmap pixmap(celda.imagenElemento);
                 if (pixmap.isNull()) {
                     continue;
                 }
-                QPixmap pixmapEscalado = pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio,
+                int tamImagen;
+                if (celda.imagenElemento.contains("arma")) {
+                    tamImagen = TAM_ARMA;
+                } else {
+                    tamImagen = TAM_CELDA;
+                }
+                QPixmap pixmapEscalado = pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio,
                                                        Qt::SmoothTransformation);
                 QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
                 celda.item = item;
+                int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
+                int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
                 item->setPos(x, y);
                 scene->addItem(item);
             }
