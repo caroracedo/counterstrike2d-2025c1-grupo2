@@ -58,7 +58,6 @@ void Client::run() {
                 game_view.update(update);
             }
         }
-
         game_view.render();
         game_view.frame_sync();
     }

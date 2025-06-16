@@ -33,10 +33,10 @@ public:
     bool shop_weapon(WeaponModel weapon, uint16_t id);
     bool shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id);
     bool change_weapon(uint16_t id);
-    // bool take_weapon(uint16_t id) {
-    //     std::lock_guard<std::mutex> lock(mutex);
-    //     return game.take_weapon(id);
-    // }
+    void pick_up_weapon(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.pick_up_weapon(id);
+    }
 
     Stats get_stats() const { return game.get_stats(); }
 };

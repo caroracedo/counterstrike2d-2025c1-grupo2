@@ -287,8 +287,8 @@ bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
         Permite a los jugadores comprar un arma en la fase inicial
     */
     auto player_it = players.find(id);
-    if (player_it != players.end()) {
-        return player_it->second->buy_weapon(weapon);
+    if (player_it != players.end() && player_it->second->buy_weapon(weapon)) {
+        return true;
     }
     return false;
 }
@@ -428,7 +428,6 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
             } else if (collider_type == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                 max_position = test_position;
-
             } else if (collider_type == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                 // obstáculo
@@ -452,13 +451,15 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         Devuelve el tipo de objeto con el que colisiona y su ID.
     */
 
+    if (object.get_type() == ObjectType::UNKNOWN) {
+        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+    }
+
     uint16_t radius;
     if (object.get_type() == ObjectType::BULLET) {
         radius = BULLET_RADIUS;  // Radio de la bala
     } else if (object.get_type() == ObjectType::PLAYER) {
         radius = PLAYER_RADIUS;  // Radio del jugador
-    } else {
-        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
     }
 
     for (const auto& obj: objects) {
@@ -481,8 +482,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
 
         if (overlap) {
             ObjectType type = static_cast<ObjectType>(obj->get_type());
-            if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
-                type == ObjectType::PLAYER) {
+            if (type != ObjectType::UNKNOWN) {
                 return {type, obj->get_id()};
             }
             return {ObjectType::UNKNOWN, 0};
@@ -626,8 +626,11 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
     if (player_it != players.end()) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
+        std::cout << "[GAME] Player " << id << " took " << damage << " damage." << std::endl;
 
         if (!player_it->second->is_alive()) {
+            // Suelta las armas del jugador muerto
+            drop_weapons(player_it->second->get_id());
 
             // Agregar el jugador a la lista de jugadores muertos
             dead_players[id] = player_it->second;
@@ -660,7 +663,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
 
         return true;  // El jugador sigue vivo
     }
-    std::cout << "\tPlayer " << id << " not found or no damage inflicted." << std::endl;
+    std::cout << "\tPlayer " << id << " not found." << std::endl;
     return false;  // No se encontró el jugador o no se infligió daño
 }
 
@@ -903,6 +906,10 @@ void Game::initialize_objects() {
         auto cell = get_cell_from_position(bomb_zone->get_position());
         matrix[cell.first][cell.second].push_back(bomb_zone);
     }
+    for (const auto& weapon_object_cfg: map.get_weapon_objects()) {
+        create_weapon(weapon_shop.give_weapon(weapon_object_cfg.type).get_weapon_dto(),
+                      {weapon_object_cfg.x, weapon_object_cfg.y});
+    }
 }
 
 std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, uint16_t id) {
@@ -990,17 +997,11 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
         Devuelve true si se planta la bomba, false si no se puede.
     */
 
-    auto bomb_ptr = std::make_shared<Bomb>(player_position);
+    auto bomb_ptr = create_bomb(player_position);
 
-    // Agregar la bomba a la lista de objetos
-    objects.push_back(bomb_ptr);
-
-    // Agregar la bomba a la matriz
-    auto cell = get_cell_from_position(bomb_ptr->get_position());
-    matrix[cell.first][cell.second].push_back(bomb_ptr);
-
-    // Agregar a game
-    bomb = bomb_ptr;
+    if (!bomb_ptr) {
+        return false;  // No se pudo crear la bomba
+    }
 
     bomb->start_countdown();
 

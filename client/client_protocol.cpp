@@ -64,12 +64,12 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 i += 5;
                 break;
             }
-            // case ObjectType::WEAPON: {
-            //     WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
-            //     objects.push_back({object_type, position, weapon_model});
-            //     i += 6;
-            //     break;
-            // }
+            case ObjectType::WEAPON: {
+                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
+                objects.push_back({object_type, position, weapon_model});
+                i += 6;
+                break;
+            }
             default:
                 break;
         }
@@ -212,10 +212,8 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             break;
         case ActionType::CHANGE:
             break;
-        // case ObjectType::TAKE:
-        //     data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
-        //     return skt_manager.send_two_bytes(skt, data.size()) &&
-        //           skt_manager.send_bytes(skt, data);
+        case ActionType::PICKUP:
+            break;
         default:
             return false;
     }

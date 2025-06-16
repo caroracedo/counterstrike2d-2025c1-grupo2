@@ -17,6 +17,7 @@ enum class ActionType : uint8_t {
     UPDATE = 0x75,
     INFORMATION = 0x70,
     CONFIGURATION = 0x69,
+    PICKUP = 0x70,
     END = 0x59,
     SHOP = 0x57,
     WEAPON = 0x56,
