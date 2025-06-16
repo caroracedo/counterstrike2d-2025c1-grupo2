@@ -36,7 +36,12 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].obstacle_type));
                 break;
             case ObjectType::BOMB:
+                std::cout << "Bomb countdown: "
+                          << static_cast<int>(action_dto.objects[i].bomb_countdown) << std::endl;
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].bomb_countdown), data);
+                break;
+            case ObjectType::WEAPON:
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
                 break;
             default:
                 break;
@@ -44,8 +49,23 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
     }
 }
 
-void ServerProtocol::serialize_and_send_id(const ActionDTO& action_dto,
-                                           std::vector<uint8_t>& data) {
+void ServerProtocol::serialize_and_send_information(const ActionDTO& action_dto,
+                                                    std::vector<uint8_t>& data) {
+    push_hexa_to(int_16_to_hex_big_endian(action_dto.matches.size()), data);
+    push_hexa_to(int_16_to_hex_big_endian(action_dto.maps.size()), data);
+    for (const auto& match: action_dto.matches) {
+        push_hexa_to(int_16_to_hex_big_endian(match.size()), data);
+        data.insert(data.end(), match.begin(), match.end());
+    }
+    for (const auto& map: action_dto.maps) {
+        push_hexa_to(int_16_to_hex_big_endian(map.size()), data);
+        data.insert(data.end(), map.begin(), map.end());
+    }
+}
+
+void ServerProtocol::serialize_and_send_configuration(const ActionDTO& action_dto,
+                                                      std::vector<uint8_t>& data) {
+    data.push_back(static_cast<uint8_t>(action_dto.terrain_type));
     push_hexa_to(int_16_to_hex_big_endian(action_dto.id), data);
 }
 
@@ -58,11 +78,11 @@ void ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
 void ServerProtocol::serialize_and_send_stats(const ActionDTO& action_dto,
                                               std::vector<uint8_t>& data) {
     const Stats& stats = action_dto.stats;
-    for (const auto& [id, kills]: stats.kills) {
-        push_hexa_to(int_16_to_hex_big_endian(id), data);
+    for (const auto& [player_id, kills]: stats.kills) {
+        push_hexa_to(int_16_to_hex_big_endian(player_id), data);
         push_hexa_to(int_16_to_hex_big_endian(kills), data);
-        push_hexa_to(int_16_to_hex_big_endian(stats.deaths.find(id)->second), data);
-        push_hexa_to(int_16_to_hex_big_endian(stats.money.find(id)->second), data);
+        push_hexa_to(int_16_to_hex_big_endian(stats.deaths.find(player_id)->second), data);
+        push_hexa_to(int_16_to_hex_big_endian(stats.money.find(player_id)->second), data);
     }
     data.push_back(static_cast<uint8_t>(stats.last_winner));
     push_hexa_to(int_16_to_hex_big_endian(stats.team_a_wins), data);
@@ -81,11 +101,15 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 
     ActionType type = static_cast<ActionType>(data[0]);
     switch (type) {
-        case ActionType::CREATE:
+        case ActionType::CREATE: {
+            uint16_t match_size = hex_big_endian_to_int_16({data[1], data[2]});
+            return {type, std::string(data.begin() + 3, data.begin() + 3 + match_size),
+                    std::string(data.begin() + 3 + match_size, data.end() - 1),
+                    static_cast<PlayerType>(data.back()), id};
+        }
         case ActionType::JOIN:
-            return {type, std::string(data.begin() + 1, data.begin() + data.size() - 1),
-                    static_cast<PlayerType>(data[data.size() - 1]),
-                    id};  // Agrega el id del jugador...
+            return {type, std::string(data.begin() + 1, data.end() - 1),
+                    static_cast<PlayerType>(data.back()), id};
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::SHOOT:
@@ -93,8 +117,6 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
                     {hex_big_endian_to_int_16({data[1], data[2]}),
                      hex_big_endian_to_int_16({data[3], data[4]})},
                     id};  // Agrega el id del jugador...
-        case ActionType::BOMB:
-            return {type, id};  // Agrega el id del jugador...
         case ActionType::WEAPON:
             return {type, static_cast<WeaponModel>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::AMMOPRIMARY:
@@ -103,7 +125,10 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::AMMOSECONDARY:
             return {type, hex_big_endian_to_int_16({data[1], data[2]}), WeaponType::SECONDARY,
                     id};  // Agrega el id del jugador...
+        case ActionType::BOMB:
         case ActionType::CHANGE:
+        case ActionType::START:
+        case ActionType::PICKUP:
             return {type, id};  // Agrega el id del jugador...
         default:
             return {};
@@ -113,16 +138,27 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
 /* Envío */
 bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
     std::vector<uint8_t> data = {static_cast<uint8_t>(action_dto.type)};
-    if (action_dto.type == ActionType::UPDATE) {
-        serialize_and_send_update(action_dto, data);
-    } else if (action_dto.type == ActionType::PLAYERID) {
-        serialize_and_send_id(action_dto, data);
-    } else if (action_dto.type == ActionType::SHOP) {
-        serialize_and_send_shop(action_dto, data);
-    } else if (action_dto.type == ActionType::STATS) {
-        serialize_and_send_stats(action_dto, data);
-    } else if (action_dto.type != ActionType::END) {
-        return false;
+    switch (action_dto.type) {
+        case ActionType::UPDATE:
+            serialize_and_send_update(action_dto, data);
+            break;
+        case ActionType::INFORMATION:
+            serialize_and_send_information(action_dto, data);
+            break;
+        case ActionType::CONFIGURATION:
+            serialize_and_send_configuration(action_dto, data);
+            break;
+        case ActionType::SHOP:
+            serialize_and_send_shop(action_dto, data);
+            break;
+        case ActionType::STATS:
+            serialize_and_send_stats(action_dto, data);
+            break;
+        case ActionType::END:
+        case ActionType::WAIT:
+            break;
+        default:
+            return false;
     }
     return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

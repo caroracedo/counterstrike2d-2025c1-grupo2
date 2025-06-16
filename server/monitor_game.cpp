@@ -1,6 +1,6 @@
 #include "monitor_game.h"
 
-MonitorGame::MonitorGame(Config& config): game(config) {}
+MonitorGame::MonitorGame(Config& config, Map& map): game(config, map) {}
 
 bool MonitorGame::is_ready_to_start() {
     std::lock_guard<std::mutex> lock(mutex);

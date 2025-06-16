@@ -20,6 +20,7 @@ GameView::GameView():
         shop_view(renderer),
         stats_view(renderer) {
     SDL_ShowCursor(SDL_DISABLE);
+    init_terrains();
 }
 
 
@@ -35,16 +36,17 @@ void GameView::update(const ActionDTO& action) {
         stats_view.set_visible(true);
     }
 
-    if (action.type != ActionType::UPDATE)
+    if (action.type != ActionType::UPDATE) {
         return;
+    }
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
-    obstacles.clear();
     bullets.clear();
-    bomb_zones.clear();
+    drops.clear();
 
     std::unordered_set<uint8_t> players_in_game;
+
     for (const auto& object: action.objects) {
 
         if (object.type == ObjectType::PLAYER) {
@@ -70,6 +72,8 @@ void GameView::update(const ActionDTO& action) {
             rect.w = static_cast<int>(object.width);
             rect.h = static_cast<int>(object.height);
             bomb_zones.push_back(rect);
+        } else if (object.type == ObjectType::WEAPON) {
+            update_drops(object);
         }
     }
 
@@ -139,6 +143,13 @@ void GameView::update_obstacles(const ObjectDTO& object) {
     obstacles.push_back(obs);
 }
 
+void GameView::update_drops(const ObjectDTO& object) {
+    DropView drop_view(renderer, texture_manager);
+
+    drop_view.update(object.position[0], object.position[1], object.weapon_model);
+
+    drops.push_back(drop_view);
+}
 
 void GameView::render() {
     auto it = players.find(local_id);
@@ -153,19 +164,32 @@ void GameView::render() {
 
     // Rect view = camera.get_viewport();
 
-    renderer.Copy(*texture_manager.get_texture("background"),
+    // renderer.Copy(*texture_manager.get_texture("background"),
+    //               SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+
+    renderer.Copy(*texture_manager.get_texture(terrains[terrain]),
                   SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
     for (const auto& zone: bomb_zones) {
         float screenX = zone.x - camera.get_x();
         float screenY = zone.y - camera.get_y();
-        SDL2pp::Rect dst_rect = {static_cast<int>(screenX) + (OBSTACLE_WIDTH / 2),
-                                 static_cast<int>(screenY) + (OBSTACLE_HEIGHT / 2), int(zone.w),
+        SDL2pp::Rect dst_rect = {static_cast<int>(screenX), static_cast<int>(screenY), int(zone.w),
                                  int(zone.h)};
 
         SDL_Rect src_rect = {0, 0, int(zone.w), int(zone.h)};
 
         renderer.Copy(*texture_manager.get_texture("bomb_zone"), src_rect, dst_rect);
+    }
+
+    for (auto& obstacle: obstacles) obstacle.draw(camera);
+
+    for (auto& drop: drops) drop.draw(camera);
+
+    if (bomb_view.is_exploding()) {
+        bomb_view.drawExplosion(renderer, camera);
+        bomb_view.reset();
+    } else if (bomb_view.is_active()) {
+        bomb_view.draw(renderer, camera);
     }
 
     for (auto& bullet: bullets) bullet.draw(renderer, camera);
@@ -178,20 +202,13 @@ void GameView::render() {
         gun->draw(renderer, camera);
     }
 
-    for (auto& obstacle: obstacles) obstacle.draw(camera);
-
-    if (bomb_view.is_exploding()) {
-        bomb_view.drawExplosion(renderer, camera);
-        bomb_view.reset();
-    } else if (bomb_view.is_active()) {
-        bomb_view.draw(renderer, camera);
-    }
-
     hud_view.draw(bomb_view.is_active());
 
     shop_view.render();
 
     stats_view.render();
+    if (show_pre_lobby)
+        stats_view.render_pre_lobby();
 
     render_cursor();
 
@@ -204,14 +221,16 @@ void GameView::render() {
 // }
 
 void GameView::frame_sync() {
+    static uint32_t last_frame = SDL_GetTicks();
     uint32_t now = SDL_GetTicks();
-    uint32_t elapsed = now - last_frame_time;
+    uint32_t elapsed = now - last_frame;
 
     if (elapsed < frame_delay)
         SDL_Delay(frame_delay - elapsed);
 
-    last_frame_time = SDL_GetTicks();
+    last_frame = SDL_GetTicks();
 }
+
 
 void GameView::render_cursor() {
     int mouseX, mouseY;

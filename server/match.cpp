@@ -7,11 +7,14 @@
 #define SHOP_TIME 10
 #define SNAPSHOT_TIME 33  // ~30FPS
 #define STATS_TIME 5
+#define WAIT_TIME 100
 
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
-             std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues):
+             std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
+             const std::string& map_str):
         config(config),
-        monitor_game(config),
+        map(map_str.c_str()),
+        monitor_game(config, map),
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 
@@ -25,6 +28,9 @@ bool Match::do_action(const ActionDTO& action_dto) {
             return monitor_game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:
             return monitor_game.change_weapon(action_dto.id);
+        case ActionType::PICKUP:
+            monitor_game.pick_up_weapon(action_dto.id);
+            return true;
         default:
             return false;
     }
@@ -42,9 +48,14 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
     }
 }
 
-void Match::send_snapshot_to_all_clients() {
+void Match::send_initial_snapshot_to_all_clients() {
     monitor_client_send_queues->send_update(
             {ActionType::UPDATE, process_objects(monitor_game.get_objects())});
+}
+
+void Match::send_snapshot_to_all_clients() {
+    monitor_client_send_queues->send_update(
+            {ActionType::UPDATE, process_dynamic_objects(monitor_game.get_objects())});
 }
 
 void Match::send_shop_to_all_clients() {
@@ -59,6 +70,10 @@ void Match::send_stats_to_all_clients() {
     monitor_client_send_queues->send_update({ActionType::STATS, monitor_game.get_stats()});
 }
 
+void Match::send_waiting_room_to_all_clients() {
+    monitor_client_send_queues->send_update(ActionDTO(ActionType::WAIT));
+}
+
 std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
     std::vector<ObjectDTO> object_dtos;
     object_dtos.reserve(objects.size());
@@ -67,14 +82,39 @@ std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<
     return object_dtos;
 }
 
+std::vector<ObjectDTO> Match::process_dynamic_objects(
+        const std::vector<std::shared_ptr<Object>>& objects) {
+    std::vector<ObjectDTO> object_dtos;
+    for (const auto& obj_ptr: objects) {
+        ObjectType type = obj_ptr->get_type();
+        if (type != ObjectType::OBSTACLE && type != ObjectType::BOMBZONE)
+            object_dtos.push_back(obj_ptr->get_dto());
+    }
+    return object_dtos;
+}
+
 void Match::waiting_phase() {
-    std::unique_lock<std::mutex> lock(wait_mutex);
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
+    send_waiting_room_to_all_clients();
 
-    wait_cv.wait(lock,
-                 [this]() { return monitor_game.is_ready_to_start() || !should_keep_running(); });
+    // Polling
+    while (!monitor_game.is_ready_to_start() && should_keep_running()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
+        try {
+            ActionDTO action;
+            if (recv_queue->try_pop(action)) {
+                if (action.type == ActionType::START) {
+                    // do_start_action
+                    monitor_game.set_ready_to_start();
+                    break;
+                }
+            }
+        } catch (const ClosedQueue&) {
+            stop();
+        }
+    }
 
-    send_snapshot_to_all_clients();
+    send_initial_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
 
@@ -91,8 +131,10 @@ void Match::shopping_phase() {
         std::this_thread::sleep_for(std::chrono::seconds(TIME));
         ActionDTO action;
         try {
-            while (recv_queue->try_pop(action)) {
+            while (now - shop_start < shop_time && should_keep_running() &&
+                   recv_queue->try_pop(action)) {
                 do_shop_action(action);
+                now = std::chrono::steady_clock::now();
             }
         } catch (const ClosedQueue&) {
             stop();
@@ -103,31 +145,36 @@ void Match::shopping_phase() {
     std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
 }
 
-void Match::game_phase(std::chrono::_V2::steady_clock::time_point last_snapshot_time) {
+void Match::game_phase() {
     std::cout << "[GAME] Iniciando fase de juego..." << std::endl;
     send_snapshot_to_all_clients();
     monitor_game.start_round_game_phase();
 
     auto snapshot_interval = std::chrono::milliseconds(SNAPSHOT_TIME);
+    auto last_snapshot_time = std::chrono::steady_clock::now();
+
     while (!monitor_game.is_over() && should_keep_running()) {
         auto start = std::chrono::steady_clock::now();
+
+        auto now = start;
+
         ActionDTO action;
         try {
-            if (recv_queue->try_pop(action)) {
+            while (!monitor_game.is_over() && should_keep_running() &&
+                   (now - start < snapshot_interval) && recv_queue->try_pop(action)) {
                 do_action(action);
+                now = std::chrono::steady_clock::now();
             }
         } catch (const ClosedQueue&) {
             stop();
         }
 
-        auto now = std::chrono::steady_clock::now();
         if (now - last_snapshot_time >= snapshot_interval) {
             send_snapshot_to_all_clients();
             last_snapshot_time = now;
         }
 
-        auto end = std::chrono::steady_clock::now();
-        auto elapsed = end - start;
+        auto elapsed = now - start;
         if (elapsed < snapshot_interval)
             std::this_thread::sleep_for(snapshot_interval - elapsed);
     }
@@ -154,9 +201,8 @@ void Match::run() {
 
     for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running(); ++round) {
         std::cout << "[ROUND] Iniciando ronda..." << std::endl;
-        auto last_snapshot_time = std::chrono::steady_clock::now();
         shopping_phase();
-        game_phase(last_snapshot_time);
+        game_phase();
         stats_phase();
         std::cout << "[ROUND] Terminando ronda..." << std::endl;
         if (round == config.get_rounds_total() / 2)
@@ -167,16 +213,6 @@ void Match::run() {
     std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }
 
-// Nota: En la waiting phase se verifica si están conectados los jugadores necesarios para iniciar
-// la partida o si la partida fue interrumpida. Esta condición se notifica al agregar un jugador o
-// al detener la partida.
-
 void Match::add_player(const ActionDTO& action_dto) {
     monitor_game.add_player(action_dto.player_type, action_dto.id);
-    wait_cv.notify_all();
-}
-
-void Match::stop() {
-    Thread::stop();
-    wait_cv.notify_all();
 }

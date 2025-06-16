@@ -6,8 +6,8 @@
 #include <utility>
 #include <vector>
 
-#include "game.h"
-#include "queue.h"
+#include "../common/game.h"
+#include "../common/queue.h"
 
 class MonitorGame {
 private:
@@ -15,7 +15,7 @@ private:
     std::mutex mutex;
 
 public:
-    explicit MonitorGame(Config& config);
+    explicit MonitorGame(Config& config, Map& map);
 
     bool is_ready_to_start();
     bool is_over();
@@ -33,6 +33,11 @@ public:
     bool shop_weapon(WeaponModel weapon, uint16_t id);
     bool shop_ammo(uint16_t ammo_amount, WeaponType weapon, uint16_t id);
     bool change_weapon(uint16_t id);
+    void pick_up_weapon(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.pick_up_weapon(id);
+    }
+    void set_ready_to_start() { game.set_ready_to_start(); }
 
     Stats get_stats() const { return game.get_stats(); }
 };

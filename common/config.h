@@ -21,32 +21,6 @@ struct WeaponConfig {
     float precision;
 };
 
-/* Obstáculos */
-struct ObstacleConfig {
-    uint16_t width;
-    uint16_t height;
-    ObstacleType type;
-    uint16_t x;
-    uint16_t y;
-};
-
-/* Zonas de bomba */
-struct BombZoneConfig {
-    uint16_t x;
-    uint16_t y;
-    uint16_t width;
-    uint16_t height;
-};
-
-/* Zonas de equipo */
-struct TeamZoneConfig {
-    PlayerType team;
-    uint16_t x;
-    uint16_t y;
-    uint16_t width;
-    uint16_t height;
-};
-
 class Config {
 private:
     /* Server */
@@ -64,18 +38,7 @@ private:
     /* Armas */
     std::unordered_map<WeaponModel, WeaponConfig> weapon_catalog;
 
-    /* Obstáculos */
-    std::vector<ObstacleConfig> obstacles;
-
-    /* Zonas de bomba */
-    std::vector<BombZoneConfig> bomb_zones;
-
-    /* Zonas de equipo */
-    std::vector<TeamZoneConfig> team_zones;
-
     WeaponModel weapon_name_to_weapon_model(const std::string& weapon_name);
-
-    ObstacleType box_to_obstacle_type(const std::string& type_string);
 
     void load_from_yaml(const std::string& yaml_path);
 
@@ -90,9 +53,6 @@ public:
     uint8_t get_rounds_total() const;
     uint8_t get_rounds_terrorist() const;
     uint8_t get_rounds_counterterrorist() const;
-    const std::vector<ObstacleConfig> get_obstacles() const;
-    const std::vector<BombZoneConfig> get_bomb_zones() const;
-    const std::vector<TeamZoneConfig>& get_team_zones() const;
     std::unordered_map<WeaponModel, WeaponConfig> get_weapon_config() const;
     std::vector<WeaponModel> get_weapons() const;
 };

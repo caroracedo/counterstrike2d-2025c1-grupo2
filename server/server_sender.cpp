@@ -1,7 +1,8 @@
 #include "server_sender.h"
 
-ServerSender::ServerSender(ServerProtocol& protocol, std::atomic<bool>& stop_flag):
-        protocol(protocol), stop_flag(stop_flag) {}
+ServerSender::ServerSender(ServerProtocol& protocol, std::shared_ptr<Queue<ActionDTO>> send_queue,
+                           std::atomic<bool>& stop_flag):
+        protocol(protocol), send_queue(send_queue), stop_flag(stop_flag) {}
 
 void ServerSender::run() {
     while (should_this_thread_keep_running()) {
@@ -19,8 +20,7 @@ void ServerSender::run() {
 void ServerSender::stop() {
     Thread::stop();
     try {
-        if (send_queue)
-            send_queue->close();
+        send_queue->close();
     } catch (const std::runtime_error& e) {}
 }
 

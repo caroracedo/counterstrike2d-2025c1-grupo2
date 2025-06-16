@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
-Game::Game(Config& config):
+Game::Game(Config& config, Map& map):
         matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
         config(config),
+        map(map),
         weapon_shop(config) {
     initialize_objects();
 }
@@ -14,14 +15,15 @@ bool Game::is_ready_to_start() {
     /*
         Devuelve si hay jugadores suficientes en cada equipo.
     */
-    return std::count_if(players.begin(), players.end(),
-                         [](const auto& p) {
-                             return p.second &&
-                                    p.second->get_player_type() == PlayerType::TERRORIST;
-                         }) == config.get_rounds_terrorist() &&
-           std::count_if(players.begin(), players.end(), [](const auto& p) {
-               return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-           }) == config.get_rounds_counterterrorist();
+    return _is_ready_to_start ||
+           (std::count_if(players.begin(), players.end(),
+                          [](const auto& p) {
+                              return p.second &&
+                                     p.second->get_player_type() == PlayerType::TERRORIST;
+                          }) == config.get_rounds_terrorist() &&
+            std::count_if(players.begin(), players.end(), [](const auto& p) {
+                return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+            }) == config.get_rounds_counterterrorist());
 }
 
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {
@@ -286,8 +288,8 @@ bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
         Permite a los jugadores comprar un arma en la fase inicial
     */
     auto player_it = players.find(id);
-    if (player_it != players.end()) {
-        return player_it->second->buy_weapon(weapon);
+    if (player_it != players.end() && player_it->second->buy_weapon(weapon)) {
+        return true;
     }
     return false;
 }
@@ -427,7 +429,6 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
             } else if (collider_type == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                 max_position = test_position;
-
             } else if (collider_type == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                 // obstáculo
@@ -451,13 +452,15 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
         Devuelve el tipo de objeto con el que colisiona y su ID.
     */
 
+    if (object.get_type() == ObjectType::UNKNOWN) {
+        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
+    }
+
     uint16_t radius;
     if (object.get_type() == ObjectType::BULLET) {
         radius = BULLET_RADIUS;  // Radio de la bala
     } else if (object.get_type() == ObjectType::PLAYER) {
         radius = PLAYER_RADIUS;  // Radio del jugador
-    } else {
-        return {ObjectType::UNKNOWN, 0};  // Tipo desconocido
     }
 
     for (const auto& obj: objects) {
@@ -480,8 +483,7 @@ std::pair<ObjectType, uint16_t> Game::collides(const Object& object,
 
         if (overlap) {
             ObjectType type = static_cast<ObjectType>(obj->get_type());
-            if (type == ObjectType::BULLET || type == ObjectType::OBSTACLE ||
-                type == ObjectType::PLAYER) {
+            if (type != ObjectType::UNKNOWN) {
                 return {type, obj->get_id()};
             }
             return {ObjectType::UNKNOWN, 0};
@@ -625,8 +627,11 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
     if (player_it != players.end()) {
         // Infligir daño al jugador
         player_it->second->take_damage(damage);
+        std::cout << "[GAME] Player " << id << " took " << damage << " damage." << std::endl;
 
         if (!player_it->second->is_alive()) {
+            // Suelta las armas del jugador muerto
+            drop_weapons(player_it->second->get_id());
 
             // Agregar el jugador a la lista de jugadores muertos
             dead_players[id] = player_it->second;
@@ -659,7 +664,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
 
         return true;  // El jugador sigue vivo
     }
-    std::cout << "\tPlayer " << id << " not found or no damage inflicted." << std::endl;
+    std::cout << "\tPlayer " << id << " not found." << std::endl;
     return false;  // No se encontró el jugador o no se infligió daño
 }
 
@@ -885,7 +890,7 @@ void Game::initialize_objects() {
     /*
         Inicializa los obstáculos y zonas de bomba del juego a partir de la configuración.
     */
-    for (const auto& obs_cfg: config.get_obstacles()) {
+    for (const auto& obs_cfg: map.get_obstacles()) {
         auto obstacle = std::make_shared<Obstacle>(std::vector<uint16_t>{obs_cfg.x, obs_cfg.y},
                                                    obs_cfg.width, obs_cfg.height, obs_cfg.type);
         objects.push_back(obstacle);
@@ -893,7 +898,7 @@ void Game::initialize_objects() {
         auto cell = get_cell_from_position(obstacle->get_position());
         matrix[cell.first][cell.second].push_back(obstacle);
     }
-    for (const auto& bomb_zone_cfg: config.get_bomb_zones()) {
+    for (const auto& bomb_zone_cfg: map.get_bomb_zones()) {
         auto bomb_zone =
                 std::make_shared<BombZone>(std::vector<uint16_t>{bomb_zone_cfg.x, bomb_zone_cfg.y},
                                            bomb_zone_cfg.width, bomb_zone_cfg.height);
@@ -902,6 +907,10 @@ void Game::initialize_objects() {
         auto cell = get_cell_from_position(bomb_zone->get_position());
         matrix[cell.first][cell.second].push_back(bomb_zone);
     }
+    for (const auto& weapon_object_cfg: map.get_weapon_objects()) {
+        create_weapon(weapon_shop.give_weapon(weapon_object_cfg.type).get_weapon_dto(),
+                      {weapon_object_cfg.x, weapon_object_cfg.y});
+    }
 }
 
 std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, uint16_t id) {
@@ -909,7 +918,7 @@ std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, u
         Devuelve una posición aleatoria válida para un jugador, dentro de la zona de su equipo.
         Si no hay zona definida, busca en todo el mapa, siempre chequeando colisiones.
     */
-    const auto& zones = config.get_team_zones();
+    const auto& zones = map.get_team_zones();
     auto it = std::find_if(zones.begin(), zones.end(),
                            [player_type](const auto& z) { return z.team == player_type; });
 
@@ -975,7 +984,7 @@ bool Game::is_in_bomb_zone(const std::vector<uint16_t>& position) const {
     /*
         Devuelve si el jugador está dentro de la zona donde puede plantar la bomba.
     */
-    const auto& bomb_zones = config.get_bomb_zones();
+    const auto& bomb_zones = map.get_bomb_zones();
     return std::any_of(bomb_zones.begin(), bomb_zones.end(), [this, &position](const auto& zone) {
         return this->circle_rectangle_collision(position, PLAYER_RADIUS,
                                                 std::vector<uint16_t>{zone.x, zone.y}, zone.width,
@@ -989,17 +998,11 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
         Devuelve true si se planta la bomba, false si no se puede.
     */
 
-    auto bomb_ptr = std::make_shared<Bomb>(player_position);
+    auto bomb_ptr = create_bomb(player_position);
 
-    // Agregar la bomba a la lista de objetos
-    objects.push_back(bomb_ptr);
-
-    // Agregar la bomba a la matriz
-    auto cell = get_cell_from_position(bomb_ptr->get_position());
-    matrix[cell.first][cell.second].push_back(bomb_ptr);
-
-    // Agregar a game
-    bomb = bomb_ptr;
+    if (!bomb_ptr) {
+        return false;  // No se pudo crear la bomba
+    }
 
     bomb->start_countdown();
 

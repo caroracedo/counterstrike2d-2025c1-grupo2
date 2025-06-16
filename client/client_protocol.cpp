@@ -64,6 +64,12 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 i += 5;
                 break;
             }
+            case ObjectType::WEAPON: {
+                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 5]);
+                objects.push_back({object_type, position, weapon_model});
+                i += 6;
+                break;
+            }
             default:
                 break;
         }
@@ -71,12 +77,39 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
     return {ActionType::UPDATE, objects};
 }
 
-ActionDTO ClientProtocol::deserialize_id(std::vector<uint8_t>& data) {
-    std::vector<uint8_t> id(data.begin(), data.begin() + 2);
-    return {ActionType::PLAYERID, hex_big_endian_to_int_16(id)};
+ActionDTO ClientProtocol::deserialize_information(std::vector<uint8_t>& data) {
+    size_t match_count = static_cast<size_t>(hex_big_endian_to_int_16({data[0], data[1]}));
+    size_t map_count = static_cast<size_t>(hex_big_endian_to_int_16({data[2], data[3]}));
+
+    std::vector<std::string> matches;
+    std::vector<std::string> maps;
+
+    size_t i = 4;
+
+    for (size_t j = 0; j < match_count; ++j) {
+        uint16_t match_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
+        i += 2;
+        std::string match(data.begin() + i, data.begin() + i + match_size);
+        matches.push_back(match);
+        i += match_size;
+    }
+
+    for (size_t j = 0; j < map_count; ++j) {
+        uint16_t map_size = hex_big_endian_to_int_16({data[i], data[i + 1]});
+        i += 2;
+        std::string map(data.begin() + i, data.begin() + i + map_size);
+        maps.push_back(map);
+        i += map_size;
+    }
+
+    return {ActionType::INFORMATION, matches, maps};
 }
 
-ActionDTO ClientProtocol::deserialize_end() { return ActionDTO(ActionType::END); }
+ActionDTO ClientProtocol::deserialize_configuration(std::vector<uint8_t>& data) {
+    std::vector<uint8_t> id(data.begin() + 1, data.end());
+    return {ActionType::CONFIGURATION, static_cast<TerrainType>(data[0]),
+            hex_big_endian_to_int_16(id)};
+}
 
 ActionDTO ClientProtocol::deserialize_shop(std::vector<uint8_t>& data) {
     std::vector<WeaponModel> weapons;
@@ -98,9 +131,11 @@ ActionDTO ClientProtocol::deserialize_stats(std::vector<uint8_t>& data) {
         stats_out.deaths[id_value] = hex_big_endian_to_int_16(deaths);
         stats_out.money[id_value] = hex_big_endian_to_int_16(money);
     }
-    stats_out.last_winner = static_cast<PlayerType>(data[data.size() - 3]);
-    stats_out.team_a_wins = data[data.size() - 2];
-    stats_out.team_b_wins = data[data.size() - 1];
+    stats_out.last_winner = static_cast<PlayerType>(data[data.size() - 5]);
+    std::vector<uint8_t> team_a_wins(data.end() - 3, data.end() - 1);
+    std::vector<uint8_t> team_b_wins(data.end() - 1, data.end());
+    stats_out.team_a_wins = hex_big_endian_to_int_16(team_a_wins);
+    stats_out.team_b_wins = hex_big_endian_to_int_16(team_b_wins);
     return {ActionType::STATS, stats_out};
 }
 
@@ -115,6 +150,7 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     if (!skt_manager.receive_byte(skt, type_code))
         return {};
 
+    // TURBIOOO
     std::vector<uint8_t> data;
     if (size > 1) {
         data.resize(size - 1);
@@ -126,10 +162,13 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::UPDATE:
             return deserialize_update(data);
-        case ActionType::PLAYERID:
-            return deserialize_id(data);
+        case ActionType::INFORMATION:
+            return deserialize_information(data);
+        case ActionType::CONFIGURATION:
+            return deserialize_configuration(data);
         case ActionType::END:
-            return deserialize_end();
+        case ActionType::WAIT:
+            return ActionDTO(type);
         case ActionType::SHOP:
             return deserialize_shop(data);
         case ActionType::STATS:
@@ -145,36 +184,36 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
     std::vector<uint8_t> data = {opcode};
     switch (action.type) {
         case ActionType::CREATE:
+            push_hexa_to(int_16_to_hex_big_endian(action.match.size()), data);
+            data.insert(data.end(), action.match.begin(), action.match.end());
+            data.insert(data.end(), action.map.begin(), action.map.end());
+            data.push_back(static_cast<uint8_t>(action.player_type));
+            break;
         case ActionType::JOIN:
             data.insert(data.end(), action.match.begin(), action.match.end());
             data.push_back(static_cast<uint8_t>(action.player_type));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::MOVE:
             data.push_back(static_cast<uint8_t>(action.direction));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::SHOOT:
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[0]), data);
             push_hexa_to(int_16_to_hex_big_endian(action.desired_position[1]), data);
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
-        case ActionType::BOMB:
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::WEAPON:
             data.push_back(static_cast<uint8_t>(action.weapon));
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
         case ActionType::AMMOPRIMARY:
         case ActionType::AMMOSECONDARY:
             push_hexa_to(int_16_to_hex_big_endian(action.ammo), data);
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+            break;
+        case ActionType::BOMB:
         case ActionType::CHANGE:
-            return skt_manager.send_two_bytes(skt, data.size()) &&
-                   skt_manager.send_bytes(skt, data);
+        case ActionType::START:
+        case ActionType::PICKUP:
+            break;
         default:
             return false;
     }
+    return skt_manager.send_two_bytes(skt, data.size()) && skt_manager.send_bytes(skt, data);
 }

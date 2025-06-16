@@ -12,13 +12,18 @@ Client::Client(const char* hostname, const char* servname):
         sender(protocol, send_queue),
         receiver(protocol, recv_queue) {}
 
-void Client::send_initial_configuration() {
+void Client::receive_and_send_initial_configuration() {  // TODO: Esto esta un poco feo...
+    ActionDTO configuration =
+            recv_queue.pop();  // TODO: Ver si esto está bien o mal... porque técnicamente se
+                               // debería bloquear hasta recibir la configuración
+
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
-    MainWindow window;
+    MainWindow window(configuration.maps, configuration.matches);
     window.show();
     app.exec();
+
     send_queue.push(window.getInfo());
 }
 
@@ -26,7 +31,7 @@ void Client::run() {
     sender.start();
     receiver.start();
 
-    send_initial_configuration();
+    receive_and_send_initial_configuration();
 
     GameView game_view;
     InputHandler input_handler(game_view.get_camera(), game_view.get_shop());
@@ -42,17 +47,21 @@ void Client::run() {
 
         ActionDTO update;
         while (recv_queue.try_pop(update)) {
+            game_view.pre_lobby(false);
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
-            } else if (update.type == ActionType::PLAYERID) {
+            } else if (update.type == ActionType::CONFIGURATION) {
                 game_view.set_id(update.id);
+                std::cout << "Terrain: " << static_cast<int>(update.terrain_type) << std::endl;
+                game_view.set_terrain(update.terrain_type);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
                 game_view.update(update);
+            } else if (update.type == ActionType::WAIT) {
+                game_view.pre_lobby(true);
             }
         }
-
         game_view.render();
         game_view.frame_sync();
     }

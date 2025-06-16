@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -15,6 +16,7 @@
 
 #include "bomb_view.h"
 #include "bullet_view.h"
+#include "drop_view.h"
 #include "game_camera.h"
 #include "gun_view.h"
 #include "legs_view.h"
@@ -48,17 +50,22 @@ private:
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
     std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
+    std::vector<DropView> drops;
     std::unordered_map<uint16_t, PlayerType> types;
     std::vector<ObstacleView> obstacles;
     std::vector<BulletView> bullets;
     std::vector<SDL_Rect> bomb_zones;
 
     uint16_t local_id = 0;
+    bool show_pre_lobby = true;
+    TerrainType terrain;
+    std::unordered_map<TerrainType, std::string> terrains;
 
 
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);
     void update_bullets(const ObjectDTO& object);
+    void update_drops(const ObjectDTO& object);
     void render_cursor();
 
 public:
@@ -74,6 +81,16 @@ public:
     ShopView& get_shop() { return shop_view; }
 
     void frame_sync();
+
+    void pre_lobby(bool flag) { show_pre_lobby = flag; }
+
+    void set_terrain(TerrainType type) { terrain = type; }
+
+    void init_terrains() {
+        terrains[TerrainType::PUEBLOAZTECA] = "aztec";
+        terrains[TerrainType::ZONAENTRENAMIENTO] = "office";
+        terrains[TerrainType::DESIERTO] = "sand1";
+    }
 };
 
 #endif

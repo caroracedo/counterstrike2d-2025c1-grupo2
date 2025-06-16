@@ -448,7 +448,7 @@ QPushButton:pressed {
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Bomb zone</string>
+         <string>Zones</string>
         </property>
        </widget>
       </item>
@@ -480,6 +480,80 @@ QPushButton:pressed {
            <iconset resource="resources.qrc">
             <normaloff>:/imagenes/zona_bomba.png</normaloff>:/imagenes/zona_bomba.png</iconset>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="zonaA">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: #3C5B9B;  
+    color: black;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+}
+QPushButton:hover {
+    background-color: #5A78B4; 
+}
+QPushButton:pressed {
+    background-color: #2A4277;  
+}</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/imagenes/zonaA.png</normaloff>:/imagenes/zonaA.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="zonaB">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: #3C5B9B;  
+    color: black;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+}
+QPushButton:hover {
+    background-color: #5A78B4; 
+}
+QPushButton:pressed {
+    background-color: #2A4277;  
+}</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/imagenes/zonaB.png</normaloff>:/imagenes/zonaB.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
          </widget>
         </item>
        </layout>
@@ -499,6 +573,31 @@ QPushButton:pressed {
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="btnClean">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: #3C5B9B;  
+    color: black;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+}
+QPushButton:hover {
+    background-color: #5A78B4; 
+}
+QPushButton:pressed {
+    background-color: #2A4277;  
+}
+</string>
+          </property>
+          <property name="text">
+           <string>Clean map</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QPushButton" name="btnGuardar">
           <property name="styleSheet">

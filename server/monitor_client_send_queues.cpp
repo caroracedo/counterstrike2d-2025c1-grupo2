@@ -1,10 +1,9 @@
 #include "monitor_client_send_queues.h"
 
-std::shared_ptr<Queue<ActionDTO>> MonitorClientSendQueues::add_queue_to(uint16_t client_id) {
+void MonitorClientSendQueues::add_queue_to(std::shared_ptr<Queue<ActionDTO>> client_send_queue,
+                                           uint16_t client_id) {
     std::lock_guard<std::mutex> lock(mutex);
-    auto [it, inserted] =
-            client_send_queues.try_emplace(client_id, std::make_shared<Queue<ActionDTO>>());
-    return it->second;
+    client_send_queues.try_emplace(client_id, client_send_queue);
 }
 
 void MonitorClientSendQueues::send_update(const ActionDTO& update) {

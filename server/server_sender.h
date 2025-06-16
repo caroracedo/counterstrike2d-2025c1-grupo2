@@ -16,7 +16,8 @@ private:
     std::atomic<bool>& stop_flag;
 
 public:
-    ServerSender(ServerProtocol& protocol, std::atomic<bool>& stop_flag);
+    ServerSender(ServerProtocol& protocol, std::shared_ptr<Queue<ActionDTO>> send_queue,
+                 std::atomic<bool>& stop_flag);
 
     void run() override;
     void stop() override;

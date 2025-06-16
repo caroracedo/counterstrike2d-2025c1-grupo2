@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>386</height>
+    <width>361</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,23 +23,10 @@
       <x>10</x>
       <y>0</y>
       <width>331</width>
-      <height>331</height>
+      <height>391</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
@@ -82,16 +69,59 @@ QComboBox QAbstractItemView {
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
-        <widget class="QLineEdit" name="matchName">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QLineEdit {
+       <item>
+        <widget class="QWidget" name="create" native="true">
+         <widget class="QWidget" name="verticalLayoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>3</y>
+            <width>327</width>
+            <height>71</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+            <widget class="QComboBox" name="maps">
+             <property name="styleSheet">
+              <string notr="true">QComboBox {
+    background-color: #3C5B9B;
+    color: black;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: bold;
+    border: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    background-color: #2A4277;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    width: 10px;
+    height: 10px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #3C5B9B;
+    color: black;
+    selection-background-color: #5A78B4;
+}</string>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+            <widget class="QLineEdit" name="matchName">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QLineEdit {
     background-color: #3C5B9B;  
     color: black;                
     border-radius: 8px;
@@ -106,43 +136,64 @@ QLineEdit:focus {
     outline: none;               
 }
 </string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="placeholderText">
-          <string>Enter match name</string>
-         </property>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Enter match name</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
-       <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
-        <widget class="QPushButton" name="saveBtn">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton {
-    background-color: #3C5B9B;  
+       <item>
+        <widget class="QWidget" name="join" native="true">
+         <widget class="QWidget" name="verticalLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>20</y>
+            <width>331</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+            <widget class="QComboBox" name="partidas">
+             <property name="styleSheet">
+              <string notr="true">QComboBox {
+    background-color: #3C5B9B;
     color: black;
-    border-radius: 8px;
-    padding: 6px 12px;
+    border-radius: 6px;
+    padding: 4px 8px;
     font-weight: bold;
-    font-size: 14px;
     border: none;
 }
-QPushButton:hover {
-    background-color: #5A78B4; 
+
+QComboBox::drop-down {
+    border: none;
+    background-color: #2A4277;
+    width: 20px;
 }
-QPushButton:pressed {
-    background-color: #2A4277;  
+
+QComboBox::down-arrow {
+    width: 10px;
+    height: 10px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #3C5B9B;
+    color: black;
+    selection-background-color: #5A78B4;
 }</string>
-         </property>
-         <property name="text">
-          <string>Save match name</string>
-         </property>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
        <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
@@ -214,19 +265,6 @@ QPushButton:pressed {
        </item>
       </layout>
      </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </widget>
   </widget>
@@ -235,7 +273,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>351</width>
+     <width>361</width>
      <height>22</height>
     </rect>
    </property>

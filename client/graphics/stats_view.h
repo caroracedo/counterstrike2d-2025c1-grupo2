@@ -121,6 +121,7 @@ public:
         renderer.Copy(
                 money_header, SDL2pp::NullOpt,
                 SDL2pp::Rect(money_x, header_y, money_header.GetWidth(), money_header.GetHeight()));
+
         start_y += name_header.GetHeight() + 5;
 
         // Render stats de cada jugador
@@ -153,7 +154,52 @@ public:
             renderer.Copy(
                     money_tex, SDL2pp::NullOpt,
                     SDL2pp::Rect(money_x, start_y, money_tex.GetWidth(), money_tex.GetHeight()));
+
+            start_y += ROW_MARGIN;
         }
+    }
+
+    void render_pre_lobby() {
+        // Guardar color previo
+        SDL2pp::Color prevColor = renderer.GetDrawColor();
+
+        // Fondo semitransparente
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        renderer.SetDrawColor(17, 17, 17, 200);
+        renderer.FillRect(overlay_rect);
+
+        // ---- Dibujo del "botón visual" ----
+        int button_width = 300;
+        int button_height = 80;
+
+        SDL_Rect button_rect = {overlay_rect.x + (overlay_rect.w - button_width) / 2,
+                                overlay_rect.y + (overlay_rect.h - button_height) / 2, button_width,
+                                button_height};
+
+        // Rectángulo del botón
+        renderer.SetDrawColor(80, 80, 80, 220);  // color gris claro
+        renderer.FillRect(button_rect);
+
+        // Borde del botón
+        renderer.SetDrawColor(200, 200, 200, 255);
+        renderer.DrawRect(button_rect);
+
+        // ---- Render del texto ----
+        std::string button_text = "Presione Enter para iniciar";
+
+        SDL2pp::Surface text_surface =
+                font.RenderText_Blended(button_text, SDL_Color{255, 255, 255, 255});
+        SDL2pp::Texture text_texture(renderer, text_surface);
+        int text_w = text_texture.GetWidth();
+        int text_h = text_texture.GetHeight();
+
+        SDL_Rect text_rect = {button_rect.x + (button_rect.w - text_w) / 2,
+                              button_rect.y + (button_rect.h - text_h) / 2, text_w, text_h};
+
+        renderer.Copy(text_texture, SDL2pp::NullOpt, text_rect);
+
+        // Restaurar color original
+        renderer.SetDrawColor(prevColor);
     }
 };
 

@@ -78,6 +78,12 @@ public:
 
                     case SDLK_SPACE:
                         return ActionDTO{ActionType::CHANGE};
+
+                    case SDLK_r:
+                        return ActionDTO{ActionType::PICKUP};
+
+                    case SDLK_RETURN:
+                        return ActionDTO{ActionType::START};
                 }
             }
 

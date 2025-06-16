@@ -4,10 +4,10 @@
 #include <cmath>
 #include <vector>
 
+#include "constants.h"
 #include "object.h"
 #include "object_DTO.h"
 
-#define BOMB_RADIUS 16
 #define BOMB_COUNTDOWN 30 * 15  // Si son 30FPS, serían 10 segundos
 
 class Bomb: public Object {
