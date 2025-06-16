@@ -32,6 +32,10 @@ public:
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
         load(renderer, "pointer", ASSETS_PATH "/gfx/player/pointer.bmp", true, {255, 0, 255, 0});
 
+        load(renderer, "glock_d", ASSETS_PATH "/gfx/weapons/glock_d.bmp");
+        load(renderer, "ak47_d", ASSETS_PATH "/gfx/weapons/ak47_d.bmp");
+        load(renderer, "m3_d", ASSETS_PATH "/gfx/weapons/m3_d.bmp");
+        load(renderer, "awp_d", ASSETS_PATH "/gfx/weapons/awp_d.bmp");
         load(renderer, "sand1", ASSETS_PATH "/gfx/backgrounds/sand1.bmp");
         load(renderer, "office", ASSETS_PATH "/gfx/backgrounds/office.bmp");
         load(renderer, "aztec", ASSETS_PATH "/gfx/backgrounds/aztec.bmp");

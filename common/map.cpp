@@ -100,8 +100,8 @@ void Map::load_from_yaml(const std::string& yaml_path) {
     // Obtener terreno
     if (config["terreno"]) {
         std::string tipoTerreno = config["terreno"].as<std::string>();
-        terrain = (tipoTerreno == "desierto"            ? TerrainType::DESIERTO :
-                   tipoTerreno == "zonadeentrenamiento" ? TerrainType::ZONAENTRENAMIENTO :
-                                                          TerrainType::PUEBLOAZTECA);
+        terrain = (tipoTerreno == "desierto"      ? TerrainType::DESIERTO :
+                   tipoTerreno == "entrenamiento" ? TerrainType::ZONAENTRENAMIENTO :
+                                                    TerrainType::PUEBLOAZTECA);
     }
 }

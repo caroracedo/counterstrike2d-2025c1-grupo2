@@ -50,7 +50,8 @@ public:
 
         SDL2pp::Texture& texture = *texture_manager.get_texture(drops[type]);
         SDL_Rect src_rect = {0, 0, 64, GUN_HEIGHT};
-
+        std::cout << "Drawing drop at (" << screenX << ", " << screenY << ") with type "
+                  << static_cast<int>(type) << std::endl;
         renderer.Copy(texture, src_rect, dst_rect);
     }
 };
