@@ -29,6 +29,7 @@ enum class ActionType : uint8_t {
     STATS = 0x9D,
     START = 0x3D,
     WAIT = 0x1D,
+    ROTATE = 0x2D,
     UNKNOWN = 0x00
 };
 
@@ -57,6 +58,8 @@ struct ActionDTO {
     /* Comprar Ammo */
     uint16_t ammo;
     WeaponType weapon_type;
+    /* Rotar */
+    _Float16 angle;
 
     /* Configuration */
     std::vector<std::string> matches;
@@ -107,6 +110,11 @@ struct ActionDTO {
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type);
     /* Comprar Ammo con id (en server)*/
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id);
+
+    /* Rotar */
+    ActionDTO(const ActionType& action, _Float16 angle);
+    /* Rotar con id (en server)*/
+    ActionDTO(const ActionType& action, _Float16 angle, uint16_t id);
 
     /* server -> client */
     /* Configuration */

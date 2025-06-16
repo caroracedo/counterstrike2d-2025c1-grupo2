@@ -25,6 +25,7 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].money), data);
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].ammo), data);
+                push_hexa_to(float_16_to_hex_big_endian(action_dto.objects[i].angle), data);
                 break;
             case ObjectType::BOMBZONE:
                 push_hexa_to(int_16_to_hex_big_endian(action_dto.objects[i].width), data);
@@ -130,6 +131,9 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::START:
         case ActionType::PICKUP:
             return {type, id};  // Agrega el id del jugador...
+        case ActionType::ROTATE:
+            return {type, hex_big_endian_to_float_16({data[1], data[2]}),
+                    id};  // Agrega el id del jugador...
         default:
             return {};
     }

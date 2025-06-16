@@ -31,6 +31,19 @@ private:
         return hex_big_endian;
     }
 
+    std::vector<uint8_t> float_16_to_hex_big_endian(_Float16 valor) {
+        uint16_t raw;
+        std::memcpy(&raw, &valor, sizeof(_Float16));
+        return int_16_to_hex_big_endian(raw);
+    }
+
+    _Float16 hex_big_endian_to_float_16(const std::vector<uint8_t>& hex_big_endian) {
+        uint16_t raw = hex_big_endian_to_int_16(hex_big_endian);
+        _Float16 result;
+        std::memcpy(&result, &raw, sizeof(result));
+        return result;
+    }
+
     void push_hexa_to(const std::vector<uint8_t>& hexa, std::vector<uint8_t>& vector) {
         vector.push_back(hexa[0]);
         vector.push_back(hexa[1]);

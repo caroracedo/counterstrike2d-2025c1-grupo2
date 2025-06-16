@@ -68,12 +68,12 @@ public:
 
                     case SDLK_4: {
                         shop.handle_button_pressed(3);
-                        return ActionDTO{ActionType::AMMOPRIMARY, 30};
+                        return ActionDTO{ActionType::AMMOPRIMARY, static_cast<uint16_t>(30)};
                     }
 
                     case SDLK_5: {
                         shop.handle_button_pressed(4);
-                        return ActionDTO{ActionType::AMMOSECONDARY, 30};
+                        return ActionDTO{ActionType::AMMOSECONDARY, static_cast<uint16_t>(30)};
                     }
 
                     case SDLK_SPACE:
