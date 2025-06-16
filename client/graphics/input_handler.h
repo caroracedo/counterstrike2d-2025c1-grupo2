@@ -17,7 +17,7 @@
 
 class InputHandler {
 private:
-    float fire_angle = 0.0f;
+    float last_angle_sent = 0.0f;
     bool fire_requested = false;
     GameCamera& camera;
     ShopView& shop;
@@ -25,65 +25,66 @@ private:
 
 public:
     explicit InputHandler(GameCamera& cam, ShopView& shop): camera(cam), shop(shop) {}
-    ActionDTO receive_and_parse_action() {
-        fire_requested = false;  // Reset
+    std::vector<ActionDTO> receive_and_parse_actions(const std::vector<uint16_t>& player_pos) {
+        fire_requested = false;
         SDL_Event event;
+        std::vector<ActionDTO> actions;
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT ||
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
-                return ActionDTO{ActionType::QUIT};
+                actions.push_back(ActionDTO{ActionType::QUIT});
+                break;
             }
 
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_w:
-                        return {ActionType::MOVE, Direction::UP};
-
+                        actions.push_back(ActionDTO{ActionType::MOVE, Direction::UP});
+                        break;
                     case SDLK_s:
-                        return {ActionType::MOVE, Direction::DOWN};
-
+                        actions.push_back(ActionDTO{ActionType::MOVE, Direction::DOWN});
+                        break;
                     case SDLK_a:
-                        return {ActionType::MOVE, Direction::LEFT};
-
+                        actions.push_back(ActionDTO{ActionType::MOVE, Direction::LEFT});
+                        break;
                     case SDLK_d:
-                        return {ActionType::MOVE, Direction::RIGHT};
-
+                        actions.push_back(ActionDTO{ActionType::MOVE, Direction::RIGHT});
+                        break;
                     case SDLK_b:
-                        return ActionDTO{ActionType::BOMB};
-
-                    case SDLK_1: {
+                        actions.push_back(ActionDTO{ActionType::BOMB});
+                        break;
+                    case SDLK_1:
                         shop.handle_button_pressed(0);
-                        return ActionDTO{ActionType::WEAPON, WeaponModel::AK47};
-                    }
-
-                    case SDLK_2: {
+                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AK47});
+                        break;
+                    case SDLK_2:
                         shop.handle_button_pressed(1);
-                        return ActionDTO{ActionType::WEAPON, WeaponModel::M3};
-                    }
-
-                    case SDLK_3: {
+                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::M3});
+                        break;
+                    case SDLK_3:
                         shop.handle_button_pressed(2);
-                        return ActionDTO{ActionType::WEAPON, WeaponModel::AWP};
-                    }
-
-                    case SDLK_4: {
+                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AWP});
+                        break;
+                    case SDLK_4:
                         shop.handle_button_pressed(3);
-                        return ActionDTO{ActionType::AMMOPRIMARY, 30};
-                    }
-
-                    case SDLK_5: {
+                        actions.push_back(
+                                ActionDTO{ActionType::AMMOPRIMARY, static_cast<uint16_t>(30)});
+                        break;
+                    case SDLK_5:
                         shop.handle_button_pressed(4);
-                        return ActionDTO{ActionType::AMMOSECONDARY, 30};
-                    }
-
+                        actions.push_back(
+                                ActionDTO{ActionType::AMMOSECONDARY, static_cast<uint16_t>(30)});
+                        break;
                     case SDLK_SPACE:
-                        return ActionDTO{ActionType::CHANGE};
-
+                        actions.push_back(ActionDTO{ActionType::CHANGE});
+                        break;
                     case SDLK_r:
-                        return ActionDTO{ActionType::PICKUP};
-
+                        actions.push_back(ActionDTO{ActionType::PICKUP});
+                        break;
                     case SDLK_RETURN:
-                        return ActionDTO{ActionType::START};
+                        actions.push_back(ActionDTO{ActionType::START});
+                        break;
                 }
             }
 
@@ -92,15 +93,42 @@ public:
                                         static_cast<uint16_t>(camera.get_x());
                 uint16_t real_mouse_y = static_cast<uint16_t>(event.button.y) +
                                         static_cast<uint16_t>(camera.get_y());
-                return {ActionType::SHOOT, std::vector<uint16_t>{real_mouse_x, real_mouse_y}};
+                actions.push_back(ActionDTO{ActionType::SHOOT,
+                                            std::vector<uint16_t>{real_mouse_x, real_mouse_y}});
+            }
+
+            if (event.type == SDL_MOUSEMOTION && player_pos.size() == 2) {
+                float angle = calculate_angle(player_pos);
+                actions.push_back(ActionDTO{ActionType::ROTATE, (_Float16)angle});
             }
         }
-        return {};
+
+        return actions;
+    }
+
+
+    float calculate_angle(const std::vector<uint16_t>& player_pos) {
+
+        float screenX = player_pos[0] - camera.get_x();
+        float screenY = player_pos[1] - camera.get_y();
+
+        float centerX = screenX + PLAYER_WIDTH / 2.0f;
+        float centerY = screenY + PLAYER_HEIGHT / 2.0f;
+
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+
+        float dx = mouseX - centerX;
+        float dy = mouseY - centerY;
+
+        float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+
+        return angle;
     }
 
     bool is_fire_requested() const { return fire_requested; }
 
-    float get_fire_angle() const { return fire_angle; }
+    // float get_fire_angle() const { return fire_angle; }
 };
 
 #endif  // INPUT_HANDLER_H

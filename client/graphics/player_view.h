@@ -33,7 +33,7 @@ private:
 public:
     explicit PlayerView(TextureManager& texture_manager, uint16_t id);
 
-    bool update_position(float x, float y);
+    bool update_position(float x, float y, float angle);
 
     void update_styles(PlayerType new_type, WeaponModel new_posture);
 

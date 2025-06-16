@@ -43,12 +43,12 @@ public:
 
     void change_gun(WeaponModel type) { current_type = type; }
 
-    void update(float px, float py) {
+    void update(float px, float py, float new_angle) {
         x = px;
         y = py;
+        angle = new_angle;
     }
 
-    void update_angle(float new_angle) { angle = new_angle; }
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         if (!camera.is_visible(x, y))
@@ -59,14 +59,14 @@ public:
         float centerX = screenX + PLAYER_WIDTH / 2.0f;
         float centerY = screenY + PLAYER_HEIGHT / 2.0f;
 
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
+        // int mouseX, mouseY;
+        // SDL_GetMouseState(&mouseX, &mouseY);
 
-        float dx = mouseX - centerX;
-        float dy = mouseY - centerY;
+        // float dx = mouseX - centerX;
+        // float dy = mouseY - centerY;
 
-        float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-        this->angle = new_angle;
+        // float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+        // this->angle = new_angle;
 
         // Offset de la mano en reposo (cuando apunta hacia arriba)
         const float baseOffsetX = 0.0f;

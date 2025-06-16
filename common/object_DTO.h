@@ -15,6 +15,7 @@ struct ObjectDTO {
     /* Player */
     uint16_t id;
     PlayerType player_type;
+    _Float16 angle;
     /* Arma */
     WeaponModel weapon_model;
     uint16_t health;
@@ -32,7 +33,7 @@ struct ObjectDTO {
     /* Player */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t id,
               PlayerType player_type, WeaponModel weapon_model, uint16_t health, uint16_t money,
-              uint16_t ammo);
+              uint16_t ammo, _Float16 angle);
 
     /* Obstáculo */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,

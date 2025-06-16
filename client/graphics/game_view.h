@@ -91,6 +91,16 @@ public:
         terrains[TerrainType::ZONAENTRENAMIENTO] = "office";
         terrains[TerrainType::DESIERTO] = "sand1";
     }
+
+    std::vector<uint16_t> player_position() {
+        auto it = players.find(local_id);
+        if (it != players.end() && it->second) {
+            uint16_t x = static_cast<uint16_t>(it->second->get_x());
+            uint16_t y = static_cast<uint16_t>(it->second->get_y());
+            return {x, y};
+        }
+        return {};
+    }
 };
 
 #endif

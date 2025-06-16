@@ -31,6 +31,9 @@ bool Match::do_action(const ActionDTO& action_dto) {
         case ActionType::PICKUP:
             monitor_game.pick_up_weapon(action_dto.id);
             return true;
+        case ActionType::ROTATE:
+            monitor_game.rotate(action_dto.angle, action_dto.id);
+            return true;
         default:
             return false;
     }

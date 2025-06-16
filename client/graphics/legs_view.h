@@ -15,14 +15,14 @@
 class LegsView {
 private:
     Animation walk_animation;
-    float pos_x = 0, pos_y = 0;
+    float pos_x = 0, pos_y = 0, angle = 0;
 
     // std::vector<SDL2pp::Rect> init_rects();
 
 public:
     LegsView(SDL2pp::Texture& texture, uint32_t frame_duration_ms);
 
-    void update(float x, float y);
+    void update(float x, float y, float angle);
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
 };

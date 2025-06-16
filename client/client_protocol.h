@@ -23,6 +23,13 @@ private:
         return ntohs(int_16);
     }
 
+    _Float16 hex_big_endian_to_float_16(const std::vector<uint8_t>& hex_big_endian) {
+        uint16_t raw = hex_big_endian_to_int_16(hex_big_endian);
+        _Float16 result;
+        std::memcpy(&result, &raw, sizeof(result));
+        return result;
+    }
+
     std::vector<uint8_t> int_16_to_hex_big_endian(const uint16_t int_16) {
         uint16_t htons_int_16 = htons(int_16);
         std::vector<uint8_t> hex_big_endian(sizeof(htons_int_16));

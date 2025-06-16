@@ -1,6 +1,7 @@
 #include "client.h"
 
 #include <QApplication>
+#include <vector>
 
 #include "graphics/game_view.h"
 #include "graphics/input_handler.h"
@@ -38,11 +39,15 @@ void Client::run() {
 
     bool stop_flag = false;
     while (!stop_flag) {
-        ActionDTO action = input_handler.receive_and_parse_action();
-        if (action.type == ActionType::QUIT) {
-            break;
-        } else if (action.type != ActionType::UNKNOWN) {
-            send_queue.push(action);
+        std::vector<ActionDTO> actions =
+                input_handler.receive_and_parse_actions(game_view.player_position());
+        for (const auto& action: actions) {
+            if (action.type == ActionType::QUIT) {
+                stop_flag = true;
+                break;
+            } else if (action.type != ActionType::UNKNOWN) {
+                send_queue.push(action);
+            }
         }
 
         ActionDTO update;
@@ -53,7 +58,6 @@ void Client::run() {
                 break;
             } else if (update.type == ActionType::CONFIGURATION) {
                 game_view.set_id(update.id);
-                std::cout << "Terrain: " << static_cast<int>(update.terrain_type) << std::endl;
                 game_view.set_terrain(update.terrain_type);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {

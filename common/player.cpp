@@ -18,7 +18,7 @@ Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType ty
 /* Getters */
 ObjectDTO Player::get_dto() const {
     return ObjectDTO(object_type, position, id, player_type, current->get_model(), health, money,
-                     current->get_ammo());
+                     current->get_ammo(), 0);  // TODO: Deshardcodear el ángulo 0
 }
 
 /* Verificaciones */

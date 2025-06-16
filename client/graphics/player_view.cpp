@@ -6,11 +6,12 @@ PlayerView::PlayerView(TextureManager& texture_manager, uint16_t id):
     player_types[PlayerType::COUNTERTERRORIST] = "counter_terrorists";
 }
 
-bool PlayerView::update_position(float x, float y) {
+bool PlayerView::update_position(float x, float y, float angle) {
     const float epsilon = 0.01f;
     if (std::abs(posX - x) < epsilon && std::abs(posY - y) < epsilon) {
         return false;
     }
+    this->angle = angle;
     posX = x;
     posY = y;
     return true;
@@ -35,17 +36,17 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
 
-    float centerX = screenX + PLAYER_WIDTH / 2.0f;
-    float centerY = screenY + PLAYER_HEIGHT / 2.0f;
+    // float centerX = screenX + PLAYER_WIDTH / 2.0f;
+    // float centerY = screenY + PLAYER_HEIGHT / 2.0f;
 
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+    // int mouseX, mouseY;
+    // SDL_GetMouseState(&mouseX, &mouseY);
 
-    float dx = mouseX - centerX;
-    float dy = mouseY - centerY;
+    // float dx = mouseX - centerX;
+    // float dy = mouseY - centerY;
 
-    float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-    this->angle = new_angle;
+    // float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+    // this->angle = new_angle;
 
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_types[type]);
 
