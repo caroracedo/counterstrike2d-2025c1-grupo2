@@ -1,682 +1,687 @@
-# -- Map Configuration --
 obstacles:
-  - tipo: CAJA5
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 0
       y: 0
-  - tipo: CAJA5
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 32
       y: 0
-  - tipo: CAJA5
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
-      x: 480
+      x: 64
       y: 0
-  - tipo: CAJA5
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
-      x: 512
+      x: 96
       y: 0
-  - tipo: CAJA2
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
       x: 544
       y: 0
-  - tipo: CAJA1
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 576
       y: 0
-  - tipo: CAJA1
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 608
       y: 0
-  - tipo: CAJA1
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 640
       y: 0
-  - tipo: CAJA4
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 0
-      y: 32
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 32
-      y: 32
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 64
       y: 32
   - tipo: CAJA3
     width: 32
     height: 32
     position:
-      x: 512
+      x: 32
       y: 32
-  - tipo: CAJA5
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
-      x: 544
+      x: 64
       y: 32
-  - tipo: CAJA2
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
       x: 576
       y: 32
-  - tipo: CAJA1
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 608
       y: 32
-  - tipo: CAJA1
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 640
       y: 32
-  - tipo: CAJA4
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 0
       y: 64
-  - tipo: CAJA4
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
       x: 32
       y: 64
-  - tipo: CAJA5
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
-      x: 64
-      y: 64
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 96
+      x: 608
       y: 64
   - tipo: CAJA3
     width: 32
     height: 32
     position:
-      x: 544
-      y: 64
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 576
-      y: 64
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 608
+      x: 640
       y: 64
   - tipo: CAJA1
     width: 32
     height: 32
     position:
-      x: 640
-      y: 64
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
       x: 0
       y: 96
-  - tipo: CAJA2
+  - tipo: CAJA1
     width: 32
     height: 32
     position:
-      x: 32
+      x: 640
       y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 64
-      y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 96
-      y: 96
-  - tipo: CAJA2
+  - tipo: CAJA4
     width: 32
     height: 32
     position:
       x: 128
-      y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 160
-      y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 192
-      y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 224
-      y: 96
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 576
-      y: 96
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 96
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 96
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 224
-      y: 128
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 256
-      y: 128
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 128
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
       y: 128
   - tipo: CAJA4
     width: 32
     height: 32
     position:
-      x: 256
-      y: 160
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 288
-      y: 160
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 160
+      x: 512
+      y: 128
   - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 256
-      y: 192
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 288
-      y: 192
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 256
-      y: 224
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 288
-      y: 224
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 224
-      y: 256
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 256
-      y: 256
-  - tipo: CAJA2
     width: 32
     height: 32
     position:
       x: 96
-      y: 288
-  - tipo: CAJA2
+      y: 160
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 128
-      y: 288
-  - tipo: CAJA2
+      y: 160
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 160
-      y: 288
-  - tipo: CAJA2
+      y: 160
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 192
-      y: 288
-  - tipo: CAJA2
+      y: 160
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 224
-      y: 288
+      y: 160
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 160
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 160
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 320
+      y: 160
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 352
+      y: 160
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 160
   - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 416
-      y: 288
+      y: 160
   - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 448
-      y: 288
+      y: 160
   - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 480
-      y: 288
+      y: 160
   - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 512
-      y: 288
-  - tipo: CAJA3
+      y: 160
+  - tipo: CAJA4
     width: 32
     height: 32
     position:
       x: 544
-      y: 288
+      y: 160
   - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 576
-      y: 288
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 288
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 288
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 96
-      y: 320
-  - tipo: CAJA5
     width: 32
     height: 32
     position:
       x: 128
-      y: 320
-  - tipo: CAJA5
+      y: 192
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 480
+      y: 192
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 192
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 224
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 224
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 256
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 160
-      y: 320
-  - tipo: CAJA2
+      y: 256
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
-      x: 96
-      y: 352
-  - tipo: CAJA5
+      x: 192
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 256
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 256
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 448
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 480
+      y: 256
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 256
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 128
-      y: 352
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 96
       y: 384
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 480
-      y: 448
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 512
-      y: 448
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 544
-      y: 448
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 576
-      y: 448
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 448
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 448
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 480
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 448
-      y: 480
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 480
-      y: 480
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 512
-      y: 480
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 544
-      y: 480
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 576
-      y: 480
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 480
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 480
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 512
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 416
-      y: 512
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 448
-      y: 512
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 480
-      y: 512
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 608
-      y: 512
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 512
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 544
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 32
-      y: 544
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 384
-      y: 544
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 416
-      y: 544
-  - tipo: CAJA3
-    width: 32
-    height: 32
-    position:
-      x: 448
-      y: 544
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 544
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 576
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 32
-      y: 576
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 64
-      y: 576
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 384
-      y: 576
-  - tipo: CAJA4
-    width: 32
-    height: 32
-    position:
-      x: 416
-      y: 576
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 576
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 608
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 32
-      y: 608
-  - tipo: CAJA2
-    width: 32
-    height: 32
-    position:
-      x: 64
-      y: 608
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 96
-      y: 608
-  - tipo: CAJA5
-    width: 32
-    height: 32
-    position:
-      x: 640
-      y: 608
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 0
-      y: 640
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 32
-      y: 640
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 64
-      y: 640
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 96
-      y: 640
-  - tipo: CAJA1
-    width: 32
-    height: 32
-    position:
-      x: 128
-      y: 640
   - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 160
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 192
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 384
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 384
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 448
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 480
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 384
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 416
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 416
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 448
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 448
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 448
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 96
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 160
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 192
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 224
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 256
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 288
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 320
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 352
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 384
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 416
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 448
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 480
+      y: 480
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 480
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 544
+      y: 480
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 128
+      y: 512
+  - tipo: CAJA4
+    width: 32
+    height: 32
+    position:
+      x: 512
+      y: 512
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 544
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 544
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 576
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 576
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 576
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 576
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 0
+      y: 608
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 608
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 608
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 576
+      y: 608
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 608
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 640
+      y: 608
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 0
       y: 640
-  - tipo: CAJA5
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 32
+      y: 640
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 64
+      y: 640
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 96
+      y: 640
+  - tipo: CAJA1
+    width: 32
+    height: 32
+    position:
+      x: 544
+      y: 640
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 576
+      y: 640
+  - tipo: CAJA3
+    width: 32
+    height: 32
+    position:
+      x: 608
+      y: 640
+  - tipo: CAJA3
     width: 32
     height: 32
     position:
       x: 640
       y: 640
 weaponsMapa:
-  []
-bomb_zones:
-  - position:
+  - tipo: M3
+    width: 16
+    height: 16
+    position:
       x: 160
       y: 192
+  - tipo: AK47
+    width: 16
+    height: 16
+    position:
+      x: 192
+      y: 192
+  - tipo: AWP
+    width: 16
+    height: 16
+    position:
+      x: 160
+      y: 224
+  - tipo: AK47
+    width: 16
+    height: 16
+    position:
+      x: 480
+      y: 416
+  - tipo: AWP
+    width: 16
+    height: 16
+    position:
+      x: 448
+      y: 448
+  - tipo: M3
+    width: 16
+    height: 16
+    position:
+      x: 480
+      y: 448
+bomb_zones:
+  - position:
+      x: 320
+      y: 224
     width: 32
     height: 32
   - position:
-      x: 544
-      y: 576
+      x: 320
+      y: 416
     width: 32
     height: 32
-terreno: desierto
+init_zones:
+  - tipo: Terrorist
+    width: 32
+    height: 32
+    position:
+      x: 320
+      y: 64
+  - tipo: CounterTerrorist
+    width: 32
+    height: 32
+    position:
+      x: 320
+      y: 576
+terreno: entrenamiento

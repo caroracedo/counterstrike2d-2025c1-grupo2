@@ -1,49 +1,3 @@
-server:
-  port: 1500
-player:
-  health: 100
-  money: 500
-weapons:
-  knife:
-    price: 0
-    range: 45
-    min_damage: 10
-    max_damage: 20
-    precision: 1
-  glock:
-    price: 0
-    range: 100
-    min_damage: 10
-    max_damage: 20
-    precision: 0.80000000000000004
-  bomb:
-    price: 0
-    range: 0
-    min_damage: 500
-    max_damage: 500
-    precision: 1
-  ak47:
-    price: 100
-    range: 150
-    min_damage: 20
-    max_damage: 30
-    precision: 0.80000000000000004
-  m3:
-    price: 200
-    range: 125
-    min_damage: 15
-    max_damage: 25
-    precision: 0.90000000000000002
-  awp:
-    price: 300
-    range: 200
-    min_damage: 30
-    max_damage: 40
-    precision: 0.94999999999999996
-rounds:
-  total: 10
-  terrorists: 1
-  counterterrorists: 1
 obstacles:
   - tipo: CAJA5
     width: 32
@@ -712,7 +666,42 @@ obstacles:
       x: 640
       y: 640
 weaponsMapa:
-  []
+  - tipo: M3
+    width: 16
+    height: 16
+    position:
+      x: 64
+      y: 0
+  - tipo: AK47
+    width: 16
+    height: 16
+    position:
+      x: 96
+      y: 0
+  - tipo: AWP
+    width: 16
+    height: 16
+    position:
+      x: 96
+      y: 32
+  - tipo: AK47
+    width: 16
+    height: 16
+    position:
+      x: 640
+      y: 384
+  - tipo: AWP
+    width: 16
+    height: 16
+    position:
+      x: 608
+      y: 416
+  - tipo: M3
+    width: 16
+    height: 16
+    position:
+      x: 640
+      y: 416
 bomb_zones:
   - position:
       x: 160
@@ -724,4 +713,17 @@ bomb_zones:
       y: 576
     width: 32
     height: 32
+init_zones:
+  - tipo: Terrorist
+    width: 32
+    height: 32
+    position:
+      x: 544
+      y: 96
+  - tipo: CounterTerrorist
+    width: 32
+    height: 32
+    position:
+      x: 96
+      y: 576
 terreno: desierto
