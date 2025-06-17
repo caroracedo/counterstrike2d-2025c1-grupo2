@@ -1,11 +1,12 @@
 #include "shop_view.h"
 
 
-ShopView::ShopView(SDL2pp::Renderer& renderer):
+ShopView::ShopView(SDL2pp::Renderer& renderer, SoundManager& sound_manager):
         renderer(renderer),
         overlay_rect(SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - (SCREEN_MARGIN * 2),
                      SCREEN_HEIGHT - (SCREEN_MARGIN * 2)),
-        font(ASSETS_PATH "/gfx/fonts/korean.ttf", 16) {
+        font(ASSETS_PATH "/gfx/fonts/korean.ttf", 16),
+        sound_manager(sound_manager) {
     init_buttons();
 }
 
@@ -98,5 +99,5 @@ void ShopView::handle_button_pressed(int index_button) {
 
     btn.press_time = SDL_GetTicks();
 
-    // sonidos ...
+    sound_manager.play("hud_slct", 0);
 }

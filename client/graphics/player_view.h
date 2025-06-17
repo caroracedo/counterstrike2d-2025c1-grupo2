@@ -12,6 +12,7 @@
 #include "common/types.h"
 
 #include "game_camera.h"
+#include "sound_manager.h"
 #include "textures_manager.h"
 
 class PlayerView {
@@ -28,12 +29,16 @@ private:
 
     std::unordered_map<PlayerType, std::string> player_types;
 
+    uint16_t life = 0;
+
+    SoundManager& sound_manager;
+
     uint16_t id;
 
 public:
-    explicit PlayerView(TextureManager& texture_manager, uint16_t id);
+    explicit PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id);
 
-    bool update_position(float x, float y);
+    bool update_position(float x, float y, uint16_t life);
 
     void update_styles(PlayerType new_type, WeaponModel new_posture);
 

@@ -61,6 +61,9 @@ private:
     TerrainType terrain;
     std::unordered_map<TerrainType, std::string> terrains;
 
+    bool sounds_played = false;
+    bool is_first_update = true;
+
 
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);

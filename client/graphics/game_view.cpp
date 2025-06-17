@@ -17,8 +17,8 @@ GameView::GameView():
                  *texture_manager.get_texture("hud_money")),
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
-        shop_view(renderer),
-        stats_view(renderer) {
+        shop_view(renderer, sound_manager),
+        stats_view(renderer, sound_manager) {
     SDL_ShowCursor(SDL_DISABLE);
     init_terrains();
 }
@@ -29,15 +29,24 @@ void GameView::update(const ActionDTO& action) {
         bomb_view.reset();
         shop_view.set_visible(true);
         stats_view.set_visible(false);
+        bomb_view.reset_sounds();
+        sounds_played = false;
+        is_first_update = false;
     }
 
     if (action.type == ActionType::STATS) {
         stats_view.update(action.stats, types);
         stats_view.set_visible(true);
+        stats_view.reset_sounds();
     }
 
     if (action.type != ActionType::UPDATE) {
         return;
+    }
+
+    if (!sounds_played && !is_first_update) {
+        sound_manager.play("go", 0);
+        sounds_played = true;
     }
 
     shop_view.set_visible(false);
@@ -63,7 +72,7 @@ void GameView::update(const ActionDTO& action) {
                 bomb_view.activate_bomb();
             }
             hud_view.update_timer(object);
-            bomb_view.update(object.position[0], object.position[1]);
+            bomb_view.update(object.position[0], object.position[1], object.bomb_countdown);
 
         } else if (object.type == ObjectType::BOMBZONE) {
             SDL_Rect rect;
@@ -106,7 +115,7 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, id));
+    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager, id));
 
     legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
 
@@ -122,9 +131,12 @@ void GameView::update_player(const ObjectDTO& object) {
     legs[id]->update_angle(object.angle);
     guns[id]->update_angle(object.angle);
 
-    if (players[id]->update_position(x, y)) {
+    if (players[id]->update_position(x, y, object.health)) {
         legs[id]->update(x, y);
         guns[id]->update(x, y);
+        if (!is_first_update) {
+            sound_manager.play("steps_" + std::to_string(rand() % 4 + 1));
+        }
     }
 
     if (id == local_id) {
@@ -134,7 +146,6 @@ void GameView::update_player(const ObjectDTO& object) {
 
 void GameView::update_bullets(const ObjectDTO& object) {
     BulletView bullet(object.position[0], object.position[1]);
-    // bullet.angle = object.angle; // Asumiendo que el DTO tiene un campo de ángulo
     bullets.push_back(bullet);
 }
 

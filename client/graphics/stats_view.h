@@ -13,6 +13,8 @@
 #include "common/stats.h"
 #include "common/types.h"
 
+#include "sound_manager.h"
+
 class StatsView {
 private:
     SDL2pp::Renderer& renderer;
@@ -23,18 +25,23 @@ private:
 
     bool visible = false;
 
+    bool sounds_played = false;
+
     Stats current_stats;
 
     std::map<uint16_t, std::string> player_names;
     std::unordered_map<uint16_t, PlayerType> player_types;
 
 
+    SoundManager& sound_manager;
+
 public:
-    explicit StatsView(SDL2pp::Renderer& renderer):
+    explicit StatsView(SDL2pp::Renderer& renderer, SoundManager& sound_manager):
             renderer(renderer),
             overlay_rect(SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - (SCREEN_MARGIN * 2),
                          SCREEN_HEIGHT - (SCREEN_MARGIN * 2)),
-            font(ASSETS_PATH "/gfx/fonts/korean.ttf", 16) {}
+            font(ASSETS_PATH "/gfx/fonts/korean.ttf", 16),
+            sound_manager(sound_manager) {}
 
 
     void update(const Stats& new_stats, const std::unordered_map<uint16_t, PlayerType>& types) {
@@ -54,6 +61,15 @@ public:
     void render() {
         if (!visible)
             return;
+
+        if (!sounds_played) {
+            if (current_stats.last_winner == PlayerType::TERRORIST) {
+                sound_manager.play("terwin", 0);
+            } else {
+                sound_manager.play("ctwin", 0);
+            }
+            sounds_played = true;
+        }
 
         SDL2pp::Color prevColor = renderer.GetDrawColor();
 
@@ -201,6 +217,8 @@ public:
         // Restaurar color original
         renderer.SetDrawColor(prevColor);
     }
+
+    void reset_sounds() { sounds_played = false; }
 };
 
 #endif
