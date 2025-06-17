@@ -34,6 +34,9 @@ bool Match::do_action(const ActionDTO& action_dto) {
         case ActionType::ROTATE:
             monitor_game.rotate(action_dto.angle, action_dto.id);
             return true;
+        case ActionType::QUIT:
+            monitor_game.quit(action_dto.id);
+            return true;
         default:
             return false;
     }
@@ -46,6 +49,22 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
         case ActionType::AMMOPRIMARY:
         case ActionType::AMMOSECONDARY:
             return monitor_game.shop_ammo(action_dto.ammo, action_dto.weapon_type, action_dto.id);
+        case ActionType::QUIT:
+            monitor_game.quit(action_dto.id);
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool Match::do_start_action(const ActionDTO& action_dto) {
+    switch (action_dto.type) {
+        case ActionType::START:
+            monitor_game.set_ready_to_start();
+            return true;
+        case ActionType::QUIT:
+            monitor_game.quit(action_dto.id);
+            return true;
         default:
             return false;
     }
@@ -73,10 +92,6 @@ void Match::send_stats_to_all_clients() {
     monitor_client_send_queues->send_update({ActionType::STATS, monitor_game.get_stats()});
 }
 
-void Match::send_waiting_room_to_all_clients() {
-    monitor_client_send_queues->send_update(ActionDTO(ActionType::WAIT));
-}
-
 std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
     std::vector<ObjectDTO> object_dtos;
     object_dtos.reserve(objects.size());
@@ -98,20 +113,14 @@ std::vector<ObjectDTO> Match::process_dynamic_objects(
 
 void Match::waiting_phase() {
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
-    send_waiting_room_to_all_clients();
 
     // Polling
     while (!monitor_game.is_ready_to_start() && should_keep_running()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
         try {
             ActionDTO action;
-            if (recv_queue->try_pop(action)) {
-                if (action.type == ActionType::START) {
-                    // do_start_action
-                    monitor_game.set_ready_to_start();
-                    break;
-                }
-            }
+            if (recv_queue->try_pop(action))
+                do_start_action(action);
         } catch (const ClosedQueue&) {
             stop();
         }
@@ -130,12 +139,12 @@ void Match::shopping_phase() {
 
     // Polling
     auto now = std::chrono::steady_clock::now();
-    while (now - shop_start < shop_time && should_keep_running()) {
+    while (now - shop_start < shop_time && should_keep_running() && !monitor_game.is_over()) {
         std::this_thread::sleep_for(std::chrono::seconds(TIME));
         ActionDTO action;
         try {
             while (now - shop_start < shop_time && should_keep_running() &&
-                   recv_queue->try_pop(action)) {
+                   !monitor_game.is_over() && recv_queue->try_pop(action)) {
                 do_shop_action(action);
                 now = std::chrono::steady_clock::now();
             }
@@ -192,7 +201,22 @@ void Match::stats_phase() {
 
     send_stats_to_all_clients();
 
-    std::this_thread::sleep_for(std::chrono::seconds(STATS_TIME));
+    auto stats_time = std::chrono::seconds(STATS_TIME);
+    auto stats_start = std::chrono::steady_clock::now();
+
+    // Polling
+    auto now = std::chrono::steady_clock::now();
+    while (now - stats_start < stats_time && should_keep_running()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
+        try {
+            ActionDTO action;
+            if (recv_queue->try_pop(action) && action.type == ActionType::QUIT)
+                monitor_game.quit(action.id);
+        } catch (const ClosedQueue&) {
+            stop();
+        }
+        now = std::chrono::steady_clock::now();
+    }
 
     std::cout << "[STATS] Terminando fase de estadísticas..." << std::endl;
 }
@@ -202,7 +226,9 @@ void Match::run() {
 
     std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
 
-    for (size_t round = 1; round <= config.get_rounds_total() && should_keep_running(); ++round) {
+    for (size_t round = 1;
+         round <= config.get_rounds_total() && should_keep_running() && !monitor_game.is_over();
+         ++round) {
         std::cout << "[ROUND] Iniciando ronda..." << std::endl;
         shopping_phase();
         game_phase();

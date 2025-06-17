@@ -168,7 +168,6 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
         case ActionType::CONFIGURATION:
             return deserialize_configuration(data);
         case ActionType::END:
-        case ActionType::WAIT:
             return ActionDTO(type);
         case ActionType::SHOP:
             return deserialize_shop(data);
@@ -212,6 +211,7 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::CHANGE:
         case ActionType::START:
         case ActionType::PICKUP:
+        case ActionType::QUIT:
             break;
         case ActionType::ROTATE:
             push_hexa_to(float_to_hex_big_endian(action.angle), data);

@@ -41,6 +41,10 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         game.rotate_player(angle, id);
     }
+    void quit(uint16_t id) {
+        std::lock_guard<std::mutex> lock(mutex);
+        game.quit(id);
+    }
     void set_ready_to_start() { game.set_ready_to_start(); }
 
     Stats get_stats() const { return game.get_stats(); }

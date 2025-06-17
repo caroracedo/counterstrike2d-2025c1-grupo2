@@ -26,8 +26,8 @@ private:
 
     bool do_action(const ActionDTO& action_dto);
     bool do_shop_action(const ActionDTO& action_dto);
+    bool do_start_action(const ActionDTO& action_dto);
     void send_initial_snapshot_to_all_clients();
-    void send_waiting_room_to_all_clients();
     void send_snapshot_to_all_clients();
     void send_shop_to_all_clients();
     void send_end_to_all_clients();

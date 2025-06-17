@@ -20,7 +20,6 @@ public:
                    std::atomic<bool>& stop_flag);
 
     void run() override;
-    void stop() override;
     bool should_this_thread_keep_running();
     void bind_queue(std::shared_ptr<Queue<ActionDTO>> new_recv_queue);
 };

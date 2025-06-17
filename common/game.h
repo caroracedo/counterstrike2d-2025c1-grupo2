@@ -265,6 +265,34 @@ public:
 
     // Permite al jugador dar comienzo a la partida.
     void set_ready_to_start() { _is_ready_to_start = true; }
+
+    void quit(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            // Eliminar al jugador de la matriz
+            auto player_cell = get_cell_from_position(player_it->second->get_position());
+            auto& player_vec = matrix[player_cell.first][player_cell.second];
+            player_vec.erase(std::remove_if(player_vec.begin(), player_vec.end(),
+                                            [id](const std::shared_ptr<Object>& o) {
+                                                return o->get_id() == id &&
+                                                       static_cast<ObjectType>(o->get_type()) ==
+                                                               ObjectType::PLAYER;
+                                            }),
+                             player_vec.end());
+
+            // Eliminar al jugador de los objetos
+            objects.erase(std::remove_if(objects.begin(), objects.end(),
+                                         [id](const std::shared_ptr<Object>& o) {
+                                             return o->get_id() == id &&
+                                                    static_cast<ObjectType>(o->get_type()) ==
+                                                            ObjectType::PLAYER;
+                                         }),
+                          objects.end());
+
+            // Eliminar al jugador de players
+            players.erase(player_it);
+        }
+    }
 };
 
 #endif  // GAME_H

@@ -13,7 +13,7 @@ Client::Client(const char* hostname, const char* servname):
         sender(protocol, send_queue),
         receiver(protocol, recv_queue) {}
 
-void Client::receive_and_send_initial_configuration() {  // TODO: Esto esta un poco feo...
+void Client::receive_and_send_initial_configuration() {
     ActionDTO configuration =
             recv_queue.pop();  // TODO: Ver si esto está bien o mal... porque técnicamente se
                                // debería bloquear hasta recibir la configuración
@@ -41,11 +41,12 @@ void Client::run() {
     while (!stop_flag) {
         std::vector<ActionDTO> actions = input_handler.receive_and_parse_actions();
         for (const auto& action: actions) {
-            if (action.type == ActionType::QUIT) {
-                stop_flag = true;
-                break;
-            } else if (action.type != ActionType::UNKNOWN) {
+            if (action.type != ActionType::UNKNOWN) {
                 send_queue.push(action);
+                if (action.type == ActionType::QUIT) {
+                    stop_flag = true;
+                    break;
+                }
             }
         }
 
@@ -58,11 +59,10 @@ void Client::run() {
             } else if (update.type == ActionType::CONFIGURATION) {
                 game_view.set_id(update.id);
                 game_view.set_terrain(update.terrain_type);
+                game_view.pre_lobby(true);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
                 game_view.update(update);
-            } else if (update.type == ActionType::WAIT) {
-                game_view.pre_lobby(true);
             }
         }
         game_view.render();

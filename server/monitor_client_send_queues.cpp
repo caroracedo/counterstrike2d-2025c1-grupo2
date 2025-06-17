@@ -1,5 +1,7 @@
 #include "monitor_client_send_queues.h"
 
+#include <iostream>
+
 void MonitorClientSendQueues::add_queue_to(std::shared_ptr<Queue<ActionDTO>> client_send_queue,
                                            uint16_t client_id) {
     std::lock_guard<std::mutex> lock(mutex);

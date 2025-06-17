@@ -1077,12 +1077,12 @@ std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, u
         std::cout << "[GAME] Zone coordinates: (" << temp_x0 << ", " << temp_y0 << ")" << std::endl;
 
         uint16_t x0 = static_cast<uint16_t>(
-                std::clamp(temp_x0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE - ZONE_SIZE)));
+                std::clamp(temp_x0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE)));
         uint16_t y0 = static_cast<uint16_t>(
-                std::clamp(temp_y0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE - ZONE_SIZE)));
+                std::clamp(temp_y0, 0, static_cast<int32_t>(MATRIX_SIZE * CELL_SIZE)));
 
-        uint16_t x1 = temp_x0 + ZONE_SIZE;
-        uint16_t y1 = temp_y0 + ZONE_SIZE;
+        uint16_t x1 = std::clamp(temp_x0 + ZONE_SIZE, temp_x0 + ZONE_SIZE, MATRIX_SIZE * CELL_SIZE);
+        uint16_t y1 = std::clamp(temp_y0 + ZONE_SIZE, temp_y0 + ZONE_SIZE, MATRIX_SIZE * CELL_SIZE);
 
         std::cout << "[GAME] Zone boundaries: (" << x0 << ", " << y0 << ") to (" << x1 << ", " << y1
                   << ")" << std::endl;

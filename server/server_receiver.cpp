@@ -23,14 +23,6 @@ void ServerReceiver::run() {
     stop();
 }
 
-void ServerReceiver::stop() {
-    Thread::stop();
-    try {
-        if (recv_queue)
-            recv_queue->close();
-    } catch (const std::runtime_error& e) {}
-}
-
 bool ServerReceiver::should_this_thread_keep_running() {
     return should_keep_running() && !stop_flag;
 }
