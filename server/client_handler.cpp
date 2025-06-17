@@ -2,20 +2,24 @@
 
 #include <utility>
 
+/* Constructor */
 ClientHandler::ClientHandler(Socket&& socket, std::shared_ptr<Queue<ActionDTO>> initial_recv_queue,
                              std::shared_ptr<Queue<ActionDTO>> initial_send_queue, uint16_t id):
         client_socket(std::move(socket)),
-        protocol(this->client_socket, id),
+        protocol(client_socket, id),
         receiver(protocol, initial_recv_queue, stop_flag),
         sender(protocol, initial_send_queue, stop_flag),
-        stop_flag(false),
         id(id) {}
 
+/* Override */
 void ClientHandler::run() {
     receiver.start();
     sender.start();
 }
 
+bool ClientHandler::is_alive() const { return receiver.is_alive() || sender.is_alive(); }
+
+/* Cierre */
 void ClientHandler::hard_kill() {
     Thread::stop();
 
@@ -31,8 +35,7 @@ void ClientHandler::hard_kill() {
     receiver.join();
 }
 
-bool ClientHandler::is_alive() const { return receiver.is_alive() || sender.is_alive(); }
-
+/* Vinculación */
 void ClientHandler::bind_queue(std::shared_ptr<Queue<ActionDTO>> recv_queue) {
     receiver.bind_queue(recv_queue);
 }

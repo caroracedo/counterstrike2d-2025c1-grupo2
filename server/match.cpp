@@ -9,6 +9,7 @@
 #define STATS_TIME 5
 #define WAIT_TIME 100
 
+/* Constructor */
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
              const std::string& map_str):
@@ -18,6 +19,7 @@ Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 
+/* Manejo de acciones */
 bool Match::do_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::MOVE:
@@ -57,19 +59,18 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
     }
 }
 
-bool Match::do_start_action(const ActionDTO& action_dto) {
+void Match::do_start_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::START:
-            monitor_game.set_ready_to_start();
-            return true;
+            return monitor_game.set_ready_to_start();
         case ActionType::QUIT:
-            monitor_game.quit(action_dto.id);
-            return true;
+            return monitor_game.quit(action_dto.id);
         default:
-            return false;
+            return;
     }
 }
 
+/* Envío a todos los clientes */
 void Match::send_initial_snapshot_to_all_clients() {
     monitor_client_send_queues->send_update(
             {ActionType::UPDATE, process_objects(monitor_game.get_objects())});
@@ -92,6 +93,8 @@ void Match::send_stats_to_all_clients() {
     monitor_client_send_queues->send_update({ActionType::STATS, monitor_game.get_stats()});
 }
 
+
+/* Conversión de Objetos */
 std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
     std::vector<ObjectDTO> object_dtos;
     object_dtos.reserve(objects.size());
@@ -111,23 +114,56 @@ std::vector<ObjectDTO> Match::process_dynamic_objects(
     return object_dtos;
 }
 
-void Match::waiting_phase() {
+
+/* Waiting Lobby */
+void Match::waiting_lobby() {
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
 
+    // Nota: Cuáles son las condiciones de corte?:
+    //          a. Ya se puede empezar -> se debería continuar
+    //          b. Se interrumpe la partida -> no se debería continuar
+    //      Ambas se cumplen gracias al inicio de cada ronda.
     // Polling
     while (!monitor_game.is_ready_to_start() && should_keep_running()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
-        try {
-            ActionDTO action;
-            if (recv_queue->try_pop(action))
-                do_start_action(action);
-        } catch (const ClosedQueue&) {
-            stop();
-        }
+
+        ActionDTO action;
+        if (recv_queue->try_pop(action))
+            do_start_action(action);
     }
 
     send_initial_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
+}
+
+
+/* Match Loop */
+void Match::match_loop() {
+    std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
+
+    // Nota: Cuáles son las condiciones para comenzar una nueva ronda?:
+    //          a. Todavía quedan más rondas
+    //          b. La partida no se interrumpió
+    //          c. El juego puede seguir en curso
+    for (size_t round = 1;
+         round <= config.get_rounds_total() && should_keep_running() && !monitor_game.is_over();
+         ++round) {
+        std::cout << "[ROUND] Iniciando ronda..." << std::endl;
+
+        shopping_phase();
+        game_phase();
+        stats_phase();
+
+        std::cout << "[ROUND] Terminando ronda..." << std::endl;
+
+        if (round == config.get_rounds_total() / 2) {
+            std::cout << "[SWITCH] Switch de equipos!" << std::endl;
+            monitor_game.switch_player_types();
+        }
+    }
+
+    send_end_to_all_clients();
+    std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }
 
 void Match::shopping_phase() {
@@ -137,20 +173,24 @@ void Match::shopping_phase() {
     auto shop_time = std::chrono::seconds(SHOP_TIME);
     auto shop_start = std::chrono::steady_clock::now();
 
+    // Nota: Cuáles son las condiciones de corte?:
+    //          a. La partida se interrumpió -> no se debería continuar
+    //          b. El juego no puede seguir en curso -> no se debería continuar (sólo Stats)
+    //          c. Terminó el SHOP_TIME -> se debería continuar
+    //      Se cumplen gracias al flujo de ejecución.
     // Polling
     auto now = std::chrono::steady_clock::now();
-    while (now - shop_start < shop_time && should_keep_running() && !monitor_game.is_over()) {
+    while (should_keep_running() && !monitor_game.is_over() && (now - shop_start < shop_time)) {
         std::this_thread::sleep_for(std::chrono::seconds(TIME));
+
         ActionDTO action;
-        try {
-            while (now - shop_start < shop_time && should_keep_running() &&
-                   !monitor_game.is_over() && recv_queue->try_pop(action)) {
-                do_shop_action(action);
-                now = std::chrono::steady_clock::now();
-            }
-        } catch (const ClosedQueue&) {
-            stop();
+        while (should_keep_running() && !monitor_game.is_over() && (now - shop_start < shop_time) &&
+               recv_queue->try_pop(action)) {
+            do_shop_action(action);
+
+            now = std::chrono::steady_clock::now();
         }
+
         now = std::chrono::steady_clock::now();
     }
 
@@ -162,23 +202,21 @@ void Match::game_phase() {
     send_snapshot_to_all_clients();
     monitor_game.start_round_game_phase();
 
+    // Nota: Cuáles son las condiciones de corte?:
+    //          a. La partida se interrumpió -> no se debería continuar
+    //          b. El juego no puede seguir en curso -> no se debería continuar (sólo Stats)
+    //      Se cumplen gracias al flujo de ejecución.
     auto snapshot_interval = std::chrono::milliseconds(SNAPSHOT_TIME);
     auto last_snapshot_time = std::chrono::steady_clock::now();
-
-    while (!monitor_game.is_over() && should_keep_running()) {
+    while (should_keep_running() && !monitor_game.is_over()) {
         auto start = std::chrono::steady_clock::now();
 
         auto now = start;
-
         ActionDTO action;
-        try {
-            while (!monitor_game.is_over() && should_keep_running() &&
-                   (now - start < snapshot_interval) && recv_queue->try_pop(action)) {
-                do_action(action);
-                now = std::chrono::steady_clock::now();
-            }
-        } catch (const ClosedQueue&) {
-            stop();
+        while (should_keep_running() && !monitor_game.is_over() &&
+               (now - start < snapshot_interval) && recv_queue->try_pop(action)) {
+            do_action(action);
+            now = std::chrono::steady_clock::now();
         }
 
         if (now - last_snapshot_time >= snapshot_interval) {
@@ -204,44 +242,35 @@ void Match::stats_phase() {
     auto stats_time = std::chrono::seconds(STATS_TIME);
     auto stats_start = std::chrono::steady_clock::now();
 
+    // Nota: Cuáles son las condiciones de corte?:
+    //          a. La partida se interrumpió -> no se debería continuar
+    //          b. Terminó el SHOP_TIME -> se debería continuar
+    //      Se cumplen gracias al flujo de ejecución.
     // Polling
     auto now = std::chrono::steady_clock::now();
-    while (now - stats_start < stats_time && should_keep_running()) {
+    while (should_keep_running() && (now - stats_start < stats_time)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
-        try {
-            ActionDTO action;
-            if (recv_queue->try_pop(action) && action.type == ActionType::QUIT)
-                monitor_game.quit(action.id);
-        } catch (const ClosedQueue&) {
-            stop();
-        }
+
+        ActionDTO action;
+        if (recv_queue->try_pop(action) && action.type == ActionType::QUIT)
+            monitor_game.quit(action.id);
+
         now = std::chrono::steady_clock::now();
     }
 
     std::cout << "[STATS] Terminando fase de estadísticas..." << std::endl;
 }
 
+/* Override */
 void Match::run() {
-    waiting_phase();
-
-    std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
-
-    for (size_t round = 1;
-         round <= config.get_rounds_total() && should_keep_running() && !monitor_game.is_over();
-         ++round) {
-        std::cout << "[ROUND] Iniciando ronda..." << std::endl;
-        shopping_phase();
-        game_phase();
-        stats_phase();
-        std::cout << "[ROUND] Terminando ronda..." << std::endl;
-        if (round == config.get_rounds_total() / 2)
-            monitor_game.switch_player_types();
-    }
-
-    send_end_to_all_clients();
-    std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
+    waiting_lobby();
+    match_loop();
 }
 
+/* Añadir jugador */
 void Match::add_player(const ActionDTO& action_dto) {
     monitor_game.add_player(action_dto.player_type, action_dto.id);
 }
+
+/* Getters */
+TerrainType Match::get_terrain() { return map.get_terrain(); }

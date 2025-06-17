@@ -5,10 +5,14 @@
 
 class Server {
 private:
+    /* Configuración */
     MatchManager match_manager;
 
 public:
+    /* Constructor */
     explicit Server(const char* yaml_path);
+
+    /* Override */
     void run();
 };
 

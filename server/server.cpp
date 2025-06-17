@@ -4,8 +4,10 @@
 
 #define QUIT_INPUT 'q'
 
+/* Constructor */
 Server::Server(const char* yaml_path): match_manager(yaml_path) {}
 
+/* Override */
 void Server::run() {
     match_manager.start();
 

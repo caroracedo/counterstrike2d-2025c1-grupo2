@@ -1,8 +1,8 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "../common/action_DTO.h"
-#include "../common/types.h"
+#include "common/action_DTO.h"
+#include "common/types.h"
 
 #include "client_protocol.h"
 #include "client_receiver.h"
@@ -10,6 +10,7 @@
 
 class Client {
 private:
+    /* Configuración */
     Socket client_socket;
     ClientProtocol protocol;
 
@@ -19,10 +20,14 @@ private:
     ClientSender sender;
     ClientReceiver receiver;
 
-    void receive_and_send_initial_configuration();
+    /* Ejecución */
+    ActionDTO lobby();
 
 public:
+    /* Constructor */
     Client(const char* hostname, const char* servname);
+
+    /* Ejecución */
     void run();
 };
 

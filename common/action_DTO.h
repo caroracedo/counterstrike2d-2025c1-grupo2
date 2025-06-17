@@ -84,14 +84,21 @@ struct ActionDTO {
     ActionDTO(ActionType action, uint16_t value);
 
     /* client -> server */
-    /* Configuration */
+    /* Crear Partida */
     ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
               const PlayerType& player_type);
+    /* Crear Partida con id (en server)*/
+    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
+              const PlayerType& player_type, uint16_t id);
+
+    /* Unirse a una Partida */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
+    /* Unirse a una Partida con id (en server) */
+    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
+              uint16_t id);
 
     /* Mover */
     ActionDTO(const ActionType& action, const Direction& direction);
-
     /* Mover con id (en server)*/
     ActionDTO(const ActionType& action, const Direction& direction, uint16_t id);
 
@@ -116,14 +123,11 @@ struct ActionDTO {
     ActionDTO(const ActionType& action, float angle, uint16_t id);
 
     /* server -> client */
-    /* Configuration */
+    /* Information */
     ActionDTO(const ActionType& action, const std::vector<std::string>& matches,
               const std::vector<std::string>& maps);
+    /* Configuration */
     ActionDTO(const ActionType& action, const TerrainType& terrain_type, uint16_t id);
-    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-              const PlayerType& player_type, uint16_t id);
-    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
-              uint16_t id);
 
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects);

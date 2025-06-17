@@ -1,9 +1,11 @@
 #include "server_sender.h"
 
+/* Constructor */
 ServerSender::ServerSender(ServerProtocol& protocol, std::shared_ptr<Queue<ActionDTO>> send_queue,
                            std::atomic<bool>& stop_flag):
         protocol(protocol), send_queue(send_queue), stop_flag(stop_flag) {}
 
+/* Override */
 void ServerSender::run() {
     while (should_this_thread_keep_running()) {
         try {
@@ -24,8 +26,5 @@ void ServerSender::stop() {
     } catch (const std::runtime_error& e) {}
 }
 
+/* Validación */
 bool ServerSender::should_this_thread_keep_running() { return should_keep_running() && !stop_flag; }
-
-void ServerSender::bind_queue(std::shared_ptr<Queue<ActionDTO>> new_send_queue) {
-    send_queue = new_send_queue;
-}

@@ -7,34 +7,42 @@
 #include "graphics/input_handler.h"
 #include "lobby/mainwindow.h"
 
+/* Constructor */
 Client::Client(const char* hostname, const char* servname):
         client_socket(hostname, servname),
         protocol(this->client_socket),
         sender(protocol, send_queue),
         receiver(protocol, recv_queue) {}
 
-void Client::receive_and_send_initial_configuration() {
-    ActionDTO configuration =
-            recv_queue.pop();  // TODO: Ver si esto está bien o mal... porque técnicamente se
-                               // debería bloquear hasta recibir la configuración
+
+/* Ejecución */
+ActionDTO Client::lobby() {
+    // TODO: Técnicamente se debería bloquear hasta recibir la configuración
+    ActionDTO information = recv_queue.pop();
 
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
-    MainWindow window(configuration.maps, configuration.matches);
+    MainWindow window(information.maps, information.matches);
     window.show();
     app.exec();
 
     send_queue.push(window.getInfo());
+
+    return recv_queue.pop();
 }
 
 void Client::run() {
     sender.start();
     receiver.start();
 
-    receive_and_send_initial_configuration();
+    ActionDTO configuration = lobby();
 
     GameView game_view;
+    game_view.set_id(configuration.id);
+    game_view.set_terrain(configuration.terrain_type);
+    game_view.pre_lobby(true);
+
     InputHandler input_handler(game_view);
 
     bool stop_flag = false;
@@ -56,15 +64,12 @@ void Client::run() {
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
-            } else if (update.type == ActionType::CONFIGURATION) {
-                game_view.set_id(update.id);
-                game_view.set_terrain(update.terrain_type);
-                game_view.pre_lobby(true);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
                 game_view.update(update);
             }
         }
+
         game_view.render();
         game_view.frame_sync();
     }

@@ -7,10 +7,11 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
-#include "../common/socket.h"
-#include "../common/thread.h"
+#include "common/socket.h"
+#include "common/thread.h"
 
 #include "client_handler.h"
 #include "match.h"
@@ -20,41 +21,47 @@
 
 class MatchManager: public Thread {
 private:
+    /* Configuración */
     Config config;
     Socket server_socket;
-    std::list<ClientHandler*> client_handlers_list;
-    uint16_t id = 0;
 
+    /* Clientes */
+    uint16_t id = 0;
+    std::list<ClientHandler*> client_handlers_list;
     std::shared_ptr<Queue<ActionDTO>> own_recv_queue;
+
+    /* Partidas */
     std::unordered_map<std::string, std::shared_ptr<Queue<ActionDTO>>> shared_recv_queues;
     std::unordered_map<std::string, std::shared_ptr<MonitorClientSendQueues>>
             monitors_client_send_queues;
     std::unordered_map<std::string, std::shared_ptr<Match>> matches;
 
+    /* Limpieza */
     void kill_client_handler(ClientHandler* client_handler);
     void clear();
     void reap();
+
+    /* Inicialización */
     void initialize_match_resources(const std::string& match, const std::string& map);
-    bool is_valid_match(const std::string& match);
-    std::vector<std::string> get_matches() const {
-        std::vector<std::string> matches_vector;
-        matches_vector.reserve(matches.size());  // opcional pero eficiente
-        std::transform(matches.begin(), matches.end(), std::back_inserter(matches_vector),
-                       [](const auto& match) { return match.first; });
-        return matches_vector;
-    }
-    std::vector<std::string> get_maps() const {
-        std::vector<std::string> maps_vector;
-        for (const auto& entry: std::filesystem::directory_iterator(MAPS_PATH)) {
-            if (entry.is_regular_file() && entry.path().extension() == YAML_EXTENSION) {
-                maps_vector.push_back(entry.path().stem().string());
-            }
-        }
-        return maps_vector;
-    }
+    void initialize_client_handler();
+    std::pair<ClientHandler*, std::shared_ptr<Queue<ActionDTO>>> create_and_start_client_handler();
+    void setup_client_handler_in_match(ClientHandler* handler,
+                                       std::shared_ptr<Queue<ActionDTO>>& send_queue,
+                                       const ActionDTO& action);
+
+    /* Validación */
+    bool is_valid_match(const std::string& match) const;
+    bool should_initialize_match(const ActionDTO& action) const;
+
+    /* Getters */
+    std::vector<std::string> get_matches() const;
+    std::vector<std::string> get_maps() const;
 
 public:
+    /* Constructor */
     explicit MatchManager(const char* yaml_path);
+
+    /* Override */
     void run() override;
     void stop() override;
 };
