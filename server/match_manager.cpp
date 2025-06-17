@@ -30,10 +30,9 @@ void MatchManager::clear() {
 }
 
 void MatchManager::reap() {
-    client_handlers_list.remove_if([](ClientHandler* client_handler) {
+    client_handlers_list.remove_if([this](ClientHandler* client_handler) {
         if (!client_handler->is_alive()) {
-            client_handler->join();
-            delete client_handler;
+            kill_client_handler(client_handler);
             return true;
         }
         return false;
