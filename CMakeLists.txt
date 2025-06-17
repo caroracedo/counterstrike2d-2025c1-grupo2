@@ -131,7 +131,25 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     )
 
     FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
+
+    FetchContent_Declare(
+        SDL2_gfx
+        GIT_REPOSITORY https://github.com/ferzkopp/SDL2_gfx.git
+        GIT_TAG origin
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+    )
+    FetchContent_MakeAvailable(SDL2_gfx)
 endif()
+
+# Buscar SDL2_gfx en el sistema
+# find_path(SDL2_GFX_INCLUDE_DIR SDL2_gfxPrimitives.h)
+# find_library(SDL2_GFX_LIBRARY NAMES SDL2_gfx)
+
+# if(NOT SDL2_GFX_INCLUDE_DIR OR NOT SDL2_GFX_LIBRARY)
+#     message(FATAL_ERROR "SDL2_gfx no encontrado. Instalalo con 'sudo apt install libsdl2-gfx-dev'")
+# endif()
+
 
 # Program section
 # ---------------
@@ -162,6 +180,7 @@ if(TALLER_CLIENT)
 
     # Link the taller_common lib target
     target_link_libraries(taller_client taller_common SDL2pp::SDL2pp yaml-cpp Qt${QT_VERSION_MAJOR}::Widgets)
+    target_link_libraries(taller_client SDL2_gfx)
 endif()
 
 if(TALLER_SERVER)

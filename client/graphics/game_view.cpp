@@ -18,9 +18,13 @@ GameView::GameView():
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
         shop_view(renderer),
-        stats_view(renderer) {
+        stats_view(renderer),
+        fov_view(renderer, texture_manager) {
     SDL_ShowCursor(SDL_DISABLE);
     init_terrains();
+    int diag = static_cast<int>(
+            std::ceil(std::sqrt(SCREEN_WIDTH * SCREEN_WIDTH + SCREEN_HEIGHT * SCREEN_HEIGHT)));
+    fov_view.generarFOVTexture(diag, diag, 64, 90);
 }
 
 
@@ -29,6 +33,7 @@ void GameView::update(const ActionDTO& action) {
         bomb_view.reset();
         shop_view.set_visible(true);
         stats_view.set_visible(false);
+        fov_view.set_visible(false);
     }
 
     if (action.type == ActionType::STATS) {
@@ -42,6 +47,7 @@ void GameView::update(const ActionDTO& action) {
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
+    fov_view.set_visible(true);
     bullets.clear();
     drops.clear();
 
@@ -214,6 +220,9 @@ void GameView::render() {
     if (show_pre_lobby)
         stats_view.render_pre_lobby();
 
+    if (fov_view.is_visible()) {
+        fov_view.draw(players[local_id]->get_angle());
+    }
     render_cursor();
 
     renderer.Present();
