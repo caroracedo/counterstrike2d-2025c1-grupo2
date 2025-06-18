@@ -31,13 +31,21 @@ Para simplificar el envío de datos entre el cliente y el servidor, está la cla
 
 ## Arquitectura Cliente-Servidor
 
-El siguiente diagrama de clases proporciona una visión general de la estructura de la arquitectura cliente-servidor.
+El siguiente diagrama de clases proporciona una visión general de la estructura de clases de la arquitectura cliente-servidor.
 
 ![Arquitectura](img/architecture.png)
 
-Por un lado, el _Server_, en su hilo principal, recibe de forma bloqueante por entrada estándar ingresos, si este ingreso es `QUIT_CHARACTER`, entonces detiene y joinea al hilo MatchManager. Por su parte el hilo _MatchManager_ se encarga de recibir y direccionar cada cliente aceptado a la partida correspondiente, creando un hilo ClientHandler por cada uno, y, cuando corresponde, un hilo Match por partida. _ClientHandler_ crea un hilo _ServerReceiver_ y un _ServerSender_, para manejar los respectivos mensajes, y comunicar la partida y el cliente con las respectivas _Queues_ y _Sockets_. Mientras tanto _Match_ se encarga de la partida en sí, las actualizaciones de estado y los envíos de snapshots correspondientes.
+Además, el siguiente diagrama ofrece una visión general de la estructura de comunicación en la arquitectura cliente-servidor.
 
-Por otro lado, el _Client_, en su hilo principal, crea un hilo _ServerReceiver_ y un _ServerSender_, para manejar los respectivos mensajes, y comunicar el server y el cliente con las respectivas _Queues_ y _Socket_.
+![Comunicación](img/comunication.png)
+
+Por un lado, el _Server_ cuenta con un hilo principal que espera de forma bloqueante la entrada del carácter `QUIT_CHARACTER` por la entrada estándar para finalizar su ejecución. Paralelamente, el hilo _Acceptor_ se encarga de aceptar nuevas conexiones de forma continua, generando un nuevo hilo _ClientHandler_ por cada cliente que se conecta.
+
+Cada _ClientHandler_ comienza con un intercambio de mensajes con el cliente para definir su ingreso a una partida, coordinado mediante el **MatchesMonitor**. Este monitor administra la creación de nuevas partidas a través de hilos _Match_ o la asignación de jugadores a partidas ya existentes. Una vez completado este intercambio, el _ClientHandler_ lanza dos nuevos hilos: _ServerReceiver_ y _ServerSender_, responsables de recibir y enviar mensajes entre el cliente y la partida, a través del **ServerProtocol** (el cual utiliza su respectivo **Socket**) y comunicándose con las **Queues** correspondientes.
+
+A su vez, cada _Match_ se encarga de ejecutar la lógica de la partida, actualizar el estado del juego y enviar snapshots a los jugadores involucrados.
+
+Por otro lado, el _Client_, tras establecer la conexión inicial con el _Server_, también crea dos hilos: _ClientReceiver_ y _ClientSender_. Estos hilos manejan el envío y la recepción de mensajes al servidor, a través del **ClientProtocol** (el cual utiliza su respectivo **Socket**) y comunicándose con las **Queues** correspondientes.
 
 ### Protocolo
 
@@ -47,7 +55,7 @@ El siguiente diagrama de secuencia proporciona una visión general de la comunic
 
 Al inicio se lleva a cabo un _handshake_: el servidor envía a cada cliente que se conecta la lista de mapas y partidas disponibles. Posteriormente, el cliente responde con sus preferencias, y el servidor le proporciona el tipo de terreno (según el mapa elegido) junto con el identificador del jugador.
 
-Tras esta negociación, el cliente entra en un estado de espera en el _pre-lobby_. La espera finaliza cuando el cliente así lo decida o cuando se haya alcanzado el número requerido de jugadores.
+Tras esta negociación, el cliente entra en un estado de espera en el _waiting-lobby_. La espera finaliza cuando el cliente así lo decida o cuando se haya alcanzado el número requerido de jugadores.
 
 A continuación, da comienzo la partida. Cada ronda consta de tres fases:
 
