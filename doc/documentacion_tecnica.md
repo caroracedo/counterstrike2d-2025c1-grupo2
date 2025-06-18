@@ -23,7 +23,7 @@ El siguiente diagrama ilustra las clases principales relacionadas a la lógica d
 
 ![MapYConfig](img/map_and_config.png)
 
-La clase principal es _Game_. A través de esta es que el jugador se comunica para diversas tareas: sea la compra de armas y/o munición en la fase de tienda, o para moverse, disparar y/o levantar un arma del suelo. Esta clase se inicializa con un _Config_ y un _Map_. Mientras que la primera tiene información sobre la partida, como la cantidad de rounds y jugadores por equipo, la segunda contiene información sobre el mapa, como las zonas de bomba y armas "en el piso". Esta última puede ser configurada desde la aplicación del Editor, también proporcionada en la entrega.
+La clase principal es _Game_. Es a través de esta que el jugador se comunica para realizar diversas tareas: sea la compra de armas y/o munición en la fase de tienda, o para moverse, disparar y/o levantar un arma del suelo. Esta clase se inicializa con un _Config_ y un _Map_. Mientras que la primera tiene información sobre la partida, como la cantidad de rounds y jugadores por equipo, la segunda contiene información sobre el mapa, como las zonas de bomba y armas "en el piso". Esta última puede ser configurada desde la aplicación del Editor, también proporcionada en la entrega. Tanto _Config_ como _Map_ usan archivos .yaml para cargar las correspondientes configuraciones. 
 
 ![Lógica](img/logic.png)
 
