@@ -37,7 +37,7 @@ El siguiente diagrama de clases proporciona una visión general de la estructura
 
 Además, el siguiente diagrama ofrece una visión general de la estructura de comunicación en la arquitectura cliente-servidor.
 
-![Comunicación](img/comunication.png)
+![Comunicación](img/comunication.jpeg)
 
 Por un lado, el _Server_ cuenta con un hilo principal que espera de forma bloqueante la entrada del carácter `QUIT_CHARACTER` por la entrada estándar para finalizar su ejecución. Paralelamente, el hilo _Acceptor_ se encarga de aceptar nuevas conexiones de forma continua, generando un nuevo hilo _ClientHandler_ por cada cliente que se conecta.
 
