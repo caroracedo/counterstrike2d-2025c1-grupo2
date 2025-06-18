@@ -19,8 +19,15 @@ Usen un generador como PlantUML que son basados en texto en vez de uno gráfico 
 La presente documentación técnica tiene como objetivo describir la implementación de la lógica y la arquitectura del proyecto.
 
 ## Lógica
+El siguiente diagrama ilustra las clases principales relacionadas a la lógica del juego.
 
-<!-- Acá iría el detalle de la implementación de la lógica -->
+![MapYConfig](img/map_and_config.png)
+
+La clase principal es _Game_. A través de esta es que el jugador se comunica para diversas tareas: sea la compra de armas y/o munición en la fase de tienda, o para moverse, disparar y/o levantar un arma del suelo. Esta clase se inicializa con un _Config_ y un _Map_. Mientras que la primera tiene información sobre la partida, como la cantidad de rounds y jugadores por equipo, la segunda contiene información sobre el mapa, como las zonas de bomba y armas "en el piso". Esta última puede ser configurada desde la aplicación del Editor, también proporcionada en la entrega.
+
+![Lógica](img/logic.png)
+
+Para simplificar el envío de datos entre el cliente y el servidor, está la clase _Object_. Esta resume la información más importante necesaria para que el cliente grafique el juego de manera acorde. De esta derivan las clases _Player_, con sus respectivas _Weapon_ y _Knife_, al igual que _Obstacle_, _Bullet_, _BombZone_, y _Bomb_. 
 
 ## Arquitectura Cliente-Servidor
 
@@ -31,14 +38,6 @@ El siguiente diagrama de clases proporciona una visión general de la estructura
 Por un lado, el _Server_, en su hilo principal, recibe de forma bloqueante por entrada estándar ingresos, si este ingreso es `QUIT_CHARACTER`, entonces detiene y joinea al hilo MatchManager. Por su parte el hilo _MatchManager_ se encarga de recibir y direccionar cada cliente aceptado a la partida correspondiente, creando un hilo ClientHandler por cada uno, y, cuando corresponde, un hilo Match por partida. _ClientHandler_ crea un hilo _ServerReceiver_ y un _ServerSender_, para manejar los respectivos mensajes, y comunicar la partida y el cliente con las respectivas _Queues_ y _Sockets_. Mientras tanto _Match_ se encarga de la partida en sí, las actualizaciones de estado y los envíos de snapshots correspondientes.
 
 Por otro lado, el _Client_, en su hilo principal, crea un hilo _ServerReceiver_ y un _ServerSender_, para manejar los respectivos mensajes, y comunicar el server y el cliente con las respectivas _Queues_ y _Socket_.
-
-El siguiente diagrama de clases proporciona una visión general de la estructura de la arquitectura cliente-servidor.
-
-![Arquitectura](img/architecture.png)
-
-Por un lado, el _Server_, en su hilo principal, recibe de forma bloqueante ingresos por la entrada estándar hasta recibir el carácter `QUIT_CHARACTER`. Por su parte, el hilo _MatchManager_ se encarga de atender y redirigir cada nuevo cliente hacia la partida adecuada, creando un hilo _ClientHandler_ por cada uno y, si corresponde, un hilo _Match_ para cada partida. _ClientHandler_ a su vez crea un hilo _ServerReceiver_ y un hilo _ServerSender_, que están a cargo de gestionar el ingreso y el envío de mensajes hacia el cliente, llevando el flujo de mensajes hacia las colas correspondientes. Finalmente, _Match_ se encarga de llevar a cabo la partida, de actualizar el estado del juego y de enviar los snapshots correspondientes a los jugadores involucrados.
-
-Por otro lado, el _Client_, en su hilo principal, también crea un hilo _ClientReceiver_ y un hilo _ClientSender_, que se encargan de gestionar el ingreso y el envío de mensajes hacia el servidor, así como de comunicarlos con sus correspondientes colas y sockets.
 
 ### Protocolo
 
