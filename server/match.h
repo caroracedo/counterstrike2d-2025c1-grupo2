@@ -4,6 +4,7 @@
 #include <chrono>
 #include <list>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -24,6 +25,7 @@ private:
     MonitorGame monitor_game;
     std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues;
+    std::mutex mutex;
 
     /* Manejo de acciones */
     bool do_action(const ActionDTO& action_dto);
@@ -53,15 +55,15 @@ private:
 
 public:
     /* Constructor */
-    explicit Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
-                   std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
-                   const std::string& map_str);
+    Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
+          std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
+          const std::string& map_str);
 
     /* Override */
     void run() override;
 
     /* Añadir jugador */
-    void add_player(const ActionDTO& action_dto);
+    void add_player(PlayerType player_type, uint16_t id);
 
     /* Getters */
     TerrainType get_terrain();

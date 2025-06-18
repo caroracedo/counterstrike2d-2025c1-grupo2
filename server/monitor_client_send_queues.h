@@ -15,7 +15,7 @@ class MonitorClientSendQueues {
 
 public:
     /* Agregar Queue */
-    void add_queue_to(std::shared_ptr<Queue<ActionDTO>> client_send_queue, uint16_t client_id);
+    std::shared_ptr<Queue<ActionDTO>> add_queue_to(uint16_t client_id);
 
     /* Enviar Update */
     void send_update(const ActionDTO& update);

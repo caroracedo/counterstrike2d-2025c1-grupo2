@@ -1,12 +1,12 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "match_manager.h"
+#include "acceptor.h"
 
 class Server {
 private:
     /* Configuración */
-    MatchManager match_manager;
+    Acceptor acceptor;
 
 public:
     /* Constructor */

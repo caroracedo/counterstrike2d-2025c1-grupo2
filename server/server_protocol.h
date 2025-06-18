@@ -19,7 +19,6 @@ private:
     Socket& skt;
     SocketManager skt_manager;
     ByteConverter byte_converter;
-
     uint16_t id;
 
     /* Envío */

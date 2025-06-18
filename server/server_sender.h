@@ -7,6 +7,7 @@
 #include "common/queue.h"
 #include "common/thread.h"
 
+#include "matches_monitor.h"
 #include "server_protocol.h"
 
 class ServerSender: public Thread {
@@ -18,8 +19,7 @@ private:
 
 public:
     /* Constructor */
-    ServerSender(ServerProtocol& protocol, std::shared_ptr<Queue<ActionDTO>> send_queue,
-                 std::atomic<bool>& stop_flag);
+    ServerSender(ServerProtocol& protocol, std::atomic<bool>& stop_flag);
 
     /* Override */
     void run() override;
@@ -27,6 +27,9 @@ public:
 
     /* Validación */
     bool should_this_thread_keep_running();
+
+    /* Setters */
+    void set_queue(std::shared_ptr<Queue<ActionDTO>> new_send_queue);
 };
 
 #endif  // SERVER_SENDER_H

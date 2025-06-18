@@ -14,11 +14,9 @@ Client::Client(const char* hostname, const char* servname):
         sender(protocol, send_queue),
         receiver(protocol, recv_queue) {}
 
-
 /* Ejecución */
 ActionDTO Client::lobby() {
-    // TODO: Técnicamente se debería bloquear hasta recibir la configuración
-    ActionDTO information = recv_queue.pop();
+    ActionDTO information = protocol.receive_and_deserialize_action();
 
     int argc = 0;
     char** argv = nullptr;
@@ -27,16 +25,16 @@ ActionDTO Client::lobby() {
     window.show();
     app.exec();
 
-    send_queue.push(window.getInfo());
+    protocol.serialize_and_send_action(window.getInfo());
 
-    return recv_queue.pop();
+    return protocol.receive_and_deserialize_action();
 }
 
 void Client::run() {
+    ActionDTO configuration = lobby();
+
     sender.start();
     receiver.start();
-
-    ActionDTO configuration = lobby();
 
     GameView game_view;
     game_view.set_id(configuration.id);
