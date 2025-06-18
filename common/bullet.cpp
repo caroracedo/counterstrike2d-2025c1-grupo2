@@ -20,14 +20,38 @@ Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
     set_starting_position(player_position);
 }
 
-/* Virtual puro */
-/* Getters */
 ObjectDTO Bullet::get_dto() const { return ObjectDTO(object_type, position); }
 
-/* Getters */
+bool Bullet::is_alive() const {
+    /*
+        Una bala está viva si tiene rango restante o si no ha alcanzado su posición objetivo.
+    */
+    float cx = position[0];
+    float cy = position[1];
+    bool reached_target = (static_cast<int>(cx) == static_cast<int>(target_position[0]) &&
+                           static_cast<int>(cy) == static_cast<int>(target_position[1]));
+    return range > 0 || !reached_target;
+}
+
 uint16_t Bullet::get_range() const { return range; }
 
+void Bullet::decrement_range(uint16_t dist) {
+    /*
+        Decrementa el rango de la bala según la distancia recorrida.
+    */
+    range = (dist >= range) ? 0 : range - dist;
+    distance_moved += dist;
+}
+
+uint16_t Bullet::get_player_id() const { return player_id; }
+
 uint16_t Bullet::get_damage() const {
+    /*
+        Calcula el daño de la bala basado en la distancia recorrida, el rango, y la precisión.
+        Devuelve 0 si el disparo falla.
+        El daño se calcula como un valor aleatorio entre min_damage y max_damage, modificado por
+        un factor de distancia. Si la bala está muy lejos del objetivo, el daño disminuye.
+    */
     // Calcula distancia recorrida desde el origen de la bala
     float px = static_cast<float>(position[0]);
     float py = static_cast<float>(position[1]);
@@ -61,8 +85,55 @@ uint16_t Bullet::get_damage() const {
     return std::max<uint16_t>(final_damage, 1);
 }
 
+std::vector<uint16_t> Bullet::get_next_position() const {
+    /*
+        Calcula la siguiente posición de la bala basada en su posición actual, el rango restante,
+        y la posición objetivo.
+        Si la bala está en su posición objetivo, devuelve la posición actual.
+    */
+    if (target_position.size() != 2)
+        return position;
+
+    float cx = position[0];
+    float cy = position[1];
+
+    float dx = static_cast<float>(target_position[0]) - cx;
+    float dy = static_cast<float>(target_position[1]) - cy;
+
+    float dist_to_target = std::sqrt(dx * dx + dy * dy);
+    if (dist_to_target == 0) {
+        return position;
+    }
+
+    float step = std::min(static_cast<float>(MOVE_STEP), static_cast<float>(range));
+    if (dist_to_target <= step) {
+        // Si el paso es mayor o igual a la distancia restante, ir directo al target
+        return {static_cast<uint16_t>(std::round(target_position[0])),
+                static_cast<uint16_t>(std::round(target_position[1]))};
+    }
+
+    float v_step = step / dist_to_target;
+    float step_dx = dx * v_step;
+    float step_dy = dy * v_step;
+
+    float nx_c = cx + step_dx;
+    float ny_c = cy + step_dy;
+
+    float min_pos = radius;
+    float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
+    nx_c = std::max(min_pos, std::min(nx_c, max_pos));
+    ny_c = std::max(min_pos, std::min(ny_c, max_pos));
+
+    return {static_cast<uint16_t>(std::round(nx_c)), static_cast<uint16_t>(std::round(ny_c))};
+}
+
 void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
                                  const std::vector<uint16_t>& player_position) {
+    /*
+        Calcula la posición objetivo de la bala basada en la posición deseada y la posición del
+        jugador. Asegura que la bala no salga del mapa y respeta el rango máximo.
+        Si la posición deseada está fuera del rango, ajusta la posición objetivo al borde del mapa.
+    */
     if (desired_position.size() != 2 || player_position.size() != 2)
         return;
 
@@ -102,6 +173,11 @@ void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
 }
 
 void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
+    /*
+        Calcula la posición inicial de la bala para que esté fuera del radio del jugador.
+        La posición se calcula en la dirección del objetivo, asegurando que la bala no colisione
+        con el jugador al ser disparada.
+    */
     float player_radius = static_cast<float>(PLAYER_RADIUS);
     float bullet_radius = static_cast<float>(BULLET_RADIUS);
 
@@ -139,55 +215,3 @@ void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
     start_position = {static_cast<uint16_t>(std::round(x_bullet)),
                       static_cast<uint16_t>(std::round(y_bullet))};
 }
-
-std::vector<uint16_t> Bullet::get_next_position() const {
-    if (target_position.size() != 2)
-        return position;
-
-    float cx = position[0];
-    float cy = position[1];
-
-    float dx = static_cast<float>(target_position[0]) - cx;
-    float dy = static_cast<float>(target_position[1]) - cy;
-
-    float dist_to_target = std::sqrt(dx * dx + dy * dy);
-    if (dist_to_target == 0) {
-        return position;
-    }
-
-    float step = std::min(static_cast<float>(MOVE_STEP), static_cast<float>(range));
-    if (dist_to_target <= step) {
-        // Si el paso es mayor o igual a la distancia restante, ir directo al target
-        return {static_cast<uint16_t>(std::round(target_position[0])),
-                static_cast<uint16_t>(std::round(target_position[1]))};
-    }
-
-    float v_step = step / dist_to_target;
-    float step_dx = dx * v_step;
-    float step_dy = dy * v_step;
-
-    float nx_c = cx + step_dx;
-    float ny_c = cy + step_dy;
-
-    float min_pos = radius;
-    float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
-    nx_c = std::max(min_pos, std::min(nx_c, max_pos));
-    ny_c = std::max(min_pos, std::min(ny_c, max_pos));
-
-    return {static_cast<uint16_t>(std::round(nx_c)), static_cast<uint16_t>(std::round(ny_c))};
-}
-
-bool Bullet::is_alive() const {
-    float cx = position[0];
-    float cy = position[1];
-    bool reached_target = (static_cast<int>(cx) == static_cast<int>(target_position[0]) &&
-                           static_cast<int>(cy) == static_cast<int>(target_position[1]));
-    return range > 0 || !reached_target;
-}
-
-void Bullet::decrement_range(uint16_t dist) {
-    range = (dist >= range) ? 0 : range - dist;
-    distance_moved += dist;
-}
-
-uint16_t Bullet::get_player_id() const { return player_id; }

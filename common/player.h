@@ -28,8 +28,9 @@ private:
 
     Weapon* current;
 
+    WeaponDTO drop_primary_weapon();
+
 public:
-    /* Constructor */
     Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
            uint16_t initial_money, WeaponShop& weapon_shop);
 
@@ -40,7 +41,6 @@ public:
     WeaponDTO get_current_weapon() const;
     void change_weapon();
     std::string get_current_weapon_name() const;
-    WeaponDTO drop_primary_weapon();
     std::pair<WeaponDTO, bool> drop_weapons();
     WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
 

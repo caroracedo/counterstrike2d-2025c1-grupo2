@@ -26,6 +26,21 @@ bool Game::is_ready_to_start() {
             }) == config.get_rounds_counterterrorist());
 }
 
+void Game::set_ready_to_start() {
+    /*
+        Permite al jugador dar comienzo a la partida si hay por lo menos un jugador en cada equipo
+    */
+    _is_ready_to_start =
+            (std::count_if(players.begin(), players.end(),
+                           [](const auto& p) {
+                               return p.second &&
+                                      p.second->get_player_type() == PlayerType::TERRORIST;
+                           }) >= 1 &&
+             std::count_if(players.begin(), players.end(), [](const auto& p) {
+                 return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
+             }) >= 1);
+}
+
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {
     /*
         Devuelve el vector de objetos del juego actualizado.
@@ -975,20 +990,6 @@ WeaponDTO Game::delete_weapon(const uint16_t weapon_id) {
     return WeaponDTO();
 }
 
-void Game::drop_primary_weapon(uint16_t id) {
-    /*
-        Suelta el arma principal del jugador con el ID especificado
-    */
-    auto players_it = players.find(id);
-    if (players_it == players.end()) {
-        std::cout << "[GAME] Player with ID " << id << " not found.\n";
-        return;
-    }
-    WeaponDTO weapon = players_it->second->drop_primary_weapon();
-    create_weapon(weapon, players_it->second->get_position());
-    return;
-}
-
 void Game::drop_weapons(uint16_t id) {
     /*
         Suelta el arma principal y la bomba (si la tiene) del jugador con el ID especificado
@@ -1232,4 +1233,32 @@ bool Game::change_weapon(uint16_t id) {
         return true;
     }
     return false;
+}
+
+void Game::quit(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        // Eliminar al jugador de la matriz
+        auto player_cell = get_cell_from_position(player_it->second->get_position());
+        auto& player_vec = matrix[player_cell.first][player_cell.second];
+        player_vec.erase(std::remove_if(player_vec.begin(), player_vec.end(),
+                                        [id](const std::shared_ptr<Object>& o) {
+                                            return o->get_id() == id &&
+                                                   static_cast<ObjectType>(o->get_type()) ==
+                                                           ObjectType::PLAYER;
+                                        }),
+                         player_vec.end());
+
+        // Eliminar al jugador de los objetos
+        objects.erase(std::remove_if(objects.begin(), objects.end(),
+                                     [id](const std::shared_ptr<Object>& o) {
+                                         return o->get_id() == id &&
+                                                static_cast<ObjectType>(o->get_type()) ==
+                                                        ObjectType::PLAYER;
+                                     }),
+                      objects.end());
+
+        // Eliminar al jugador de players
+        players.erase(player_it);
+    }
 }
