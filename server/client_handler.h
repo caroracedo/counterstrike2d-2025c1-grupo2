@@ -8,6 +8,8 @@
 #include "common/socket.h"
 #include "common/thread.h"
 
+#include "map_loader.h"
+#include "matches_monitor.h"
 #include "server_protocol.h"
 #include "server_receiver.h"
 #include "server_sender.h"
@@ -19,13 +21,15 @@ private:
     ServerProtocol protocol;
     ServerReceiver receiver;
     ServerSender sender;
+    MatchesMonitor& matches_monitor;
+    MapLoader& map_loader;
     uint16_t id;
     std::atomic<bool> stop_flag = false;
 
 public:
     /* Constructor */
-    ClientHandler(Socket&& socket, std::shared_ptr<Queue<ActionDTO>> initial_recv_queue,
-                  std::shared_ptr<Queue<ActionDTO>> initial_send_queue, uint16_t id);
+    ClientHandler(Socket&& socket, MatchesMonitor& matches_monitor, MapLoader& map_loader,
+                  uint16_t id);
 
     /* Override */
     void run() override;
@@ -33,9 +37,6 @@ public:
 
     /* Cierre */
     void hard_kill();
-
-    /* Vinculación */
-    void bind_queue(std::shared_ptr<Queue<ActionDTO>> recv_queue);
 };
 
 #endif  // CLIENT_HANDLER_H

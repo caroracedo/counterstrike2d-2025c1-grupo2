@@ -59,6 +59,9 @@ void GameView::update(const ActionDTO& action) {
     for (const auto& object: action.objects) {
 
         if (object.type == ObjectType::PLAYER) {
+            std::cout << "Updating player with ID: " << object.id
+                      << " and type: " << static_cast<int>(object.player_type)
+                      << " weapon: " << static_cast<int>(object.weapon_model) << std::endl;
             update_player(object);
             players_in_game.insert(object.id);
         } else if (object.type == ObjectType::OBSTACLE) {

@@ -52,6 +52,11 @@ public:
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         if (!camera.is_visible(x, y))
             return;
+
+        if (current_type == WeaponModel::UNKNOWN) {
+            return;
+        }
+
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();
 
@@ -78,6 +83,8 @@ public:
 
         float gunX = centerX + rotatedOffsetX;
         float gunY = centerY + rotatedOffsetY;
+
+        std::cout << "Current type weapon: " << static_cast<int>(current_type) << std::endl;
 
         renderer.Copy(*gun_sprites[current_type], SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
                       SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH),

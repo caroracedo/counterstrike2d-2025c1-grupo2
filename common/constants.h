@@ -29,4 +29,6 @@
 
 #define KILL_REWARD 100  // recompensa por matar a un jugador
 
+#define YAML_EXTENSION ".yaml"
+
 #endif  // CONSTANTS_H

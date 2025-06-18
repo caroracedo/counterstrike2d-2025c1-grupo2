@@ -268,9 +268,13 @@ void Match::run() {
 }
 
 /* Añadir jugador */
-void Match::add_player(const ActionDTO& action_dto) {
-    monitor_game.add_player(action_dto.player_type, action_dto.id);
+void Match::add_player(PlayerType player_type, uint16_t id) {
+    std::lock_guard<std::mutex> lock(mutex);
+    monitor_game.add_player(player_type, id);
 }
 
 /* Getters */
-TerrainType Match::get_terrain() { return map.get_terrain(); }
+TerrainType Match::get_terrain() {
+    std::lock_guard<std::mutex> lock(mutex);
+    return map.get_terrain();
+}
