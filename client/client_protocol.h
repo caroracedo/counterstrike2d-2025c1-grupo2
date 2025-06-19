@@ -1,12 +1,7 @@
 #ifndef CLIENT_PROTOCOL_H
 #define CLIENT_PROTOCOL_H
 
-#include <cstring>
-#include <iostream>
-#include <string>
 #include <vector>
-
-#include <arpa/inet.h>
 
 #include "common/action_DTO.h"
 #include "common/byte_converter.h"

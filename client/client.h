@@ -2,7 +2,6 @@
 #define CLIENT_H
 
 #include "common/action_DTO.h"
-#include "common/types.h"
 
 #include "client_protocol.h"
 #include "client_receiver.h"
@@ -22,6 +21,7 @@ private:
 
     /* Ejecución */
     ActionDTO lobby();
+    void match_loop(const ActionDTO& configuration);
 
 public:
     /* Constructor */

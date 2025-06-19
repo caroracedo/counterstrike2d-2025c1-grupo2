@@ -1,7 +1,5 @@
 #include "client_handler.h"
 
-#include <utility>
-
 /* Constructor */
 ClientHandler::ClientHandler(Socket&& socket, MatchesMonitor& matches_monitor,
                              MapLoader& map_loader, uint16_t id):
@@ -13,12 +11,15 @@ ClientHandler::ClientHandler(Socket&& socket, MatchesMonitor& matches_monitor,
         map_loader(map_loader),
         id(id) {}
 
-/* Override */
-void ClientHandler::run() {
-    protocol.serialize_and_send_action(ActionDTO(
-            ActionType::INFORMATION, matches_monitor.list_matches(), map_loader.get_maps()));
+/* Lobby */
+std::pair<bool, std::pair<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>>>
+        ClientHandler::lobby() {
+    if (!protocol.serialize_and_send_action(ActionDTO(
+                ActionType::INFORMATION, matches_monitor.list_matches(), map_loader.get_maps())))
+        return {false, {nullptr, nullptr}};
 
     ActionDTO first_action = protocol.receive_and_deserialize_action();
+
     std::shared_ptr<Queue<ActionDTO>> new_recv_queue;
     std::shared_ptr<Queue<ActionDTO>> send_queue;
     TerrainType terrain_type;
@@ -30,18 +31,28 @@ void ClientHandler::run() {
                 first_action.match, first_action.player_type, first_action.id);
     }
 
-    if (new_recv_queue != nullptr && send_queue != nullptr) {
-        protocol.serialize_and_send_action(ActionDTO(ActionType::CONFIGURATION, terrain_type, id));
+    if (!new_recv_queue && !send_queue)
+        return {false, {nullptr, nullptr}};
 
-        receiver.set_queue(new_recv_queue);
+    if (!protocol.serialize_and_send_action(ActionDTO(ActionType::CONFIGURATION, terrain_type, id)))
+        return {false, {nullptr, nullptr}};
+
+    return {true, {new_recv_queue, send_queue}};
+}
+
+/* Override */
+void ClientHandler::run() {
+    auto lobby_result = lobby();
+    if (lobby_result.first) {
+        auto& [recv_queue, send_queue] = lobby_result.second;
+        receiver.set_queue(recv_queue);
         sender.set_queue(send_queue);
-
         receiver.start();
         sender.start();
     }
 }
 
-bool ClientHandler::is_alive() const { return !stop_flag; }
+bool ClientHandler::is_alive() const { return Thread::is_alive() || !stop_flag; }
 
 /* Cierre */
 void ClientHandler::hard_kill() {
@@ -52,9 +63,11 @@ void ClientHandler::hard_kill() {
     } catch (...) {}
     client_socket.close();
 
-    receiver.stop();
-    sender.stop();
+    if (stop_flag) {
+        receiver.stop();
+        sender.stop();
 
-    receiver.join();
-    sender.join();
+        receiver.join();
+        sender.join();
+    }
 }

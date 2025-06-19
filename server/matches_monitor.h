@@ -17,12 +17,12 @@
 class MatchesMonitor {
 private:
     /* Configuración */
+    Config& config;
     std::unordered_map<std::string, std::shared_ptr<Queue<ActionDTO>>> shared_recv_queues;
     std::unordered_map<std::string, std::shared_ptr<MonitorClientSendQueues>>
             monitors_client_send_queues;
     std::unordered_map<std::string, std::shared_ptr<Match>> matches;
     std::mutex mutex;
-    Config& config;
 
 public:
     /* Constructor */

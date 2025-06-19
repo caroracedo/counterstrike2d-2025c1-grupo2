@@ -7,7 +7,6 @@
 #include "common/queue.h"
 #include "common/thread.h"
 
-#include "matches_monitor.h"
 #include "server_protocol.h"
 
 class ServerReceiver: public Thread {

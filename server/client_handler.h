@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <memory>
+#include <utility>
 
 #include "common/queue.h"
 #include "common/socket.h"
@@ -25,6 +26,10 @@ private:
     MapLoader& map_loader;
     uint16_t id;
     std::atomic<bool> stop_flag = false;
+
+    /* Lobby */
+    std::pair<bool, std::pair<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>>>
+            lobby();
 
 public:
     /* Constructor */

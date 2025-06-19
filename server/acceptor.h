@@ -2,11 +2,8 @@
 #define ACCEPTOR_H
 
 #include <list>
-#include <memory>
 
-#include "common/action_DTO.h"
 #include "common/config.h"
-#include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
 

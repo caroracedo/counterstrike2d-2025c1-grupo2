@@ -1,7 +1,5 @@
 #include "server_receiver.h"
 
-#include <iostream>
-
 /* Constructor */
 ServerReceiver::ServerReceiver(ServerProtocol& protocol, std::atomic<bool>& stop_flag):
         protocol(protocol), stop_flag(stop_flag) {}

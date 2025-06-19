@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "common/game.h"
-#include "common/queue.h"
 
 class MonitorGame {
 private:

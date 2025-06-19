@@ -1,6 +1,3 @@
-#ifndef MAIN_CPP
-#define MAIN_CPP
-
 #include <exception>
 #include <iostream>
 
@@ -32,5 +29,3 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 }
-
-#endif

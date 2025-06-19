@@ -6,8 +6,7 @@
 Acceptor::Acceptor(const char* yaml_path):
         config(yaml_path),
         server_socket(config.get_server_port().c_str()),
-        matches_monitor(config),
-        next_id(0) {}
+        matches_monitor(config) {}
 
 /* Limpieza */
 void Acceptor::kill_client_handler(ClientHandler* client_handler) {
@@ -53,4 +52,5 @@ void Acceptor::run() {
 void Acceptor::stop() {
     Thread::stop();
     server_socket.shutdown(2);
+    server_socket.close();
 }

@@ -18,6 +18,9 @@ Client::Client(const char* hostname, const char* servname):
 ActionDTO Client::lobby() {
     ActionDTO information = protocol.receive_and_deserialize_action();
 
+    if (information.type == ActionType::UNKNOWN)
+        return ActionDTO();
+
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
@@ -25,23 +28,19 @@ ActionDTO Client::lobby() {
     window.show();
     app.exec();
 
-    protocol.serialize_and_send_action(window.getInfo());
+    if (!protocol.serialize_and_send_action(window.getInfo()))
+        return ActionDTO();
 
     return protocol.receive_and_deserialize_action();
 }
 
-void Client::run() {
-    ActionDTO configuration = lobby();
-
-    sender.start();
-    receiver.start();
-
+void Client::match_loop(const ActionDTO& configuration) {
     GameView game_view;
+    InputHandler input_handler(game_view);
+
     game_view.set_id(configuration.id);
     game_view.set_terrain(configuration.terrain_type);
     game_view.pre_lobby(true);
-
-    InputHandler input_handler(game_view);
 
     bool stop_flag = false;
     while (!stop_flag) {
@@ -71,12 +70,23 @@ void Client::run() {
         game_view.render();
         game_view.frame_sync();
     }
+}
 
-    client_socket.shutdown(2);
-    client_socket.close();
+void Client::run() {
+    ActionDTO configuration = lobby();
 
-    sender.stop();
-    receiver.stop();
-    sender.join();
-    receiver.join();
+    if (configuration.type != ActionType::UNKNOWN) {
+        sender.start();
+        receiver.start();
+
+        match_loop(configuration);
+
+        client_socket.shutdown(2);
+        client_socket.close();
+
+        sender.stop();
+        receiver.stop();
+        sender.join();
+        receiver.join();
+    }
 }
