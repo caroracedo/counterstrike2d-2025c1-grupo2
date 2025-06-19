@@ -18,9 +18,13 @@ GameView::GameView():
         bomb_view(*texture_manager.get_texture("bomb"), *texture_manager.get_texture("explotion"),
                   sound_manager),
         shop_view(renderer, sound_manager),
-        stats_view(renderer, sound_manager) {
+        stats_view(renderer, sound_manager),
+        fov_view(renderer, texture_manager) {
     SDL_ShowCursor(SDL_DISABLE);
     init_terrains();
+    int diag = static_cast<int>(
+            std::ceil(std::sqrt(SCREEN_WIDTH * SCREEN_WIDTH + SCREEN_HEIGHT * SCREEN_HEIGHT)));
+    fov_view.generarFOVTexture(diag, diag, 64, 90);
 }
 
 
@@ -32,6 +36,7 @@ void GameView::update(const ActionDTO& action) {
         bomb_view.reset_sounds();
         sounds_played = false;
         is_first_update = false;
+        is_alive = true;
     }
 
     if (action.type == ActionType::STATS) {
@@ -51,6 +56,8 @@ void GameView::update(const ActionDTO& action) {
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
+    if (is_alive)
+        fov_view.set_visible(true);
     bullets.clear();
     drops.clear();
 
@@ -59,9 +66,6 @@ void GameView::update(const ActionDTO& action) {
     for (const auto& object: action.objects) {
 
         if (object.type == ObjectType::PLAYER) {
-            std::cout << "Updating player with ID: " << object.id
-                      << " and type: " << static_cast<int>(object.player_type)
-                      << " weapon: " << static_cast<int>(object.weapon_model) << std::endl;
             update_player(object);
             players_in_game.insert(object.id);
         } else if (object.type == ObjectType::OBSTACLE) {
@@ -91,6 +95,10 @@ void GameView::update(const ActionDTO& action) {
 
     for (auto it = players.begin(); it != players.end();) {
         if (players_in_game.find(it->first) == players_in_game.end()) {
+            if (it->first == local_id) {
+                fov_view.set_visible(false);
+                is_alive = false;
+            }
             it = players.erase(it);
         } else {
             ++it;
@@ -228,6 +236,9 @@ void GameView::render() {
     if (show_pre_lobby)
         stats_view.render_pre_lobby();
 
+    if (fov_view.is_visible() && players[local_id]) {
+        fov_view.draw(players[local_id]->get_angle());
+    }
     render_cursor();
 
     renderer.Present();

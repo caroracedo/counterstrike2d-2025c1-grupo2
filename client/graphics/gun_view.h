@@ -84,8 +84,6 @@ public:
         float gunX = centerX + rotatedOffsetX;
         float gunY = centerY + rotatedOffsetY;
 
-        std::cout << "Current type weapon: " << static_cast<int>(current_type) << std::endl;
-
         renderer.Copy(*gun_sprites[current_type], SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
                       SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH),
                                    static_cast<int>(gunY - GUN_HEIGHT), GUN_WIDTH, GUN_HEIGHT),

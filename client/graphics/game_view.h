@@ -14,6 +14,7 @@
 #include "common/constants.h"
 #include "common/obstacle.h"
 
+#include "FOV_view.h"
 #include "bomb_view.h"
 #include "bullet_view.h"
 #include "drop_view.h"
@@ -46,6 +47,7 @@ private:
     BombView bomb_view;
     ShopView shop_view;
     StatsView stats_view;
+    FOVView fov_view;
 
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
     std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
@@ -63,6 +65,7 @@ private:
 
     bool sounds_played = false;
     bool is_first_update = true;
+    bool is_alive = true;
 
 
     void update_obstacles(const ObjectDTO& object);
