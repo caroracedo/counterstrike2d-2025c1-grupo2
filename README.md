@@ -15,33 +15,50 @@ _Taller de Programación - Cátedra Veiga - 2025_
 
 ## Requisitos y dependencias
 
-Se recomienda el uso de **Ubuntu 24.04** para asegurar la compatibilidad con todas las bibliotecas requeridas.
+Se recomienda el uso de **Ubuntu 24.04** para asegurar la compatibilidad con todas las librerías requeridas.
 
 A continuación, se detallan las dependencias necesarias y los comandos sugeridos para su instalación:
 
 ### YAML
 
-El proyecto utiliza la biblioteca [`yaml-cpp`](https://github.com/jbeder/yaml-cpp), la cual es descargada automáticamente mediante CMake. No se requiere instalación manual.
+El proyecto utiliza la librería [`yaml-cpp`](https://github.com/jbeder/yaml-cpp), la cual es descargada automáticamente mediante CMake. No se requiere instalación manual.
 
 ### SDL2 y SDL2pp
 
-Para el cliente, se requiere SDL2 y sus módulos. Aunque estas bibliotecas se gestionan automáticamente con FetchContent, es necesario instalar las dependencias base del sistema:
+Para el cliente, se requiere SDL2 y sus módulos. Aunque estas librerías se gestionan automáticamente con FetchContent, es necesario instalar las dependencias base del sistema:
 
-```sh
-sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-```
+- `libsdl2-dev`
+- `libsdl2-image-dev`
+- `libsdl2-mixer-dev`
+- `libsdl2-ttf-dev`
+- `libsdl2-gfx-dev`
 
 El wrapper en C++ SDL2pp también es gestionado automáticamente por CMake.
 
 ### Qt
 
-Para compilar el cliente y/o el editor, se requieren las bibliotecas de Qt. Se recomienda utilizar Qt6:
+Para compilar el cliente y/o el editor, se requieren las librerías de Qt. Se recomienda utilizar Qt6:
 
-```sh
-sudo apt-get install qt6-base-dev qt6-base-dev-tools
-```
+- `qt6-base-dev`
+- `qt6-base-dev-tools`
 
 CMake detectará automáticamente la versión disponible en el sistema.
+
+### Instalación de dependencias
+
+El proyecto provee un instalador (y desinstalador) para gestionar las dependencias del mismo.
+
+Para instalar las dependencias necesarias, ejecutar el siguiente comando desde la raíz del repositorio:
+
+```sh
+make install
+```
+
+Para desinstalarlas:
+
+```sh
+make uninstall
+```
 
 ---
 
