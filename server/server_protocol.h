@@ -32,6 +32,9 @@ public:
 
     /* Envío */
     bool serialize_and_send_action(const ActionDTO& action_dto);
+
+    /* Cerrar */
+    void kill() { skt_manager.kill(skt); }
 };
 
 #endif  // SERVER_PROTOCOL_H

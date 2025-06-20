@@ -58,10 +58,7 @@ bool ClientHandler::is_alive() const { return Thread::is_alive() || !stop_flag; 
 void ClientHandler::hard_kill() {
     Thread::stop();
 
-    try {
-        client_socket.shutdown(2);  // Cierra lectura y escritura
-    } catch (...) {}
-    client_socket.close();
+    protocol.kill();
 
     if (stop_flag) {
         receiver.stop();

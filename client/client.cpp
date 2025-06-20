@@ -81,8 +81,7 @@ void Client::run() {
 
         match_loop(configuration);
 
-        client_socket.shutdown(2);
-        client_socket.close();
+        protocol.kill();
 
         sender.stop();
         receiver.stop();

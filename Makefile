@@ -5,10 +5,11 @@ compile-debug:
 	cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug $(EXTRA_GENERATE)
 	cmake --build  build/ $(EXTRA_COMPILE)
 
-run-tests: compile-debug
-	./build/taller_tests
+run-tests:
+	./build/taller_server_tests &
+	./build/taller_client_tests
 
-all: clean run-tests
+all: clean compile-debug run-tests
 
 clean:
 	rm -Rf build/

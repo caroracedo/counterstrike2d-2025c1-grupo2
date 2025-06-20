@@ -55,7 +55,9 @@ bool SocketManager::send_bytes(Socket& socket, const std::vector<uint8_t>& bytes
 }
 
 /* Cerrar */
-void SocketManager::close(Socket& socket) {
-    socket.shutdown(2);  // Cierra lectura y escritura
+void SocketManager::kill(Socket& socket) {
+    try {
+        socket.shutdown(2);  // Cierra lectura y escritura
+    } catch (...) {}
     socket.close();
 }
