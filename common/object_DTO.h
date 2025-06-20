@@ -16,6 +16,7 @@ struct ObjectDTO {
     uint16_t id;
     PlayerType player_type;
     float angle;
+
     /* Arma */
     WeaponModel weapon_model;
     uint16_t health;

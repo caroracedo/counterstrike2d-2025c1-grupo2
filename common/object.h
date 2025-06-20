@@ -22,18 +22,14 @@ public:
 
     Object();
 
-    /* Virtual puro */
     virtual ObjectDTO get_dto() const = 0;  // Método virtual puro para obtener el DTO del objeto
 
-    /* Getters */
     ObjectType get_type() const;
     uint16_t get_id() const;
     uint16_t get_width() const;
     uint16_t get_height() const;
     std::vector<uint16_t> get_position() const;
 
-
-    /* Funcionalidad */
     void move(const std::vector<uint16_t>& new_position);
 
     template <typename T>

@@ -14,6 +14,8 @@ const std::vector<TeamZoneConfig>& Map::get_team_zones() const { return team_zon
 
 const std::vector<WeaponObjectConfig>& Map::get_weapon_objects() const { return weapon_objects; }
 
+TerrainType Map::get_terrain() const { return terrain; }
+
 ObstacleType Map::box_to_obstacle_type(const std::string& type_string) {
     if (type_string == "CAJA1")
         return ObstacleType::OBSTACLE1;

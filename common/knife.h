@@ -22,11 +22,11 @@ public:
           uint16_t _min_damage, uint16_t _max_damage,
           const std::vector<uint16_t>& desired_position);
 
+    ObjectDTO get_dto() const override;
+
     uint16_t get_damage() const;
 
     bool hits(const std::vector<uint16_t>& target_pos) const;
-
-    ObjectDTO get_dto() const override;
 };
 
 #endif  // KNIFE_H

@@ -78,7 +78,7 @@ public:
     const std::vector<BombZoneConfig>& get_bomb_zones() const;
     const std::vector<TeamZoneConfig>& get_team_zones() const;
     const std::vector<WeaponObjectConfig>& get_weapon_objects() const;
-    TerrainType get_terrain() const { return terrain; }
+    TerrainType get_terrain() const;
 };
 
 #endif  // MAP_H

@@ -15,8 +15,6 @@ public:
             Object(ObjectType::OBSTACLE, 0, position, width, height),
             obstacle_type(obstacle_type) {}
 
-    /* Virtual puro */
-    /* Getters */
     ObjectDTO get_dto() const override {
         return ObjectDTO(object_type, position, width, height, obstacle_type);
     }

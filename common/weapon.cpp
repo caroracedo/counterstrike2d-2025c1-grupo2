@@ -29,23 +29,13 @@ Weapon::Weapon(const WeaponDTO& weapon_dto):
         precision(weapon_dto.precision),
         ammo(weapon_dto.ammo) {}
 
-/* Verificaciones */
-bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
-
-/* Getters */
-uint16_t Weapon::get_range() { return range; }
-
-std::vector<uint16_t> Weapon::get_damage() { return {min_damage, max_damage}; }
+ObjectDTO Weapon::get_dto() const { return ObjectDTO(ObjectType::WEAPON, position, model); }
 
 WeaponDTO Weapon::get_weapon_dto() const {
     return WeaponDTO(id, model, range, min_damage, max_damage, precision, ammo);
 }
 
-ObjectDTO Weapon::get_dto() const { return ObjectDTO(ObjectType::WEAPON, position, model); }
-
-WeaponModel Weapon::get_model() const { return model; }
-
-uint16_t Weapon::get_ammo() const { return ammo; }
+bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
 
 bool Weapon::shoot() {
     switch (model) {
@@ -71,7 +61,35 @@ bool Weapon::shoot() {
     }
 }
 
-/* Funcionalidades */
+uint16_t Weapon::get_range() { return range; }
+
+std::vector<uint16_t> Weapon::get_damage() { return {min_damage, max_damage}; }
+
+WeaponModel Weapon::get_model() const { return model; }
+
+std::string Weapon::get_name() const {
+    switch (model) {
+        case WeaponModel::KNIFE:
+            return "Knife";
+        case WeaponModel::GLOCK:
+            return "Glock";
+        case WeaponModel::AK47:
+            return "AK-47";
+        case WeaponModel::M3:
+            return "M3";
+        case WeaponModel::AWP:
+            return "AWP";
+        case WeaponModel::BOMB:
+            return "Bomb";
+        default:
+            return "Unknown Weapon";
+    }
+}
+
+uint16_t Weapon::get_ammo() const { return ammo; }
+
 void Weapon::add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
+
+void Weapon::set_position(const std::vector<uint16_t>& new_position) { position = new_position; }
 
 bool Weapon::operator==(const Weapon& other) const { return this->model == other.model; }
