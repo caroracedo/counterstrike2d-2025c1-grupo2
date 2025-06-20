@@ -4,9 +4,13 @@
 /* Unknown */
 ActionDTO::ActionDTO():
         type(ActionType::UNKNOWN),
+        hostname(),
+        servname(),
         match(),
         map(),
+        number_players(),
         player_type(),
+        player_skin(),
         terrain_type(),
         direction(),
         desired_position(),
@@ -44,42 +48,36 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value): ActionDTO() {
 }
 
 /* client -> server */
+/* Init */
+ActionDTO::ActionDTO(const ActionType& action, const std::string& hostname,
+                     const std::string& servname):
+        ActionDTO() {
+    this->type = action;
+    this->hostname = hostname;
+    this->servname = servname;
+}
+
 /* Crear Partida */
 ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-                     const PlayerType& player_type):
+                     uint16_t number_players, const PlayerType& player_type,
+                     const PlayerSkin& player_skin):
         ActionDTO() {
     this->type = action;
     this->match = match;
     this->map = map;
+    this->number_players = number_players;
     this->player_type = player_type;
-}
-/* Crear Partida con id (en server)*/
-ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-                     const PlayerType& player_type, uint16_t id):
-        ActionDTO() {
-    this->type = action;
-    this->match = match;
-    this->map = map;
-    this->player_type = player_type;
-    this->id = id;
+    this->player_skin = player_skin;
 }
 
 /* Unirse a una Partida */
 ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
-                     const PlayerType& player_type):
+                     const PlayerType& player_type, const PlayerSkin& player_skin):
         ActionDTO() {
     this->type = action;
     this->match = match;
     this->player_type = player_type;
-}
-/* Unirse a una Partida con id (en server)*/
-ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
-                     const PlayerType& player_type, uint16_t id):
-        ActionDTO() {
-    this->type = action;
-    this->match = match;
-    this->player_type = player_type;
-    this->id = id;
+    this->player_skin = player_skin;
 }
 
 /* Mover */

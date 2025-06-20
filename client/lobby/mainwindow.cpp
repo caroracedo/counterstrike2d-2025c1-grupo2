@@ -32,6 +32,7 @@ MainWindow::MainWindow(const std::vector<std::string>& mapasIngresados,
 
     ui->create->hide();
     ui->join->hide();
+    ui->skin->hide();
 
     connect(ui->operacion, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &MainWindow::guardarOperacion);
@@ -114,6 +115,12 @@ void MainWindow::guardarNombrePartida() {
     info_aux.matchName = name.toStdString();
 }
 
+void MainWindow::guardarNumJugadores() {
+    QString num = ui->cantJugadores->text();
+
+    info_aux.numPlayers = num.toInt();
+}
+
 void MainWindow::guardarPartidaElegida(int index) {
     std::string partidaElegida = ui->partidas->itemData(index).toString().toStdString();
     info_aux.matchName = partidaElegida;
@@ -122,11 +129,46 @@ void MainWindow::guardarPartidaElegida(int index) {
 void MainWindow::guardarEquipo(int index) {
     QString equipo = ui->equipo->itemData(index).toString();
 
+    ui->typeSkin->clear();
     if (equipo == "terrorist") {
         info_aux.player_type = PlayerType::TERRORIST;
+        ui->skin->show();
+        // Skin
+        ui->typeSkin->addItem("Select operation...");
+        QStandardItemModel* model1 = qobject_cast<QStandardItemModel*>(ui->typeSkin->model());
+        if (model1) {
+            QStandardItem* item = model1->item(0);
+            if (item) {
+                item->setEnabled(false);
+            }
+        }
+        for (const std::string& skin: skinsTerrorist) {
+            QString s = QString::fromStdString(skin);
+            ui->typeSkin->addItem(s, QVariant(s));
+        }
     } else {
         info_aux.player_type = PlayerType::COUNTERTERRORIST;
+        ui->skin->show();
+        // Skin
+        ui->typeSkin->addItem("Select operation...");
+        QStandardItemModel* model1 = qobject_cast<QStandardItemModel*>(ui->typeSkin->model());
+        if (model1) {
+            QStandardItem* item = model1->item(0);
+            if (item) {
+                item->setEnabled(false);
+            }
+        }
+        for (const std::string& skin: skinsCounterTerrorist) {
+            QString s = QString::fromStdString(skin);
+            ui->typeSkin->addItem(s, QVariant(s));
+        }
     }
+}
+
+void MainWindow::guardarTipoSkin(int index) {
+    QString skin = ui->typeSkin->itemData(index).toString();
+
+    info_aux.skin = skin_str_to_type(skin.toStdString());
 }
 
 bool MainWindow::validarInfo() {
@@ -135,7 +177,7 @@ bool MainWindow::validarInfo() {
         return false;
     }
     if (info_aux.type == ActionType::CREATE &&
-        (info_aux.mapSelected.empty() || info_aux.matchName.empty())) {
+        (info_aux.mapSelected.empty() || info_aux.matchName.empty() || info_aux.numPlayers == 0)) {
         QMessageBox::warning(this, "Error", "Empty fields");
         return false;
     }
@@ -143,7 +185,7 @@ bool MainWindow::validarInfo() {
         QMessageBox::warning(this, "Error", "Select a match");
         return false;
     }
-    if (info_aux.player_type == PlayerType::UNKNOWN) {
+    if (info_aux.player_type == PlayerType::UNKNOWN || info_aux.skin == PlayerSkin::UNKNOWN) {
         QMessageBox::warning(this, "Error", "Select an option");
         return false;
     }
@@ -155,19 +197,22 @@ void MainWindow::saveDTO() {
         int indexMap = ui->maps->currentIndex();
         guardarMapa(indexMap);
         guardarNombrePartida();
+        guardarNumJugadores();
     } else if (info_aux.type == ActionType::JOIN) {
         int indexPartida = ui->partidas->currentIndex();
         guardarPartidaElegida(indexPartida);
     }
+    int indexSkin = ui->typeSkin->currentIndex();
+    guardarTipoSkin(indexSkin);
 
     if (!validarInfo()) {
         return;
     }
     if (info_aux.type == ActionType::CREATE) {
         info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
-                         info_aux.player_type);
+                         info_aux.numPlayers, info_aux.player_type, info_aux.skin);
     } else if (info_aux.type == ActionType::JOIN) {
-        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.player_type);
+        info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.player_type, info_aux.skin);
     }
 
     // ui->operacion->setCurrentIndex(0);
@@ -177,6 +222,8 @@ void MainWindow::saveDTO() {
     // ui->equipo->setCurrentIndex(0);
     // ui->create->hide();
     // ui->join->hide();
+    // ui->typeSkin->setCurrentIndex(0);
+    // ui->skin->hide();
 
     QApplication::quit();
 }

@@ -47,7 +47,7 @@ std::vector<std::shared_ptr<Object>>& Game::get_objects() {
     return objects;
 }
 
-void Game::add_player(PlayerType player_type, uint16_t id) {
+void Game::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     /*
         Agrega un jugador al juego con el tipo y ID especificados.
     */
@@ -58,11 +58,11 @@ void Game::add_player(PlayerType player_type, uint16_t id) {
         return;
     }
 
-    std::vector<uint16_t> position = get_random_player_position(player_type, id);
+    std::vector<uint16_t> position = get_random_player_position(player_type, player_skin, id);
 
-    std::shared_ptr<Player> player =
-            std::make_shared<Player>(id, position, player_type, config.get_player_health(),
-                                     config.get_player_money(), weapon_shop);
+    std::shared_ptr<Player> player = std::make_shared<Player>(
+            id, position, player_type, player_skin, config.get_player_health(),
+            config.get_player_money(), weapon_shop);
 
     // Agregar el jugador a players
     players.insert({id, player});
@@ -301,8 +301,8 @@ void Game::end_round_game_phase() {
             remove_from_matrix(ObjectType::PLAYER, id, player->get_position());
 
             // Actualiza la posición del jugador
-            std::vector<uint16_t> new_position =
-                    get_random_player_position(player->get_player_type(), id);
+            std::vector<uint16_t> new_position = get_random_player_position(
+                    player->get_player_type(), player->get_player_skin(), id);
             player->move(new_position);
 
             // Actualiza la posición del jugador en la matriz
@@ -1011,7 +1011,8 @@ void Game::initialize_objects() {
     }
 }
 
-std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, uint16_t id) {
+std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type,
+                                                       PlayerSkin player_skin, uint16_t id) {
     /*
         Devuelve una posición aleatoria válida para un jugador, dentro de la zona de su equipo.
         Si no hay zona definida, busca en todo el mapa, siempre chequeando colisiones.
@@ -1056,7 +1057,7 @@ std::vector<uint16_t> Game::get_random_player_position(PlayerType player_type, u
         auto cell = get_cell_from_position(pos);
         auto ady = get_adyacent_objects(cell);
 
-        Player temp_player(id, pos, player_type, config.get_player_health(),
+        Player temp_player(id, pos, player_type, player_skin, config.get_player_health(),
                            config.get_player_money(), weapon_shop);
         auto collision = collides(temp_player, pos, ady);
         if (collision.first == ObjectType::UNKNOWN) {

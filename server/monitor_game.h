@@ -19,7 +19,7 @@ public:
     explicit MonitorGame(Config& config, Map& map);
 
     /* Agregar jugador */
-    void add_player(PlayerType player_type, uint16_t id);
+    void add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id);
 
     /* Validación */
     bool is_ready_to_start();

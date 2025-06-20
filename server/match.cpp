@@ -269,9 +269,9 @@ void Match::run() {
 }
 
 /* Añadir jugador */
-void Match::add_player(PlayerType player_type, uint16_t id) {
+void Match::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    monitor_game.add_player(player_type, id);
+    monitor_game.add_player(player_type, player_skin, id);
 }
 
 /* Getters */

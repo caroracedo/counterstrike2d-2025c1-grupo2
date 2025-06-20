@@ -4,9 +4,9 @@
 MonitorGame::MonitorGame(Config& config, Map& map): game(config, map) {}
 
 /* Agregar jugador */
-void MonitorGame::add_player(PlayerType player_type, uint16_t id) {
+void MonitorGame::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    game.add_player(player_type, id);
+    game.add_player(player_type, player_skin, id);
 }
 
 /* Validación */

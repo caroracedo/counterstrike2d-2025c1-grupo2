@@ -22,6 +22,7 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 byte_converter.push_hexa_to(
                         byte_converter.int_16_to_hex_big_endian(action_dto.objects[i].id), data);
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_type));
+                data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_skin));
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
                 byte_converter.push_hexa_to(
@@ -144,13 +145,18 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
     switch (type) {
         case ActionType::CREATE: {
             uint16_t match_size = byte_converter.hex_big_endian_to_int_16({data[1], data[2]});
-            return {type, std::string(data.begin() + 3, data.begin() + 3 + match_size),
-                    std::string(data.begin() + 3 + match_size, data.end() - 1),
-                    static_cast<PlayerType>(data.back()), id};  // Agrega el id del jugador...
+            return {type,
+                    std::string(data.begin() + 3, data.begin() + 3 + match_size),
+                    std::string(data.begin() + 3 + match_size, data.end() - 4),
+                    byte_converter.hex_big_endian_to_int_16(
+                            {data[data.size() - 4], data[data.size() - 3]}),
+                    static_cast<PlayerType>(data[data.size() - 2]),
+                    static_cast<PlayerSkin>(data.back())};  // Agrega el id del jugador...
         }
         case ActionType::JOIN:
-            return {type, std::string(data.begin() + 1, data.end() - 1),
-                    static_cast<PlayerType>(data.back()), id};  // Agrega el id del jugador...
+            return {type, std::string(data.begin() + 1, data.end() - 2),
+                    static_cast<PlayerType>(data[data.size() - 2]),
+                    static_cast<PlayerSkin>(data.back())};  // Agrega el id del jugador...
         case ActionType::MOVE:
             return {type, static_cast<Direction>(data[1]), id};  // Agrega el id del jugador...
         case ActionType::SHOOT:

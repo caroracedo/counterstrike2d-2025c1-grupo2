@@ -29,6 +29,7 @@ enum class ActionType : uint8_t {
     STATS = 0x9D,
     START = 0x3D,
     ROTATE = 0x2D,
+    INIT = 0x10,
     UNKNOWN = 0x00
 };
 
@@ -43,10 +44,16 @@ enum class Direction : uint8_t {
 struct ActionDTO {
     ActionType type;
 
+    /* Init */
+    std::string hostname;
+    std::string servname;
+
     /* Partida */
     std::string match;
     std::string map;
+    uint16_t number_players;
     PlayerType player_type;
+    PlayerSkin player_skin;
     TerrainType terrain_type;
     /* Mover */
     Direction direction;
@@ -84,18 +91,16 @@ struct ActionDTO {
     ActionDTO(ActionType action, uint16_t value);
 
     /* client -> server */
+    /* Init */
+    ActionDTO(const ActionType& action, const std::string& hostname, const std::string& servname);
     /* Crear Partida */
     ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-              const PlayerType& player_type);
-    /* Crear Partida con id (en server)*/
-    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-              const PlayerType& player_type, uint16_t id);
+              uint16_t number_players, const PlayerType& player_type,
+              const PlayerSkin& player_skin);
 
     /* Unirse a una Partida */
-    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
-    /* Unirse a una Partida con id (en server) */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
-              uint16_t id);
+              const PlayerSkin& player_skin);
 
     /* Mover */
     ActionDTO(const ActionType& action, const Direction& direction);

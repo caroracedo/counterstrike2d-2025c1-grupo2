@@ -1,102 +1,80 @@
 #include "object_DTO.h"
+/* Unknown */
+
+ObjectDTO::ObjectDTO():
+        type(ObjectType::UNKNOWN),
+        position(),
+        id(),
+        player_type(),
+        player_skin(),
+        angle(),
+        weapon_model(),
+        health(),
+        money(),
+        ammo(),
+        width(),
+        height(),
+        obstacle_type(),
+        bomb_countdown() {}
+
 /* Player */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t id,
-                     PlayerType player_type, WeaponModel weapon_model, uint16_t health,
-                     uint16_t money, uint16_t ammo, float angle):
-        type(type),
-        position(position),
-        id(id),
-        player_type(player_type),
-        angle(angle),
-        weapon_model(weapon_model),
-        health(health),
-        money(money),
-        ammo(ammo),
-        width(0),
-        height(0),
-        obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0) {}
+                     PlayerType player_type, PlayerSkin player_skin, WeaponModel weapon_model,
+                     uint16_t health, uint16_t money, uint16_t ammo, float angle):
+        ObjectDTO() {
+    this->type = type;
+    this->position = position;
+    this->id = id;
+    this->player_type = player_type;
+    this->player_skin = player_skin;
+    this->angle = angle;
+    this->weapon_model = weapon_model;
+    this->health = health;
+    this->money = money;
+    this->ammo = ammo;
+}
 
 /* Obstáculo */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
                      uint16_t height, ObstacleType obstacle_type):
-        type(type),
-        position(position),
-        id(0),
-        player_type(PlayerType::UNKNOWN),
-        angle(0),
-        weapon_model(WeaponModel::UNKNOWN),
-        health(0),
-        money(0),
-        ammo(0),
-        width(width),
-        height(height),
-        obstacle_type(obstacle_type),
-        bomb_countdown(0) {}
+        ObjectDTO() {
+    this->type = type;
+    this->position = position;
+    this->width = width;
+    this->height = height;
+    this->obstacle_type = obstacle_type;
+}
 
 /* Zona de Bomba */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position, uint16_t width,
                      uint16_t height):
-        type(type),
-        position(position),
-        id(0),
-        player_type(PlayerType::UNKNOWN),
-        angle(0),
-        weapon_model(WeaponModel::UNKNOWN),
-        health(0),
-        money(0),
-        ammo(0),
-        width(width),
-        height(height),
-        obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0) {}
+        ObjectDTO() {
+    this->type = type;
+    this->position = position;
+    this->width = width;
+    this->height = height;
+}
 
 /* Bala */
-ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position):
-        type(type),
-        position(position),
-        id(0),
-        player_type(PlayerType::UNKNOWN),
-        angle(0),
-        weapon_model(WeaponModel::UNKNOWN),
-        health(0),
-        money(0),
-        ammo(0),
-        width(0),
-        height(0),
-        obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0) {}
+ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position): ObjectDTO() {
+    this->type = type;
+    this->position = position;
+}
 
 /* Bomba */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
                      uint16_t bomb_countdown):
-        type(type),
-        position(position),
-        id(0),
-        player_type(PlayerType::UNKNOWN),
-        angle(0),
-        weapon_model(WeaponModel::UNKNOWN),
-        health(0),
-        money(0),
-        ammo(0),
-        width(0),
-        height(0),
-        obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(bomb_countdown) {}
+        ObjectDTO() {
+    this->type = type;
+    this->position = position;
+    this->bomb_countdown = bomb_countdown;
+}
 
 /* Arma */
 ObjectDTO::ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
                      const WeaponModel& weapon_model):
-        type(type),
-        position(position),
-        id(0),
-        player_type(PlayerType::UNKNOWN),
-        angle(0),
-        weapon_model(weapon_model),
-        health(0),
-        money(0),
-        ammo(0),
-        width(0),
-        height(0),
-        obstacle_type(ObstacleType::UNKNOWN),
-        bomb_countdown(0) {}
+        ObjectDTO() {
+    this->type = type;
+    this->position = position;
+    this->weapon_model = weapon_model;
+}

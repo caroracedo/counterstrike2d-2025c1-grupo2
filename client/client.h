@@ -2,6 +2,8 @@
 #define CLIENT_H
 
 #include "common/action_DTO.h"
+#include "graphics/game_view.h"
+#include "graphics/input_handler.h"
 
 #include "client_protocol.h"
 #include "client_receiver.h"
@@ -9,24 +11,15 @@
 
 class Client {
 private:
-    /* Configuración */
-    Socket client_socket;
-    ClientProtocol protocol;
-
     Queue<ActionDTO> send_queue;
     Queue<ActionDTO> recv_queue;
 
-    ClientSender sender;
-    ClientReceiver receiver;
-
     /* Ejecución */
-    ActionDTO lobby();
-    void match_loop(const ActionDTO& configuration);
+    ActionDTO prelobby();
+    ActionDTO lobby(ClientProtocol& protocol);
+    void match_loop(InputHandler& input_handler, GameView& game_view);
 
 public:
-    /* Constructor */
-    Client(const char* hostname, const char* servname);
-
     /* Ejecución */
     void run();
 };

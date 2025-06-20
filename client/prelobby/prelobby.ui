@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreLobby</class>
+ <widget class="QMainWindow" name="PreLobby">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>411</width>
+    <height>267</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pre lobby</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: #0f1a52</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>391</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+      <widget class="QLineEdit" name="hostname">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    background-color: #3C5B9B;  
+    color: black;                
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+}
+
+QLineEdit:focus {
+    background-color: #5A78B4;    
+    outline: none;               
+}</string>
+       </property>
+       <property name="placeholderText">
+        <string>Enter a hostname</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+      <widget class="QLineEdit" name="servname">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    background-color: #3C5B9B;  
+    color: black;                
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+}
+
+QLineEdit:focus {
+    background-color: #5A78B4;    
+    outline: none;               
+}</string>
+       </property>
+       <property name="placeholderText">
+        <string>Enter a port</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+      <widget class="QPushButton" name="aceptar">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #3C5B9B;  
+    color: black;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+}
+QPushButton:hover {
+    background-color: #5A78B4; 
+}
+QPushButton:pressed {
+    background-color: #2A4277;  
+}</string>
+       </property>
+       <property name="text">
+        <string>Accept</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>411</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

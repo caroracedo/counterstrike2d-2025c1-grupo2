@@ -24,17 +24,18 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
             case ObjectType::PLAYER: {
                 std::vector<uint8_t> id(data.begin() + i + 5, data.begin() + i + 7);
                 PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
-                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 8]);
-                std::vector<uint8_t> money(data.begin() + i + 10, data.begin() + i + 12);
-                std::vector<uint8_t> ammo(data.begin() + i + 12, data.begin() + i + 14);
-                std::vector<uint8_t> angle(data.begin() + i + 14, data.begin() + i + 18);
+                PlayerSkin player_skin = static_cast<PlayerSkin>(data[i + 8]);
+                WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 9]);
+                std::vector<uint8_t> money(data.begin() + i + 11, data.begin() + i + 13);
+                std::vector<uint8_t> ammo(data.begin() + i + 13, data.begin() + i + 15);
+                std::vector<uint8_t> angle(data.begin() + i + 15, data.begin() + i + 19);
                 objects.push_back({object_type, position,
                                    byte_converter.hex_big_endian_to_int_16(id), player_type,
-                                   weapon_model, data[i + 9],
+                                   player_skin, weapon_model, data[i + 10],
                                    byte_converter.hex_big_endian_to_int_16(money),
                                    byte_converter.hex_big_endian_to_int_16(ammo),
                                    byte_converter.hex_big_endian_to_float(angle)});
-                i += 18;
+                i += 19;
                 break;
             }
             case ObjectType::BOMBZONE: {
@@ -191,11 +192,15 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
                     byte_converter.int_16_to_hex_big_endian(action.match.size()), data);
             data.insert(data.end(), action.match.begin(), action.match.end());
             data.insert(data.end(), action.map.begin(), action.map.end());
+            byte_converter.push_hexa_to(
+                    byte_converter.int_16_to_hex_big_endian(action.number_players), data);
             data.push_back(static_cast<uint8_t>(action.player_type));
+            data.push_back(static_cast<uint8_t>(action.player_skin));
             break;
         case ActionType::JOIN:
             data.insert(data.end(), action.match.begin(), action.match.end());
             data.push_back(static_cast<uint8_t>(action.player_type));
+            data.push_back(static_cast<uint8_t>(action.player_skin));
             break;
         case ActionType::MOVE:
             data.push_back(static_cast<uint8_t>(action.direction));

@@ -144,7 +144,8 @@ private:
      ******************************************************************************************/
     void initialize_objects();
 
-    std::vector<uint16_t> get_random_player_position(PlayerType player_type, uint16_t id);
+    std::vector<uint16_t> get_random_player_position(PlayerType player_type, PlayerSkin player_skin,
+                                                     uint16_t id);
 
     void set_bomb_player();
 
@@ -174,7 +175,7 @@ public:
 
     std::vector<std::shared_ptr<Object>>& get_objects();
 
-    void add_player(PlayerType player_type, uint16_t id);
+    void add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id);
 
     bool move(Direction direction, const uint16_t& id);
 

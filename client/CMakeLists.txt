@@ -8,6 +8,8 @@ target_sources(taller_client
         ${CLIENT_SOURCES}
 )
 
+add_subdirectory(prelobby)
+
 add_subdirectory(lobby)
 
 add_subdirectory(graphics)

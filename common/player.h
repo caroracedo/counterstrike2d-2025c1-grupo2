@@ -14,6 +14,7 @@
 class Player: public Object {
 private:
     PlayerType player_type;
+    PlayerSkin player_skin;
     uint16_t health;
     uint16_t money;
     uint16_t radius = PLAYER_RADIUS;
@@ -31,8 +32,8 @@ private:
     WeaponDTO drop_primary_weapon();
 
 public:
-    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
-           uint16_t initial_money, WeaponShop& weapon_shop);
+    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
+           PlayerSkin player_skin, uint8_t health, uint16_t initial_money, WeaponShop& weapon_shop);
 
     ObjectDTO get_dto() const override;
 
@@ -54,6 +55,7 @@ public:
     void plant_bomb();
     void set_bomb();
 
+    PlayerSkin get_player_skin() const;
     PlayerType get_player_type() const;
     void switch_player_type();
 

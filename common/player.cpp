@@ -2,10 +2,12 @@
 
 #include <iostream>
 
-Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
-               uint16_t initial_money, WeaponShop& weapon_shop):
+Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
+               PlayerSkin player_skin, uint8_t health, uint16_t initial_money,
+               WeaponShop& weapon_shop):
         Object(ObjectType::PLAYER, id, position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2),
         player_type(type),
+        player_skin(player_skin),
         health(health),
         money(initial_money),
         weapon_shop(weapon_shop),
@@ -14,8 +16,8 @@ Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType ty
         current(&secondary_weapon) {}
 
 ObjectDTO Player::get_dto() const {
-    return ObjectDTO(object_type, position, id, player_type, current->get_model(), health, money,
-                     current->get_ammo(), angle);
+    return ObjectDTO(object_type, position, id, player_type, player_skin, current->get_model(),
+                     health, money, current->get_ammo(), angle);
 }
 
 bool Player::is_alive() const { return health > 0; }
@@ -118,6 +120,8 @@ bool Player::can_plant_bomb() const { return has_bomb; }
 void Player::plant_bomb() { has_bomb = false; }
 
 void Player::set_bomb() { has_bomb = true; }
+
+PlayerSkin Player::get_player_skin() const { return player_skin; }
 
 PlayerType Player::get_player_type() const { return player_type; }
 
