@@ -3,7 +3,7 @@
 #include <iostream>
 
 Bomb::Bomb(const std::vector<uint16_t>& position):
-        Object(ObjectType::BOMB, 0, position, BOMB_RADIUS, BOMB_RADIUS) {}
+        Object(ObjectType::BOMB, 0, position, BOMB_SIZE, BOMB_SIZE) {}
 
 ObjectDTO Bomb::get_dto() const {
     return ObjectDTO(object_type, position,

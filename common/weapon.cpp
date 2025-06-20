@@ -3,31 +3,33 @@
 /* Constructor */
 Weapon::Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
                uint16_t _max_damage, float _precision, uint16_t ammo):
-        Object(ObjectType::WEAPON, id, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
+        Object(ObjectType::WEAPON, id, {0, 0}, WEAPON_WIDTH, WEAPON_WIDTH),
         model(model),
         range(range),
         min_damage(_min_damage),
         max_damage(_max_damage),
         precision(_precision),
-        ammo(ammo) {}
+        ammo(ammo) {fix_height();}
 
 Weapon::Weapon():
-        Object(ObjectType::WEAPON, 0, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
+        Object(ObjectType::WEAPON, 0, {0, 0}, WEAPON_WIDTH, WEAPON_WIDTH),
         model(WeaponModel::UNKNOWN),
         range(0),
         min_damage(0),
         max_damage(0),
         precision(0),
-        ammo(0) {}
+        ammo(0) {fix_height();}
 
 Weapon::Weapon(const WeaponDTO& weapon_dto):
-        Object(ObjectType::WEAPON, weapon_dto.id, {0, 0}, WEAPON_SIZE, WEAPON_SIZE),
+        Object(ObjectType::WEAPON, weapon_dto.id, {0, 0}, WEAPON_WIDTH, WEAPON_WIDTH),
         model(weapon_dto.model),
         range(weapon_dto.range),
         min_damage(weapon_dto.min_damage),
         max_damage(weapon_dto.max_damage),
         precision(weapon_dto.precision),
-        ammo(weapon_dto.ammo) {}
+        ammo(weapon_dto.ammo) {fix_height();}
+
+
 
 /* Verificaciones */
 bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
@@ -75,3 +77,21 @@ bool Weapon::shoot() {
 void Weapon::add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
 
 bool Weapon::operator==(const Weapon& other) const { return this->model == other.model; }
+
+void Weapon::fix_height() {
+    switch (model){
+        case WeaponModel::AK47 : {
+            height = AK47_HEIGHT;
+            break;
+        }
+        case WeaponModel::M3 : {
+            height = M3_HEIGHT;
+            break;
+        }
+        case WeaponModel::AWP : {
+            height = AWP_HEIGHT;
+            break;
+        }
+        default : break;
+    }
+}

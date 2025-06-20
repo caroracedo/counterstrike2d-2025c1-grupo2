@@ -165,9 +165,11 @@ void Game::pick_up_weapon(uint16_t id) {
                 }
                 return;
             }
-        } else if (obj->get_type() == ObjectType::BOMB &&
-                   distance_between(player_position, obj->get_position()) <=
-                           PLAYER_RADIUS + BOMB_RADIUS + 1) {
+        } else if (obj->get_type() == ObjectType::BOMB) {
+            bool is_near_bomb = circle_rectangle_collision(player_position, PLAYER_RADIUS + 1, obj->get_position(), obj->get_width(), obj->get_height());
+            if (!is_near_bomb){
+                continue;
+            }                                             
             WeaponDTO bomb_dto;
             bomb_dto.model = WeaponModel::BOMB;
             player_ptr->pick_up_weapon(bomb_dto);
@@ -1000,13 +1002,28 @@ void Game::drop_weapons(uint16_t id) {
     }
     auto result = players_it->second->drop_weapons();
     std::vector<uint16_t> position = players_it->second->get_position();
-    std::vector<uint16_t> weapon_position = {static_cast<uint16_t>(position[0] - PLAYER_RADIUS),
-                                             static_cast<uint16_t>(position[1] - PLAYER_RADIUS)};
+    // El arma se crea en el lugar del jugador
+    std::vector<uint16_t> weapon_position = {static_cast<uint16_t>(position[0]-PLAYER_RADIUS),
+                                             static_cast<uint16_t>(position[1]-PLAYER_RADIUS)};
     create_weapon(result.first, weapon_position);
+    
     if (result.second) {
-        std::vector<uint16_t> bomb_position = {static_cast<uint16_t>(position[0] + 8),
-                                               static_cast<uint16_t>(position[1] + 8)};
-        create_bomb(bomb_position);
+        // Busca una celda adyacente sin obstáculos para soltar la bomba
+        std::pair<uint16_t, uint16_t> cell = get_cell_from_position(position);
+        std::vector<std::pair<uint16_t, uint16_t>> adyacent_cells = get_cells_within_radius(cell, 1);
+
+        for (const auto& ady_cell: adyacent_cells) {
+            auto cell_objects = matrix[ady_cell.first][ady_cell.second];
+            if (std::count_if(cell_objects.begin(), cell_objects.end(),
+                          [](const auto& o) {
+                                return o->get_type() == ObjectType::OBSTACLE;
+                          }) == 0){
+                std::vector<uint16_t> bomb_position = {static_cast<uint16_t>(ady_cell.first * CELL_SIZE), static_cast<uint16_t>(ady_cell.second * CELL_SIZE)};
+                create_bomb(bomb_position);
+                break;
+            }
+        }
+        
     }
     return;
 }
@@ -1124,6 +1141,7 @@ void Game::set_bomb_player() {
         auto bomb_carrier_id = terrorists_ids[dis(gen)];
         auto player_it = players.find(bomb_carrier_id);
         if (player_it != players.end()) {
+            std::cout << "Player with id "<< player_it->second->get_id() << " has bomb\n"; 
             player_it->second->set_bomb();
         }
     }
@@ -1209,12 +1227,12 @@ void Game::delete_bomb() {
     auto cell = get_cell_from_position(bomb->get_position());
     auto& vec = matrix[cell.first][cell.second];
     vec.erase(std::remove_if(vec.begin(), vec.end(),
-                             [this](const std::shared_ptr<Object>& o) { return o == bomb; }),
+                             [this](const std::shared_ptr<Object>& o) { return o->get_type() == ObjectType::BOMB; }),
               vec.end());
 
     // Eliminar de objects
     objects.erase(std::remove_if(objects.begin(), objects.end(),
-                                 [this](const std::shared_ptr<Object>& o) { return o == bomb; }),
+                                 [this](const std::shared_ptr<Object>& o) { return o->get_type() == ObjectType::BOMB; }),
                   objects.end());
 
     // Limpiar referencia

@@ -54,6 +54,8 @@ void GameView::update(const ActionDTO& action) {
         sounds_played = true;
     }
 
+    int bombs_in_match = 0;
+
     shop_view.set_visible(false);
     stats_view.set_visible(false);
     if (is_alive)
@@ -73,6 +75,7 @@ void GameView::update(const ActionDTO& action) {
         } else if (object.type == ObjectType::BULLET) {
             update_bullets(object);
         } else if (object.type == ObjectType::BOMB) {
+            bombs_in_match++;
             if (object.bomb_countdown == 0) {
                 bomb_view.explode();
             } else {
@@ -93,6 +96,10 @@ void GameView::update(const ActionDTO& action) {
         }
     }
 
+    if (bombs_in_match == 0) {
+        bomb_view.reset();
+    } 
+    
     for (auto it = players.begin(); it != players.end();) {
         if (players_in_game.find(it->first) == players_in_game.end()) {
             if (it->first == local_id) {
@@ -228,6 +235,10 @@ void GameView::render() {
         gun->draw(renderer, camera);
     }
 
+    if (fov_view.is_visible() && players[local_id]) {
+        fov_view.draw(players[local_id]->get_angle());
+    }
+
     hud_view.draw(bomb_view.is_active());
 
     shop_view.render();
@@ -236,18 +247,11 @@ void GameView::render() {
     if (show_pre_lobby)
         stats_view.render_pre_lobby();
 
-    if (fov_view.is_visible() && players[local_id]) {
-        fov_view.draw(players[local_id]->get_angle());
-    }
     render_cursor();
 
     renderer.Present();
 }
 
-// void GameView::update_graphics(const ActionDTO& action){
-//     update(action);
-//     render();
-// }
 
 void GameView::frame_sync() {
     static uint32_t last_frame = SDL_GetTicks();
