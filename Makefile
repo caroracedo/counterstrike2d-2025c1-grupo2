@@ -4,13 +4,21 @@ LIME   := \033[38;2;138;206;0m
 RESET  := \033[0m
 
 SYSTEM_DEPENDENCIES = \
+    cmake \
+    g++ \
     libsdl2-dev \
     libsdl2-image-dev \
     libsdl2-mixer-dev \
     libsdl2-ttf-dev \
     libsdl2-gfx-dev \
     qt6-base-dev \
-    qt6-base-dev-tools
+    qt6-base-dev-tools \
+    libopus-dev \
+    libopusfile-dev \
+    libxmp-dev \
+    libfluidsynth-dev \
+    libwavpack-dev \
+    libfreetype-dev 
 
 compile-debug:
 	@echo "$(LIME)Compilando en modo debug...$(RESET)"
