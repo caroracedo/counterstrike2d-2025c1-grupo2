@@ -1,10 +1,11 @@
 #ifndef DROP_VIEW_H
 #define DROP_VIEW_H
 
+#include <cmath>
+#include <map>
 #include <string>
 #include <unordered_map>
-#include <map>
-#include <cmath>
+
 #include <SDL2pp/SDL2pp.hh>
 
 #include "common/constants.h"
@@ -35,15 +36,15 @@ private:
 public:
     DropView(SDL2pp::Renderer& renderer, TextureManager& texture_manager):
             renderer(renderer), texture_manager(texture_manager) {
-                initialize_resources();
+        initialize_resources();
     }
 
-    void initialize_resources(){
+    void initialize_resources() {
         drops[WeaponModel::GLOCK] = "glock_d";
         drops[WeaponModel::AK47] = "ak47_d";
         drops[WeaponModel::AWP] = "awp_d";
         drops[WeaponModel::M3] = "m3_d";
-        
+
         sizes[WeaponModel::AK47] = {51, 17};
         sizes[WeaponModel::M3] = {50, 16};
         sizes[WeaponModel::AWP] = {66, 16};
@@ -71,10 +72,10 @@ public:
         float scaled_height = std::floor(height / scale);
 
         SDL2pp::Rect dst_rect = {static_cast<int>(screenX), static_cast<int>(screenY), GUN_WIDTH,
-                                static_cast<int>(scaled_height)};
+                                 static_cast<int>(scaled_height)};
 
         SDL2pp::Texture& texture = *texture_manager.get_texture(drops[type]);
-        
+
         renderer.Copy(texture, src_rect, dst_rect);
     }
 };

@@ -83,7 +83,6 @@ std::vector<uint16_t> Bullet::get_next_position() const {
     /*
         Calcula la siguiente posición de la bala basada en su posición actual, el rango restante,
         y la posición objetivo.
-        Si la bala está en su posición objetivo, devuelve la posición actual.
     */
     if (target_position.size() != 2)
         return position;
@@ -94,18 +93,17 @@ std::vector<uint16_t> Bullet::get_next_position() const {
     float dx = static_cast<float>(target_position[0]) - cx;
     float dy = static_cast<float>(target_position[1]) - cy;
 
+    std::cout << "BALA get_next_position:\n";
+    std::cout << "  Pos actual: (" << cx << ", " << cy << ")\n";
+    std::cout << "  Target:     (" << target_position[0] << ", " << target_position[1] << ")\n";
+    std::cout << "  dx: " << dx << "  dy: " << dy << std::endl;
+
     float dist_to_target = std::sqrt(dx * dx + dy * dy);
     if (dist_to_target == 0) {
         return position;
     }
 
     float step = std::min(static_cast<float>(MOVE_STEP), static_cast<float>(range));
-    if (dist_to_target <= step) {
-        // Si el paso es mayor o igual a la distancia restante, ir directo al target
-        return {static_cast<uint16_t>(std::round(target_position[0])),
-                static_cast<uint16_t>(std::round(target_position[1]))};
-    }
-
     float v_step = step / dist_to_target;
     float step_dx = dx * v_step;
     float step_dy = dy * v_step;
@@ -120,7 +118,8 @@ std::vector<uint16_t> Bullet::get_next_position() const {
     std::vector<uint16_t> next_pos = {static_cast<uint16_t>(std::round(nx_c)),
                                       static_cast<uint16_t>(std::round(ny_c))};
 
-    std::cout << "Next position: " << next_pos[0] << " " << next_pos[1] << std::endl;
+    std::cout << "  Next pos:   (" << next_pos[0] << ", " << next_pos[1] << ")\n";
+
     return next_pos;
 }
 
@@ -178,8 +177,10 @@ void Bullet::set_starting_position(float angle_degrees,
     x_bullet = std::max(min_pos, std::min(x_bullet, max_pos));
     y_bullet = std::max(min_pos, std::min(y_bullet, max_pos));
 
-    start_position = {static_cast<uint16_t>(std::round(x_bullet)),
-                      static_cast<uint16_t>(std::round(y_bullet))};
+    position = {static_cast<uint16_t>(std::round(x_bullet)),
+                static_cast<uint16_t>(std::round(y_bullet))};
+
+    start_position = position;
 
     std::cout << "Player position: " << player_center[0] << " " << player_center[1]
               << ", \nStarting position: " << start_position[0] << " " << start_position[1]
