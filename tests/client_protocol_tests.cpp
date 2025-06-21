@@ -152,6 +152,42 @@ TEST(CLIENT_PROTOCOL, UPDATE) {
 }
 
 /* Test START QUIT y END */
+TEST(CLIENT_PROTOCOL, START) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 9));
+    Socket socket(HOSTNAME, SERVNAME);
+    ClientProtocol protocol(socket);
+
+    // Envió de START
+    EXPECT_TRUE(protocol.serialize_and_send_action(ActionDTO{ActionType::START}))
+            << "Sending start should succeed.";
+
+    protocol.kill();
+}
+
+TEST(CLIENT_PROTOCOL, QUIT) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 11));
+    Socket socket(HOSTNAME, SERVNAME);
+    ClientProtocol protocol(socket);
+
+    // Envió de QUIT
+    EXPECT_TRUE(protocol.serialize_and_send_action(ActionDTO{ActionType::QUIT}))
+            << "Sending quit should succeed.";
+
+    protocol.kill();
+}
+
+TEST(CLIENT_PROTOCOL, END) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 13));
+    Socket socket(HOSTNAME, SERVNAME);
+    ClientProtocol protocol(socket);
+
+    // Recepción de END
+    ActionDTO end = protocol.receive_and_deserialize_action();
+    ActionType expected_type = ActionType::END;
+    EXPECT_EQ(end.type, expected_type) << "Received type does not match expected type.";
+
+    protocol.kill();
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

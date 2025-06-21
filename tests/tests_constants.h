@@ -14,7 +14,7 @@
 #define MAP_2 "b"
 #define MAP_1_TERRAIN_TYPE TerrainType::PUEBLOAZTECA
 #define ID_1 1
-#define TIME 10
+#define TIME 100
 #define WEAPON_1 WeaponModel::AK47
 #define WEAPON_2 WeaponModel::M3
 #define AMMO 10  // TODO: Esto me hizo acordar que se hardcodea el AMMO en InputHandler

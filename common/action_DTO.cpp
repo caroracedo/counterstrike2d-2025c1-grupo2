@@ -32,6 +32,7 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value): ActionDTO() {
         case ActionType::CHANGE:
         case ActionType::PICKUP:
         case ActionType::QUIT:
+        case ActionType::START:
             this->id = value;
             break;
         case ActionType::AMMOPRIMARY:
