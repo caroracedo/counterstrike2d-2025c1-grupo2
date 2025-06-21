@@ -45,7 +45,7 @@ public:
     std::pair<WeaponDTO, bool> drop_weapons();
     WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
 
-    bool buy_weapon(const WeaponModel& weapon_model);
+    WeaponDTO buy_weapon(const WeaponModel& weapon_model);
     bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
     void add_money(uint16_t amount);
 

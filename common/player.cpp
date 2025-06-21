@@ -82,14 +82,19 @@ WeaponDTO Player::pick_up_weapon(const WeaponDTO& weapon_dto) {
     return weapon_dropped;
 }
 
-bool Player::buy_weapon(const WeaponModel& weapon_model) {
+WeaponDTO Player::buy_weapon(const WeaponModel& weapon_model) {
+    /*
+        Compra el arma especificada y devuelve un DTO con el arma que ya tenía (si es que tenía)
+    */
+    WeaponDTO old_weapon;
     std::pair<uint16_t, Weapon> purchase = weapon_shop.sell_weapon(weapon_model, money);
     if (purchase.second.get_model() == WeaponModel::UNKNOWN) {
-        return false;
+        return old_weapon;
     }
+    old_weapon = drop_primary_weapon();
     money -= purchase.first;
     primary_weapon = purchase.second;
-    return true;
+    return old_weapon;
 }
 
 bool Player::buy_ammo(WeaponType weapon_type, uint16_t ammo_amount) {
