@@ -20,6 +20,8 @@ private:
     float precision;
     uint16_t ammo;
 
+    void fix_height();
+
 public:
     /* Constructor */
     Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
