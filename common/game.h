@@ -35,7 +35,7 @@ struct Ak47Burst {
     std::vector<uint16_t> player_position;
     uint16_t player_id;
     WeaponDTO weapon_dto;
-    std::vector<uint16_t> desired_position;
+    float angle;
     int shots_left;
     float time_until_next_shot;  // en segundos
 };
@@ -112,7 +112,7 @@ private:
     bool damage_player(uint16_t id, uint16_t damage);
 
     void create_bullet(const std::vector<uint16_t>& player_position, const u_int16_t player_id,
-                       const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position);
+                       const WeaponDTO& weapon_dto, float angle);
 
     uint16_t get_damage_and_delete_bullet(const uint16_t& bullet_id);
 
@@ -123,15 +123,15 @@ private:
     void update_bullets();
 
     bool shoot_m3(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                  const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position);
+                  const WeaponDTO& weapon_dto, float angle);
 
     bool shoot_ak47(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                    const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position);
+                    const WeaponDTO& weapon_dto, float angle);
 
     void update_ak47_bursts();
 
     void employ_knife(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                      const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position);
+                      const WeaponDTO& weapon_dto, float angle);
 
     void create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t>& position);
 
@@ -180,7 +180,7 @@ public:
 
     void rotate_player(float angle, uint16_t id);
 
-    bool shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id);
+    bool shoot(const uint16_t player_id);
 
     void pick_up_weapon(uint16_t id);
 
@@ -203,6 +203,42 @@ public:
     Stats get_stats() const;
 
     void quit(uint16_t id);
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    void show() const {
+        for (const auto& [id, player]: players) {
+            auto x = player->get_position()[0];
+            auto y = player->get_position()[1];
+            std::cout << "  Player ID: " << id << ", Type: " << static_cast<int>(player->get_type())
+                      << ", Position: (" << x << ", " << y << "), Angle: " << player->get_angle()
+                      << std::endl;
+        }
+        std::cout << "Bullets: " << bullets.size() << std::endl;
+        for (const auto& [id, bullet]: bullets) {
+            auto x = bullet->get_position()[0];
+            auto y = bullet->get_position()[1];
+            std::cout << "  Bullet ID: " << id << ", Player ID: " << bullet->get_player_id()
+                      << ", Position: (" << x << ", " << y << ")"
+                      << ", Range: " << bullet->get_range() << std::endl;
+        }
+        if (bomb) {
+            auto x = bomb->get_position()[0];
+            auto y = bomb->get_position()[1];
+            std::cout << "Bomb is present at position: (" << x << ", " << y << ")" << std::endl;
+        } else {
+            std::cout << "No bomb present." << std::endl;
+        }
+    }
+
+    std::vector<uint16_t> get_player_position(uint16_t id) const {
+        if (players.find(id) != players.end()) {
+            return players.at(id)->get_position();
+        }
+        return {};
+    }
+
+    void update() { update_bullets(); }
 };
 
 #endif  // GAME_H

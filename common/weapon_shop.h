@@ -18,7 +18,7 @@ private:
 
 public:
     /* Constructor */
-    explicit WeaponShop(Config& config): catalog(config.get_weapon_config()) {}
+    explicit WeaponShop(Config& config);
 
     std::pair<uint16_t, Weapon> sell_weapon(const WeaponModel& weapon_model, uint16_t player_money);
 
