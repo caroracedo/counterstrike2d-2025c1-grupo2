@@ -32,8 +32,6 @@ private:
 
     /* Rondas */
     uint8_t rounds_total;
-    uint8_t rounds_terrorists;
-    uint8_t rounds_counterterrorists;
 
     /* Armas */
     std::unordered_map<WeaponModel, WeaponConfig> weapon_catalog;
@@ -51,8 +49,6 @@ public:
     uint8_t get_player_health() const;
     uint16_t get_player_money() const;
     uint8_t get_rounds_total() const;
-    uint8_t get_rounds_terrorist() const;
-    uint8_t get_rounds_counterterrorist() const;
     std::unordered_map<WeaponModel, WeaponConfig> get_weapon_config() const;
     std::vector<WeaponModel> get_weapons() const;
 };

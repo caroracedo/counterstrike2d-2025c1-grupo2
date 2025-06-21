@@ -17,7 +17,8 @@ struct InfoAux {
     ActionType type = ActionType::UNKNOWN;
     std::string mapSelected = "";
     std::string matchName = "";
-    int numPlayers = 0;
+    int numTerrorist = 0;
+    int numCounterTerrorist = 0;
     PlayerType player_type = PlayerType::UNKNOWN;
     PlayerSkin skin = PlayerSkin::UNKNOWN;
 };

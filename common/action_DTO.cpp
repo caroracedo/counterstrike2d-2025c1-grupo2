@@ -8,7 +8,8 @@ ActionDTO::ActionDTO():
         servname(),
         match(),
         map(),
-        number_players(),
+        number_terrorist(),
+        number_counterterrorist(),
         player_type(),
         player_skin(),
         terrain_type(),
@@ -59,13 +60,14 @@ ActionDTO::ActionDTO(const ActionType& action, const std::string& hostname,
 
 /* Crear Partida */
 ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-                     uint16_t number_players, const PlayerType& player_type,
-                     const PlayerSkin& player_skin):
+                     uint16_t number_terrorist, uint16_t number_counterterrorist,
+                     const PlayerType& player_type, const PlayerSkin& player_skin):
         ActionDTO() {
     this->type = action;
     this->match = match;
     this->map = map;
-    this->number_players = number_players;
+    this->number_terrorist = number_terrorist;
+    this->number_counterterrorist = number_counterterrorist;
     this->player_type = player_type;
     this->player_skin = player_skin;
 }

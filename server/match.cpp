@@ -13,10 +13,11 @@
 /* Constructor */
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
-             const std::string& map_str):
+             const std::string& map_str, uint16_t number_terrorist,
+             uint16_t number_counterterrorist):
         config(config),
         map(map_str.c_str()),
-        monitor_game(config, map),
+        monitor_game(config, map, number_terrorist, number_counterterrorist),
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 

@@ -116,9 +116,11 @@ void MainWindow::guardarNombrePartida() {
 }
 
 void MainWindow::guardarNumJugadores() {
-    QString num = ui->cantJugadores->text();
+    QString nTerrorist = ui->numTerrorist->text();
+    info_aux.numTerrorist = nTerrorist.toInt();
 
-    info_aux.numPlayers = num.toInt();
+    QString nCounter = ui->numCounter->text();
+    info_aux.numCounterTerrorist = nCounter.toInt();
 }
 
 void MainWindow::guardarPartidaElegida(int index) {
@@ -177,7 +179,8 @@ bool MainWindow::validarInfo() {
         return false;
     }
     if (info_aux.type == ActionType::CREATE &&
-        (info_aux.mapSelected.empty() || info_aux.matchName.empty() || info_aux.numPlayers == 0)) {
+        (info_aux.mapSelected.empty() || info_aux.matchName.empty() || info_aux.numTerrorist == 0 ||
+         info_aux.numCounterTerrorist == 0)) {
         QMessageBox::warning(this, "Error", "Empty fields");
         return false;
     }
@@ -210,7 +213,8 @@ void MainWindow::saveDTO() {
     }
     if (info_aux.type == ActionType::CREATE) {
         info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.mapSelected,
-                         info_aux.numPlayers, info_aux.player_type, info_aux.skin);
+                         info_aux.numTerrorist, info_aux.numCounterTerrorist, info_aux.player_type,
+                         info_aux.skin);
     } else if (info_aux.type == ActionType::JOIN) {
         info = ActionDTO(info_aux.type, info_aux.matchName, info_aux.player_type, info_aux.skin);
     }

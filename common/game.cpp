@@ -1,10 +1,12 @@
 #include "game.h"
 
-Game::Game(Config& config, Map& map):
+Game::Game(Config& config, Map& map, uint16_t number_terrorist, uint16_t number_counterterrorist):
         matrix(MATRIX_SIZE, std::vector<std::vector<std::shared_ptr<Object>>>(MATRIX_SIZE)),
         config(config),
         map(map),
-        weapon_shop(config) {
+        weapon_shop(config),
+        number_terrorist(number_terrorist),
+        number_counterterrorist(number_counterterrorist) {
     initialize_objects();
 }
 
@@ -17,10 +19,10 @@ bool Game::is_ready_to_start() {
                           [](const auto& p) {
                               return p.second &&
                                      p.second->get_player_type() == PlayerType::TERRORIST;
-                          }) == config.get_rounds_terrorist() &&
+                          }) == number_terrorist &&
             std::count_if(players.begin(), players.end(), [](const auto& p) {
                 return p.second && p.second->get_player_type() == PlayerType::COUNTERTERRORIST;
-            }) == config.get_rounds_counterterrorist());
+            }) == number_counterterrorist);
 }
 
 void Game::set_ready_to_start() {
@@ -51,8 +53,7 @@ void Game::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t i
     /*
         Agrega un jugador al juego con el tipo y ID especificados.
     */
-    uint8_t max_player_amount =
-            config.get_rounds_terrorist() + config.get_rounds_counterterrorist();
+    uint8_t max_player_amount = number_terrorist + number_counterterrorist;
     if (players.size() >= max_player_amount) {
         std::cerr << "Maximum amount of players reached. Limit: " << max_player_amount << std::endl;
         return;

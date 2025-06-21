@@ -25,7 +25,8 @@ std::pair<bool, std::pair<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Que
     TerrainType terrain_type;
     if (first_action.type == ActionType::CREATE) {
         std::tie(new_recv_queue, send_queue, terrain_type) = matches_monitor.create_match(
-                first_action.match, first_action.map, first_action.player_type,
+                first_action.match, first_action.map, first_action.number_terrorist,
+                first_action.number_counterterrorist, first_action.player_type,
                 first_action.player_skin, id);
     } else if (first_action.type == ActionType::JOIN) {
         std::tie(new_recv_queue, send_queue, terrain_type) = matches_monitor.join_match(

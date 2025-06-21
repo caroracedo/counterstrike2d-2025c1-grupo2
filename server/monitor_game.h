@@ -16,7 +16,8 @@ private:
 
 public:
     /* Constructor */
-    explicit MonitorGame(Config& config, Map& map);
+    explicit MonitorGame(Config& config, Map& map, uint16_t number_terrorist,
+                         uint16_t number_counterterrorist);
 
     /* Agregar jugador */
     void add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id);

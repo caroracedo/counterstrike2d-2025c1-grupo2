@@ -51,7 +51,8 @@ struct ActionDTO {
     /* Partida */
     std::string match;
     std::string map;
-    uint16_t number_players;
+    uint16_t number_terrorist;
+    uint16_t number_counterterrorist;
     PlayerType player_type;
     PlayerSkin player_skin;
     TerrainType terrain_type;
@@ -95,8 +96,8 @@ struct ActionDTO {
     ActionDTO(const ActionType& action, const std::string& hostname, const std::string& servname);
     /* Crear Partida */
     ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
-              uint16_t number_players, const PlayerType& player_type,
-              const PlayerSkin& player_skin);
+              uint16_t number_terrorist, uint16_t number_counterterrorist,
+              const PlayerType& player_type, const PlayerSkin& player_skin);
 
     /* Unirse a una Partida */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,

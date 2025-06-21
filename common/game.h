@@ -59,6 +59,8 @@ private:
     Stats stats;
     std::vector<Ak47Burst> ak47_bursts;
     bool _is_ready_to_start = false;
+    uint16_t number_terrorist;
+    uint16_t number_counterterrorist;
 
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
 
@@ -167,7 +169,8 @@ private:
     void delete_bomb();
 
 public:
-    explicit Game(Config& config, Map& map);
+    explicit Game(Config& config, Map& map, uint16_t number_terrorist,
+                  uint16_t number_counterterrorist);
 
     bool is_ready_to_start();
 

@@ -193,7 +193,9 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
             data.insert(data.end(), action.match.begin(), action.match.end());
             data.insert(data.end(), action.map.begin(), action.map.end());
             byte_converter.push_hexa_to(
-                    byte_converter.int_16_to_hex_big_endian(action.number_players), data);
+                    byte_converter.int_16_to_hex_big_endian(action.number_terrorist), data);
+            byte_converter.push_hexa_to(
+                    byte_converter.int_16_to_hex_big_endian(action.number_counterterrorist), data);
             data.push_back(static_cast<uint8_t>(action.player_type));
             data.push_back(static_cast<uint8_t>(action.player_skin));
             break;

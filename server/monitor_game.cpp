@@ -1,7 +1,9 @@
 #include "monitor_game.h"
 
 /* Constructor */
-MonitorGame::MonitorGame(Config& config, Map& map): game(config, map) {}
+MonitorGame::MonitorGame(Config& config, Map& map, uint16_t number_terrorist,
+                         uint16_t number_counterterrorist):
+        game(config, map, number_terrorist, number_counterterrorist) {}
 
 /* Agregar jugador */
 void MonitorGame::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {

@@ -182,10 +182,12 @@ QLineEdit:focus {
              </property>
             </widget>
            </item>
-           <item alignment="Qt::AlignmentFlag::AlignHCenter">
-            <widget class="QLineEdit" name="cantJugadores">
-             <property name="styleSheet">
-              <string notr="true">QLineEdit {
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLineEdit" name="numTerrorist">
+               <property name="styleSheet">
+                <string notr="true">QLineEdit {
     background-color: #3C5B9B;  
     color: black;                
     border-radius: 8px;
@@ -199,11 +201,36 @@ QLineEdit:focus {
     background-color: #5A78B4;    
     outline: none;               
 }</string>
-             </property>
-             <property name="placeholderText">
-              <string>Enter # of players</string>
-             </property>
-            </widget>
+               </property>
+               <property name="placeholderText">
+                <string>Enter # terrorist</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="numCounter">
+               <property name="styleSheet">
+                <string notr="true">QLineEdit {
+    background-color: #3C5B9B;  
+    color: black;                
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+}
+
+QLineEdit:focus {
+    background-color: #5A78B4;    
+    outline: none;               
+}</string>
+               </property>
+               <property name="placeholderText">
+                <string>Enter # counters</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

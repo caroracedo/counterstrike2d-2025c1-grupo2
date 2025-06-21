@@ -147,7 +147,9 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
             uint16_t match_size = byte_converter.hex_big_endian_to_int_16({data[1], data[2]});
             return {type,
                     std::string(data.begin() + 3, data.begin() + 3 + match_size),
-                    std::string(data.begin() + 3 + match_size, data.end() - 4),
+                    std::string(data.begin() + 3 + match_size, data.end() - 6),
+                    byte_converter.hex_big_endian_to_int_16(
+                            {data[data.size() - 6], data[data.size() - 5]}),
                     byte_converter.hex_big_endian_to_int_16(
                             {data[data.size() - 4], data[data.size() - 3]}),
                     static_cast<PlayerType>(data[data.size() - 2]),

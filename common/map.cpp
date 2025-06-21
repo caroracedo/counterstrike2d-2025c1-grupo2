@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "constants.h"
+
 /* Constructor */
 Map::Map(const std::string& yaml_path) { load_from_yaml(yaml_path); }
 

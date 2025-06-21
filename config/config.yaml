@@ -52,7 +52,5 @@ weapons:
 
 rounds:
   total: 10
-  terrorists: 1
-  counterterrorists: 2
 
 # -- Client Configuration --
