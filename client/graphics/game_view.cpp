@@ -98,8 +98,8 @@ void GameView::update(const ActionDTO& action) {
 
     if (bombs_in_match == 0) {
         bomb_view.reset();
-    } 
-    
+    }
+
     for (auto it = players.begin(); it != players.end();) {
         if (players_in_game.find(it->first) == players_in_game.end()) {
             if (it->first == local_id) {
@@ -133,7 +133,8 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager, id));
+    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager, id,
+                                                         object.player_skin));
 
     legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
 

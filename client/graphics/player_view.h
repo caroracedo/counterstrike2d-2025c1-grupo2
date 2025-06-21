@@ -17,26 +17,32 @@
 
 class PlayerView {
 private:
-    float posX = 0.0f, posY = 0.0f;
-
-    PlayerType type = PlayerType::TERRORIST;
-
-    SDL2pp::Rect current_frame;
-
-    float angle = 0.0f;
-
     TextureManager& texture_manager;
-
-    std::unordered_map<PlayerType, std::string> player_types;
-
-    uint16_t life = 0;
 
     SoundManager& sound_manager;
 
+    uint16_t life = 0;
+
     uint16_t id;
 
+    float posX = 0.0f, posY = 0.0f;
+
+    float angle = 0.0f;
+
+    SDL2pp::Rect current_frame;
+
+    std::unordered_map<PlayerSkin, std::string> player_skins;
+
+    PlayerType type = PlayerType::TERRORIST;
+
+    PlayerSkin skin = PlayerSkin::SEALFORCE;
+
+
 public:
-    explicit PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id);
+    explicit PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id,
+                        PlayerSkin skin);
+
+    void initialize_resources();
 
     bool update_position(float x, float y, uint16_t life);
 

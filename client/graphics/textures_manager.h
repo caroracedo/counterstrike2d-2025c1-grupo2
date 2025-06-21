@@ -32,10 +32,10 @@ public:
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
         load(renderer, "pointer", ASSETS_PATH "/gfx/player/pointer.bmp", true, {255, 0, 255, 0});
 
-        load(renderer, "ak47_d", ASSETS_PATH "/gfx/weapons/ak47_m.bmp",true,{255, 0, 255, 0});
-        load(renderer, "m3_d", ASSETS_PATH "/gfx/weapons/m3_m.bmp",true,{255, 0, 255, 0});
-        load(renderer, "awp_d", ASSETS_PATH "/gfx/weapons/awp_m.bmp",true,{255, 0, 255, 0});
-        
+        load(renderer, "ak47_d", ASSETS_PATH "/gfx/weapons/ak47_m.bmp", true, {255, 0, 255, 0});
+        load(renderer, "m3_d", ASSETS_PATH "/gfx/weapons/m3_m.bmp", true, {255, 0, 255, 0});
+        load(renderer, "awp_d", ASSETS_PATH "/gfx/weapons/awp_m.bmp", true, {255, 0, 255, 0});
+
         load(renderer, "sand1", ASSETS_PATH "/gfx/backgrounds/sand1.bmp");
         load(renderer, "office", ASSETS_PATH "/gfx/backgrounds/office.bmp");
         load(renderer, "aztec", ASSETS_PATH "/gfx/backgrounds/aztec.bmp");
@@ -46,6 +46,16 @@ public:
             std::string path =
                     std::string(ASSETS_PATH) + "/gfx/tiles/caja" + std::to_string(i) + ".bmp";
             load(renderer, name, path);
+        }
+
+        for (int i = 1; i <= 4; i++) {
+            std::string ter_name = "t" + std::to_string(i);
+            std::string ct_name = "ct" + std::to_string(i);
+
+            std::string ter_path = std::string(ASSETS_PATH) + "/gfx/player/" + ter_name + ".bmp";
+            std::string ct_path = std::string(ASSETS_PATH) + "/gfx/player/" + ct_name + ".bmp";
+            load(renderer, ter_name, ter_path);
+            load(renderer, ct_name, ct_path);
         }
     }
 
