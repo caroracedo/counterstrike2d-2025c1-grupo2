@@ -108,7 +108,6 @@ public:
 
 
     float calculate_angle(const std::vector<uint16_t>& player_pos) {
-
         float screenX = player_pos[0] - camera.get_x();
         float screenY = player_pos[1] - camera.get_y();
 
@@ -121,8 +120,12 @@ public:
         float dx = mouseX - centerX;
         float dy = mouseY - centerY;
 
-        float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+        float angle = std::atan2(-dy, dx) * 180.0f / M_PI;
 
+        if (angle < 0.0f)
+            angle += 360.0f;
+
+        std::cout << "Angle: " << angle << std::endl;
         return angle;
     }
 };

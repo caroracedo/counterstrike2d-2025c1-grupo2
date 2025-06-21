@@ -6,8 +6,7 @@
 
 Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
                const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-               uint16_t _max_damage, float _precision,
-               const std::vector<uint16_t>& desired_position):
+               uint16_t _max_damage, float _precision, float angle):
         Object(ObjectType::BULLET, id, {player_position[0], player_position[1]}, BULLET_RADIUS * 2,
                BULLET_RADIUS * 2),
         player_id(_player_id),
@@ -16,8 +15,8 @@ Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
         max_damage(_max_damage),
         target_position(player_position),
         precision(_precision) {
-    set_target_position(desired_position, player_position);
-    set_starting_position(player_position);
+    set_target_position_from_angle(angle, player_position);
+    set_starting_position(angle, player_position);
 }
 
 ObjectDTO Bullet::get_dto() const { return ObjectDTO(object_type, position); }
@@ -76,11 +75,6 @@ uint16_t Bullet::get_damage() const {
         return 0;  // Falló el disparo
     }
 
-    std::cout << "\tBullet ID: " << id << ", Position: (" << position[0] << ", " << position[1]
-              << ")"
-              << ", Distance: " << distance << ", Base Damage: " << base_damage
-              << ", Final Damage: " << final_damage << std::endl;
-
     // Siempre al menos 1 de daño si acertó y el daño no es cero
     return std::max<uint16_t>(final_damage, 1);
 }
@@ -123,85 +117,60 @@ std::vector<uint16_t> Bullet::get_next_position() const {
     float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
     nx_c = std::max(min_pos, std::min(nx_c, max_pos));
     ny_c = std::max(min_pos, std::min(ny_c, max_pos));
+    std::vector<uint16_t> next_pos = {static_cast<uint16_t>(std::round(nx_c)),
+                                      static_cast<uint16_t>(std::round(ny_c))};
 
-    return {static_cast<uint16_t>(std::round(nx_c)), static_cast<uint16_t>(std::round(ny_c))};
+    std::cout << "Next position: " << next_pos[0] << " " << next_pos[1] << std::endl;
+    return next_pos;
 }
 
-void Bullet::set_target_position(const std::vector<uint16_t>& desired_position,
-                                 const std::vector<uint16_t>& player_position) {
+void Bullet::set_target_position_from_angle(float angle_degrees,
+                                            const std::vector<uint16_t>& player_position) {
     /*
-        Calcula la posición objetivo de la bala basada en la posición deseada y la posición del
-        jugador. Asegura que la bala no salga del mapa y respeta el rango máximo.
-        Si la posición deseada está fuera del rango, ajusta la posición objetivo al borde del mapa.
+        Calcula la posición final de la bala en base al ángulo del jugador y el rango
     */
-    if (desired_position.size() != 2 || player_position.size() != 2)
-        return;
+    float angle = angle_degrees * M_PI / 180.0f;
 
-    float px = static_cast<float>(player_position[0]);
-    float py = static_cast<float>(player_position[1]);
-    float dx = static_cast<float>(desired_position[0]) - px;
-    float dy = static_cast<float>(desired_position[1]) - py;
-    float magnitude = std::sqrt(dx * dx + dy * dy);
+    float dx = std::cos(angle);
+    float dy = -std::sin(angle);
+    float tx = player_position[0] + dx * range;
+    float ty = player_position[1] + dy * range;
 
     float min_pos = radius;
     float max_pos = MATRIX_SIZE * CELL_SIZE - radius;
-
-    float t_max = (magnitude == 0) ? 0.0f : static_cast<float>(range + PLAYER_RADIUS) / magnitude;
-
-    // Calcula el t permitido por los bordes del mapa
-    if (dx != 0) {
-        float t1 = (min_pos - px) / dx;
-        float t2 = (max_pos - px) / dx;
-        float t_edge = dx > 0 ? t2 : t1;
-        if (t_edge >= 0)
-            t_max = std::min(t_max, t_edge);
-    }
-    if (dy != 0) {
-        float t1 = (min_pos - py) / dy;
-        float t2 = (max_pos - py) / dy;
-        float t_edge = dy > 0 ? t2 : t1;
-        if (t_edge >= 0)
-            t_max = std::min(t_max, t_edge);
-    }
-    t_max = std::max(0.0f, t_max);
-
-    float tx = px + dx * t_max;
-    float ty = py + dy * t_max;
+    tx = std::max(min_pos, std::min(tx, max_pos));
+    ty = std::max(min_pos, std::min(ty, max_pos));
 
     target_position = {static_cast<uint16_t>(std::round(tx)),
                        static_cast<uint16_t>(std::round(ty))};
 }
 
-void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
+void Bullet::set_starting_position(float angle_degrees,
+                                   const std::vector<uint16_t>& player_center) {
     /*
-        Calcula la posición inicial de la bala para que esté fuera del radio del jugador.
-        La posición se calcula en la dirección del objetivo, asegurando que la bala no colisione
-        con el jugador al ser disparada.
+        Calcula la posición inicial de la bala usando el ángulo y el centro del jugador,
+        desplazando desde el centro del jugador en la dirección del ángulo,
+        a una distancia igual a PLAYER_RADIUS + BULLET_RADIUS + 1.
     */
+    float angle = angle_degrees * M_PI / 180.0f;
+    float dx = std::cos(angle);
+    float dy = -std::sin(angle);
+
     float player_radius = static_cast<float>(PLAYER_RADIUS);
     float bullet_radius = static_cast<float>(BULLET_RADIUS);
 
     float cx = static_cast<float>(player_center[0]);
     float cy = static_cast<float>(player_center[1]);
 
-    float dx = static_cast<float>(target_position[0]) - cx;
-    float dy = static_cast<float>(target_position[1]) - cy;
-    float mag = std::sqrt(dx * dx + dy * dy);
-
+    float min_dist = player_radius + bullet_radius + 1.0f;
+    float offset = min_dist;
     float x_bullet, y_bullet;
-    if (mag == 0) {
-        x_bullet = cx + player_radius + bullet_radius;
-        y_bullet = cy;
-    } else {
-        float min_dist = player_radius + bullet_radius + 1.0f;
-        float offset = min_dist;
-        do {
-            x_bullet = cx + dx * (offset / mag);
-            y_bullet = cy + dy * (offset / mag);
-            offset += 1.0f;
-        } while (std::sqrt((x_bullet - cx) * (x_bullet - cx) + (y_bullet - cy) * (y_bullet - cy)) <
-                 min_dist);
-    }
+    do {
+        x_bullet = cx + dx * offset;
+        y_bullet = cy + dy * offset;
+        offset += 1.0f;
+    } while (std::sqrt((cx - x_bullet) * (cx - x_bullet) + (cy - y_bullet) * (cy - y_bullet)) <
+             min_dist);
 
     // Clamp para que el centro de la bala nunca salga del mapa
     float min_pos = bullet_radius;
@@ -209,9 +178,11 @@ void Bullet::set_starting_position(const std::vector<uint16_t>& player_center) {
     x_bullet = std::max(min_pos, std::min(x_bullet, max_pos));
     y_bullet = std::max(min_pos, std::min(y_bullet, max_pos));
 
-    position = {static_cast<uint16_t>(std::round(x_bullet)),
-                static_cast<uint16_t>(std::round(y_bullet))};
-
     start_position = {static_cast<uint16_t>(std::round(x_bullet)),
                       static_cast<uint16_t>(std::round(y_bullet))};
+
+    std::cout << "Player position: " << player_center[0] << " " << player_center[1]
+              << ", \nStarting position: " << start_position[0] << " " << start_position[1]
+              << ", \nTarget position: " << target_position[0] << " " << target_position[1]
+              << ", Angle: " << angle_degrees << std::endl;
 }

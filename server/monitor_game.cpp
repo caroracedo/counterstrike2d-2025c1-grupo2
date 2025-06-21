@@ -45,9 +45,9 @@ bool MonitorGame::move(const Direction& direction, uint16_t id) {
 }
 
 /* Disparar */
-bool MonitorGame::shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
+bool MonitorGame::shoot(uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    return game.shoot(desired_position, id);
+    return game.shoot(id);
 }
 
 /* Interactuar con bomba */

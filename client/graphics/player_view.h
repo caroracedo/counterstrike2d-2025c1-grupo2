@@ -56,7 +56,7 @@ public:
 
     float get_y() const;
 
-    void update_angle(float angle) { this->angle = angle; }
+    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
 };
 
 #endif

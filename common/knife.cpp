@@ -1,20 +1,17 @@
 #include "knife.h"
 
 Knife::Knife(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-             uint16_t _range, uint16_t _min_damage, uint16_t _max_damage,
-             const std::vector<uint16_t>& desired_position):
+             uint16_t _range, uint16_t _min_damage, uint16_t _max_damage, float angle_deg):
         Object(ObjectType::KNIFE, 0, player_position, 0, 0),
         player_id(player_id),
         range(_range),
         min_damage(_min_damage),
         max_damage(_max_damage),
         start_position(player_position) {
-    // Calcular punto final del ataque
-    float dx = static_cast<float>(desired_position[0]) - static_cast<float>(player_position[0]);
-    float dy = static_cast<float>(desired_position[1]) - static_cast<float>(player_position[1]);
-    float magnitude = std::sqrt(dx * dx + dy * dy);
-    float ux = (magnitude == 0) ? 0 : dx / magnitude;
-    float uy = (magnitude == 0) ? 0 : dy / magnitude;
+    // Calcular punto final del ataque usando el ángulo del jugador en grados
+    float angle_rad = angle_deg * static_cast<float>(M_PI) / 180.0f;
+    float ux = std::cos(angle_rad);
+    float uy = std::sin(angle_rad);
     end_position = {static_cast<uint16_t>(player_position[0] + ux * range),
                     static_cast<uint16_t>(player_position[1] + uy * range)};
 }

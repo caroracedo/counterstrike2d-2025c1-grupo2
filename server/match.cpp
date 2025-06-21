@@ -27,7 +27,7 @@ bool Match::do_action(const ActionDTO& action_dto) {
         case ActionType::MOVE:
             return monitor_game.move(action_dto.direction, action_dto.id);
         case ActionType::SHOOT:
-            return monitor_game.shoot(action_dto.desired_position, action_dto.id);
+            return monitor_game.shoot(action_dto.id);
         case ActionType::BOMB:
             return monitor_game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:

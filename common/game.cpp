@@ -116,7 +116,7 @@ void Game::rotate_player(float angle, uint16_t id) {
     }
 }
 
-bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t player_id) {
+bool Game::shoot(const uint16_t player_id) {
     /*
         Dispara desde la posición del jugador hacia la posición deseada, con el arma actual del
        jugador.
@@ -131,15 +131,17 @@ bool Game::shoot(const std::vector<uint16_t>& desired_position, const uint16_t p
 
         WeaponDTO weapon_dto = player_it->second->get_current_weapon();
 
+        float angle = player_it->second->get_angle();
+
         if (weapon_dto.model == WeaponModel::AWP || weapon_dto.model == WeaponModel::GLOCK) {
-            create_bullet(player_position, player_id, weapon_dto, desired_position);
+            create_bullet(player_position, player_id, weapon_dto, angle);
             return true;
         } else if (weapon_dto.model == WeaponModel::M3) {
-            return shoot_m3(player_position, player_id, weapon_dto, desired_position);
+            return shoot_m3(player_position, player_id, weapon_dto, angle);
         } else if (weapon_dto.model == WeaponModel::AK47) {
-            return shoot_ak47(player_position, player_id, weapon_dto, desired_position);
+            return shoot_ak47(player_position, player_id, weapon_dto, angle);
         } else if (weapon_dto.model == WeaponModel::KNIFE) {
-            employ_knife(player_position, player_id, weapon_dto, desired_position);
+            employ_knife(player_position, player_id, weapon_dto, angle);
             return true;
         }
 
@@ -731,8 +733,7 @@ bool Game::damage_player(uint16_t id, uint16_t damage) {
 }
 
 void Game::create_bullet(const std::vector<uint16_t>& player_position, const u_int16_t player_id,
-                         const WeaponDTO& weapon_dto,
-                         const std::vector<uint16_t>& desired_position) {
+                         const WeaponDTO& weapon_dto, float angle) {
     /*
         Crea una bala y la agrega a la matriz, al vector de objetos y al mapa de balas.
     */
@@ -740,7 +741,8 @@ void Game::create_bullet(const std::vector<uint16_t>& player_position, const u_i
     inc_bullet_id();
 
     Bullet bullet(id, player_id, player_position, weapon_dto.range, weapon_dto.min_damage,
-                  weapon_dto.max_damage, weapon_dto.precision, desired_position);
+                  weapon_dto.max_damage, weapon_dto.precision, angle);
+
     auto bullet_ptr = std::make_shared<Bullet>(bullet);
 
     // Agregar la bala al mapa de balas
@@ -835,44 +837,26 @@ void Game::update_bullets() {
 }
 
 bool Game::shoot_m3(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                    const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position) {
+                    const WeaponDTO& weapon_dto, float angle) {
     /*
         Dispara 3 balas en cono
     */
-    double dx = static_cast<double>(desired_position[0] - player_position[0]);
-    double dy = static_cast<double>(desired_position[1] - player_position[1]);
-    double magnitude = std::sqrt(dx * dx + dy * dy);
+    const float angle_deviation = 30;
+    float angle_left = std::fmod(angle - angle_deviation + 360.0f, 360.0f);
+    float angle_right = std::fmod(angle + angle_deviation, 360.0f);
 
-    if (magnitude == 0)
-        return false;
-
-    double ux = dx / magnitude;
-    double uy = dy / magnitude;
-
-    constexpr double rad_30 = M_PI / 6.0;  // 30 grados en radianes
-    double cos_30 = std::cos(rad_30);
-    double sin_30 = std::sin(rad_30);
-
-    uint16_t dist = PLAYER_RADIUS + BULLET_RADIUS;
-
-    uint16_t x1 = static_cast<uint16_t>(player_position[0] + dist * (ux * cos_30 - uy * sin_30));
-    uint16_t y1 = static_cast<uint16_t>(player_position[1] + dist * (ux * sin_30 + uy * cos_30));
-
-    uint16_t x2 = static_cast<uint16_t>(player_position[0] + dist * (ux * cos_30 + uy * sin_30));
-    uint16_t y2 = static_cast<uint16_t>(player_position[1] + dist * (-ux * sin_30 + uy * cos_30));
-
-    create_bullet(player_position, player_id, weapon_dto, desired_position);  // Disparo central
-    create_bullet(player_position, player_id, weapon_dto, {x1, y1});          // Disparo izquierdo
-    create_bullet(player_position, player_id, weapon_dto, {x2, y2});          // Disparo derecho
+    create_bullet(player_position, player_id, weapon_dto, angle);        // Disparo central
+    create_bullet(player_position, player_id, weapon_dto, angle_left);   // Disparo izquierdo
+    create_bullet(player_position, player_id, weapon_dto, angle_right);  // Disparo derecho
     return true;
 }
 
 bool Game::shoot_ak47(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                      const WeaponDTO& weapon_dto, const std::vector<uint16_t>& desired_position) {
+                      const WeaponDTO& weapon_dto, float angle) {
     /*
         Dispara 3 balas en ráfaga (una atrás de la otra)
     */
-    Ak47Burst burst{player_position, player_id, weapon_dto, desired_position, 3, 0.0f};
+    Ak47Burst burst{player_position, player_id, weapon_dto, angle, 3, 0.0f};
     ak47_bursts.push_back(burst);
     return true;
 }
@@ -886,7 +870,7 @@ void Game::update_ak47_bursts() {
     for (auto it = ak47_bursts.begin(); it != ak47_bursts.end();) {
         it->time_until_next_shot -= delta_seconds;
         if (it->time_until_next_shot <= 0.0f && it->shots_left > 0) {
-            create_bullet(it->player_position, it->player_id, it->weapon_dto, it->desired_position);
+            create_bullet(it->player_position, it->player_id, it->weapon_dto, it->angle);
             it->shots_left--;
             it->time_until_next_shot = 0.4f;
         }
@@ -899,13 +883,12 @@ void Game::update_ak47_bursts() {
 }
 
 void Game::employ_knife(const std::vector<uint16_t>& player_position, const uint16_t player_id,
-                        const WeaponDTO& weapon_dto,
-                        const std::vector<uint16_t>& desired_position) {
+                        const WeaponDTO& weapon_dto, float angle) {
     /*
         Emplea el cuchillo para atacar a un jugador en la posición deseada.
     */
     Knife knife(player_position, player_id, weapon_dto.range, weapon_dto.min_damage,
-                weapon_dto.max_damage, desired_position);
+                weapon_dto.max_damage, angle);
 
     auto cell = get_cell_from_position(player_position);
     auto adyacent_cells = get_cells_within_radius(cell, 1);

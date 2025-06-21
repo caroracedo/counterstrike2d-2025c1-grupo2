@@ -35,7 +35,7 @@ public:
     bool move(const Direction& direction, uint16_t id);
 
     /* Disparar */
-    bool shoot(const std::vector<uint16_t>& desired_position, uint16_t id);
+    bool shoot(uint16_t id);
 
     /* Interactuar con bomba */
     bool interact_with_bomb(uint16_t id);

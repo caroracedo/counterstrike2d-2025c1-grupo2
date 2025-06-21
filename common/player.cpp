@@ -173,7 +173,10 @@ std::vector<uint16_t> Player::get_next_position(Direction direction) const {
     return new_position;
 }
 
-void Player::rotate(float new_angle) { angle = new_angle; }
+void Player::rotate(float new_angle) {
+    angle = new_angle;
+    std::cout << "\t[PLAYER] Angle: " << angle << std::endl;
+}
 
 WeaponDTO Player::drop_primary_weapon() {
     WeaponDTO weapon = primary_weapon.get_weapon_dto();

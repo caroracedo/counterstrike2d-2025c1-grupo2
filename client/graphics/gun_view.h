@@ -90,7 +90,7 @@ public:
                       angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
 
-    void update_angle(float angle) { this->angle = angle; }
+    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
 };
 
 #endif

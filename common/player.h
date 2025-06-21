@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "action_DTO.h"
+#include "constants.h"
 #include "object.h"
 #include "weapon.h"
 #include "weapon_DTO.h"
@@ -64,6 +65,7 @@ public:
 
     std::vector<uint16_t> get_next_position(Direction direction) const;
     void rotate(float new_angle);
+    float get_angle() const { return angle; }
 };
 
 #endif  // PLAYER

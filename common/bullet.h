@@ -21,16 +21,15 @@ private:
     std::vector<uint16_t> start_position;
     float precision;
 
-    void set_target_position(const std::vector<uint16_t>& desired_position,
-                             const std::vector<uint16_t>& player_position);
+    void set_starting_position(float angle_degrees, const std::vector<uint16_t>& player_center);
 
-    void set_starting_position(const std::vector<uint16_t>& player_center);
+    void set_target_position_from_angle(float angle, const std::vector<uint16_t>& player_position);
 
 public:
     /* Constructor */
     Bullet(const uint16_t id, const uint16_t _player_id,
            const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-           uint16_t _max_damage, float _precision, const std::vector<uint16_t>& desired_position);
+           uint16_t _max_damage, float _precision, float angle);
 
     ObjectDTO get_dto() const override;
 
