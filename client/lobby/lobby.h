@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef LOBBY_H
+#define LOBBY_H
 
 #include <QMainWindow>
 #include <string>
@@ -9,7 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class Lobby;
 }
 QT_END_NAMESPACE
 
@@ -23,13 +23,13 @@ struct InfoAux {
     PlayerSkin skin = PlayerSkin::UNKNOWN;
 };
 
-class MainWindow: public QMainWindow {
+class Lobby: public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(const std::vector<std::string>& mapasIngresados,
-               const std::vector<std::string>& partidasIngresadas, QWidget* parent = nullptr);
-    ~MainWindow();
+    Lobby(const std::vector<std::string>& mapasIngresados,
+          const std::vector<std::string>& partidasIngresadas, QWidget* parent = nullptr);
+    ~Lobby();
     ActionDTO getInfo();
     void guardarOperacion(int index);
     void guardarEquipo(int index);
@@ -61,7 +61,7 @@ public:
     }
 
 private:
-    Ui::MainWindow* ui;
+    Ui::Lobby* ui;
     InfoAux info_aux;
     ActionDTO info;
     const std::vector<std::string>& mapas;
@@ -71,4 +71,4 @@ private:
     std::vector<std::string> skinsCounterTerrorist = {"Seal force", "German GSG-9", "UK SAS",
                                                       "French GIGN"};
 };
-#endif  // MAINWINDOW_H
+#endif  // LOBBY_H

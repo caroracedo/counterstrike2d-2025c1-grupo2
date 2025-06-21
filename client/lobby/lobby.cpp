@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "lobby.h"
 
 #include <QComboBox>
 #include <QDebug>
@@ -6,12 +6,12 @@
 #include <QStandardItemModel>
 #include <QString>
 
-#include "ui_mainwindow.h"
+#include "ui_lobby.h"
 
-MainWindow::MainWindow(const std::vector<std::string>& mapasIngresados,
-                       const std::vector<std::string>& partidasIngresadas, QWidget* parent):
+Lobby::Lobby(const std::vector<std::string>& mapasIngresados,
+             const std::vector<std::string>& partidasIngresadas, QWidget* parent):
         QMainWindow(parent),
-        ui(new Ui::MainWindow),
+        ui(new Ui::Lobby),
         mapas(mapasIngresados),
         partidas(partidasIngresadas) {
     ui->setupUi(this);
@@ -35,7 +35,7 @@ MainWindow::MainWindow(const std::vector<std::string>& mapasIngresados,
     ui->skin->hide();
 
     connect(ui->operacion, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &MainWindow::guardarOperacion);
+            &Lobby::guardarOperacion);
 
     // Ingresar nombre partida
     // connect(ui->saveBtn, &QPushButton::clicked, this, &MainWindow::guardarNombrePartida);
@@ -55,15 +55,15 @@ MainWindow::MainWindow(const std::vector<std::string>& mapasIngresados,
     ui->equipo->addItem("Counterterrorist", QVariant("counterTerrorist"));
 
     connect(ui->equipo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &MainWindow::guardarEquipo);
+            &Lobby::guardarEquipo);
 
     // Aceptar
-    connect(ui->aceptar, &QPushButton::clicked, this, &MainWindow::saveDTO);
+    connect(ui->aceptar, &QPushButton::clicked, this, &Lobby::saveDTO);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+Lobby::~Lobby() { delete ui; }
 
-void MainWindow::guardarOperacion(int index) {
+void Lobby::guardarOperacion(int index) {
     QString action = ui->operacion->itemData(index).toString();
 
     if (action == "crear") {
@@ -104,18 +104,18 @@ void MainWindow::guardarOperacion(int index) {
     }
 }
 
-void MainWindow::guardarMapa(int index) {
+void Lobby::guardarMapa(int index) {
     std::string mapa = ui->maps->itemData(index).toString().toStdString();
     info_aux.mapSelected = mapa;
 }
 
-void MainWindow::guardarNombrePartida() {
+void Lobby::guardarNombrePartida() {
     QString name = ui->matchName->text();
 
     info_aux.matchName = name.toStdString();
 }
 
-void MainWindow::guardarNumJugadores() {
+void Lobby::guardarNumJugadores() {
     QString nTerrorist = ui->numTerrorist->text();
     info_aux.numTerrorist = nTerrorist.toInt();
 
@@ -123,12 +123,12 @@ void MainWindow::guardarNumJugadores() {
     info_aux.numCounterTerrorist = nCounter.toInt();
 }
 
-void MainWindow::guardarPartidaElegida(int index) {
+void Lobby::guardarPartidaElegida(int index) {
     std::string partidaElegida = ui->partidas->itemData(index).toString().toStdString();
     info_aux.matchName = partidaElegida;
 }
 
-void MainWindow::guardarEquipo(int index) {
+void Lobby::guardarEquipo(int index) {
     QString equipo = ui->equipo->itemData(index).toString();
 
     ui->typeSkin->clear();
@@ -167,13 +167,13 @@ void MainWindow::guardarEquipo(int index) {
     }
 }
 
-void MainWindow::guardarTipoSkin(int index) {
+void Lobby::guardarTipoSkin(int index) {
     QString skin = ui->typeSkin->itemData(index).toString();
 
     info_aux.skin = skin_str_to_type(skin.toStdString());
 }
 
-bool MainWindow::validarInfo() {
+bool Lobby::validarInfo() {
     if (info_aux.type == ActionType::UNKNOWN) {
         QMessageBox::warning(this, "Error", "Select an option");
         return false;
@@ -195,7 +195,7 @@ bool MainWindow::validarInfo() {
     return true;
 }
 
-void MainWindow::saveDTO() {
+void Lobby::saveDTO() {
     if (info_aux.type == ActionType::CREATE) {
         int indexMap = ui->maps->currentIndex();
         guardarMapa(indexMap);
@@ -232,4 +232,4 @@ void MainWindow::saveDTO() {
     QApplication::quit();
 }
 
-ActionDTO MainWindow::getInfo() { return info; }
+ActionDTO Lobby::getInfo() { return info; }

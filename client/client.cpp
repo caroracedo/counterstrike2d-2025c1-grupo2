@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <vector>
 
-#include "lobby/mainwindow.h"
+#include "lobby/lobby.h"
 #include "prelobby/prelobby.h"
 
 /* Ejecución */
@@ -27,7 +27,7 @@ ActionDTO Client::lobby(ClientProtocol& protocol) {
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
-    MainWindow window(information.maps, information.matches);
+    Lobby window(information.maps, information.matches);
     window.show();
     app.exec();
 
