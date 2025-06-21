@@ -280,3 +280,9 @@ TerrainType Match::get_terrain() {
     std::lock_guard<std::mutex> lock(mutex);
     return map.get_terrain();
 }
+
+/* Validación */
+bool Match::is_started() {
+    std::lock_guard<std::mutex> lock(mutex);
+    return monitor_game.is_ready_to_start();
+}

@@ -65,7 +65,9 @@ void ClientHandler::hard_kill() {
     } catch (...) {}
     client_socket.close();
 
-    if (stop_flag) {
+    // Si todavía no se iniciaron los hilos sender y receiver
+    //      - !stop_flag && !receiver.is_alive() && !sender.is_alive()
+    if (stop_flag || receiver.is_alive() || sender.is_alive()) {
         receiver.stop();
         sender.stop();
 

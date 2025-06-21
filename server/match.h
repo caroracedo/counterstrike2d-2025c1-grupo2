@@ -65,6 +65,9 @@ public:
 
     /* Getters */
     TerrainType get_terrain();
+
+    /* Validación */
+    bool is_started();
 };
 
 #endif  // MATCH_H

@@ -54,8 +54,10 @@ std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>,
 std::vector<std::string> MatchesMonitor::list_matches() {
     std::lock_guard<std::mutex> lock(mutex);
     std::vector<std::string> matches_vector;
-    std::transform(matches.begin(), matches.end(), std::back_inserter(matches_vector),
-                   [](const auto& match) { return match.first; });
+    for (const auto& match: matches) {
+        if (!match.second->is_started())
+            matches_vector.push_back(match.first);
+    }
     return matches_vector;
 }
 
