@@ -110,7 +110,6 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desi
     this->id = id;
 }
 
-
 /* Comprar Weapon */
 ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon): ActionDTO() {
     this->type = action;
@@ -123,12 +122,6 @@ ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id):
     this->id = id;
 }
 
-/* Comprar Ammo */
-ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type): ActionDTO() {
-    this->type = action;
-    this->ammo = ammo;
-    this->weapon_type = weapon_type;
-}
 /* Comprar Ammo con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id):
         ActionDTO() {

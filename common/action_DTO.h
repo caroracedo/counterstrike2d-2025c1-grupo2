@@ -112,8 +112,6 @@ struct ActionDTO {
     /* Comprar Weapon con id (en server)*/
     ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id);
 
-    /* Comprar Ammo */
-    ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type);
     /* Comprar Ammo con id (en server)*/
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id);
 
