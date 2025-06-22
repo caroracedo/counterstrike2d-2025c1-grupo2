@@ -24,7 +24,9 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_type));
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].player_skin));
                 data.push_back(static_cast<uint8_t>(action_dto.objects[i].weapon_model));
-                data.push_back(static_cast<uint8_t>(action_dto.objects[i].health));
+                byte_converter.push_hexa_to(
+                        byte_converter.int_16_to_hex_big_endian(action_dto.objects[i].health),
+                        data);
                 byte_converter.push_hexa_to(
                         byte_converter.int_16_to_hex_big_endian(action_dto.objects[i].money), data);
                 byte_converter.push_hexa_to(

@@ -24,7 +24,7 @@
 #define POSITION \
     { 10, 10 }
 #define PLAYER_OBJECT                                                                              \
-    ObjectDTO(ObjectType::PLAYER, POSITION, ID_1, PlayerType::TERRORIST, SKIN, WEAPON_1, 500, 100, \
+    ObjectDTO(ObjectType::PLAYER, POSITION, ID_1, PlayerType::TERRORIST, SKIN, WEAPON_1, 100, 500, \
               AMMO, 0)
 #define OBSTACLE_OBJECT                                                        \
     ObjectDTO(ObjectType::OBSTACLE, POSITION, OBSTACLE_HEIGHT, OBSTACLE_WIDTH, \

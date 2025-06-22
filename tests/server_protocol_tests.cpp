@@ -131,12 +131,11 @@ TEST(SERVER_PROTOCOL, UPDATE) {
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
 
-    // TODO: Ver por qué no funciona esto...
     // Envío de UPDATE: objetos
-    // std::vector<ObjectDTO> objects = {PLAYER_OBJECT, OBSTACLE_OBJECT, BOMB_OBJECT,
-    // BOMB_ZONE_OBJECT, BULLET_OBJECT, WEAPON_OBJECT};
-    // EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::UPDATE, objects}))
-    //         << "Sending update should succeed.";
+    std::vector<ObjectDTO> objects = {PLAYER_OBJECT,    OBSTACLE_OBJECT, BOMB_OBJECT,
+                                      BOMB_ZONE_OBJECT, BULLET_OBJECT,   WEAPON_OBJECT};
+    EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::UPDATE, objects}))
+            << "Sending update should succeed.";
 
     // Recepción de MOVE: dirección deseada
     ActionDTO move = protocol.receive_and_deserialize_action();

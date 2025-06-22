@@ -26,16 +26,18 @@ ActionDTO ClientProtocol::deserialize_update(std::vector<uint8_t>& data) {
                 PlayerType player_type = static_cast<PlayerType>(data[i + 7]);
                 PlayerSkin player_skin = static_cast<PlayerSkin>(data[i + 8]);
                 WeaponModel weapon_model = static_cast<WeaponModel>(data[i + 9]);
-                std::vector<uint8_t> money(data.begin() + i + 11, data.begin() + i + 13);
-                std::vector<uint8_t> ammo(data.begin() + i + 13, data.begin() + i + 15);
-                std::vector<uint8_t> angle(data.begin() + i + 15, data.begin() + i + 19);
+                std::vector<uint8_t> health(data.begin() + i + 10, data.begin() + i + 12);
+                std::vector<uint8_t> money(data.begin() + i + 12, data.begin() + i + 14);
+                std::vector<uint8_t> ammo(data.begin() + i + 14, data.begin() + i + 16);
+                std::vector<uint8_t> angle(data.begin() + i + 16, data.begin() + i + 20);
                 objects.push_back({object_type, position,
                                    byte_converter.hex_big_endian_to_int_16(id), player_type,
-                                   player_skin, weapon_model, data[i + 10],
+                                   player_skin, weapon_model,
+                                   byte_converter.hex_big_endian_to_int_16(health),
                                    byte_converter.hex_big_endian_to_int_16(money),
                                    byte_converter.hex_big_endian_to_int_16(ammo),
                                    byte_converter.hex_big_endian_to_float(angle)});
-                i += 19;
+                i += 20;
                 break;
             }
             case ObjectType::BOMBZONE: {

@@ -115,14 +115,14 @@ TEST(CLIENT_PROTOCOL, UPDATE) {
     Socket socket(HOSTNAME, SERVNAME);
     ClientProtocol protocol(socket);
 
-    // TODO: Ver por qué no funciona esto...
     // Recepción de UPDATE: objetos
-    // ActionDTO update = protocol.receive_and_deserialize_action();
-    // ActionType expected_type = ActionType::UPDATE;
-    // std::vector<ObjectDTO> expected_objects = {PLAYER_OBJECT, OBSTACLE_OBJECT, BOMB_OBJECT,
-    // BOMB_ZONE_OBJECT, BULLET_OBJECT, WEAPON_OBJECT}; EXPECT_EQ(update.type, expected_type) <<
-    // "Received type does not match expected type."; EXPECT_EQ(update.objects, expected_objects)
-    //         << "Received objects do not match expected objects.";
+    ActionDTO update = protocol.receive_and_deserialize_action();
+    ActionType expected_type = ActionType::UPDATE;
+    std::vector<ObjectDTO> expected_objects = {PLAYER_OBJECT,    OBSTACLE_OBJECT, BOMB_OBJECT,
+                                               BOMB_ZONE_OBJECT, BULLET_OBJECT,   WEAPON_OBJECT};
+    EXPECT_EQ(update.type, expected_type) << "Received type does not match expected type.";
+    EXPECT_EQ(update.objects, expected_objects)
+            << "Received objects do not match expected objects.";
 
     // Envío de MOVE: dirección deseada
     EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::MOVE, Direction::UP}))
