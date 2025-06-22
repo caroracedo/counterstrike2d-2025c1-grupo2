@@ -225,6 +225,10 @@ bool ClientProtocol::serialize_and_send_action(const ActionDTO& action) {
         case ActionType::START:
         case ActionType::PICKUP:
         case ActionType::QUIT:
+        case ActionType::HEALTHCHEAT:
+        case ActionType::AMMOCHEAT:
+        case ActionType::MONEYCHEAT:
+        case ActionType::WINCHEAT:
             break;
         case ActionType::ROTATE:
             byte_converter.push_hexa_to(byte_converter.float_to_hex_big_endian(action.angle), data);

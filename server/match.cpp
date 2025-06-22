@@ -17,7 +17,7 @@ Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              uint16_t number_counterterrorist):
         config(config),
         map(map_str.c_str()),
-        monitor_game(config, map, number_terrorist, number_counterterrorist),
+        game(config, map, number_terrorist, number_counterterrorist),
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 
@@ -25,21 +25,33 @@ Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
 bool Match::do_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::MOVE:
-            return monitor_game.move(action_dto.direction, action_dto.id);
+            return game.move(action_dto.direction, action_dto.id);
         case ActionType::SHOOT:
-            return monitor_game.shoot(action_dto.id);
+            return game.shoot(action_dto.id);
         case ActionType::BOMB:
-            return monitor_game.interact_with_bomb(action_dto.id);
+            return game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:
-            return monitor_game.change_weapon(action_dto.id);
+            return game.change_weapon(action_dto.id);
         case ActionType::PICKUP:
-            monitor_game.pick_up_weapon(action_dto.id);
+            game.pick_up_weapon(action_dto.id);
             return true;
         case ActionType::ROTATE:
-            monitor_game.rotate(action_dto.angle, action_dto.id);
+            game.rotate_player(action_dto.angle, action_dto.id);
             return true;
         case ActionType::QUIT:
-            monitor_game.quit(action_dto.id);
+            game.quit(action_dto.id);
+            return true;
+        case ActionType::HEALTHCHEAT:
+            game.do_health_cheat(action_dto.id);
+            return true;
+        case ActionType::AMMOCHEAT:
+            game.do_ammo_cheat(action_dto.id);
+            return true;
+        case ActionType::MONEYCHEAT:
+            game.do_money_cheat(action_dto.id);
+            return true;
+        case ActionType::WINCHEAT:
+            game.do_win_cheat(action_dto.id);
             return true;
         default:
             return false;
@@ -49,12 +61,12 @@ bool Match::do_action(const ActionDTO& action_dto) {
 bool Match::do_shop_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::WEAPON:
-            return monitor_game.shop_weapon(action_dto.weapon, action_dto.id);
+            return game.shop_weapon(action_dto.weapon, action_dto.id);
         case ActionType::AMMOPRIMARY:
         case ActionType::AMMOSECONDARY:
-            return monitor_game.shop_ammo(action_dto.ammo, action_dto.weapon_type, action_dto.id);
+            return game.shop_ammo(action_dto.ammo, action_dto.weapon_type, action_dto.id);
         case ActionType::QUIT:
-            monitor_game.quit(action_dto.id);
+            game.quit(action_dto.id);
             return true;
         default:
             return false;
@@ -64,9 +76,9 @@ bool Match::do_shop_action(const ActionDTO& action_dto) {
 void Match::do_start_action(const ActionDTO& action_dto) {
     switch (action_dto.type) {
         case ActionType::START:
-            return monitor_game.set_ready_to_start();
+            return game.set_ready_to_start();
         case ActionType::QUIT:
-            return monitor_game.quit(action_dto.id);
+            return game.quit(action_dto.id);
         default:
             return;
     }
@@ -75,12 +87,12 @@ void Match::do_start_action(const ActionDTO& action_dto) {
 /* Envío a todos los clientes */
 void Match::send_initial_snapshot_to_all_clients() {
     monitor_client_send_queues->send_update(
-            {ActionType::UPDATE, process_objects(monitor_game.get_objects())});
+            {ActionType::UPDATE, process_objects(game.get_objects())});
 }
 
 void Match::send_snapshot_to_all_clients() {
     monitor_client_send_queues->send_update(
-            {ActionType::UPDATE, process_dynamic_objects(monitor_game.get_objects())});
+            {ActionType::UPDATE, process_dynamic_objects(game.get_objects())});
 }
 
 void Match::send_shop_to_all_clients() {
@@ -92,7 +104,7 @@ void Match::send_end_to_all_clients() {
 }
 
 void Match::send_stats_to_all_clients() {
-    monitor_client_send_queues->send_update({ActionType::STATS, monitor_game.get_stats()});
+    monitor_client_send_queues->send_update({ActionType::STATS, game.get_stats()});
 }
 
 
@@ -126,7 +138,7 @@ void Match::waiting_lobby() {
     //          b. Se interrumpe la partida -> no se debería continuar
     //      Ambas se cumplen gracias al inicio de cada ronda.
     // Polling
-    while (!monitor_game.is_ready_to_start() && should_keep_running()) {
+    while (!game.is_ready_to_start() && should_keep_running()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
 
         ActionDTO action;
@@ -148,8 +160,7 @@ void Match::match_loop() {
     //          b. La partida no se interrumpió
     //          c. El juego puede seguir en curso
     for (size_t round = 1;
-         round <= config.get_rounds_total() && should_keep_running() && !monitor_game.is_over();
-         ++round) {
+         round <= config.get_rounds_total() && should_keep_running() && !game.is_over(); ++round) {
         std::cout << "[ROUND] Iniciando ronda..." << std::endl;
 
         shopping_phase();
@@ -160,7 +171,7 @@ void Match::match_loop() {
 
         if (round == config.get_rounds_total() / 2) {
             std::cout << "[SWITCH] Switch de equipos!" << std::endl;
-            monitor_game.switch_player_types();
+            game.switch_player_types();
         }
     }
 
@@ -182,11 +193,11 @@ void Match::shopping_phase() {
     //      Se cumplen gracias al flujo de ejecución.
     // Polling
     auto now = std::chrono::steady_clock::now();
-    while (should_keep_running() && !monitor_game.is_over() && (now - shop_start < shop_time)) {
+    while (should_keep_running() && !game.is_over() && (now - shop_start < shop_time)) {
         std::this_thread::sleep_for(std::chrono::seconds(TIME));
 
         ActionDTO action;
-        while (should_keep_running() && !monitor_game.is_over() && (now - shop_start < shop_time) &&
+        while (should_keep_running() && !game.is_over() && (now - shop_start < shop_time) &&
                recv_queue->try_pop(action)) {
             do_shop_action(action);
 
@@ -202,7 +213,7 @@ void Match::shopping_phase() {
 void Match::game_phase() {
     std::cout << "[GAME] Iniciando fase de juego..." << std::endl;
     send_snapshot_to_all_clients();
-    monitor_game.start_round_game_phase();
+    game.start_round_game_phase();
 
     // Nota: Cuáles son las condiciones de corte?:
     //          a. La partida se interrumpió -> no se debería continuar
@@ -210,13 +221,13 @@ void Match::game_phase() {
     //      Se cumplen gracias al flujo de ejecución.
     auto snapshot_interval = std::chrono::milliseconds(SNAPSHOT_TIME);
     auto last_snapshot_time = std::chrono::steady_clock::now();
-    while (should_keep_running() && !monitor_game.is_over()) {
+    while (should_keep_running() && !game.is_over()) {
         auto start = std::chrono::steady_clock::now();
 
         auto now = start;
         ActionDTO action;
-        while (should_keep_running() && !monitor_game.is_over() &&
-               (now - start < snapshot_interval) && recv_queue->try_pop(action)) {
+        while (should_keep_running() && !game.is_over() && (now - start < snapshot_interval) &&
+               recv_queue->try_pop(action)) {
             do_action(action);
             now = std::chrono::steady_clock::now();
         }
@@ -232,7 +243,7 @@ void Match::game_phase() {
     }
 
     send_snapshot_to_all_clients();
-    monitor_game.end_round_game_phase();
+    game.end_round_game_phase();
     std::cout << "[GAME] Terminando fase de juego..." << std::endl;
 }
 
@@ -255,7 +266,7 @@ void Match::stats_phase() {
 
         ActionDTO action;
         if (recv_queue->try_pop(action) && action.type == ActionType::QUIT)
-            monitor_game.quit(action.id);
+            game.quit(action.id);
 
         now = std::chrono::steady_clock::now();
     }
@@ -272,7 +283,7 @@ void Match::run() {
 /* Añadir jugador */
 void Match::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    monitor_game.add_player(player_type, player_skin, id);
+    game.add_player(player_type, player_skin, id);
 }
 
 /* Getters */
@@ -284,5 +295,5 @@ TerrainType Match::get_terrain() {
 /* Validación */
 bool Match::is_started() {
     std::lock_guard<std::mutex> lock(mutex);
-    return monitor_game.is_ready_to_start();
+    return game.is_ready_to_start();
 }

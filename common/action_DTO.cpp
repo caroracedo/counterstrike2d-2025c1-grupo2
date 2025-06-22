@@ -38,6 +38,10 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value): ActionDTO() {
         case ActionType::PICKUP:
         case ActionType::QUIT:
         case ActionType::START:
+        case ActionType::HEALTHCHEAT:
+        case ActionType::AMMOCHEAT:
+        case ActionType::MONEYCHEAT:
+        case ActionType::WINCHEAT:
             this->id = value;
             break;
         case ActionType::AMMOPRIMARY:

@@ -61,6 +61,7 @@ private:
     bool _is_ready_to_start = false;
     uint16_t number_terrorist;
     uint16_t number_counterterrorist;
+    PlayerType winner_cheat = PlayerType::UNKNOWN;
 
     std::pair<uint16_t, uint16_t> get_cell_from_position(const std::vector<uint16_t>& position);
 
@@ -208,50 +209,42 @@ public:
 
     void quit(uint16_t id);
 
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    void show() const {
-        for (const auto& [id, player]: players) {
-            auto x = player->get_position()[0];
-            auto y = player->get_position()[1];
-            std::cout << "  Player ID: " << id << ", Type: " << static_cast<int>(player->get_type())
-                      << ", Position: (" << x << ", " << y << "), Angle: " << player->get_angle()
-                      << std::endl;
+    // TODO: Para todos los cheats, deberían setearse flags que hagan que, cuando se tendría que
+    // dañar/restar ammo/etc... no se haga Nota: Capaz alguno se pueda reutilizar...
+    void do_health_cheat(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            player_it->second->do_health_cheat();
         }
-        std::cout << "Bullets: " << bullets.size() << std::endl;
-        for (const auto& [id, bullet]: bullets) {
-            auto x = bullet->get_position()[0];
-            auto y = bullet->get_position()[1];
-            std::cout << "  Bullet ID: " << id << ", Player ID: " << bullet->get_player_id()
-                      << ", Position: (" << x << ", " << y << ")"
-                      << ", Range: " << bullet->get_range() << std::endl;
-        }
-        if (bomb) {
-            auto x = bomb->get_position()[0];
-            auto y = bomb->get_position()[1];
-            std::cout << "Bomb is present at position: (" << x << ", " << y << ")" << std::endl;
-        } else {
-            std::cout << "No bomb present." << std::endl;
-        }
-        std::cout << "Bomb zones: " << map.get_bomb_zones().size() << std::endl;
-        for (const auto& zone: map.get_bomb_zones()) {
-            auto x = zone.x;
-            auto y = zone.y;
-            std::cout << "  Bomb Zone Position: (" << x << ", " << y << "), Width: " << zone.width
-                      << ", Height: " << zone.height << std::endl;
-        }
+        std::cout << "do_health_cheat" << std::endl;
     }
 
-    std::vector<uint16_t> get_player_position(uint16_t id) const {
-        if (players.find(id) != players.end()) {
-            return players.at(id)->get_position();
+    void do_ammo_cheat(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            player_it->second->do_ammo_cheat();
         }
-        return {};
+        std::cout << "do_ammo_cheat" << std::endl;
     }
 
-    void update() {
-        update_bullets();
-        update_bomb_countdown();
+    void do_money_cheat(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            player_it->second->do_money_cheat();
+        }
+        std::cout << "do_money_cheat" << std::endl;
+    }
+
+    void do_win_cheat(uint16_t id) {
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            if (player_it->second->get_player_type() == PlayerType::COUNTERTERRORIST) {
+                winner_cheat = PlayerType::COUNTERTERRORIST;
+            } else if (player_it->second->get_player_type() == PlayerType::TERRORIST) {
+                winner_cheat = PlayerType::TERRORIST;
+            }
+        }
+        std::cout << "do_win_cheat" << std::endl;
     }
 };
 

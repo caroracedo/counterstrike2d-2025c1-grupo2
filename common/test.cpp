@@ -1,9 +1,24 @@
 // #include <iostream>
+// #include <iostream>
 
 // #include "game.h"
 // #include "player.h"
 // #include "weapon.h"
+// #include "game.h"
+// #include "player.h"
+// #include "weapon.h"
 
+// #define MOVE_INPUT "mover"
+// #define SHOOT_INPUT "disparar"
+// #define BOMB_INPUT "bomba"
+// #define SHOW_STATS "stats"
+// #define PICK_UP "recoger"
+// #define DROP_ALL "soltar"
+// #define QUIT_INPUT "q"
+// #define W_INPUT "w"
+// #define A_INPUT "a"
+// #define S_INPUT "s"
+// #define D_INPUT "d"
 // #define MOVE_INPUT "mover"
 // #define SHOOT_INPUT "disparar"
 // #define BOMB_INPUT "bomba"
@@ -58,12 +73,21 @@
 
 //     std::vector<uint16_t> player2_pos = game.get_player_position(2);
 //     std::vector<uint16_t> player1_pos = game.get_player_position(1);
+//     std::vector<uint16_t> player2_pos = game.get_player_position(2);
+//     std::vector<uint16_t> player1_pos = game.get_player_position(1);
 
 //     while (true) {
 //         std::string input;
 //         std::getline(std::cin, input);
 //         std::istringstream iss(input);
+//     while (true) {
+//         std::string input;
+//         std::getline(std::cin, input);
+//         std::istringstream iss(input);
 
+//         std::string action_input;
+//         if (!(iss >> action_input))
+//             continue;
 //         std::string action_input;
 //         if (!(iss >> action_input))
 //             continue;

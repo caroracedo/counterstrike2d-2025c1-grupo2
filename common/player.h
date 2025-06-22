@@ -17,7 +17,9 @@ private:
     PlayerType player_type;
     PlayerSkin player_skin;
     uint16_t health;
+    bool infinite_health = false;
     uint16_t money;
+    bool infinite_money = false;
     uint16_t radius = PLAYER_RADIUS;
     float angle = INITIAL_PLAYER_ANGLE;
 
@@ -66,6 +68,14 @@ public:
     std::vector<uint16_t> get_next_position(Direction direction) const;
     void rotate(float new_angle);
     float get_angle() const { return angle; }
+
+    // Cheats
+    void do_health_cheat() { infinite_health = true; }
+    void do_ammo_cheat() {
+        primary_weapon.set_infinite_ammo();
+        secondary_weapon.set_infinite_ammo();
+    }
+    void do_money_cheat() { infinite_money = true; }
 };
 
 #endif  // PLAYER

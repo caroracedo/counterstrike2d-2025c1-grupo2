@@ -54,21 +54,37 @@ public:
                         actions.push_back(ActionDTO{ActionType::BOMB});
                         break;
                     case SDLK_1:
-                        shop.handle_button_pressed(0);
-                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AK47});
+                        if (event.key.keysym.mod & KMOD_CTRL) {
+                            actions.push_back(ActionDTO{ActionType::HEALTHCHEAT});
+                        } else {
+                            shop.handle_button_pressed(0);
+                            actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AK47});
+                        }
                         break;
                     case SDLK_2:
-                        shop.handle_button_pressed(1);
-                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::M3});
+                        if (event.key.keysym.mod & KMOD_CTRL) {
+                            actions.push_back(ActionDTO{ActionType::AMMOCHEAT});
+                        } else {
+                            shop.handle_button_pressed(1);
+                            actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::M3});
+                        }
                         break;
                     case SDLK_3:
-                        shop.handle_button_pressed(2);
-                        actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AWP});
+                        if (event.key.keysym.mod & KMOD_CTRL) {
+                            actions.push_back(ActionDTO{ActionType::MONEYCHEAT});
+                        } else {
+                            shop.handle_button_pressed(2);
+                            actions.push_back(ActionDTO{ActionType::WEAPON, WeaponModel::AWP});
+                        }
                         break;
                     case SDLK_4:
-                        shop.handle_button_pressed(3);
-                        actions.push_back(
-                                ActionDTO{ActionType::AMMOPRIMARY, static_cast<uint16_t>(30)});
+                        if (event.key.keysym.mod & KMOD_CTRL) {
+                            actions.push_back(ActionDTO{ActionType::WINCHEAT});
+                        } else {
+                            shop.handle_button_pressed(3);
+                            actions.push_back(
+                                    ActionDTO{ActionType::AMMOPRIMARY, static_cast<uint16_t>(30)});
+                        }
                         break;
                     case SDLK_5:
                         shop.handle_button_pressed(4);
@@ -125,7 +141,6 @@ public:
         if (angle < 0.0f)
             angle += 360.0f;
 
-        std::cout << "Angle: " << angle << std::endl;
         return angle;
     }
 };

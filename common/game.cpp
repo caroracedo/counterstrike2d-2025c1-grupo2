@@ -238,15 +238,19 @@ bool Game::is_over() {
     });
     bool bomb_not_planted = !(bomb && bomb->is_active());
 
-    bool finished =
-            exploded || deactivated || !cts_alive || (!terrorists_alive && bomb_not_planted);
+    bool finished = exploded || deactivated || (winner_cheat != PlayerType::UNKNOWN) ||
+                    !cts_alive || (!terrorists_alive && bomb_not_planted);
 
     if (finished) {
         // Determinar qué equipo es team_a y team_b según el round
         bool team_a_is_terrorist = (round_number <= 5);
 
         PlayerType winner = PlayerType::UNKNOWN;
-        if (exploded || !cts_alive) {
+        if ((!terrorists_alive && cts_alive) || deactivated ||
+            winner_cheat == PlayerType::COUNTERTERRORIST) {
+            winner = PlayerType::COUNTERTERRORIST;
+        } else if ((!cts_alive && terrorists_alive) || exploded ||
+                   winner_cheat == PlayerType::TERRORIST) {
             winner = PlayerType::TERRORIST;
         } else if (deactivated || (!terrorists_alive && bomb_not_planted)) {
             winner = PlayerType::COUNTERTERRORIST;
@@ -344,6 +348,9 @@ void Game::end_round_game_phase() {
 
     // Reinicia el contador de balas
     bullet_id = 1;
+
+    // Reinicia el winner cheat
+    winner_cheat = PlayerType::UNKNOWN;
 }
 
 void Game::switch_player_types() {
