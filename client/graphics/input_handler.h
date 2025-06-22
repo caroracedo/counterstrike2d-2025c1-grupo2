@@ -92,6 +92,9 @@ public:
                                         static_cast<uint16_t>(camera.get_x());
                 uint16_t real_mouse_y = static_cast<uint16_t>(event.button.y) +
                                         static_cast<uint16_t>(camera.get_y());
+
+                game_view.handle_attack();
+
                 actions.push_back(ActionDTO{ActionType::SHOOT,
                                             std::vector<uint16_t>{real_mouse_x, real_mouse_y}});
             }

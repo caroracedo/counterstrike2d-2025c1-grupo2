@@ -25,6 +25,10 @@ private:
 
     uint16_t id;
 
+    uint32_t knife_start = 0;
+
+    bool is_knife = false;
+
     float posX = 0.0f, posY = 0.0f;
 
     float angle = 0.0f;
@@ -57,6 +61,11 @@ public:
     float get_y() const;
 
     void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
+
+    void start_knife_animation() {
+        is_knife = true;
+        knife_start = SDL_GetTicks();
+    }
 };
 
 #endif

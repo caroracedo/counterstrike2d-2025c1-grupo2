@@ -36,7 +36,6 @@ bool PlayerView::update_position(float x, float y, uint16_t new_life) {
     return true;
 }
 
-// esta info va a venir de un .yaml
 void PlayerView::update_styles(PlayerType new_type, WeaponModel new_posture) {
     type = new_type;
     if (new_posture == WeaponModel::GLOCK) {
@@ -57,11 +56,24 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);
 
-    renderer.Copy(texture, current_frame,
-                  SDL2pp::Rect(static_cast<int>(screenX) - PLAYER_WIDTH / 2,
-                               static_cast<int>(screenY) - PLAYER_HEIGHT / 2, PLAYER_WIDTH,
-                               PLAYER_HEIGHT),
-                  angle, SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2}, SDL_FLIP_NONE);
+    SDL2pp::Rect dstRect{static_cast<int>(screenX) - PLAYER_WIDTH / 2,
+                         static_cast<int>(screenY) - PLAYER_HEIGHT / 2, PLAYER_WIDTH,
+                         PLAYER_HEIGHT};
+
+    SDL_Point center{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2};
+
+    float draw_angle = angle;
+
+    if (is_knife) {
+        uint32_t elapsed = SDL_GetTicks() - knife_start;
+        if (elapsed < 150) {
+            draw_angle += std::sin(elapsed * 0.06f) * 20.0f;  // simula golpe de cuchillo
+        } else {
+            is_knife = false;
+        }
+    }
+
+    renderer.Copy(texture, current_frame, dstRect, draw_angle, center, SDL_FLIP_NONE);
 }
 
 float PlayerView::get_x() const { return posX; }

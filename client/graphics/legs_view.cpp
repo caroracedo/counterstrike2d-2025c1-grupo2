@@ -29,15 +29,16 @@ void LegsView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenX = pos_x - camera.get_x();
     float screenY = pos_y - camera.get_y();
 
-    // float centerX = screenX + 32 / 2.0f;
-    // float centerY = screenY + 32 / 2.0f;
-
-    // int mouseX, mouseY;
-    // SDL_GetMouseState(&mouseX, &mouseY);
-    // float dx = mouseX - centerX;
-    // float dy = mouseY - centerY;
-    // float angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
+    float draw_angle = angle;
+    if (is_knife) {
+        uint32_t elapsed = SDL_GetTicks() - knife_start;
+        if (elapsed < 150) {
+            draw_angle += std::sin(elapsed * 0.06f) * 25.0f;
+        } else {
+            is_knife = false;
+        }
+    }
 
     walk_animation.draw(renderer, screenX - LEGS_WIDTH / 2, screenY - LEGS_HEIGHT / 2, 40, 40,
-                        angle, SDL_Point{16, 16});
+                        draw_angle, SDL_Point{16, 16});
 }

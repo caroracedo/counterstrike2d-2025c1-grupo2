@@ -107,6 +107,19 @@ public:
         }
         return {};
     }
+
+    void handle_attack() {
+        if (is_alive) {
+            if (guns[local_id]->has_knife_equipped()) {
+                players[local_id]->start_knife_animation();
+                guns[local_id]->start_slash();
+                legs[local_id]->start_knife_animation();
+                sound_manager.play("knife_slash", 0);
+            } else {
+                // handle_otro_tipo_de_ataque(); // -> reproducir sonido y animación de movimiento
+            }
+        }
+    }
 };
 
 #endif

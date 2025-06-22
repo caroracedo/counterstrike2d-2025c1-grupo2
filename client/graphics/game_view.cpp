@@ -1,6 +1,8 @@
 #include "game_view.h"
 
+#include <limits>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -78,11 +80,21 @@ void GameView::update(const ActionDTO& action) {
             bombs_in_match++;
             if (object.bomb_countdown == 0) {
                 bomb_view.explode();
+            } else if (object.bomb_countdown == std::numeric_limits<uint16_t>::max()) {
+                bomb_view.set_dropped(true);
             } else {
                 bomb_view.activate_bomb();
+                bomb_view.set_dropped(false);
             }
+
             hud_view.update_timer(object);
-            bomb_view.update(object.position[0], object.position[1], object.bomb_countdown);
+            std::optional<std::pair<float, float>> listener_pos = std::nullopt;
+            auto it = players.find(local_id);
+            if (it != players.end() && it->second) {
+                listener_pos = std::make_pair(it->second->get_x(), it->second->get_y());
+            }
+            bomb_view.update(object.position[0], object.position[1], object.bomb_countdown,
+                             listener_pos);
 
         } else if (object.type == ObjectType::BOMBZONE) {
             SDL_Rect rect;
@@ -98,6 +110,7 @@ void GameView::update(const ActionDTO& action) {
 
     if (bombs_in_match == 0) {
         bomb_view.reset();
+        bomb_view.set_dropped(false);
     }
 
     for (auto it = players.begin(); it != players.end();) {
@@ -153,8 +166,14 @@ void GameView::update_player(const ObjectDTO& object) {
     if (players[id]->update_position(x, y, object.health)) {
         legs[id]->update(x, y);
         guns[id]->update(x, y);
-        if (!is_first_update) {
-            sound_manager.play("steps_" + std::to_string(rand() % 4 + 1));
+        if (!is_first_update && is_alive) {
+            auto sound_pos = std::make_pair(x, y);
+            auto it = players.find(local_id);
+            if (it != players.end() && it->second) {
+                auto listener_pos = std::make_pair(it->second->get_x(), it->second->get_y());
+                sound_manager.play_with_distance("steps_" + std::to_string(rand() % 4 + 1), 0, 600,
+                                                 sound_pos, listener_pos, 350);
+            }
         }
     }
 
@@ -222,7 +241,9 @@ void GameView::render() {
     if (bomb_view.is_exploding()) {
         bomb_view.drawExplosion(renderer, camera);
         bomb_view.reset();
-    } else if (bomb_view.is_active()) {
+    } else if (bomb_view.is_active() || bomb_view.is_dropped()) {
+        std::cout << "dropped: " << bomb_view.is_dropped() << std::endl;
+        std::cout << "active: " << bomb_view.is_active() << std::endl;
         bomb_view.draw(renderer, camera);
     }
 
