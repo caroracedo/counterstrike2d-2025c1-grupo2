@@ -156,13 +156,17 @@ endif()
 if(TALLER_CLIENT)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     # Buscar Qt
-    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
 
     # Habilitar UIC, MOC, RCC automáticos
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
+
+    qt_add_resources(LOBBY_RESOURCES
+        client/lobby/resources.qrc
+    )
 
     add_executable(taller_client)
 
@@ -179,7 +183,7 @@ if(TALLER_CLIENT)
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR} ${Qt${QT_VERSION_MAJOR}_INCLUDE_DIRS})
 
     # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp yaml-cpp Qt${QT_VERSION_MAJOR}::Widgets)
+    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp yaml-cpp Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia)
     target_link_libraries(taller_client SDL2_gfx)
 endif()
 

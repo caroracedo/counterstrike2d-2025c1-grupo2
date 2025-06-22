@@ -5,4 +5,5 @@ target_sources(taller_client
     PRIVATE
         ${LOBBY_SOURCES}
         ${LOBBY_HEADERS}
+        ${LOBBY_RESOURCES}
 )

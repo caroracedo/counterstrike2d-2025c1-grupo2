@@ -2,6 +2,8 @@
 
 #include <QComboBox>
 #include <QDebug>
+#include <QDir>
+#include <QFile>
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QString>
@@ -59,6 +61,27 @@ Lobby::Lobby(const std::vector<std::string>& mapasIngresados,
 
     // Aceptar
     connect(ui->aceptar, &QPushButton::clicked, this, &Lobby::saveDTO);
+
+    /* */
+    // Musica
+    mediaPlayer = new QMediaPlayer(this);
+    audioOutput = new QAudioOutput(this);
+
+    mediaPlayer->setAudioOutput(audioOutput);
+    mediaPlayer->setSource(QUrl("qrc:/new/prefix1/menu.wav"));
+
+    audioOutput->setVolume(0.5);
+
+    connect(mediaPlayer, &QMediaPlayer::mediaStatusChanged, this,
+            [this](QMediaPlayer::MediaStatus status) {
+                if (status == QMediaPlayer::EndOfMedia) {
+                    mediaPlayer->setPosition(0);
+                    mediaPlayer->play();
+                }
+            });
+
+    mediaPlayer->play();
+    /* */
 }
 
 Lobby::~Lobby() { delete ui; }

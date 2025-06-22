@@ -1,7 +1,9 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
+#include <QAudioOutput>
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <string>
 #include <vector>
 
@@ -70,5 +72,7 @@ private:
                                                "Guerrilla"};
     std::vector<std::string> skinsCounterTerrorist = {"Seal force", "German GSG-9", "UK SAS",
                                                       "French GIGN"};
+    QMediaPlayer* mediaPlayer;
+    QAudioOutput* audioOutput;
 };
 #endif  // LOBBY_H
