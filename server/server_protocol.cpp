@@ -179,6 +179,10 @@ ActionDTO ServerProtocol::receive_and_deserialize_action() {
         case ActionType::START:
         case ActionType::PICKUP:
         case ActionType::QUIT:
+        case ActionType::HEALTHCHEAT:
+        case ActionType::AMMOCHEAT:
+        case ActionType::MONEYCHEAT:
+        case ActionType::WINCHEAT:
             return {type, id};  // Agrega el id del jugador...
         case ActionType::ROTATE:
             return {type,

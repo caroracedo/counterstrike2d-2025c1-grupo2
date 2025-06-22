@@ -8,19 +8,19 @@
 #include <vector>
 
 #include "common/action_DTO.h"
+#include "common/game.h"
 #include "common/object_DTO.h"
 #include "common/queue.h"
 #include "common/thread.h"
 
 #include "monitor_client_send_queues.h"
-#include "monitor_game.h"
 
 class Match: public Thread {
 private:
     /* Configuración */
     Config& config;
     Map map;
-    MonitorGame monitor_game;
+    Game game;
     std::shared_ptr<Queue<ActionDTO>> recv_queue;
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues;
     std::mutex mutex;

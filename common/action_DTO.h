@@ -30,6 +30,10 @@ enum class ActionType : uint8_t {
     START = 0x3D,
     ROTATE = 0x2D,
     INIT = 0x10,
+    HEALTHCHEAT = 0xFE,
+    AMMOCHEAT = 0xFD,
+    MONEYCHEAT = 0xFC,
+    WINCHEAT = 0xFB,
     UNKNOWN = 0x00
 };
 

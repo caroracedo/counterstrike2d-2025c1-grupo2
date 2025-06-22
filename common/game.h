@@ -208,6 +208,40 @@ public:
 
     void quit(uint16_t id);
 
+    // TODO: Para todos los cheats, deberían setearse flags que hagan que, cuando se tendría que
+    // dañar/restar ammo/etc... no se haga Nota: Capaz alguno se pueda reutilizar...
+    void do_health_cheat(uint16_t id) {
+        // TODO: debería hacer que no se pueda dañar (en take_damage)
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            (void)player_it;  // Para que no me chille el compilador :)
+        }
+        std::cout << "do_health_cheat" << std::endl;
+    }
+
+    void do_ammo_cheat(uint16_t id) {
+        // TODO: debería hacer que no se puedan restar balas (en shoot(?)
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            (void)player_it;  // Para que no me chille el compilador :)
+        }
+        std::cout << "do_ammo_cheat" << std::endl;
+    }
+
+    void do_money_cheat(uint16_t id) {
+        // TODO: debería hacer que no se pueda restar money (en buy_weapon/buy_ammo)
+        auto player_it = players.find(id);
+        if (player_it != players.end()) {
+            (void)player_it;  // Para que no me chille el compilador :)
+        }
+        std::cout << "do_money_cheat" << std::endl;
+    }
+
+    void do_win_cheat(uint16_t id) {
+        // TODO: debería hacer que se gane acá en el juego
+        (void)id;
+        std::cout << "do_win_cheat" << std::endl;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     void show() const {
