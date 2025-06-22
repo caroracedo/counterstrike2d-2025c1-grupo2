@@ -13,6 +13,7 @@ SYSTEM_DEPENDENCIES = \
     libsdl2-gfx-dev \
     qt6-base-dev \
     qt6-base-dev-tools \
+    qt6-multimedia-dev \
     libopus-dev \
     libopusfile-dev \
     libxmp-dev \
