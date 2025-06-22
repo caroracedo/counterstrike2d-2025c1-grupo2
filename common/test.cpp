@@ -30,8 +30,8 @@ int main() {
     game.shop_weapon(WeaponModel::M3, 2);
 
     game.change_weapon(1);
-    game.change_weapon(1);
-    game.change_weapon(2);
+    // game.change_weapon(1);
+    // game.change_weapon(2);
     game.change_weapon(2);
 
     std::vector<uint16_t> player2_pos = game.get_player_position(2);

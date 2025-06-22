@@ -11,7 +11,7 @@ Knife::Knife(const std::vector<uint16_t>& player_position, const uint16_t player
     // Calcular punto final del ataque usando el ángulo del jugador en grados
     float angle_rad = angle_deg * static_cast<float>(M_PI) / 180.0f;
     float ux = std::cos(angle_rad);
-    float uy = std::sin(angle_rad);
+    float uy = -std::sin(angle_rad);
     end_position = {static_cast<uint16_t>(player_position[0] + ux * range),
                     static_cast<uint16_t>(player_position[1] + uy * range)};
 }
