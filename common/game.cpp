@@ -236,15 +236,18 @@ bool Game::is_over() {
         return par.second && par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
     });
 
-    bool finished = !(terrorists_alive && cts_alive) || exploded || deactivated;
+    bool finished = !(terrorists_alive && cts_alive) || exploded || deactivated ||
+                    (winner_cheat != PlayerType::UNKNOWN);
     if (finished) {
         // Determinar qué equipo es team_a y team_b según el round
         bool team_a_is_terrorist = (round_number <= 5);
 
         PlayerType winner = PlayerType::UNKNOWN;
-        if ((!terrorists_alive && cts_alive) || deactivated) {
+        if ((!terrorists_alive && cts_alive) || deactivated ||
+            winner_cheat == PlayerType::COUNTERTERRORIST) {
             winner = PlayerType::COUNTERTERRORIST;
-        } else if ((!cts_alive && terrorists_alive) || exploded) {
+        } else if ((!cts_alive && terrorists_alive) || exploded ||
+                   winner_cheat == PlayerType::TERRORIST) {
             winner = PlayerType::TERRORIST;
         }
 

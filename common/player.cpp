@@ -92,7 +92,9 @@ WeaponDTO Player::buy_weapon(const WeaponModel& weapon_model) {
         return old_weapon;
     }
     old_weapon = drop_primary_weapon();
-    money -= purchase.first;
+    if (!infinite_money) {
+        money -= purchase.first;
+    }
     primary_weapon = purchase.second;
     return old_weapon;
 }
@@ -102,7 +104,9 @@ bool Player::buy_ammo(WeaponType weapon_type, uint16_t ammo_amount) {
     if (!purchase.second) {
         return false;
     }
-    money -= purchase.first;
+    if (!infinite_money) {
+        money -= purchase.first;
+    }
     switch (weapon_type) {
         case WeaponType::PRIMARY:
             primary_weapon.add_ammo(ammo_amount);
@@ -137,6 +141,9 @@ void Player::switch_player_type() {
 }
 
 void Player::take_damage(uint16_t damage) {
+    if (infinite_health) {
+        return;
+    }
     if (health > damage) {
         health -= damage;
     } else {

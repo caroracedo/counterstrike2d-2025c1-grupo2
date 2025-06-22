@@ -45,6 +45,9 @@ WeaponDTO Weapon::get_weapon_dto() const {
 bool Weapon::is_bomb() { return model == WeaponModel::BOMB; }
 
 bool Weapon::shoot() {
+    if (infinite_ammo) {
+        return true;  // Disparo exitoso sin gastar munición
+    }
     switch (model) {
         case WeaponModel::BOMB:
         case WeaponModel::KNIFE:

@@ -20,6 +20,8 @@ private:
     float precision;
     uint16_t ammo;
 
+    bool infinite_ammo = false;
+
     void fix_height();
 
 public:
@@ -47,6 +49,8 @@ public:
     void add_ammo(uint16_t ammo_amount);
 
     void set_position(const std::vector<uint16_t>& new_position);
+
+    void set_infinite_ammo() { infinite_ammo = true; }
 
     bool operator==(const Weapon& other) const;
 };
