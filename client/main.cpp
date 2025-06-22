@@ -3,23 +3,16 @@
 
 #include "client.h"
 
-#define EXPECTED_ARGC 3
+#define EXPECTED_ARGC 1
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
     try {
-        // Momentáneamente agrego esto
-        const char* hostname = NULL;
-        const char* servname = NULL;
-
         if (argc != EXPECTED_ARGC) {
-            std::cerr << "Bad program call. Expected: " << argv[0] << " <hostname> <servname>\n";
+            std::cerr << "Bad program call. Expected: " << argv[0] << "\n";
             return EXIT_FAILURE;
         }
 
-        hostname = argv[1];
-        servname = argv[2];
-
-        Client client(hostname, servname);
+        Client client;
         client.run();
         return EXIT_SUCCESS;
 

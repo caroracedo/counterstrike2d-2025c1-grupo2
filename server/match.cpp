@@ -13,10 +13,11 @@
 /* Constructor */
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
-             const std::string& map_str):
+             const std::string& map_str, uint16_t number_terrorist,
+             uint16_t number_counterterrorist):
         config(config),
         map(map_str.c_str()),
-        monitor_game(config, map),
+        monitor_game(config, map, number_terrorist, number_counterterrorist),
         recv_queue(recv_queue),
         monitor_client_send_queues(monitor_client_send_queues) {}
 
@@ -26,7 +27,7 @@ bool Match::do_action(const ActionDTO& action_dto) {
         case ActionType::MOVE:
             return monitor_game.move(action_dto.direction, action_dto.id);
         case ActionType::SHOOT:
-            return monitor_game.shoot(action_dto.desired_position, action_dto.id);
+            return monitor_game.shoot(action_dto.id);
         case ActionType::BOMB:
             return monitor_game.interact_with_bomb(action_dto.id);
         case ActionType::CHANGE:
@@ -269,13 +270,19 @@ void Match::run() {
 }
 
 /* Añadir jugador */
-void Match::add_player(PlayerType player_type, uint16_t id) {
+void Match::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    monitor_game.add_player(player_type, id);
+    monitor_game.add_player(player_type, player_skin, id);
 }
 
 /* Getters */
 TerrainType Match::get_terrain() {
     std::lock_guard<std::mutex> lock(mutex);
     return map.get_terrain();
+}
+
+/* Validación */
+bool Match::is_started() {
+    std::lock_guard<std::mutex> lock(mutex);
+    return monitor_game.is_ready_to_start();
 }

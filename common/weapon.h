@@ -20,6 +20,8 @@ private:
     float precision;
     uint16_t ammo;
 
+    void fix_height();
+
 public:
     /* Constructor */
     Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_damage,
@@ -29,50 +31,24 @@ public:
 
     explicit Weapon(const WeaponDTO& weapon_dto);
 
-    /* Verificaciones */
-    bool is_bomb();
-
-    /* Getters */
-    uint16_t get_range();
-
-    std::vector<uint16_t> get_damage();
-
+    ObjectDTO get_dto() const override;
     WeaponDTO get_weapon_dto() const;
 
-    ObjectDTO get_dto() const override;
-
-    WeaponModel get_model() const;
-
-    uint16_t get_ammo() const;
-
-    /* Setters */
-    void set_position(const std::vector<uint16_t>& new_position) { position = new_position; }
+    bool is_bomb();
 
     bool shoot();
 
-    /* Funcionalidades */
+    uint16_t get_range();
+    std::vector<uint16_t> get_damage();
+    WeaponModel get_model() const;
+    std::string get_name() const;
+
+    uint16_t get_ammo() const;
     void add_ammo(uint16_t ammo_amount);
 
-    bool operator==(const Weapon& other) const;
+    void set_position(const std::vector<uint16_t>& new_position);
 
-    std::string get_name() const {
-        switch (model) {
-            case WeaponModel::KNIFE:
-                return "Knife";
-            case WeaponModel::GLOCK:
-                return "Glock";
-            case WeaponModel::AK47:
-                return "AK-47";
-            case WeaponModel::M3:
-                return "M3";
-            case WeaponModel::AWP:
-                return "AWP";
-            case WeaponModel::BOMB:
-                return "Bomb";
-            default:
-                return "Unknown Weapon";
-        }
-    }
+    bool operator==(const Weapon& other) const;
 };
 
 #endif  // WEAPON_H

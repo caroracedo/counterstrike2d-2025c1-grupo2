@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "constants.h"
+
 /* Constructor */
 Map::Map(const std::string& yaml_path) { load_from_yaml(yaml_path); }
 
@@ -13,6 +15,8 @@ const std::vector<BombZoneConfig>& Map::get_bomb_zones() const { return bomb_zon
 const std::vector<TeamZoneConfig>& Map::get_team_zones() const { return team_zones; }
 
 const std::vector<WeaponObjectConfig>& Map::get_weapon_objects() const { return weapon_objects; }
+
+TerrainType Map::get_terrain() const { return terrain; }
 
 ObstacleType Map::box_to_obstacle_type(const std::string& type_string) {
     if (type_string == "CAJA1")

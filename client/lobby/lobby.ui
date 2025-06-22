@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>Lobby</class>
+ <widget class="QMainWindow" name="Lobby">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>361</width>
-    <height>446</height>
+    <width>369</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,19 +17,38 @@
    <string notr="true">background-color: #0f1a52</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>331</width>
-      <height>391</height>
+      <width>341</width>
+      <height>458</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
         <widget class="QComboBox" name="operacion">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -71,13 +90,31 @@ QComboBox QAbstractItemView {
        </item>
        <item>
         <widget class="QWidget" name="create" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>99</height>
+          </size>
+         </property>
          <widget class="QWidget" name="verticalLayoutWidget">
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>3</y>
-            <width>327</width>
-            <height>71</height>
+            <y>10</y>
+            <width>341</width>
+            <height>121</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -145,18 +182,80 @@ QLineEdit:focus {
              </property>
             </widget>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLineEdit" name="numTerrorist">
+               <property name="styleSheet">
+                <string notr="true">QLineEdit {
+    background-color: #3C5B9B;  
+    color: black;                
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+}
+
+QLineEdit:focus {
+    background-color: #5A78B4;    
+    outline: none;               
+}</string>
+               </property>
+               <property name="placeholderText">
+                <string>Enter # terrorist</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="numCounter">
+               <property name="styleSheet">
+                <string notr="true">QLineEdit {
+    background-color: #3C5B9B;  
+    color: black;                
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+}
+
+QLineEdit:focus {
+    background-color: #5A78B4;    
+    outline: none;               
+}</string>
+               </property>
+               <property name="placeholderText">
+                <string>Enter # counters</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
          </widget>
         </widget>
        </item>
        <item>
         <widget class="QWidget" name="join" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>80</height>
+          </size>
+         </property>
          <widget class="QWidget" name="verticalLayoutWidget_2">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>20</y>
-            <width>331</width>
+            <width>341</width>
             <height>61</height>
            </rect>
           </property>
@@ -196,7 +295,20 @@ QComboBox QAbstractItemView {
          </widget>
         </widget>
        </item>
-       <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item alignment="Qt::AlignmentFlag::AlignHCenter">
         <widget class="QComboBox" name="equipo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -232,6 +344,72 @@ QComboBox QAbstractItemView {
 }</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="skin" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <widget class="QWidget" name="verticalLayoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>-1</x>
+            <y>0</y>
+            <width>341</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QComboBox" name="typeSkin">
+             <property name="styleSheet">
+              <string notr="true">QComboBox {
+    background-color: #3C5B9B;
+    color: black;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: bold;
+    border: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    background-color: #2A4277;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    width: 10px;
+    height: 10px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #3C5B9B;
+    color: black;
+    selection-background-color: #5A78B4;
+}</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
         <widget class="QPushButton" name="aceptar">
@@ -273,7 +451,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>361</width>
+     <width>369</width>
      <height>22</height>
     </rect>
    </property>

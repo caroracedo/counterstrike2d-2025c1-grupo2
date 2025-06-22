@@ -1,9 +1,20 @@
 #include "player_view.h"
 
-PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id):
-        texture_manager(texture_manager), sound_manager(sound_manager), id(id) {
-    player_types[PlayerType::TERRORIST] = "terrorists";
-    player_types[PlayerType::COUNTERTERRORIST] = "counter_terrorists";
+PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id,
+                       PlayerSkin skin):
+        texture_manager(texture_manager), sound_manager(sound_manager), id(id), skin(skin) {
+    initialize_resources();
+}
+
+void PlayerView::initialize_resources() {
+    player_skins[PlayerSkin::SEALFORCE] = "ct1";
+    player_skins[PlayerSkin::GERMANGSG9] = "ct2";
+    player_skins[PlayerSkin::UKSAS] = "ct3";
+    player_skins[PlayerSkin::FRENCHGIGN] = "ct4";
+    player_skins[PlayerSkin::PHEONIX] = "t1";
+    player_skins[PlayerSkin::L337KREW] = "t2";
+    player_skins[PlayerSkin::ARTICAVENGER] = "t3";
+    player_skins[PlayerSkin::GUERRILLA] = "t4";
 }
 
 bool PlayerView::update_position(float x, float y, uint16_t new_life) {
@@ -44,19 +55,7 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
 
-    // float centerX = screenX + PLAYER_WIDTH / 2.0f;
-    // float centerY = screenY + PLAYER_HEIGHT / 2.0f;
-
-    // int mouseX, mouseY;
-    // SDL_GetMouseState(&mouseX, &mouseY);
-
-    // float dx = mouseX - centerX;
-    // float dy = mouseY - centerY;
-
-    // float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-    // this->angle = new_angle;
-
-    SDL2pp::Texture& texture = *texture_manager.get_texture(player_types[type]);
+    SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);
 
     renderer.Copy(texture, current_frame,
                   SDL2pp::Rect(static_cast<int>(screenX) - PLAYER_WIDTH / 2,

@@ -19,14 +19,13 @@ class Knife: public Object {
 
 public:
     Knife(const std::vector<uint16_t>& player_position, const uint16_t player_id, uint16_t _range,
-          uint16_t _min_damage, uint16_t _max_damage,
-          const std::vector<uint16_t>& desired_position);
+          uint16_t _min_damage, uint16_t _max_damage, float angle);
+
+    ObjectDTO get_dto() const override;
 
     uint16_t get_damage() const;
 
     bool hits(const std::vector<uint16_t>& target_pos) const;
-
-    ObjectDTO get_dto() const override;
 };
 
 #endif  // KNIFE_H

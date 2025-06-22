@@ -2,28 +2,31 @@
 
 #include <algorithm>
 
+#include "common/constants.h"
+
 /* Constructor */
 MatchesMonitor::MatchesMonitor(Config& config): config(config) {}
 
 /* Crear Partida */
 std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>, TerrainType>
         MatchesMonitor::create_match(const std::string& new_match_name,
-                                     const std::string& desired_map, PlayerType player_type,
-                                     uint16_t id) {
+                                     const std::string& desired_map, uint16_t number_terrorist,
+                                     uint16_t number_counterterrorist, PlayerType player_type,
+                                     PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
     std::shared_ptr<Queue<ActionDTO>> shared_recv_queue = std::make_shared<Queue<ActionDTO>>();
     std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queue =
             std::make_shared<MonitorClientSendQueues>();
-    std::shared_ptr<Match> new_match =
-            std::make_shared<Match>(config, shared_recv_queue, monitor_client_send_queue,
-                                    MAPS_PATH + desired_map + YAML_EXTENSION);
+    std::shared_ptr<Match> new_match = std::make_shared<Match>(
+            config, shared_recv_queue, monitor_client_send_queue,
+            (MAPS_PATH + desired_map + YAML_EXTENSION), number_terrorist, number_counterterrorist);
 
     shared_recv_queues[new_match_name] = shared_recv_queue;
     monitors_client_send_queues[new_match_name] = monitor_client_send_queue;
     matches[new_match_name] = new_match;
 
     new_match->start();
-    new_match->add_player(player_type, id);
+    new_match->add_player(player_type, player_skin, id);
 
     return {shared_recv_queue, monitor_client_send_queue->add_queue_to(id),
             new_match->get_terrain()};
@@ -32,14 +35,14 @@ std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>,
 /* Unirse a Partida */
 std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>, TerrainType>
         MatchesMonitor::join_match(const std::string& match_name, PlayerType player_type,
-                                   uint16_t id) {
+                                   PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
     if (matches.find(match_name) != matches.end()) {
         auto shared_recv_queue = shared_recv_queues[match_name];
         auto monitor_client_send_queue = monitors_client_send_queues[match_name];
         auto match = matches[match_name];
 
-        match->add_player(player_type, id);
+        match->add_player(player_type, player_skin, id);
 
         return {shared_recv_queue, monitor_client_send_queue->add_queue_to(id),
                 match->get_terrain()};
@@ -51,8 +54,10 @@ std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>,
 std::vector<std::string> MatchesMonitor::list_matches() {
     std::lock_guard<std::mutex> lock(mutex);
     std::vector<std::string> matches_vector;
-    std::transform(matches.begin(), matches.end(), std::back_inserter(matches_vector),
-                   [](const auto& match) { return match.first; });
+    for (const auto& match: matches) {
+        if (!match.second->is_started())
+            matches_vector.push_back(match.first);
+    }
     return matches_vector;
 }
 

@@ -25,10 +25,12 @@ std::pair<bool, std::pair<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Que
     TerrainType terrain_type;
     if (first_action.type == ActionType::CREATE) {
         std::tie(new_recv_queue, send_queue, terrain_type) = matches_monitor.create_match(
-                first_action.match, first_action.map, first_action.player_type, first_action.id);
+                first_action.match, first_action.map, first_action.number_terrorist,
+                first_action.number_counterterrorist, first_action.player_type,
+                first_action.player_skin, id);
     } else if (first_action.type == ActionType::JOIN) {
         std::tie(new_recv_queue, send_queue, terrain_type) = matches_monitor.join_match(
-                first_action.match, first_action.player_type, first_action.id);
+                first_action.match, first_action.player_type, first_action.player_skin, id);
     }
 
     if (!new_recv_queue && !send_queue)
@@ -60,7 +62,9 @@ void ClientHandler::hard_kill() {
 
     protocol.kill();
 
-    if (stop_flag) {
+    // Si todavía no se iniciaron los hilos sender y receiver
+    //      - !stop_flag && !receiver.is_alive() && !sender.is_alive()
+    if (stop_flag || receiver.is_alive() || sender.is_alive()) {
         receiver.stop();
         sender.stop();
 

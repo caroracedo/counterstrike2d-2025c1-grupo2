@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "common/config.h"
-#include "common/constants.h"
 
 #include "match.h"
 
@@ -31,11 +30,13 @@ public:
     /* Crear Partida */
     std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>, TerrainType>
             create_match(const std::string& new_match_name, const std::string& desired_map,
-                         PlayerType player_type, uint16_t id);
+                         uint16_t number_terrorist, uint16_t number_counterterrorist,
+                         PlayerType player_type, PlayerSkin player_skin, uint16_t id);
 
     /* Unirse a Partida */
     std::tuple<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>, TerrainType>
-            join_match(const std::string& match_name, PlayerType player_type, uint16_t id);
+            join_match(const std::string& match_name, PlayerType player_type,
+                       PlayerSkin player_skin, uint16_t id);
 
     /* Listar Patidas */
     std::vector<std::string> list_matches();

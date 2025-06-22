@@ -3,28 +3,31 @@
 #include <QApplication>
 #include <vector>
 
-#include "graphics/game_view.h"
-#include "graphics/input_handler.h"
-#include "lobby/mainwindow.h"
-
-/* Constructor */
-Client::Client(const char* hostname, const char* servname):
-        client_socket(hostname, servname),
-        protocol(this->client_socket),
-        sender(protocol, send_queue),
-        receiver(protocol, recv_queue) {}
+#include "lobby/lobby.h"
+#include "prelobby/prelobby.h"
 
 /* Ejecución */
-ActionDTO Client::lobby() {
+ActionDTO Client::prelobby() {
+    int argc = 0;
+    char** argv = nullptr;
+    QApplication app(argc, argv);
+    PreLobby window;
+    window.show();
+    app.exec();
+
+    return window.getInfo();
+}
+
+ActionDTO Client::lobby(ClientProtocol& protocol) {
     ActionDTO information = protocol.receive_and_deserialize_action();
 
-    if (information.type == ActionType::UNKNOWN)
+    if (information.type != ActionType::INFORMATION)
         return ActionDTO();
 
     int argc = 0;
     char** argv = nullptr;
     QApplication app(argc, argv);
-    MainWindow window(information.maps, information.matches);
+    Lobby window(information.maps, information.matches);
     window.show();
     app.exec();
 
@@ -34,14 +37,7 @@ ActionDTO Client::lobby() {
     return protocol.receive_and_deserialize_action();
 }
 
-void Client::match_loop(const ActionDTO& configuration) {
-    GameView game_view;
-    InputHandler input_handler(game_view);
-
-    game_view.set_id(configuration.id);
-    game_view.set_terrain(configuration.terrain_type);
-    game_view.pre_lobby(true);
-
+void Client::match_loop(InputHandler& input_handler, GameView& game_view) {
     bool stop_flag = false;
     while (!stop_flag) {
         std::vector<ActionDTO> actions = input_handler.receive_and_parse_actions();
@@ -73,19 +69,37 @@ void Client::match_loop(const ActionDTO& configuration) {
 }
 
 void Client::run() {
-    ActionDTO configuration = lobby();
+    ActionDTO init = prelobby();
 
-    if (configuration.type != ActionType::UNKNOWN) {
-        sender.start();
-        receiver.start();
+    if (init.type != ActionType::INIT)
+        return;
 
-        match_loop(configuration);
+    Socket client_socket(init.hostname.c_str(), init.servname.c_str());
+    ClientProtocol protocol(client_socket);
 
-        protocol.kill();
+    ActionDTO configuration = lobby(protocol);
 
-        sender.stop();
-        receiver.stop();
-        sender.join();
-        receiver.join();
-    }
+    if (configuration.type != ActionType::CONFIGURATION)
+        return;
+
+    ClientSender sender(protocol, send_queue);
+    ClientReceiver receiver(protocol, recv_queue);
+
+    GameView game_view;
+    game_view.set_id(configuration.id);
+    game_view.set_terrain(configuration.terrain_type);
+    game_view.pre_lobby(true);
+    InputHandler input_handler(game_view);
+
+    sender.start();
+    receiver.start();
+
+    match_loop(input_handler, game_view);
+
+    protocol.kill();
+
+    sender.stop();
+    receiver.stop();
+    sender.join();
+    receiver.join();
 }

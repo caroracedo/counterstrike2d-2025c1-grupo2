@@ -37,7 +37,6 @@
 #define FILAS 21
 #define COLUMNAS 21
 #define TAM_CELDA 32
-#define TAM_ARMA 16
 
 MainWindow::MainWindow(QWidget* parent):
         QMainWindow(parent), ui(new Ui::MainWindow), scene(new QGraphicsScene(this)) {
@@ -169,14 +168,8 @@ void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
         return;
 
     QPixmap pixmap(imagenSeleccionada);
-    int tamImagen;
-    if (imagenSeleccionada.contains("arma")) {
-        tamImagen = TAM_ARMA;
-    } else {
-        tamImagen = TAM_CELDA;
-    }
     QPixmap pixmapEscalado =
-            pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
         grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
@@ -438,7 +431,7 @@ void MainWindow::guardarCajas(YAML::Emitter& out) {
     out << YAML::Key << "obstacles" << YAML::Value << YAML::BeginSeq;
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+            const Celda& celda = grilla[fila][col];
             if (celda.tipoElemento == TIPO_ELEMENTO::CAJA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoCajaToString(celda.tipoCaja);
@@ -459,12 +452,12 @@ void MainWindow::guardarArmas(YAML::Emitter& out) {
     out << YAML::Key << "weaponsMapa" << YAML::Value << YAML::BeginSeq;
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+            const Celda& celda = grilla[fila][col];
             if (celda.tipoElemento == TIPO_ELEMENTO::ARMA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoArmaToString(celda.tipoArma);
-                out << YAML::Key << "width" << YAML::Value << TAM_ARMA;
-                out << YAML::Key << "height" << YAML::Value << TAM_ARMA;
+                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
                 out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
                 out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
@@ -480,7 +473,7 @@ void MainWindow::guardarZonasBomba(YAML::Emitter& out) {
     out << YAML::Key << "bomb_zones" << YAML::Value << YAML::BeginSeq;
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+            const Celda& celda = grilla[fila][col];
             if (celda.zona == TIPO_ZONA::BOMBA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
@@ -500,7 +493,7 @@ void MainWindow::guardarZonasInicio(YAML::Emitter& out) {
     out << YAML::Key << "init_zones" << YAML::Value << YAML::BeginSeq;
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+            const Celda& celda = grilla[fila][col];
             if (celda.zona == TIPO_ZONA::TERRORISTA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << "Terrorist";
@@ -673,7 +666,7 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
     cargarZonasBombasEnElMapa(archivo);
     cargarZonasDeInicioEnElMapa(archivo);
 
-    QGraphicsScene* scene = ui->graphicsView->scene();
+    QGraphicsScene* localScene = ui->graphicsView->scene();
     for (int fila = 0; fila < FILAS; fila++) {
         for (int col = 0; col < COLUMNAS; col++) {
             Celda& celda = grilla[fila][col];
@@ -683,20 +676,14 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
                 if (pixmap.isNull()) {
                     continue;
                 }
-                int tamImagen;
-                if (celda.imagenElemento.contains("arma")) {
-                    tamImagen = TAM_ARMA;
-                } else {
-                    tamImagen = TAM_CELDA;
-                }
-                QPixmap pixmapEscalado = pixmap.scaled(tamImagen, tamImagen, Qt::KeepAspectRatio,
+                QPixmap pixmapEscalado = pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio,
                                                        Qt::SmoothTransformation);
                 QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
                 celda.item = item;
                 int x = col * TAM_CELDA + (TAM_CELDA - pixmapEscalado.width()) / 2;
                 int y = fila * TAM_CELDA + (TAM_CELDA - pixmapEscalado.height()) / 2;
                 item->setPos(x, y);
-                scene->addItem(item);
+                localScene->addItem(item);
             }
         }
     }

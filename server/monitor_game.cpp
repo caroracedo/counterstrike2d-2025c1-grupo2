@@ -1,12 +1,14 @@
 #include "monitor_game.h"
 
 /* Constructor */
-MonitorGame::MonitorGame(Config& config, Map& map): game(config, map) {}
+MonitorGame::MonitorGame(Config& config, Map& map, uint16_t number_terrorist,
+                         uint16_t number_counterterrorist):
+        game(config, map, number_terrorist, number_counterterrorist) {}
 
 /* Agregar jugador */
-void MonitorGame::add_player(PlayerType player_type, uint16_t id) {
+void MonitorGame::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    game.add_player(player_type, id);
+    game.add_player(player_type, player_skin, id);
 }
 
 /* Validación */
@@ -43,9 +45,9 @@ bool MonitorGame::move(const Direction& direction, uint16_t id) {
 }
 
 /* Disparar */
-bool MonitorGame::shoot(const std::vector<uint16_t>& desired_position, uint16_t id) {
+bool MonitorGame::shoot(uint16_t id) {
     std::lock_guard<std::mutex> lock(mutex);
-    return game.shoot(desired_position, id);
+    return game.shoot(id);
 }
 
 /* Interactuar con bomba */

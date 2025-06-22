@@ -55,16 +55,19 @@ public:
     /* Constructor */
     Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
           std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,
-          const std::string& map_str);
+          const std::string& map_str, uint16_t number_terrorist, uint16_t number_counterterrorist);
 
     /* Override */
     void run() override;
 
     /* Añadir jugador */
-    void add_player(PlayerType player_type, uint16_t id);
+    void add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id);
 
     /* Getters */
     TerrainType get_terrain();
+
+    /* Validación */
+    bool is_started();
 };
 
 #endif  // MATCH_H

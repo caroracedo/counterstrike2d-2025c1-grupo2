@@ -26,6 +26,6 @@ public:
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
 
-    void update_angle(float angle) { this->angle = angle; }
+    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
 };
 #endif
