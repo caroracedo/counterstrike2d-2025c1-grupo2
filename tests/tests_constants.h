@@ -13,6 +13,9 @@
 #define MAP_1 "a"
 #define MAP_2 "b"
 #define MAP_1_TERRAIN_TYPE TerrainType::PUEBLOAZTECA
+#define SKIN PlayerSkin::PHEONIX
+#define NUM_TERRORISTS 2
+#define NUM_COUNTERS 2
 #define ID_1 1
 #define TIME 100
 #define WEAPON_1 WeaponModel::AK47
@@ -21,8 +24,8 @@
 #define POSITION \
     { 10, 10 }
 #define PLAYER_OBJECT                                                                              \
-    ObjectDTO(ObjectType::PLAYER, POSITION, ID_1, PlayerType::TERRORIST, WEAPON_1, 500, 100, AMMO, \
-              0)
+    ObjectDTO(ObjectType::PLAYER, POSITION, ID_1, PlayerType::TERRORIST, SKIN, WEAPON_1, 500, 100, \
+              AMMO, 0)
 #define OBSTACLE_OBJECT                                                        \
     ObjectDTO(ObjectType::OBSTACLE, POSITION, OBSTACLE_HEIGHT, OBSTACLE_WIDTH, \
               ObstacleType::OBSTACLE1)

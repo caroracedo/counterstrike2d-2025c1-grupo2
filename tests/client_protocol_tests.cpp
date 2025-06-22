@@ -30,10 +30,10 @@ TEST(CLIENT_PROTOCOL, LOBBY_CREATE) {
     EXPECT_EQ(information.maps, expected_maps) << "Received maps do not match expected maps.";
 
     // Envío de CREATE: partida y mapa deseados
-    // TODO: Actualizar
-    //     EXPECT_TRUE(protocol.serialize_and_send_action(
-    //             {ActionType::CREATE, MATCH_3, MAP_1, PlayerType::TERRORIST}))
-    //             << "Sending create should succeed.";
+    EXPECT_TRUE(
+            protocol.serialize_and_send_action({ActionType::CREATE, MATCH_3, MAP_1, NUM_TERRORISTS,
+                                                NUM_COUNTERS, PlayerType::TERRORIST, SKIN}))
+            << "Sending create should succeed.";
 
     // Recepción de CONFIGURATION: tipo de terreno y id
     ActionDTO configuration = protocol.receive_and_deserialize_action();
@@ -64,10 +64,9 @@ TEST(CLIENT_PROTOCOL, LOBBY_JOIN) {
     EXPECT_EQ(information.maps, expected_maps) << "Received maps do not match expected maps.";
 
     // Envío de JOIN: partida deseada
-    // TODO: Actualizar
-    //     EXPECT_TRUE(protocol.serialize_and_send_action(
-    //             {ActionType::JOIN, MATCH_3, PlayerType::COUNTERTERRORIST}))
-    //             << "Sending join should succeed.";
+    EXPECT_TRUE(protocol.serialize_and_send_action(
+            {ActionType::JOIN, MATCH_3, PlayerType::COUNTERTERRORIST, SKIN}))
+            << "Sending join should succeed.";
 
     // Recepción de CONFIGURATION: tipo de terreno y id
     ActionDTO configuration = protocol.receive_and_deserialize_action();
@@ -96,7 +95,7 @@ TEST(CLIENT_PROTOCOL, SHOP) {
 
     // Envío de WEAPON: arma deseada
     EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::WEAPON, WEAPON_1}))
-            << "Sending weapon should succeed.";
+            << "Sending init should succeed.";
 
     // Envío de AMMOPRIMARY: cantidad de munición para arma primaria deseada
     EXPECT_TRUE(protocol.serialize_and_send_action(
