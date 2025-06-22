@@ -96,8 +96,7 @@ void Client::run() {
 
     match_loop(input_handler, game_view);
 
-    client_socket.shutdown(2);
-    client_socket.close();
+    protocol.kill();
 
     sender.stop();
     receiver.stop();

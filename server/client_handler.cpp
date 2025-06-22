@@ -60,10 +60,7 @@ bool ClientHandler::is_alive() const { return Thread::is_alive() || !stop_flag; 
 void ClientHandler::hard_kill() {
     Thread::stop();
 
-    try {
-        client_socket.shutdown(2);  // Cierra lectura y escritura
-    } catch (...) {}
-    client_socket.close();
+    protocol.kill();
 
     // Si todavía no se iniciaron los hilos sender y receiver
     //      - !stop_flag && !receiver.is_alive() && !sender.is_alive()

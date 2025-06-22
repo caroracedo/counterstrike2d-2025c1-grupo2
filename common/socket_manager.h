@@ -20,7 +20,7 @@ public:
     bool send_bytes(Socket& socket, const std::vector<uint8_t>& bytes);
 
     /* Cerrar */
-    void close(Socket& socket);
+    void kill(Socket& socket);
 };
 
 #endif  // SOCKET_MANAGER_H

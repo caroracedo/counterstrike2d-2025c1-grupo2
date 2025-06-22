@@ -57,6 +57,16 @@ struct ObjectDTO {
     /* Arma */
     ObjectDTO(ObjectType type, const std::vector<uint16_t>& position,
               const WeaponModel& weapon_model);
+
+    /* Tests */
+    bool operator==(const ObjectDTO& other) const {
+        return type == other.type && position == other.position && id == other.id &&
+               player_type == other.player_type && angle == other.angle &&
+               weapon_model == other.weapon_model && health == other.health &&
+               money == other.money && ammo == other.ammo && width == other.width &&
+               height == other.height && obstacle_type == other.obstacle_type &&
+               bomb_countdown == other.bomb_countdown;
+    }
 };
 
 #endif  // OBJECT_DTO_H
