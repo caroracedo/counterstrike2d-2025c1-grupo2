@@ -335,6 +335,9 @@ void Game::end_round_game_phase() {
 
     // Reinicia el contador de balas
     bullet_id = 1;
+
+    // Reinicia el winner cheat
+    winner_cheat = PlayerType::UNKNOWN;
 }
 
 void Game::switch_player_types() {
