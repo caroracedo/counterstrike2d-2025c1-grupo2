@@ -19,8 +19,9 @@ TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
     ServerProtocol protocol(client_socket, ID_1);
 
     // Envío de INFORMATION: partidas y mapas
-    EXPECT_TRUE(protocol.serialize_and_send_action(
-            {ActionType::INFORMATION, {MATCH_1, MATCH_2}, {MAP_1, MAP_2}}))
+    std::vector<std::string> matches = {MATCH_1, MATCH_2};
+    std::vector<std::string> maps = {MAP_1, MAP_2};
+    EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::INFORMATION, matches, maps}))
             << "Sending information should succeed.";
 
     // Recepción de CREATE: partida y mapa deseados
