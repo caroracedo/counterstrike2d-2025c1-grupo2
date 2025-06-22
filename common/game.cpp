@@ -226,7 +226,8 @@ bool Game::is_over() {
         Una ronda termina cuando:
          - plantan una bomba y explota
          - desactivan bomba
-         - todos los jugadores de un bando eliminados
+         - todos los counterterrorists mueren
+         - todos los terrorists mueren sin haber plantado la bomba antes
     */
 
     bool terrorists_alive = std::any_of(players.begin(), players.end(), [](const auto& par) {
@@ -235,17 +236,20 @@ bool Game::is_over() {
     bool cts_alive = std::any_of(players.begin(), players.end(), [](const auto& par) {
         return par.second && par.second->get_player_type() == PlayerType::COUNTERTERRORIST;
     });
+    bool bomb_not_planted = !(bomb && bomb->is_active());
 
-    bool finished = !(terrorists_alive && cts_alive) || exploded || deactivated;
+    bool finished =
+            exploded || deactivated || !cts_alive || (!terrorists_alive && bomb_not_planted);
+
     if (finished) {
         // Determinar qué equipo es team_a y team_b según el round
         bool team_a_is_terrorist = (round_number <= 5);
 
         PlayerType winner = PlayerType::UNKNOWN;
-        if ((!terrorists_alive && cts_alive) || deactivated) {
-            winner = PlayerType::COUNTERTERRORIST;
-        } else if ((!cts_alive && terrorists_alive) || exploded) {
+        if (exploded || !cts_alive) {
             winner = PlayerType::TERRORIST;
+        } else if (deactivated || (!terrorists_alive && bomb_not_planted)) {
+            winner = PlayerType::COUNTERTERRORIST;
         }
 
         stats.last_winner = winner;
@@ -257,6 +261,14 @@ bool Game::is_over() {
                 stats.team_a_wins++;
             } else {
                 stats.team_b_wins++;
+            }
+        }
+
+        // Sumar dinero a los jugadores del equipo ganador
+        for (auto& [id, p]: players) {
+            if (p->get_player_type() == winner) {
+                p->add_money(ROUND_WON_REWARD);
+                stats.money[id] += ROUND_WON_REWARD;
             }
         }
     }

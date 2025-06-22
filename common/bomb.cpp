@@ -14,3 +14,5 @@ ObjectDTO Bomb::get_dto() const {
 void Bomb::start_countdown() { bomb_countdown = BOMB_COUNTDOWN; }
 
 bool Bomb::update_countdown() { return bomb_countdown >= 0 && --bomb_countdown == 0; }
+
+bool Bomb::is_active() const { return bomb_countdown > 0; }

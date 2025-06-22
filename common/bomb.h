@@ -20,6 +20,7 @@ public:
     ObjectDTO get_dto() const override;
     void start_countdown();
     bool update_countdown();
+    bool is_active() const;
 };
 
 #endif  // BOMB_H

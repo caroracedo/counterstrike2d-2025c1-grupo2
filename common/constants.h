@@ -30,7 +30,8 @@
 #define DEACTIVATION_DISTANCE 50  // distancia máxima para desactivar la bomba
 #define INITIAL_PLAYER_ANGLE 90   // ángulo inicial del jugador
 
-#define KILL_REWARD 100  // recompensa por matar a un jugador
+#define KILL_REWARD 100       // recompensa por matar a un jugador
+#define ROUND_WON_REWARD 300  // recompensa por ganar una ronda
 
 #define YAML_EXTENSION ".yaml"
 

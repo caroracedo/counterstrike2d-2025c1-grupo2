@@ -30,7 +30,7 @@ weapons:
     precision: 1
 
   ak47:
-    price: 100
+    price: 270
     range: 150
     min_damage: 20
     max_damage: 30
@@ -44,7 +44,7 @@ weapons:
     precision: 0.9
 
   awp:
-    price: 300
+    price: 475
     range: 200
     min_damage: 30
     max_damage: 40

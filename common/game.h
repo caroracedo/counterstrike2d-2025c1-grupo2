@@ -233,6 +233,13 @@ public:
         } else {
             std::cout << "No bomb present." << std::endl;
         }
+        std::cout << "Bomb zones: " << map.get_bomb_zones().size() << std::endl;
+        for (const auto& zone: map.get_bomb_zones()) {
+            auto x = zone.x;
+            auto y = zone.y;
+            std::cout << "  Bomb Zone Position: (" << x << ", " << y << "), Width: " << zone.width
+                      << ", Height: " << zone.height << std::endl;
+        }
     }
 
     std::vector<uint16_t> get_player_position(uint16_t id) const {
@@ -242,7 +249,10 @@ public:
         return {};
     }
 
-    void update() { update_bullets(); }
+    void update() {
+        update_bullets();
+        update_bomb_countdown();
+    }
 };
 
 #endif  // GAME_H
