@@ -14,7 +14,7 @@
 class WeaponShop {
 private:
     std::unordered_map<WeaponModel, WeaponConfig> catalog;
-    uint16_t next_weapon_id = 0;
+    uint16_t next_weapon_id;
 
 public:
     /* Constructor */

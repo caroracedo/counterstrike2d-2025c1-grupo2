@@ -23,7 +23,7 @@ private:
     uint16_t ammo;
 
     std::chrono::steady_clock::time_point last_shot_time;
-    bool infinite_ammo = false;
+    bool infinite_ammo;
 
     void fix_height();
 

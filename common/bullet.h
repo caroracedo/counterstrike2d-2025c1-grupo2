@@ -12,14 +12,15 @@
 class Bullet: public Object {
 private:
     uint16_t player_id;
+    const WeaponModel weapon_model;
     uint16_t range;
-    uint16_t min_damage;
-    uint16_t max_damage;
-    uint16_t distance_moved = 0;
-    uint16_t radius = BULLET_RADIUS;
+    const uint16_t min_damage;
+    const uint16_t max_damage;
+    uint16_t distance_moved;
+    const uint16_t radius;
     std::vector<uint16_t> target_position;
     std::vector<uint16_t> start_position;
-    float precision;
+    const float precision;
 
     void set_starting_position(float angle_degrees, const std::vector<uint16_t>& player_center);
 
@@ -28,8 +29,8 @@ private:
 public:
     /* Constructor */
     Bullet(const uint16_t id, const uint16_t _player_id,
-           const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-           uint16_t _max_damage, float _precision, float angle);
+           const std::vector<uint16_t>& player_position, WeaponModel _weapon_model, uint16_t _range,
+           uint16_t _min_damage, uint16_t _max_damage, float _precision, float angle);
 
     ObjectDTO get_dto() const override;
 

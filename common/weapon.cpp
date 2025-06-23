@@ -12,7 +12,8 @@ Weapon::Weapon(uint16_t id, WeaponModel model, uint16_t range, uint16_t _min_dam
         max_damage(_max_damage),
         precision(_precision),
         cooldown(_cooldown),
-        ammo(ammo) {
+        ammo(ammo),
+        infinite_ammo(false) {
     fix_height();
     last_shot_time = std::chrono::steady_clock::now() -
                      std::chrono::duration_cast<std::chrono::steady_clock::duration>(

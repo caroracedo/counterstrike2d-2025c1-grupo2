@@ -1,6 +1,6 @@
 #include "weapon_shop.h"
 
-WeaponShop::WeaponShop(Config& config): catalog(config.get_weapon_config()) {}
+WeaponShop::WeaponShop(Config& config): catalog(config.get_weapon_config()), next_weapon_id(0) {}
 
 std::pair<uint16_t, Weapon> WeaponShop::sell_weapon(const WeaponModel& weapon_model,
                                                     uint16_t player_money) {

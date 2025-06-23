@@ -57,7 +57,7 @@
 //     game.add_player(PlayerType::COUNTERTERRORIST, PlayerSkin::PHEONIX, 1);
 //     game.add_player(PlayerType::TERRORIST, PlayerSkin::ARTICAVENGER, 2);
 //     game.start_round_game_phase();
-//     game.show();
+
 //     show_stats(game.get_stats());
 
 //     game.shop_weapon(WeaponModel::AWP, 1);
@@ -95,9 +95,6 @@
 //             else
 //                 break;
 
-//             for (int i = 0; i < 100; ++i) {
-//                 game.update();
-//             }
 //         } else if (action_input == SHOOT_INPUT) {
 //             float angle;
 //             int id;
@@ -107,15 +104,10 @@
 //             }
 //             game.rotate_player(angle, id);
 //             game.shoot(id);
-//             for (int i = 0; i < 100; ++i) {
-//                 game.update();
-//             }
+
 //         } else if (action_input == BOMB_INPUT) {
 //             game.interact_with_bomb(2);
-//             while (!game.is_over()) {
-//                 game.update();
-//             }
-//             game.show();
+
 //             show_stats(game.get_stats());
 //             continue;
 //         } else if (action_input == PICK_UP) {
@@ -124,7 +116,7 @@
 //             std::cout << "Unknown action: " << action_input << std::endl;
 //             continue;
 //         }
-//         game.show();
+
 //         if (game.is_over()) {
 //             std::cout << "\n********************************************" << std::endl;
 //             std::cout << "*************** ROUND OVER *****************" << std::endl;
@@ -133,7 +125,7 @@
 //             show_stats(stats);
 //             game.end_round_game_phase();
 //             game.start_round_game_phase();
-//             game.show();
+
 //             std::cout << "*********************************************" << std::endl;
 //         }
 //     }

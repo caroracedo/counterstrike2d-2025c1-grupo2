@@ -29,6 +29,7 @@
 #define PLAYER_RADIUS 16  // radio del jugador
 #define BULLET_RADIUS 2   // radio de la bala
 #define BOMB_SIZE 32
+#define BOMB_COUNTDOWN 30 * 15
 #define DEACTIVATION_DISTANCE 50  // distancia máxima para desactivar la bomba
 #define INITIAL_PLAYER_ANGLE 90   // ángulo inicial del jugador
 

@@ -1,18 +1,21 @@
 #include "bullet.h"
 
 #include <cmath>
-#include <iostream>
 #include <random>
 
 Bullet::Bullet(const uint16_t id, const uint16_t _player_id,
-               const std::vector<uint16_t>& player_position, uint16_t _range, uint16_t _min_damage,
-               uint16_t _max_damage, float _precision, float angle):
+               const std::vector<uint16_t>& player_position, WeaponModel _weapon_model,
+               uint16_t _range, uint16_t _min_damage, uint16_t _max_damage, float _precision,
+               float angle):
         Object(ObjectType::BULLET, id, {player_position[0], player_position[1]}, BULLET_RADIUS * 2,
                BULLET_RADIUS * 2),
         player_id(_player_id),
+        weapon_model(_weapon_model),
         range(_range),
         min_damage(_min_damage),
         max_damage(_max_damage),
+        distance_moved(0),
+        radius(BULLET_RADIUS),
         target_position(player_position),
         precision(_precision) {
     set_target_position_from_angle(angle, player_position);
@@ -59,7 +62,12 @@ uint16_t Bullet::get_damage() const {
     float distance = std::sqrt((px - sx) * (px - sx) + (py - sy) * (py - sy));
 
     // Factor de daño por distancia (más lejos, menos daño)
-    float distance_factor = 1.0f - std::min(distance / ((float)range + distance), 1.0f);
+    float distance_factor;
+    if (weapon_model == WeaponModel::AWP) {
+        distance_factor = 1.0f;
+    } else {
+        distance_factor = 1.0f - std::min(distance / ((float)range + distance), 1.0f);
+    }
 
     // Daño aleatorio entre min y max
     static thread_local std::mt19937 rng(std::random_device{}());

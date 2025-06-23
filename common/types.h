@@ -25,7 +25,6 @@ enum class PlayerSkin : uint8_t {
     L337KREW,
     ARTICAVENGER,
     GUERRILLA,
-
     SEALFORCE,
     GERMANGSG9,
     UKSAS,

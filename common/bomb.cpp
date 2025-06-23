@@ -1,9 +1,7 @@
 #include "bomb.h"
 
-#include <iostream>
-
 Bomb::Bomb(const std::vector<uint16_t>& position):
-        Object(ObjectType::BOMB, 0, position, BOMB_SIZE, BOMB_SIZE) {}
+        Object(ObjectType::BOMB, 0, position, BOMB_SIZE, BOMB_SIZE), bomb_countdown(-1) {}
 
 ObjectDTO Bomb::get_dto() const {
     return ObjectDTO(object_type, position,

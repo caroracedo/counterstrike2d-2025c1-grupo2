@@ -7,10 +7,15 @@ Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType ty
         player_type(type),
         player_skin(player_skin),
         health(health),
+        infinite_health(false),
         money(initial_money),
+        infinite_money(false),
+        radius(PLAYER_RADIUS),
+        angle(INITIAL_PLAYER_ANGLE),
         weapon_shop(weapon_shop),
         knife(weapon_shop.give_weapon(WeaponModel::KNIFE)),
         secondary_weapon(weapon_shop.give_weapon(WeaponModel::GLOCK)),
+        has_bomb(false),
         current(&secondary_weapon) {}
 
 ObjectDTO Player::get_dto() const {
@@ -174,6 +179,17 @@ std::vector<uint16_t> Player::get_next_position(Direction direction) const {
 }
 
 void Player::rotate(float new_angle) { angle = new_angle; }
+
+float Player::get_angle() const { return angle; }
+
+void Player::do_health_cheat() { infinite_health = true; }
+
+void Player::do_ammo_cheat() {
+    primary_weapon.set_infinite_ammo();
+    secondary_weapon.set_infinite_ammo();
+}
+
+void Player::do_money_cheat() { infinite_money = true; }
 
 WeaponDTO Player::drop_primary_weapon() {
     WeaponDTO weapon = primary_weapon.get_weapon_dto();
