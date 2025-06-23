@@ -4,13 +4,6 @@
 #include <chrono>
 #include <iostream>
 
-#define TIME 1
-#define SHOP_TIME 10
-#define SNAPSHOT_TIME 33  // ~30FPS
-#define STATS_TIME 5
-#define WAIT_TIME 100
-#define MESSAGE_TIME 5
-
 /* Constructor */
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
              std::shared_ptr<MonitorClientSendQueues> monitor_client_send_queues,

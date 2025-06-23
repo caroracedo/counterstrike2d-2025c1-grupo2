@@ -24,7 +24,7 @@ void LegsView::update(float x, float y) {
 }
 
 void LegsView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
-    if (!camera.is_visible(pos_x, pos_y))
+    if (!camera.is_visible(pos_x, pos_y, LEGS_WIDTH, LEGS_HEIGHT))
         return;
     float screenX = pos_x - camera.get_x();
     float screenY = pos_y - camera.get_y();

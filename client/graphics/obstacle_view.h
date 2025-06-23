@@ -43,7 +43,7 @@ public:
     }
 
     void draw(const GameCamera& camera) {
-        if (!camera.is_visible(x, y))
+        if (!camera.is_visible(x, y, w, h))
             return;
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();

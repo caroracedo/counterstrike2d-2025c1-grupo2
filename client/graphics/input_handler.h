@@ -17,6 +17,9 @@ private:
 
     const float angle_threshold = 2.0f;
 
+    float last_mouse_x = 0.0f;
+    float last_mouse_y = 0.0f;
+
     GameView& game_view;
 
     GameCamera& camera = game_view.get_camera();
@@ -111,6 +114,10 @@ public:
                 uint16_t real_mouse_y = static_cast<uint16_t>(event.button.y) +
                                         static_cast<uint16_t>(camera.get_y());
 
+                if (!game_view.can_player_attack()) {
+                    continue;
+                }
+
                 game_view.handle_attack();
 
                 actions.push_back(ActionDTO{ActionType::SHOOT,
@@ -119,10 +126,16 @@ public:
 
             auto player_pos = game_view.player_position();
             if (event.type == SDL_MOUSEMOTION && player_pos.size() == 2) {
-                float angle = calculate_angle(player_pos);
-                if (std::abs(angle - last_angle_sent) > angle_threshold) {
-                    actions.push_back(ActionDTO{ActionType::ROTATE, angle});
-                    last_angle_sent = angle;
+                int dx = std::abs(event.motion.x - last_mouse_x);
+                int dy = std::abs(event.motion.y - last_mouse_y);
+                if (dx >= 3 || dy >= 3) {  // solo si se mueve al menos 3 píxeles
+                    last_mouse_x = event.motion.x;
+                    last_mouse_y = event.motion.y;
+                    float angle = calculate_angle(player_pos);
+                    if (std::abs(angle - last_angle_sent) > angle_threshold) {
+                        actions.push_back(ActionDTO{ActionType::ROTATE, angle});
+                        last_angle_sent = angle;
+                    }
                 }
             }
         }

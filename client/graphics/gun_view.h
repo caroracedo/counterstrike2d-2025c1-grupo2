@@ -50,7 +50,7 @@ public:
 
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
-        if (!camera.is_visible(x, y))
+        if (!camera.is_visible(x, y, GUN_WIDTH, GUN_HEIGHT))
             return;
 
         if (current_type == WeaponModel::UNKNOWN) {
@@ -93,6 +93,23 @@ public:
     bool has_knife_equipped() const { return current_type == WeaponModel::KNIFE; }
 
     WeaponModel get_current_type() const { return current_type; }
+
+    uint32_t get_weapon_cooldown(WeaponModel model) {
+        switch (model) {
+            case WeaponModel::AWP:
+                return 1500;
+            case WeaponModel::GLOCK:
+                return 100;
+            case WeaponModel::AK47:
+                return 200;
+            case WeaponModel::M3:
+                return 800;
+            case WeaponModel::KNIFE:
+                return 0;
+            default:
+                return 150;  // valor por defecto
+        }
+    }
 };
 
 #endif

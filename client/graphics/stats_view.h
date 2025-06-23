@@ -55,10 +55,6 @@ public:
         for (const auto& [id, type]: player_types) {
             player_names[id] = "player " + std::to_string(id);
         }
-
-        for (const auto& [id, d]: new_stats.deaths) {
-            std::cout << "ID: " << id << " deaths: " << d << std::endl;
-        }
     }
 
     void render() {

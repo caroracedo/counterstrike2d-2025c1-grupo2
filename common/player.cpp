@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <iostream>
+
 Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
                PlayerSkin player_skin, uint8_t health, uint16_t initial_money,
                WeaponShop& weapon_shop):
@@ -185,6 +187,7 @@ float Player::get_angle() const { return angle; }
 void Player::do_health_cheat() {
     infinite_health = true;
     health = 9999;
+    std::cout << "New health: " << health << std::endl;
 }
 
 void Player::do_ammo_cheat() {

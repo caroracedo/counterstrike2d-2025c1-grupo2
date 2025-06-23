@@ -21,10 +21,17 @@
 #define AWP_HEIGHT 16
 #define KICKBACK_DISTANCE 5.0f
 
+#define TIME 1
+#define SHOP_TIME 2
+#define SNAPSHOT_TIME 33
+#define STATS_TIME 5
+#define WAIT_TIME 100
+#define MESSAGE_TIME 5
+
 // TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
-#define MATRIX_SIZE 21  // posición máxima en la matriz (celdas)
-#define MOVE_STEP 5     // paso de movimiento
-#define BULLET_STEP 10
+#define MATRIX_SIZE 21    // posición máxima en la matriz (celdas)
+#define MOVE_STEP 5       // paso de movimiento
+#define BULLET_STEP 10    // paso de la bala
 #define CELL_SIZE 32      // tamaño de cada celda en la matriz
 #define PLAYER_RADIUS 16  // radio del jugador
 #define BULLET_RADIUS 2   // radio de la bala

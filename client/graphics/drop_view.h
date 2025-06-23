@@ -59,6 +59,10 @@ public:
     void draw(const GameCamera& camera) {
         if (type == WeaponModel::UNKNOWN)
             return;
+
+        if (!camera.is_visible(x, y, sizes[type].width, sizes[type].height))
+            return;
+
         float screenX = x - camera.get_x();
         float screenY = y - camera.get_y();
 

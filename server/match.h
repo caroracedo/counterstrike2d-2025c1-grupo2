@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "common/action_DTO.h"
+#include "common/constants.h"
 #include "common/game.h"
 #include "common/object_DTO.h"
 #include "common/queue.h"

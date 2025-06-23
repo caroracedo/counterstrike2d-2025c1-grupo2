@@ -257,39 +257,15 @@ bool Game::is_over() {
                     !cts_alive || (!terrorists_alive && bomb_not_planted);
 
     if (finished) {
-        // Determinar qué equipo es team_a y team_b según el round
-        bool team_a_is_terrorist = (round_number <= config.get_rounds_total() / 2);
-
         PlayerType winner = PlayerType::UNKNOWN;
-        if ((!terrorists_alive && cts_alive) || deactivated ||
-            winner_cheat == PlayerType::COUNTERTERRORIST) {
-            winner = PlayerType::COUNTERTERRORIST;
-        } else if ((!cts_alive && terrorists_alive) || exploded ||
-                   winner_cheat == PlayerType::TERRORIST) {
+        if ((!cts_alive && terrorists_alive) || exploded || winner_cheat == PlayerType::TERRORIST) {
             winner = PlayerType::TERRORIST;
-        } else if (deactivated || (!terrorists_alive && bomb_not_planted)) {
+        } else if (deactivated || (!terrorists_alive && bomb_not_planted) ||
+                   winner_cheat == PlayerType::COUNTERTERRORIST) {
             winner = PlayerType::COUNTERTERRORIST;
         }
 
         stats.last_winner = winner;
-
-        // Sumar ronda ganada al equipo correcto
-        if (winner != PlayerType::UNKNOWN) {
-            if ((winner == PlayerType::TERRORIST && team_a_is_terrorist) ||
-                (winner == PlayerType::COUNTERTERRORIST && !team_a_is_terrorist)) {
-                stats.team_a_wins++;
-            } else {
-                stats.team_b_wins++;
-            }
-        }
-
-        // Sumar dinero a los jugadores del equipo ganador
-        for (auto& [id, p]: players) {
-            if (p->get_player_type() == winner) {
-                p->add_money(ROUND_WON_REWARD);
-                stats.money[id] += ROUND_WON_REWARD;
-            }
-        }
     }
     return finished;
 }
@@ -311,12 +287,35 @@ void Game::end_round_game_phase() {
             - Se reubican a todos los jugadores en posiciones aleatorias
             - Se eliminan todas las balas que quedaron vivas y se reinicia el contador de balas
     */
+    update_stats();
     reset_bomb();
     reset_players();
     reset_bullets();
 
     // Reinicia el winner cheat
     winner_cheat = PlayerType::UNKNOWN;
+}
+
+void Game::update_stats() {
+    bool team_a_is_terrorist = (round_number <= config.get_rounds_total() / 2);
+    // Sumar ronda ganada al equipo correcto
+    if (stats.last_winner != PlayerType::UNKNOWN) {
+        if ((stats.last_winner == PlayerType::TERRORIST && team_a_is_terrorist) ||
+            (stats.last_winner == PlayerType::COUNTERTERRORIST && !team_a_is_terrorist)) {
+            stats.team_a_wins++;
+        } else {
+            stats.team_b_wins++;
+        }
+    }
+
+    // Sumar dinero a los jugadores del equipo ganador
+    for (auto& [id, p]: players) {
+        if (p->get_player_type() == stats.last_winner) {
+            p->add_money(ROUND_WON_REWARD);
+            stats.money[id] += ROUND_WON_REWARD;
+            std::cout << "Player " << id << " won round -- money: " << stats.money[id] << std::endl;
+        }
+    }
 }
 
 void Game::switch_player_types() {
@@ -737,6 +736,9 @@ bool Game::handle_bullet_player_collision(const uint16_t& bullet_id, const uint1
         stats.kills[shooter_id]++;
         stats.deaths[player_id]++;
         stats.money[shooter_id] += KILL_REWARD;
+
+        std::cout << "Player " << shooter_id
+                  << "killed another player -- money: " << stats.money[shooter_id] << std::endl;
     }
     return player_is_alive;
 }
@@ -778,8 +780,8 @@ void Game::create_bullet(const std::vector<uint16_t>& player_position, const u_i
     uint16_t id = bullet_id;
     inc_bullet_id();
 
-    Bullet bullet(id, player_id, player_position, weapon_dto.range, weapon_dto.min_damage,
-                  weapon_dto.max_damage, weapon_dto.precision, angle);
+    Bullet bullet(id, player_id, player_position, weapon_dto.model, weapon_dto.range,
+                  weapon_dto.min_damage, weapon_dto.max_damage, weapon_dto.precision, angle);
 
     auto bullet_ptr = std::make_shared<Bullet>(bullet);
 
