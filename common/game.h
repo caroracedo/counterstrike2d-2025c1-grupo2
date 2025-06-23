@@ -246,6 +246,13 @@ public:
         }
         std::cout << "do_win_cheat" << std::endl;
     }
+
+    WinnerTeamType get_winner_team() {
+        return (stats.team_a_wins > stats.team_b_wins) ?
+                       WinnerTeamType::TEAMA :
+                       ((stats.team_a_wins < stats.team_b_wins) ? WinnerTeamType::TEAMB :
+                                                                  WinnerTeamType::DRAW);
+    }
 };
 
 #endif  // GAME_H

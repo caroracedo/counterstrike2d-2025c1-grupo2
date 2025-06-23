@@ -208,8 +208,6 @@ void GameView::render() {
         bomb_view.drawExplosion(renderer, camera);
         bomb_view.reset();
     } else if (bomb_view.is_active() || bomb_view.is_dropped()) {
-        std::cout << "dropped: " << bomb_view.is_dropped() << std::endl;
-        std::cout << "active: " << bomb_view.is_active() << std::endl;
         bomb_view.draw(renderer, camera);
     }
 
@@ -228,6 +226,10 @@ void GameView::render() {
     stats_view.render();
     if (show_pre_lobby)
         stats_view.render_pre_lobby();
+
+    if (game_ended)
+        stats_view.render_winner_banner(winner);
+
 
     render_cursor();
 

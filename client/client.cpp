@@ -57,6 +57,8 @@ void Client::match_loop(InputHandler& input_handler, GameView& game_view) {
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
+            } else if (update.type == ActionType::MESSAGE) {
+                game_view.end_game(update.winner_team_type);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
                 game_view.update(update);

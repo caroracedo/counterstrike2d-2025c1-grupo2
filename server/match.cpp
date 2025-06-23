@@ -9,6 +9,7 @@
 #define SNAPSHOT_TIME 33  // ~30FPS
 #define STATS_TIME 5
 #define WAIT_TIME 100
+#define MESSAGE_TIME 5
 
 /* Constructor */
 Match::Match(Config& config, std::shared_ptr<Queue<ActionDTO>> recv_queue,
@@ -103,10 +104,13 @@ void Match::send_end_to_all_clients() {
     monitor_client_send_queues->send_update(ActionDTO(ActionType::END));
 }
 
+void Match::send_message_to_all_clients() {
+    monitor_client_send_queues->send_update({ActionType::MESSAGE, game.get_winner_team()});
+}
+
 void Match::send_stats_to_all_clients() {
     monitor_client_send_queues->send_update({ActionType::STATS, game.get_stats()});
 }
-
 
 /* Conversión de Objetos */
 std::vector<ObjectDTO> Match::process_objects(const std::vector<std::shared_ptr<Object>>& objects) {
@@ -175,6 +179,8 @@ void Match::match_loop() {
         }
     }
 
+    send_message_to_all_clients();
+    std::this_thread::sleep_for(std::chrono::seconds(MESSAGE_TIME));
     send_end_to_all_clients();
     std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }

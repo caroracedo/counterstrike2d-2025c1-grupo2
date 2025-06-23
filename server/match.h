@@ -35,6 +35,7 @@ private:
     void send_snapshot_to_all_clients();
     void send_shop_to_all_clients();
     void send_end_to_all_clients();
+    void send_message_to_all_clients();
     void send_stats_to_all_clients();
 
     /* Conversión de Objetos */

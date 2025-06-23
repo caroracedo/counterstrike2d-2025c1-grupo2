@@ -140,6 +140,10 @@ void Player::switch_player_type() {
                                                                   PlayerType::UNKNOWN;
 }
 
+void Player::switch_player_skin() {
+    // TODO: Implementar
+}
+
 void Player::take_damage(uint16_t damage) {
     if (infinite_health) {
         return;

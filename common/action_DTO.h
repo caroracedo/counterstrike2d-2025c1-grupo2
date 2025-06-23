@@ -34,6 +34,7 @@ enum class ActionType : uint8_t {
     AMMOCHEAT = 0xFD,
     MONEYCHEAT = 0xFC,
     WINCHEAT = 0xFB,
+    MESSAGE = 0xEE,
     UNKNOWN = 0x00
 };
 
@@ -81,6 +82,8 @@ struct ActionDTO {
     std::vector<WeaponModel> weapons;
     /* Stats */
     Stats stats;
+    /* End */
+    WinnerTeamType winner_team_type;
 
     /* Id */
     uint16_t id;
@@ -145,6 +148,9 @@ struct ActionDTO {
 
     /* Stats */
     ActionDTO(const ActionType& action, const Stats& stats);
+
+    /* Message */
+    ActionDTO(const ActionType& action, const WinnerTeamType& winner_team_type);
 };
 
 #endif  // ACTION_DTO_H

@@ -61,6 +61,7 @@ public:
     PlayerSkin get_player_skin() const;
     PlayerType get_player_type() const;
     void switch_player_type();
+    void switch_player_skin();
 
     void take_damage(uint16_t damage);
     void cure(uint16_t health_amount);

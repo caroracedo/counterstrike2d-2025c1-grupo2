@@ -43,4 +43,6 @@ enum class ObstacleType : uint8_t {
     UNKNOWN
 };
 
+enum class WinnerTeamType : uint8_t { TEAMA, TEAMB, DRAW, UNKNOWN };
+
 #endif  // TYPES_H

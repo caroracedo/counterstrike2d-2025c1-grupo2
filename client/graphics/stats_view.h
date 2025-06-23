@@ -219,6 +219,34 @@ public:
     }
 
     void reset_sounds() { sounds_played = false; }
+
+    void render_winner_banner(WinnerTeamType winner) {
+        std::string text;
+        SDL_Color color;
+
+        if (winner == WinnerTeamType::TEAMA) {
+            text = "¡Team A win!";
+            color = SDL_Color{255, 50, 50, 255};
+        } else if (winner == WinnerTeamType::TEAMB) {
+            text = "¡Team B win!";
+            color = SDL_Color{50, 50, 255, 255};
+        } else {
+            text = "¡Draw!";
+            color = SDL_Color{255, 255, 255, 255};
+        }
+
+        SDL2pp::Surface surface = font.RenderText_Blended(text, color);
+        SDL2pp::Texture texture(renderer, surface);
+
+        int text_w = texture.GetWidth();
+        int text_h = texture.GetHeight();
+
+        int center_x = overlay_rect.x + (overlay_rect.w - text_w) / 2;
+        int top_y = overlay_rect.y + 30;
+
+        SDL_Rect dst = {center_x, top_y, text_w, text_h};
+        renderer.Copy(texture, SDL2pp::NullOpt, dst);
+    }
 };
 
 #endif

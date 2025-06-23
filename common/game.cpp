@@ -361,6 +361,7 @@ void Game::switch_player_types() {
     for (auto& [id, player]: players) {
         if (player) {
             player->switch_player_type();
+            player->switch_player_skin();
         }
     }
 }

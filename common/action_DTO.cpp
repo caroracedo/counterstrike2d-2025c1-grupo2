@@ -24,6 +24,7 @@ ActionDTO::ActionDTO():
         objects(),
         weapons(),
         stats(),
+        winner_team_type(),
         id() {}
 
 /* Action */
@@ -183,4 +184,11 @@ ActionDTO::ActionDTO(const ActionType& action, const std::vector<WeaponModel>& w
 ActionDTO::ActionDTO(const ActionType& action, const Stats& stats): ActionDTO() {
     this->type = action;
     this->stats = stats;
+}
+
+/* End */
+ActionDTO::ActionDTO(const ActionType& action, const WinnerTeamType& winner_team_type):
+        ActionDTO() {
+    this->type = action;
+    this->winner_team_type = winner_team_type;
 }

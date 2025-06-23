@@ -19,7 +19,7 @@ private:
     ActionDTO deserialize_update(std::vector<uint8_t>& data);
     ActionDTO deserialize_information(std::vector<uint8_t>& data);
     ActionDTO deserialize_configuration(std::vector<uint8_t>& data);
-    ActionDTO deserialize_end();
+    ActionDTO deserialize_message(const std::vector<uint8_t>& data);
     ActionDTO deserialize_shop(std::vector<uint8_t>& data);
     ActionDTO deserialize_stats(std::vector<uint8_t>& data);
 

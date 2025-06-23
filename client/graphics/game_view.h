@@ -59,6 +59,8 @@ private:
 
     uint16_t local_id = 0;
     bool show_pre_lobby = true;
+    bool game_ended = false;
+    WinnerTeamType winner = WinnerTeamType::UNKNOWN;
     TerrainType terrain;
     std::unordered_map<TerrainType, std::string> terrains;
 
@@ -117,6 +119,12 @@ public:
                 sound_manager.play("bullet", 0);
             }
         }
+    }
+
+    void end_game(WinnerTeamType winner) {
+        stats_view.set_visible(false);
+        this->winner = winner;
+        game_ended = true;
     }
 };
 

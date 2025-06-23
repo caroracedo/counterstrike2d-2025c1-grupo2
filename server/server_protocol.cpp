@@ -106,6 +106,11 @@ void ServerProtocol::serialize_and_send_stats(const ActionDTO& action_dto,
     byte_converter.push_hexa_to(byte_converter.int_16_to_hex_big_endian(stats.team_b_wins), data);
 }
 
+void ServerProtocol::serialize_and_send_message(const ActionDTO& action_dto,
+                                                std::vector<uint8_t>& data) {
+    data.push_back(static_cast<uint8_t>(action_dto.winner_team_type));
+}
+
 bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
     std::vector<uint8_t> data = {static_cast<uint8_t>(action_dto.type)};
     switch (action_dto.type) {
@@ -123,6 +128,9 @@ bool ServerProtocol::serialize_and_send_action(const ActionDTO& action_dto) {
             break;
         case ActionType::STATS:
             serialize_and_send_stats(action_dto, data);
+            break;
+        case ActionType::MESSAGE:
+            serialize_and_send_message(action_dto, data);
             break;
         case ActionType::END:
             break;

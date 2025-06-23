@@ -146,6 +146,11 @@ ActionDTO ClientProtocol::deserialize_stats(std::vector<uint8_t>& data) {
     return {ActionType::STATS, stats_out};
 }
 
+ActionDTO ClientProtocol::deserialize_message(const std::vector<uint8_t>& data) {
+    WinnerTeamType winner_team_type = static_cast<WinnerTeamType>(data[data.size() - 1]);
+    return {ActionType::MESSAGE, winner_team_type};
+}
+
 ActionDTO ClientProtocol::receive_and_deserialize_action() {
     uint16_t size;
     if (!skt_manager.receive_two_bytes(skt, size))
@@ -173,6 +178,8 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
             return deserialize_configuration(data);
         case ActionType::END:
             return ActionDTO(type);
+        case ActionType::MESSAGE:
+            return deserialize_message(data);
         case ActionType::SHOP:
             return deserialize_shop(data);
         case ActionType::STATS:
