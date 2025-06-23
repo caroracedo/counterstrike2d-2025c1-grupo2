@@ -131,8 +131,12 @@ void GameView::update_player(const ObjectDTO& object) {
     float x = object.position[0];
     float y = object.position[1];
 
-    players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager, id,
-                                                         object.player_skin, renderer));
+    if (players.find(id) == players.end()) {
+        auto player = std::make_unique<PlayerView>(texture_manager, sound_manager, id,
+                                                   object.player_skin, renderer);
+        std::cout << "Player created with ID: " << id << std::endl;
+        players[id] = std::move(player);
+    }
 
     types.try_emplace(id, object.player_type);
 

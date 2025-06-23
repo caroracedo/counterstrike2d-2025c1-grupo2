@@ -8,7 +8,7 @@ PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_mana
         gun_view(renderer),
         id(id),
         skin(skin) {
-    // std::cout << "Player created with ID: " << id << std::endl;
+    std::cout << "Player created with ID: " << id << std::endl;
     initialize_resources();
 }
 

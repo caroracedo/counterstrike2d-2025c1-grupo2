@@ -103,7 +103,7 @@ std::vector<uint16_t> Bullet::get_next_position() const {
         return position;
     }
 
-    float step = std::min(static_cast<float>(MOVE_STEP), static_cast<float>(range));
+    float step = std::min(static_cast<float>(BULLET_STEP), static_cast<float>(range));
     float v_step = step / dist_to_target;
     float step_dx = dx * v_step;
     float step_dy = dy * v_step;
