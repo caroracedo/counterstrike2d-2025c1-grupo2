@@ -141,7 +141,18 @@ void Player::switch_player_type() {
 }
 
 void Player::switch_player_skin() {
-    // TODO: Implementar
+    std::unordered_map<PlayerSkin, PlayerSkin> opposite_skin = {
+            {PlayerSkin::PHEONIX, PlayerSkin::SEALFORCE},
+            {PlayerSkin::SEALFORCE, PlayerSkin::PHEONIX},
+            {PlayerSkin::L337KREW, PlayerSkin::GERMANGSG9},
+            {PlayerSkin::GERMANGSG9, PlayerSkin::L337KREW},
+            {PlayerSkin::ARTICAVENGER, PlayerSkin::UKSAS},
+            {PlayerSkin::UKSAS, PlayerSkin::ARTICAVENGER},
+            {PlayerSkin::GUERRILLA, PlayerSkin::FRENCHGIGN},
+            {PlayerSkin::FRENCHGIGN, PlayerSkin::GUERRILLA},
+            {PlayerSkin::UNKNOWN, PlayerSkin::UNKNOWN}};
+    PlayerSkin new_skin = opposite_skin[player_skin];
+    player_skin = new_skin;
 }
 
 void Player::take_damage(uint16_t damage) {

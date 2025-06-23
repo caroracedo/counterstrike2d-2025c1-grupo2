@@ -74,7 +74,7 @@ private:
     std::set<std::shared_ptr<Object>> get_adyacent_objects(
             const std::pair<uint16_t, uint16_t>& cell);
 
-    void remove_from_matrix(ObjectType type, uint16_t id, std::vector<uint16_t> position);
+    void remove_from_matrix(ObjectType type, uint16_t id, const std::vector<uint16_t>& position);
 
     void remove_from_objects(ObjectType type, uint16_t id);
 
@@ -152,6 +152,11 @@ private:
 
     void set_bomb_player();
 
+    void reset_bomb();
+
+    void reset_players();
+
+    void reset_bullets();
 
     /*******************************************************************************************
      ************************************BOMBA Y DESACTIVACIÓN**********************************
@@ -207,52 +212,17 @@ public:
 
     Stats get_stats() const;
 
+    WinnerTeamType get_winner_team();
+
     void quit(uint16_t id);
 
-    // TODO: Para todos los cheats, deberían setearse flags que hagan que, cuando se tendría que
-    // dañar/restar ammo/etc... no se haga Nota: Capaz alguno se pueda reutilizar...
-    void do_health_cheat(uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            player_it->second->do_health_cheat();
-        }
-        std::cout << "do_health_cheat" << std::endl;
-    }
+    void do_health_cheat(uint16_t id);
 
-    void do_ammo_cheat(uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            player_it->second->do_ammo_cheat();
-        }
-        std::cout << "do_ammo_cheat" << std::endl;
-    }
+    void do_ammo_cheat(uint16_t id);
 
-    void do_money_cheat(uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            player_it->second->do_money_cheat();
-        }
-        std::cout << "do_money_cheat" << std::endl;
-    }
+    void do_money_cheat(uint16_t id);
 
-    void do_win_cheat(uint16_t id) {
-        auto player_it = players.find(id);
-        if (player_it != players.end()) {
-            if (player_it->second->get_player_type() == PlayerType::COUNTERTERRORIST) {
-                winner_cheat = PlayerType::COUNTERTERRORIST;
-            } else if (player_it->second->get_player_type() == PlayerType::TERRORIST) {
-                winner_cheat = PlayerType::TERRORIST;
-            }
-        }
-        std::cout << "do_win_cheat" << std::endl;
-    }
-
-    WinnerTeamType get_winner_team() {
-        return (stats.team_a_wins > stats.team_b_wins) ?
-                       WinnerTeamType::TEAMA :
-                       ((stats.team_a_wins < stats.team_b_wins) ? WinnerTeamType::TEAMB :
-                                                                  WinnerTeamType::DRAW);
-    }
+    void do_win_cheat(uint16_t id);
 };
 
 #endif  // GAME_H

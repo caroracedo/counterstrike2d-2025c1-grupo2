@@ -174,9 +174,7 @@ void Game::pick_up_weapon(uint16_t id) {
             if (is_near_weapon) {
                 WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
                 WeaponDTO old_weapon_dto = player_ptr->pick_up_weapon(new_weapon_dto);
-                if (old_weapon_dto.model != WeaponModel::UNKNOWN) {
-                    create_weapon(old_weapon_dto, player_position);
-                }
+                create_weapon(old_weapon_dto, player_position);
                 return;
             }
         } else if (obj->get_type() == ObjectType::BOMB) {
@@ -243,7 +241,7 @@ bool Game::is_over() {
 
     if (finished) {
         // Determinar qué equipo es team_a y team_b según el round
-        bool team_a_is_terrorist = (round_number <= 5);
+        bool team_a_is_terrorist = (round_number <= config.get_rounds_total() / 2);
 
         PlayerType winner = PlayerType::UNKNOWN;
         if ((!terrorists_alive && cts_alive) || deactivated ||
@@ -296,58 +294,9 @@ void Game::end_round_game_phase() {
             - Se reubican a todos los jugadores en posiciones aleatorias
             - Se eliminan todas las balas que quedaron vivas y se reinicia el contador de balas
     */
-    if (bomb) {
-        delete_bomb();
-        exploded = false;
-    } else {
-        deactivated = false;
-    }
-    for (auto& [id, player]: dead_players) {
-        if (player) {
-            // Reestablece la salud del jugador muerto
-            player->cure(config.get_player_health());
-
-            // Reagrega al jugador a la lista de jugadores
-            players[id] = player;
-
-            // Reagrega al jugador a la lista de objetos
-            objects.push_back(player);
-        }
-    }
-    // Elimina los jugadores muertos de la lista de jugadores muertos
-    dead_players.clear();
-
-    // Reubica los jugadores en posiciones aleatorias
-    for (auto& [id, player]: players) {
-        if (player) {
-            // Elimina al jugador de la celda actual de la matriz
-            remove_from_matrix(ObjectType::PLAYER, id, player->get_position());
-
-            // Actualiza la posición del jugador
-            std::vector<uint16_t> new_position = get_random_player_position(
-                    player->get_player_type(), player->get_player_skin(), id);
-            player->move(new_position);
-
-            // Actualiza la posición del jugador en la matriz
-            auto cell = get_cell_from_position(new_position);
-            matrix[cell.first][cell.second].push_back(player);
-        }
-    }
-
-    // Obtener los ids de las balas
-    std::vector<uint16_t> bullet_ids;
-    for (const auto& [id, bullet]: bullets) {
-        if (bullet) {
-            bullet_ids.push_back(id);
-        }
-    }
-    // Elimina las balas del juego
-    for (const auto& id: bullet_ids) {
-        delete_bullet(id);
-    }
-
-    // Reinicia el contador de balas
-    bullet_id = 1;
+    reset_bomb();
+    reset_players();
+    reset_bullets();
 
     // Reinicia el winner cheat
     winner_cheat = PlayerType::UNKNOWN;
@@ -373,9 +322,7 @@ bool Game::shop_weapon(WeaponModel weapon, uint16_t id) {
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         WeaponDTO old_weapon = player_it->second->buy_weapon(weapon);
-        if (old_weapon.model != WeaponModel::UNKNOWN) {
-            create_weapon(old_weapon, player_it->second->get_position());
-        }
+        create_weapon(old_weapon, player_it->second->get_position());
         return true;
     }
     return false;
@@ -407,6 +354,13 @@ bool Game::change_weapon(uint16_t id) {
 
 Stats Game::get_stats() const { return stats; }
 
+WinnerTeamType Game::get_winner_team() {
+    return (stats.team_a_wins > stats.team_b_wins) ?
+                   WinnerTeamType::TEAMA :
+                   ((stats.team_a_wins < stats.team_b_wins) ? WinnerTeamType::TEAMB :
+                                                              WinnerTeamType::DRAW);
+}
+
 void Game::quit(uint16_t id) {
     /*
         Elimina al jugador de la partida
@@ -422,6 +376,48 @@ void Game::quit(uint16_t id) {
         // Eliminar al jugador de players
         players.erase(player_it);
     }
+
+    auto dead_player_it = dead_players.find(id);
+    if (dead_player_it != dead_players.end()) {
+        // Eliminar al jugador de la lista de jugadores muertos
+        dead_players.erase(dead_player_it);
+    }
+}
+
+void Game::do_health_cheat(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        player_it->second->do_health_cheat();
+    }
+    std::cout << "do_health_cheat" << std::endl;
+}
+
+void Game::do_ammo_cheat(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        player_it->second->do_ammo_cheat();
+    }
+    std::cout << "do_ammo_cheat" << std::endl;
+}
+
+void Game::do_money_cheat(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        player_it->second->do_money_cheat();
+    }
+    std::cout << "do_money_cheat" << std::endl;
+}
+
+void Game::do_win_cheat(uint16_t id) {
+    auto player_it = players.find(id);
+    if (player_it != players.end()) {
+        if (player_it->second->get_player_type() == PlayerType::COUNTERTERRORIST) {
+            winner_cheat = PlayerType::COUNTERTERRORIST;
+        } else if (player_it->second->get_player_type() == PlayerType::TERRORIST) {
+            winner_cheat = PlayerType::TERRORIST;
+        }
+    }
+    std::cout << "do_win_cheat" << std::endl;
 }
 
 /*******************************************************************************************
@@ -921,10 +917,16 @@ void Game::employ_knife(const std::vector<uint16_t>& player_position, const uint
             const auto& target_pos = obj->get_position();
             if (target_pos == player_position)
                 continue;
-
             if (knife.hits(target_pos)) {
                 uint16_t damage = knife.get_damage();
-                damage_player(obj->get_id(), damage);
+                bool player_is_alive = damage_player(obj->get_id(), damage);
+                if (!player_is_alive) {
+                    // Si el jugador murió, se le da dinero al jugador que atacó
+                    players.find(player_id)->second->add_money(KILL_REWARD);
+                    stats.kills[player_id]++;
+                    stats.deaths[obj->get_id()]++;
+                    stats.money[player_id] += KILL_REWARD;
+                }
                 return;  // Solo al primer jugador encontrado
             }
         }
@@ -936,6 +938,9 @@ void Game::create_weapon(const WeaponDTO& weapon_dto, const std::vector<uint16_t
         Crea un arma a partir de un WeaponDTO y la agrega a la matriz, al vector de objetos y al
         mapa de armas. La posición del arma se establece en la posición dada.
     */
+    if (weapon_dto.model == WeaponModel::UNKNOWN) {
+        return;
+    }
     Weapon weapon(weapon_dto);
     weapon.move(position);
 
@@ -1119,6 +1124,59 @@ void Game::set_bomb_player() {
     }
 }
 
+void Game::reset_bomb() {
+    if (bomb) {
+        delete_bomb();
+        exploded = false;
+    } else {
+        deactivated = false;
+    }
+}
+
+void Game::reset_players() {
+    // Reestablecer jugadores muertos
+    for (auto& [id, player]: dead_players) {
+        if (player) {
+            player->cure(config.get_player_health());
+            players[id] = player;
+            objects.push_back(player);
+        }
+    }
+    dead_players.clear();
+
+    // Reubica los jugadores en posiciones aleatorias
+    for (auto& [id, player]: players) {
+        if (player) {
+            remove_from_matrix(ObjectType::PLAYER, id, player->get_position());
+
+            std::vector<uint16_t> new_position = get_random_player_position(
+                    player->get_player_type(), player->get_player_skin(), id);
+
+            player->move(new_position);
+
+            auto cell = get_cell_from_position(new_position);
+            matrix[cell.first][cell.second].push_back(player);
+        }
+    }
+}
+
+void Game::reset_bullets() {
+    // Obtener los ids de las balas
+    std::vector<uint16_t> bullet_ids;
+    for (const auto& [id, bullet]: bullets) {
+        if (bullet) {
+            bullet_ids.push_back(id);
+        }
+    }
+    // Elimina las balas del juego
+    for (const auto& id: bullet_ids) {
+        delete_bullet(id);
+    }
+
+    // Reinicia el contador de balas
+    bullet_id = 1;
+}
+
 /*******************************************************************************************
  ************************************BOMBA Y DESACTIVACIÓN**********************************
  ******************************************************************************************/
@@ -1217,7 +1275,7 @@ void Game::delete_bomb() {
     bomb = nullptr;
 }
 
-void Game::remove_from_matrix(ObjectType type, uint16_t id, std::vector<uint16_t> position) {
+void Game::remove_from_matrix(ObjectType type, uint16_t id, const std::vector<uint16_t>& position) {
     /*
         Elimina un objeto de la matriz en la posición dada.
     */
