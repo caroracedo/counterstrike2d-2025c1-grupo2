@@ -1,11 +1,9 @@
 #include "player.h"
 
-#include <iostream>
-
 Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
                PlayerSkin player_skin, uint8_t health, uint16_t initial_money,
                WeaponShop& weapon_shop):
-        Object(ObjectType::PLAYER, id, position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2),
+        Object(ObjectType::PLAYER, id, position, PLAYER_WIDTH, PLAYER_HEIGHT),
         player_type(type),
         player_skin(player_skin),
         health(health),
@@ -37,30 +35,10 @@ void Player::change_weapon() {
     }
 }
 
-std::string Player::get_current_weapon_name() const {
-    switch (current->get_model()) {
-        case WeaponModel::KNIFE:
-            return "Knife";
-        case WeaponModel::GLOCK:
-            return "Glock";
-        case WeaponModel::AK47:
-            return "AK-47";
-        case WeaponModel::M3:
-            return "M3";
-        case WeaponModel::AWP:
-            return "AWP";
-        case WeaponModel::BOMB:
-            return "Bomb";
-        default:
-            return "Unknown Weapon";
-    }
-}
-
 std::pair<WeaponDTO, bool> Player::drop_weapons() {
     WeaponDTO weapon = drop_primary_weapon();
     if (has_bomb) {
         has_bomb = false;
-        std::cout << "[PLAYER] Bomb dropped." << std::endl;
         current = &secondary_weapon;
         return {weapon, true};
     }
@@ -195,10 +173,7 @@ std::vector<uint16_t> Player::get_next_position(Direction direction) const {
     return new_position;
 }
 
-void Player::rotate(float new_angle) {
-    angle = new_angle;
-    std::cout << "\t[PLAYER] Angle: " << angle << std::endl;
-}
+void Player::rotate(float new_angle) { angle = new_angle; }
 
 WeaponDTO Player::drop_primary_weapon() {
     WeaponDTO weapon = primary_weapon.get_weapon_dto();

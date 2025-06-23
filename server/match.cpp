@@ -158,6 +158,7 @@ void Match::waiting_lobby() {
 /* Match Loop */
 void Match::match_loop() {
     std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
+    game.initialize_stats();
 
     // Nota: Cuáles son las condiciones para comenzar una nueva ronda?:
     //          a. Todavía quedan más rondas
@@ -173,10 +174,11 @@ void Match::match_loop() {
 
         std::cout << "[ROUND] Terminando ronda..." << std::endl;
 
-        if (round == config.get_rounds_total() / 2) {
-            std::cout << "[SWITCH] Switch de equipos!" << std::endl;
-            game.switch_player_types();
-        }
+        // Implementado a nivel lógica
+        // if (round == config.get_rounds_total() / 2) {
+        //     std::cout << "[SWITCH] Switch de equipos!" << std::endl;
+        //     game.switch_player_types();
+        // }
     }
 
     send_message_to_all_clients();

@@ -22,8 +22,9 @@
 #define KICKBACK_DISTANCE 5.0f
 
 // TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
-#define MATRIX_SIZE 21    // posición máxima en la matriz (celdas)
-#define MOVE_STEP 5       // paso de movimiento
+#define MATRIX_SIZE 21  // posición máxima en la matriz (celdas)
+#define MOVE_STEP 5     // paso de movimiento
+#define BULLET_STEP 10
 #define CELL_SIZE 32      // tamaño de cada celda en la matriz
 #define PLAYER_RADIUS 16  // radio del jugador
 #define BULLET_RADIUS 2   // radio de la bala

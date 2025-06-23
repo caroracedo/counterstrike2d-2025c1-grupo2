@@ -1,9 +1,5 @@
 // #include <iostream>
-// #include <iostream>
 
-// #include "game.h"
-// #include "player.h"
-// #include "weapon.h"
 // #include "game.h"
 // #include "player.h"
 // #include "weapon.h"
@@ -46,10 +42,11 @@
 //     }
 //     std::cout << "Last Winner: "
 //               << ((stats.last_winner == PlayerType::TERRORIST) ? "Terrorist" :
-//               "Counterterrorist") << std::endl;
+//               "Counterterrorist")
+//               << std::endl;
 
 //     std::cout << "Team A wins: " << stats.team_a_wins << "\n Team B wins: " << stats.team_b_wins
-//     << std::endl;
+//               << std::endl;
 // }
 
 // int main() {
@@ -63,31 +60,19 @@
 //     game.show();
 //     show_stats(game.get_stats());
 
-//     game.shop_weapon(WeaponModel::AK47, 1);
+//     game.shop_weapon(WeaponModel::AWP, 1);
 //     game.shop_weapon(WeaponModel::M3, 2);
 
 //     game.change_weapon(1);
-//     // game.change_weapon(1);
-//     // game.change_weapon(2);
+//     game.change_weapon(1);
+//     game.change_weapon(2);
 //     game.change_weapon(2);
 
-//     std::vector<uint16_t> player2_pos = game.get_player_position(2);
-//     std::vector<uint16_t> player1_pos = game.get_player_position(1);
-//     std::vector<uint16_t> player2_pos = game.get_player_position(2);
-//     std::vector<uint16_t> player1_pos = game.get_player_position(1);
-
-//     while (true) {
-//         std::string input;
-//         std::getline(std::cin, input);
-//         std::istringstream iss(input);
 //     while (true) {
 //         std::string input;
 //         std::getline(std::cin, input);
 //         std::istringstream iss(input);
 
-//         std::string action_input;
-//         if (!(iss >> action_input))
-//             continue;
 //         std::string action_input;
 //         if (!(iss >> action_input))
 //             continue;

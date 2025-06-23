@@ -45,7 +45,6 @@ public:
 
     WeaponDTO get_current_weapon() const;
     void change_weapon();
-    std::string get_current_weapon_name() const;
     std::pair<WeaponDTO, bool> drop_weapons();
     WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
 

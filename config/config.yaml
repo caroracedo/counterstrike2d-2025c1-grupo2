@@ -14,13 +14,15 @@ weapons:
     min_damage: 10
     max_damage: 20
     precision: 1
+    cooldown: 0.0
 
   glock:
     price: 0
-    range: 100
-    min_damage: 10
-    max_damage: 20
+    range: 150
+    min_damage: 20
+    max_damage: 30
     precision: 0.8
+    cooldown: 0.1
 
   bomb:
     price: 0
@@ -28,27 +30,31 @@ weapons:
     min_damage: 500
     max_damage: 500
     precision: 1
+    cooldown: 0.0
 
   ak47:
     price: 270
     range: 150
-    min_damage: 20
-    max_damage: 30
+    min_damage: 15
+    max_damage: 25
     precision: 0.8
+    cooldown: 0.2
 
   m3:
     price: 200
-    range: 125
-    min_damage: 15
-    max_damage: 25
+    range: 100
+    min_damage: 25
+    max_damage: 35
     precision: 0.9
+    cooldown: 0.8
 
   awp:
-    price: 475
+    price: 500
     range: 200
-    min_damage: 30
-    max_damage: 40
+    min_damage: 40
+    max_damage: 50
     precision: 0.95
+    cooldown: 1.5
 
 rounds:
   total: 10

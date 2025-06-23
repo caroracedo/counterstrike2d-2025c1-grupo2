@@ -182,6 +182,8 @@ public:
 
     void set_ready_to_start();
 
+    void initialize_stats();
+
     std::vector<std::shared_ptr<Object>>& get_objects();
 
     void add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t id);

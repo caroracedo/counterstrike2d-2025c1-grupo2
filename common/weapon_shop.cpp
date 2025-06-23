@@ -8,7 +8,7 @@ std::pair<uint16_t, Weapon> WeaponShop::sell_weapon(const WeaponModel& weapon_mo
     if (it != catalog.end() && player_money >= it->second.price) {
         return {it->second.price,
                 Weapon(++next_weapon_id, weapon_model, it->second.range, it->second.min_damage,
-                       it->second.max_damage, it->second.precision)};
+                       it->second.max_damage, it->second.precision, it->second.cooldown)};
     }
     return {0, Weapon()};
 }
@@ -17,7 +17,7 @@ Weapon WeaponShop::give_weapon(const WeaponModel& weapon_model) {
     auto it = catalog.find(weapon_model);
     if (it != catalog.end()) {
         return Weapon(++next_weapon_id, weapon_model, it->second.range, it->second.min_damage,
-                      it->second.max_damage, it->second.precision);
+                      it->second.max_damage, it->second.precision, it->second.cooldown);
     }
     return Weapon();
 }
