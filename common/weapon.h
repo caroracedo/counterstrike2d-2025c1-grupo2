@@ -50,10 +50,9 @@ public:
 
     uint16_t get_ammo() const;
     void add_ammo(uint16_t ammo_amount);
+    void set_infinite_ammo();
 
     void set_position(const std::vector<uint16_t>& new_position);
-
-    void set_infinite_ammo() { infinite_ammo = true; }
 
     bool operator==(const Weapon& other) const;
 };

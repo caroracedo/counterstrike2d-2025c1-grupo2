@@ -121,6 +121,11 @@ uint16_t Weapon::get_ammo() const { return ammo; }
 
 void Weapon::add_ammo(uint16_t ammo_amount) { ammo += ammo_amount; }
 
+void Weapon::set_infinite_ammo() {
+    infinite_ammo = true;
+    ammo = 9999;
+}
+
 void Weapon::set_position(const std::vector<uint16_t>& new_position) { position = new_position; }
 
 bool Weapon::operator==(const Weapon& other) const { return this->model == other.model; }

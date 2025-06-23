@@ -182,14 +182,20 @@ void Player::rotate(float new_angle) { angle = new_angle; }
 
 float Player::get_angle() const { return angle; }
 
-void Player::do_health_cheat() { infinite_health = true; }
+void Player::do_health_cheat() {
+    infinite_health = true;
+    health = 9999;
+}
 
 void Player::do_ammo_cheat() {
     primary_weapon.set_infinite_ammo();
     secondary_weapon.set_infinite_ammo();
 }
 
-void Player::do_money_cheat() { infinite_money = true; }
+void Player::do_money_cheat() {
+    infinite_money = true;
+    money = 9999;
+}
 
 WeaponDTO Player::drop_primary_weapon() {
     WeaponDTO weapon = primary_weapon.get_weapon_dto();
