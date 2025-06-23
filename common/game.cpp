@@ -385,6 +385,9 @@ void Game::quit(uint16_t id) {
 }
 
 void Game::do_health_cheat(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado activar el truco de salud infinita.
+    */
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         player_it->second->do_health_cheat();
@@ -392,6 +395,9 @@ void Game::do_health_cheat(uint16_t id) {
 }
 
 void Game::do_ammo_cheat(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado activar el truco de munición infinita.
+    */
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         player_it->second->do_ammo_cheat();
@@ -399,6 +405,9 @@ void Game::do_ammo_cheat(uint16_t id) {
 }
 
 void Game::do_money_cheat(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado activar el truco de dinero infinito.
+    */
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         player_it->second->do_money_cheat();
@@ -406,6 +415,10 @@ void Game::do_money_cheat(uint16_t id) {
 }
 
 void Game::do_win_cheat(uint16_t id) {
+    /*
+        Permite al jugador con el ID especificado activar el truco de victoria, estableciendo el
+       tipo de jugador ganador.
+    */
     auto player_it = players.find(id);
     if (player_it != players.end()) {
         winner_cheat = player_it->second->get_player_type();
@@ -1246,23 +1259,6 @@ void Game::delete_bomb() {
     */
     remove_from_matrix(ObjectType::BOMB, bomb->get_id(), bomb->get_position());
     remove_from_objects(ObjectType::BOMB, bomb->get_id());
-
-    // TODO: Ver esto
-    // // Eliminar de la matriz
-    // auto cell = get_cell_from_position(bomb->get_position());
-    // auto& vec = matrix[cell.first][cell.second];
-    // vec.erase(std::remove_if(vec.begin(), vec.end(),
-    //                          [this](const std::shared_ptr<Object>& o) { return o->get_type() ==
-    //                          ObjectType::BOMB; }),
-    //           vec.end());
-
-    // // Eliminar de objects
-    // objects.erase(std::remove_if(objects.begin(), objects.end(),
-    //                              [this](const std::shared_ptr<Object>& o) { return o->get_type()
-    //                              == ObjectType::BOMB; }),
-    //               objects.end());
-
-    // Limpiar referencia
     bomb = nullptr;
 }
 
