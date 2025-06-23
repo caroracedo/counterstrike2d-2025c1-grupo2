@@ -1,8 +1,14 @@
 #include "player_view.h"
 
 PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id,
-                       PlayerSkin skin):
-        texture_manager(texture_manager), sound_manager(sound_manager), id(id), skin(skin) {
+                       PlayerSkin skin, SDL2pp::Renderer& renderer):
+        texture_manager(texture_manager),
+        sound_manager(sound_manager),
+        legs_view(*texture_manager.get_texture("legs"), 100),
+        gun_view(renderer),
+        id(id),
+        skin(skin) {
+    // std::cout << "Player created with ID: " << id << std::endl;
     initialize_resources();
 }
 
@@ -36,7 +42,6 @@ bool PlayerView::update_position(float x, float y, uint16_t new_life) {
     return true;
 }
 
-// esta info va a venir de un .yaml
 void PlayerView::update_styles(PlayerType new_type, WeaponModel new_posture) {
     type = new_type;
     if (new_posture == WeaponModel::GLOCK) {
@@ -55,14 +60,48 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
 
+    // --- Aplicar kickback ---
+    if (is_kicking_back) {
+        uint32_t elapsed = SDL_GetTicks() - kick_start_time;
+        if (elapsed < KICKBACK_DURATION_MS) {
+            float rad = angle * M_PI / 180.0f;
+            float offset = 5.0f;  // Fuerza del retroceso
+            screenX -= offset * std::cos(rad);
+            screenY -= offset * std::sin(rad);
+            legs_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad));
+            gun_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad),
+                            gun_view.get_current_type());
+        } else {
+            is_kicking_back = false;
+        }
+    }
+
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);
 
-    renderer.Copy(texture, current_frame,
-                  SDL2pp::Rect(static_cast<int>(screenX) - PLAYER_WIDTH / 2,
-                               static_cast<int>(screenY) - PLAYER_HEIGHT / 2, PLAYER_WIDTH,
-                               PLAYER_HEIGHT),
-                  angle, SDL_Point{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2}, SDL_FLIP_NONE);
+    SDL2pp::Rect dstRect{static_cast<int>(screenX) - PLAYER_WIDTH / 2,
+                         static_cast<int>(screenY) - PLAYER_HEIGHT / 2, PLAYER_WIDTH,
+                         PLAYER_HEIGHT};
+
+    SDL_Point center{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2};
+
+    float draw_angle = angle;
+
+    // --- Animación de cuchillo ---
+    if (is_knife) {
+        uint32_t elapsed = SDL_GetTicks() - knife_start;
+        if (elapsed < 150) {
+            draw_angle += std::sin(elapsed * 0.06f) * 20.0f;
+        } else {
+            is_knife = false;
+        }
+    }
+
+
+    legs_view.draw(renderer, camera, draw_angle);
+    renderer.Copy(texture, current_frame, dstRect, draw_angle, center, SDL_FLIP_NONE);
+    gun_view.draw(renderer, camera, draw_angle);
 }
+
 
 float PlayerView::get_x() const { return posX; }
 

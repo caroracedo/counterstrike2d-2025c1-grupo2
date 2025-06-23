@@ -15,6 +15,8 @@ class InputHandler {
 private:
     float last_angle_sent = 0.0f;
 
+    const float angle_threshold = 2.0f;
+
     GameView& game_view;
 
     GameCamera& camera = game_view.get_camera();
@@ -108,6 +110,9 @@ public:
                                         static_cast<uint16_t>(camera.get_x());
                 uint16_t real_mouse_y = static_cast<uint16_t>(event.button.y) +
                                         static_cast<uint16_t>(camera.get_y());
+
+                game_view.handle_attack();
+
                 actions.push_back(ActionDTO{ActionType::SHOOT,
                                             std::vector<uint16_t>{real_mouse_x, real_mouse_y}});
             }
@@ -115,7 +120,10 @@ public:
             auto player_pos = game_view.player_position();
             if (event.type == SDL_MOUSEMOTION && player_pos.size() == 2) {
                 float angle = calculate_angle(player_pos);
-                actions.push_back(ActionDTO{ActionType::ROTATE, angle});
+                if (std::abs(angle - last_angle_sent) > angle_threshold) {
+                    actions.push_back(ActionDTO{ActionType::ROTATE, angle});
+                    last_angle_sent = angle;
+                }
             }
         }
 

@@ -19,6 +19,7 @@
 #define AK47_HEIGHT 17
 #define M3_HEIGHT 16
 #define AWP_HEIGHT 16
+#define KICKBACK_DISTANCE 5.0f
 
 // TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
 #define MATRIX_SIZE 21    // posición máxima en la matriz (celdas)

@@ -19,13 +19,13 @@ std::vector<SDL2pp::Rect> BombView::get_rects() {
     return rects;
 }
 
-// recibe el tiempo que falta para explotar en SEGUNDOS
-void BombView::update(float px, float py, uint16_t time_to_explode) {
+void BombView::update(float px, float py, uint16_t time_to_explode,
+                      std::optional<std::pair<float, float>> listener_position) {
     x = px;
     y = py;
 
     if (time_to_explode == 14) {
-        sounds.playWithCooldown("bombpl", 1000);
+        sounds.play_with_distance("bombpl", 0, 1000, std::make_pair(x, y), listener_position);
     }
 
     if (time_to_explode == 0 && sounds_played == false) {
@@ -46,7 +46,10 @@ void BombView::update(float px, float py, uint16_t time_to_explode) {
         beep_interval_ms = 150;
     }
 
-    sounds.playWithCooldown("beep", beep_interval_ms);
+    if (!dropped) {
+        sounds.play_with_distance("beep", 0, beep_interval_ms, std::make_pair(x, y),
+                                  listener_position);
+    }
 }
 
 void BombView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {

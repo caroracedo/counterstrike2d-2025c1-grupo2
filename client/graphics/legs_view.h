@@ -15,7 +15,9 @@
 class LegsView {
 private:
     Animation walk_animation;
-    float pos_x = 0, pos_y = 0, angle = 0;
+    float pos_x = 0, pos_y = 0;
+    bool is_knife = false;
+    Uint32 knife_start = 0;
 
     // std::vector<SDL2pp::Rect> init_rects();
 
@@ -24,8 +26,6 @@ public:
 
     void update(float x, float y);
 
-    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
-
-    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle);
 };
 #endif

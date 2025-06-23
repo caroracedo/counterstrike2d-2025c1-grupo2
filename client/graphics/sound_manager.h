@@ -1,8 +1,10 @@
 #ifndef SOUND_MANAGER_H
 #define SOUND_MANAGER_H
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -43,6 +45,8 @@ public:
         sounds.emplace("go", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/go.ogg"));
         sounds.emplace("bombdef", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/bombdef.ogg"));
         sounds.emplace("bombpl", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/bombpl.ogg"));
+        sounds.emplace("knife_slash", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/knife_slash.wav"));
+        sounds.emplace("knife_hit", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/knife_hit.wav"));
     }
 
     void play(const std::string& name, int loops = 0) {
@@ -82,6 +86,62 @@ public:
             return it->second;
         }
         return 0;  // Si no se encontró, retornar 0 o un valor por defecto
+    }
+
+    int compute_volume(float dx, float dy, float max_distance = 500.0f) {
+        float distance = std::sqrt(dx * dx + dy * dy);
+        float clamped = std::min(distance, max_distance);
+        float volume_ratio = 1.0f - (clamped / max_distance);
+        return static_cast<int>(volume_ratio * MIX_MAX_VOLUME);
+    }
+
+    void play_at_position(const std::string& name, float sound_x, float sound_y, float listener_x,
+                          float listener_y, int loops = 0) {
+        auto it = sounds.find(name);
+        if (it == sounds.end())
+            return;
+
+        float dx = sound_x - listener_x;
+        float dy = sound_y - listener_y;
+
+        int volume = compute_volume(dx, dy);
+
+        int channel = mixer.PlayChannel(-1, it->second, loops);
+        if (channel >= 0) {
+            Mix_Volume(channel, volume);
+        }
+    }
+
+    void play_with_distance(const std::string& name, int loops = 0, uint32_t cooldown_ms = 0,
+                            std::optional<std::pair<float, float>> sound_pos = std::nullopt,
+                            std::optional<std::pair<float, float>> listener_pos = std::nullopt,
+                            float max_distance = 500.0f) {
+
+        uint32_t now = SDL_GetTicks();
+
+        if (cooldown_ms > 0) {
+            uint32_t& last_time = last_played_time[name];
+            if (now - last_time < cooldown_ms)
+                return;
+            last_time = now;
+        } else if (name.find("steps") != std::string::npos) {
+            if (now - last_played_time[name] < step_cooldown_ms)
+                return;
+            last_played_time[name] = now;
+        }
+
+        auto it = sounds.find(name);
+        if (it == sounds.end())
+            return;
+
+        int channel = mixer.PlayChannel(-1, it->second, loops);
+
+        if (channel >= 0 && sound_pos && listener_pos) {
+            float dx = sound_pos->first - listener_pos->first;
+            float dy = sound_pos->second - listener_pos->second;
+            int volume = compute_volume(dx, dy, max_distance);
+            Mix_Volume(channel, volume);
+        }
     }
 };
 

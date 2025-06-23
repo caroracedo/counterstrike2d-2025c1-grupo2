@@ -25,7 +25,8 @@ private:
     WeaponModel current_type = WeaponModel::GLOCK;
 
     float x = 0, y = 0;
-    float angle = 0.0f;  // Grados
+    bool is_knife = false;
+    uint32_t knife_start = 0;
 
 public:
     explicit GunView(SDL2pp::Renderer& renderer) {
@@ -41,15 +42,14 @@ public:
                 renderer, SDL2pp::Surface(SDL_LoadBMP(ASSETS_PATH "/gfx/weapons/knife.bmp")));
     }
 
-    void change_gun(WeaponModel type) { current_type = type; }
-
-    void update(float px, float py) {
+    void update(float px, float py, WeaponModel type) {
         x = px;
         y = py;
+        current_type = type;
     }
 
 
-    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
         if (!camera.is_visible(x, y))
             return;
 
@@ -63,16 +63,6 @@ public:
         float centerX = screenX + PLAYER_WIDTH / 2.0f;
         float centerY = screenY + PLAYER_HEIGHT / 2.0f;
 
-        // int mouseX, mouseY;
-        // SDL_GetMouseState(&mouseX, &mouseY);
-
-        // float dx = mouseX - centerX;
-        // float dy = mouseY - centerY;
-
-        // float new_angle = std::atan2(dy, dx) * 180.0f / M_PI + 90.0f;
-        // this->angle = new_angle;
-
-        // Offset de la mano en reposo (cuando apunta hacia arriba)
         const float baseOffsetX = 0.0f;
         const float baseOffsetY = -15.0f;
 
@@ -84,13 +74,25 @@ public:
         float gunX = centerX + rotatedOffsetX;
         float gunY = centerY + rotatedOffsetY;
 
+        float draw_angle = angle;
+        if (is_knife) {
+            uint32_t elapsed = SDL_GetTicks() - knife_start;
+            if (elapsed < 150) {
+                draw_angle += std::sin(elapsed * 0.06f) * 25.0f;
+            } else {
+                is_knife = false;
+            }
+        }
+
         renderer.Copy(*gun_sprites[current_type], SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
                       SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH),
                                    static_cast<int>(gunY - GUN_HEIGHT), GUN_WIDTH, GUN_HEIGHT),
-                      angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
+                      draw_angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
 
-    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
+    bool has_knife_equipped() const { return current_type == WeaponModel::KNIFE; }
+
+    WeaponModel get_current_type() const { return current_type; }
 };
 
 #endif

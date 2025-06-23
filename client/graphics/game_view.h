@@ -50,8 +50,7 @@ private:
     FOVView fov_view;
 
     std::unordered_map<uint16_t, std::unique_ptr<PlayerView>> players;
-    std::unordered_map<uint16_t, std::unique_ptr<LegsView>> legs;
-    std::unordered_map<uint16_t, std::unique_ptr<GunView>> guns;
+
     std::vector<DropView> drops;
     std::unordered_map<uint16_t, PlayerType> types;
     std::vector<ObstacleView> obstacles;
@@ -106,6 +105,18 @@ public:
             return {x, y};
         }
         return {};
+    }
+
+    void handle_attack() {
+        if (is_alive) {
+            if (players[local_id]->has_knife_equipped()) {
+                players[local_id]->start_knife_animation();
+                sound_manager.play("knife_slash", 0);
+            } else {
+                players[local_id]->start_kickback();
+                sound_manager.play("bullet", 0);
+            }
+        }
     }
 };
 
