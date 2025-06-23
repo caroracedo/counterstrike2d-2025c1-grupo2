@@ -25,7 +25,6 @@ private:
     WeaponModel current_type = WeaponModel::GLOCK;
 
     float x = 0, y = 0;
-    float angle = 0.0f;
     bool is_knife = false;
     uint32_t knife_start = 0;
 
@@ -43,15 +42,14 @@ public:
                 renderer, SDL2pp::Surface(SDL_LoadBMP(ASSETS_PATH "/gfx/weapons/knife.bmp")));
     }
 
-    void change_gun(WeaponModel type) { current_type = type; }
-
-    void update(float px, float py) {
+    void update(float px, float py, WeaponModel type) {
         x = px;
         y = py;
+        current_type = type;
     }
 
 
-    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
         if (!camera.is_visible(x, y))
             return;
 
@@ -92,14 +90,7 @@ public:
                       draw_angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
 
-    void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
-
     bool has_knife_equipped() const { return current_type == WeaponModel::KNIFE; }
-
-    void start_slash() {
-        is_knife = true;
-        knife_start = SDL_GetTicks();
-    }
 };
 
 #endif

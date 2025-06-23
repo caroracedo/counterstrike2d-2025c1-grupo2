@@ -9,9 +9,12 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "common/constants.h"
+#include "common/object_DTO.h"
 #include "common/types.h"
 
 #include "game_camera.h"
+#include "gun_view.h"
+#include "legs_view.h"
 #include "sound_manager.h"
 #include "textures_manager.h"
 
@@ -20,6 +23,10 @@ private:
     TextureManager& texture_manager;
 
     SoundManager& sound_manager;
+
+    LegsView legs_view;
+
+    GunView gun_view;
 
     uint16_t life = 0;
 
@@ -44,7 +51,7 @@ private:
 
 public:
     explicit PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id,
-                        PlayerSkin skin);
+                        PlayerSkin skin, SDL2pp::Renderer& renderer);
 
     void initialize_resources();
 
@@ -66,6 +73,26 @@ public:
         is_knife = true;
         knife_start = SDL_GetTicks();
     }
+
+    bool update(const ObjectDTO& object) {
+        float new_angle = object.angle;
+        float x = static_cast<float>(object.position[0]);
+        float y = static_cast<float>(object.position[1]);
+
+        bool moved = update_position(x, y, object.health);
+
+        update_angle(new_angle);
+        if (moved) {
+            legs_view.update(x, y);
+        }
+
+        update_styles(object.player_type, object.weapon_model);
+        gun_view.update(x, y, object.weapon_model);
+
+        return moved;
+    }
+
+    bool has_knife_equipped() const { return gun_view.has_knife_equipped(); }
 };
 
 #endif

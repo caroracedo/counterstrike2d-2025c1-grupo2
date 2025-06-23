@@ -1,8 +1,13 @@
 #include "player_view.h"
 
 PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_manager, uint16_t id,
-                       PlayerSkin skin):
-        texture_manager(texture_manager), sound_manager(sound_manager), id(id), skin(skin) {
+                       PlayerSkin skin, SDL2pp::Renderer& renderer):
+        texture_manager(texture_manager),
+        sound_manager(sound_manager),
+        legs_view(*texture_manager.get_texture("legs"), 100),
+        gun_view(renderer),
+        id(id),
+        skin(skin) {
     initialize_resources();
 }
 
@@ -67,13 +72,17 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     if (is_knife) {
         uint32_t elapsed = SDL_GetTicks() - knife_start;
         if (elapsed < 150) {
-            draw_angle += std::sin(elapsed * 0.06f) * 20.0f;  // simula golpe de cuchillo
+            draw_angle += std::sin(elapsed * 0.06f) * 20.0f;
         } else {
             is_knife = false;
         }
     }
 
+    legs_view.draw(renderer, camera, draw_angle);
+
     renderer.Copy(texture, current_frame, dstRect, draw_angle, center, SDL_FLIP_NONE);
+
+    gun_view.draw(renderer, camera, draw_angle);
 }
 
 float PlayerView::get_x() const { return posX; }

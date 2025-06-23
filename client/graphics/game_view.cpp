@@ -124,21 +124,6 @@ void GameView::update(const ActionDTO& action) {
             ++it;
         }
     }
-
-    for (auto it = legs.begin(); it != legs.end();) {
-        if (players_in_game.find(it->first) == players_in_game.end()) {
-            it = legs.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    for (auto it = guns.begin(); it != guns.end();) {
-        if (players_in_game.find(it->first) == players_in_game.end()) {
-            it = guns.erase(it);
-        } else {
-            ++it;
-        }
-    }
 }
 
 void GameView::update_player(const ObjectDTO& object) {
@@ -147,25 +132,11 @@ void GameView::update_player(const ObjectDTO& object) {
     float y = object.position[1];
 
     players.try_emplace(id, std::make_unique<PlayerView>(texture_manager, sound_manager, id,
-                                                         object.player_skin));
-
-    legs.try_emplace(id, std::make_unique<LegsView>(*texture_manager.get_texture("legs"), 100));
-
-    guns.try_emplace(id, std::make_unique<GunView>(renderer));
-
-    players[id]->update_styles(object.player_type, object.weapon_model);
-
-    guns[id]->change_gun(object.weapon_model);
+                                                         object.player_skin, renderer));
 
     types.try_emplace(id, object.player_type);
 
-    players[id]->update_angle(object.angle);
-    legs[id]->update_angle(object.angle);
-    guns[id]->update_angle(object.angle);
-
-    if (players[id]->update_position(x, y, object.health)) {
-        legs[id]->update(x, y);
-        guns[id]->update(x, y);
+    if (players[id]->update(object)) {
         if (!is_first_update && is_alive) {
             auto sound_pos = std::make_pair(x, y);
             auto it = players.find(local_id);
@@ -215,11 +186,6 @@ void GameView::render() {
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.Clear();
 
-    // Rect view = camera.get_viewport();
-
-    // renderer.Copy(*texture_manager.get_texture("background"),
-    //               SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
-
     renderer.Copy(*texture_manager.get_texture(terrains[terrain]),
                   SDL2pp::Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
@@ -249,13 +215,7 @@ void GameView::render() {
 
     for (auto& bullet: bullets) bullet.draw(renderer, camera);
 
-    for (auto& [id, leg]: legs) leg->draw(renderer, camera);
-
     for (auto& [id, player]: players) player->draw(renderer, camera);
-
-    for (auto& [id, gun]: guns) {
-        gun->draw(renderer, camera);
-    }
 
     if (fov_view.is_visible() && players[local_id]) {
         fov_view.draw(players[local_id]->get_angle());
@@ -274,7 +234,6 @@ void GameView::render() {
     renderer.Present();
 }
 
-
 void GameView::frame_sync() {
     static uint32_t last_frame = SDL_GetTicks();
     uint32_t now = SDL_GetTicks();
@@ -285,7 +244,6 @@ void GameView::frame_sync() {
 
     last_frame = SDL_GetTicks();
 }
-
 
 void GameView::render_cursor() {
     int mouseX, mouseY;

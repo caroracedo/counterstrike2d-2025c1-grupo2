@@ -23,22 +23,12 @@ void LegsView::update(float x, float y) {
     walk_animation.update();
 }
 
-void LegsView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+void LegsView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
     if (!camera.is_visible(pos_x, pos_y))
         return;
     float screenX = pos_x - camera.get_x();
     float screenY = pos_y - camera.get_y();
 
-    float draw_angle = angle;
-    if (is_knife) {
-        uint32_t elapsed = SDL_GetTicks() - knife_start;
-        if (elapsed < 150) {
-            draw_angle += std::sin(elapsed * 0.06f) * 25.0f;
-        } else {
-            is_knife = false;
-        }
-    }
-
     walk_animation.draw(renderer, screenX - LEGS_WIDTH / 2, screenY - LEGS_HEIGHT / 2, 40, 40,
-                        draw_angle, SDL_Point{16, 16});
+                        angle, SDL_Point{16, 16});
 }
