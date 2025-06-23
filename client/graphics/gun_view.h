@@ -50,7 +50,7 @@ public:
 
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle) {
-        if (!camera.is_visible(x, y))
+        if (!camera.is_visible(x, y, GUN_WIDTH, GUN_HEIGHT))
             return;
 
         if (current_type == WeaponModel::UNKNOWN) {

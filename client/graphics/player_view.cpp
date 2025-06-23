@@ -54,7 +54,7 @@ void PlayerView::update_styles(PlayerType new_type, WeaponModel new_posture) {
 }
 
 void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
-    if (!camera.is_visible(posX, posY))
+    if (!camera.is_visible(posX, posY, PLAYER_WIDTH, PLAYER_HEIGHT))
         return;
 
     float screenX = posX - camera.get_x();
