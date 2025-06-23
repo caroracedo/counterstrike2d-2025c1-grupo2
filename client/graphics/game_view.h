@@ -113,10 +113,10 @@ public:
         if (is_alive) {
             if (players[local_id]->has_knife_equipped()) {
                 players[local_id]->start_knife_animation();
-                sound_manager.play("knife_slash", 0);
+                sound_manager.playWithCooldown("knife_slash", 150, 0);
             } else {
                 players[local_id]->start_kickback();
-                sound_manager.play("bullet", 0);
+                sound_manager.playWithCooldown("bullet", 150, 0);
             }
         }
     }

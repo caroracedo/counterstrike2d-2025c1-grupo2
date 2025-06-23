@@ -51,6 +51,6 @@ weapons:
     precision: 0.95
 
 rounds:
-  total: 10
+  total: 2
 
 # -- Client Configuration --

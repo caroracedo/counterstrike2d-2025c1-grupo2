@@ -23,6 +23,8 @@ private:
 
     SDL2pp::Font font;
 
+    SDL2pp::Font end_font;
+
     bool visible = false;
 
     bool sounds_played = false;
@@ -41,6 +43,7 @@ public:
             overlay_rect(SCREEN_MARGIN, SCREEN_MARGIN, SCREEN_WIDTH - (SCREEN_MARGIN * 2),
                          SCREEN_HEIGHT - (SCREEN_MARGIN * 2)),
             font(ASSETS_PATH "/gfx/fonts/korean.ttf", 16),
+            end_font(ASSETS_PATH "/gfx/fonts/sourcesans.ttf", 48),
             sound_manager(sound_manager) {}
 
 
@@ -176,15 +179,12 @@ public:
     }
 
     void render_pre_lobby() {
-        // Guardar color previo
         SDL2pp::Color prevColor = renderer.GetDrawColor();
 
-        // Fondo semitransparente
         renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
         renderer.SetDrawColor(17, 17, 17, 200);
         renderer.FillRect(overlay_rect);
 
-        // ---- Dibujo del "botón visual" ----
         int button_width = 300;
         int button_height = 80;
 
@@ -192,15 +192,12 @@ public:
                                 overlay_rect.y + (overlay_rect.h - button_height) / 2, button_width,
                                 button_height};
 
-        // Rectángulo del botón
-        renderer.SetDrawColor(80, 80, 80, 220);  // color gris claro
+        renderer.SetDrawColor(80, 80, 80, 220);
         renderer.FillRect(button_rect);
 
-        // Borde del botón
         renderer.SetDrawColor(200, 200, 200, 255);
         renderer.DrawRect(button_rect);
 
-        // ---- Render del texto ----
         std::string button_text = "Presione Enter para iniciar";
 
         SDL2pp::Surface text_surface =
@@ -214,7 +211,6 @@ public:
 
         renderer.Copy(text_texture, SDL2pp::NullOpt, text_rect);
 
-        // Restaurar color original
         renderer.SetDrawColor(prevColor);
     }
 
@@ -225,26 +221,26 @@ public:
         SDL_Color color;
 
         if (winner == WinnerTeamType::TEAMA) {
-            text = "¡Team A win!";
+            text = "Team A win!";
             color = SDL_Color{255, 50, 50, 255};
         } else if (winner == WinnerTeamType::TEAMB) {
-            text = "¡Team B win!";
+            text = "Team B win!";
             color = SDL_Color{50, 50, 255, 255};
         } else {
-            text = "¡Draw!";
+            text = "Draw!";
             color = SDL_Color{255, 255, 255, 255};
         }
 
-        SDL2pp::Surface surface = font.RenderText_Blended(text, color);
+        SDL2pp::Surface surface = end_font.RenderText_Blended(text, color);
         SDL2pp::Texture texture(renderer, surface);
 
         int text_w = texture.GetWidth();
         int text_h = texture.GetHeight();
 
         int center_x = overlay_rect.x + (overlay_rect.w - text_w) / 2;
-        int top_y = overlay_rect.y + 30;
+        int center_y = overlay_rect.y + (overlay_rect.h - text_h) / 2;
 
-        SDL_Rect dst = {center_x, top_y, text_w, text_h};
+        SDL_Rect dst = {center_x, center_y, text_w, text_h};
         renderer.Copy(texture, SDL2pp::NullOpt, dst);
     }
 };

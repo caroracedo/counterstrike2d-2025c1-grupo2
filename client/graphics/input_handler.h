@@ -132,11 +132,11 @@ public:
 
 
     float calculate_angle(const std::vector<uint16_t>& player_pos) {
-        float screenX = player_pos[0] - camera.get_x();
-        float screenY = player_pos[1] - camera.get_y();
+        float screenX = static_cast<float>(player_pos[0]) - camera.get_x();
+        float screenY = static_cast<float>(player_pos[1]) - camera.get_y();
 
-        float centerX = screenX + PLAYER_WIDTH / 2.0f;
-        float centerY = screenY + PLAYER_HEIGHT / 2.0f;
+        float centerX = screenX;
+        float centerY = screenY;
 
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);

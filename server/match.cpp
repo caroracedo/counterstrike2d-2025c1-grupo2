@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define TIME 1
-#define SHOP_TIME 10
+#define SHOP_TIME 1
 #define SNAPSHOT_TIME 33  // ~30FPS
 #define STATS_TIME 5
 #define WAIT_TIME 100
