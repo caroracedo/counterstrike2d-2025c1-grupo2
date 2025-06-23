@@ -59,21 +59,15 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
+    float draw_angle = angle;
 
-    // --- Aplicar kickback ---
-    if (is_kicking_back) {
-        uint32_t elapsed = SDL_GetTicks() - kick_start_time;
-        if (elapsed < KICKBACK_DURATION_MS) {
-            float rad = angle * M_PI / 180.0f;
-            float offset = 5.0f;  // Fuerza del retroceso
-            screenX -= offset * std::cos(rad);
-            screenY -= offset * std::sin(rad);
-            legs_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad));
-            gun_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad),
-                            gun_view.get_current_type());
-        } else {
-            is_kicking_back = false;
-        }
+    for (const auto& effect: active_effects) {
+        auto [dx, dy] = effect->get_offset(angle);
+        screenX += dx;
+        screenY += dy;
+        legs_view.update(posX + dx, posY + dy);
+        gun_view.update(posX + dx, posY + dy, gun_view.get_current_type());
+        draw_angle += effect->get_rotation_offset();
     }
 
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);
@@ -84,22 +78,18 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 
     SDL_Point center{PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2};
 
-    float draw_angle = angle;
-
-    // --- Animación de cuchillo ---
-    if (is_knife) {
-        uint32_t elapsed = SDL_GetTicks() - knife_start;
-        if (elapsed < 150) {
-            draw_angle += std::sin(elapsed * 0.06f) * 20.0f;
-        } else {
-            is_knife = false;
-        }
-    }
-
 
     legs_view.draw(renderer, camera, draw_angle);
     renderer.Copy(texture, current_frame, dstRect, draw_angle, center, SDL_FLIP_NONE);
     gun_view.draw(renderer, camera, draw_angle);
+
+    for (auto& effect: active_effects) {
+        effect->update();
+    }
+
+    active_effects.erase(std::remove_if(active_effects.begin(), active_effects.end(),
+                                        [](const auto& eff) { return !eff->is_active(); }),
+                         active_effects.end());
 }
 
 
