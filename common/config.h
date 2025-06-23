@@ -19,6 +19,7 @@ struct WeaponConfig {
     uint16_t min_damage;
     uint16_t max_damage;
     float precision;
+    float cooldown;
 };
 
 class Config {

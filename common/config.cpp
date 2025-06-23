@@ -69,6 +69,7 @@ void Config::load_from_yaml(const std::string& yaml_path) {
             weapon_config.min_damage = it.second["min_damage"].as<uint16_t>();
             weapon_config.max_damage = it.second["max_damage"].as<uint16_t>();
             weapon_config.precision = it.second["precision"].as<float>();
+            weapon_config.cooldown = it.second["cooldown"].as<float>();
             weapon_catalog[weapon_model] = weapon_config;
         }
     }

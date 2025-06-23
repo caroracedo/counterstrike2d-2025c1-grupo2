@@ -53,9 +53,17 @@ void Game::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t i
     /*
         Agrega un jugador al juego con el tipo y ID especificados.
     */
-    uint8_t max_player_amount = number_terrorist + number_counterterrorist;
-    if (players.size() >= max_player_amount) {
-        std::cerr << "Maximum amount of players reached. Limit: " << max_player_amount << std::endl;
+
+    uint8_t max_player_amount =
+            (player_type == PlayerType::TERRORIST) ? number_terrorist : number_counterterrorist;
+    uint8_t actual_player_amount = std::count_if(players.begin(), players.end(), [](const auto& p) {
+        return p.second && p.second->get_player_type() == player_type;
+    });
+
+    if (actual_player_amount == max_player_amount) {
+        std::cerr << "Maximum amount of "
+                  << (player_type == PlayerType::TERRORIST ? "terrorists" : "counterterrorists")
+                  << " reached. Limit: " << max_player_amount << std::endl;
         return;
     }
 
