@@ -221,10 +221,10 @@ public:
         SDL_Color color;
 
         if (winner == WinnerTeamType::TEAMA) {
-            text = "Team A win!";
+            text = "Team A wins!";
             color = SDL_Color{255, 50, 50, 255};
         } else if (winner == WinnerTeamType::TEAMB) {
-            text = "Team B win!";
+            text = "Team B wins!";
             color = SDL_Color{50, 50, 255, 255};
         } else {
             text = "Draw!";
