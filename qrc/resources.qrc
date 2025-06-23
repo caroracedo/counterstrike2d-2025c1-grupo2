@@ -14,5 +14,6 @@
         <file>imagenes/zona_bomba.png</file>
         <file>imagenes/zonaA.png</file>
         <file>imagenes/zonaB.png</file>
+        <file>menu.wav</file>
     </qresource>
 </RCC>

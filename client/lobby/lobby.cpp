@@ -68,7 +68,7 @@ Lobby::Lobby(const std::vector<std::string>& mapasIngresados,
     audioOutput = new QAudioOutput(this);
 
     mediaPlayer->setAudioOutput(audioOutput);
-    mediaPlayer->setSource(QUrl("qrc:/new/prefix1/menu.wav"));
+    mediaPlayer->setSource(QUrl("qrc:/menu.wav"));
 
     audioOutput->setVolume(0.5);
 

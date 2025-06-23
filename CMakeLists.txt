@@ -164,8 +164,8 @@ if(TALLER_CLIENT)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    qt_add_resources(LOBBY_RESOURCES
-        client/lobby/resources.qrc
+    qt_add_resources(RESOURCES
+        qrc/resources.qrc
     )
 
     add_executable(taller_client)
@@ -215,9 +215,8 @@ if(TALLER_EDITOR)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    #Agregar recursos Qt
     qt_add_resources(RESOURCES
-        editor/resources.qrc
+        qrc/resources.qrc
     )
 
     add_executable(taller_editor)
