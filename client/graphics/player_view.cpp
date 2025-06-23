@@ -8,6 +8,7 @@ PlayerView::PlayerView(TextureManager& texture_manager, SoundManager& sound_mana
         gun_view(renderer),
         id(id),
         skin(skin) {
+    // std::cout << "Player created with ID: " << id << std::endl;
     initialize_resources();
 }
 
@@ -59,6 +60,22 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenX = posX - camera.get_x();
     float screenY = posY - camera.get_y();
 
+    // --- Aplicar kickback ---
+    if (is_kicking_back) {
+        uint32_t elapsed = SDL_GetTicks() - kick_start_time;
+        if (elapsed < KICKBACK_DURATION_MS) {
+            float rad = angle * M_PI / 180.0f;
+            float offset = 5.0f;  // Fuerza del retroceso
+            screenX -= offset * std::cos(rad);
+            screenY -= offset * std::sin(rad);
+            legs_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad));
+            gun_view.update(posX - offset * std::cos(rad), posY - offset * std::sin(rad),
+                            gun_view.get_current_type());
+        } else {
+            is_kicking_back = false;
+        }
+    }
+
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);
 
     SDL2pp::Rect dstRect{static_cast<int>(screenX) - PLAYER_WIDTH / 2,
@@ -69,6 +86,7 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 
     float draw_angle = angle;
 
+    // --- Animación de cuchillo ---
     if (is_knife) {
         uint32_t elapsed = SDL_GetTicks() - knife_start;
         if (elapsed < 150) {
@@ -78,12 +96,12 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
         }
     }
 
+
     legs_view.draw(renderer, camera, draw_angle);
-
     renderer.Copy(texture, current_frame, dstRect, draw_angle, center, SDL_FLIP_NONE);
-
     gun_view.draw(renderer, camera, draw_angle);
 }
+
 
 float PlayerView::get_x() const { return posX; }
 

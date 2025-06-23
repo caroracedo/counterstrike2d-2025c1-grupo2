@@ -15,6 +15,8 @@ class InputHandler {
 private:
     float last_angle_sent = 0.0f;
 
+    const float angle_threshold = 2.0f;
+
     GameView& game_view;
 
     GameCamera& camera = game_view.get_camera();
@@ -102,7 +104,10 @@ public:
             auto player_pos = game_view.player_position();
             if (event.type == SDL_MOUSEMOTION && player_pos.size() == 2) {
                 float angle = calculate_angle(player_pos);
-                actions.push_back(ActionDTO{ActionType::ROTATE, angle});
+                if (std::abs(angle - last_angle_sent) > angle_threshold) {
+                    actions.push_back(ActionDTO{ActionType::ROTATE, angle});
+                    last_angle_sent = angle;
+                }
             }
         }
 
@@ -128,7 +133,6 @@ public:
         if (angle < 0.0f)
             angle += 360.0f;
 
-        std::cout << "Angle: " << angle << std::endl;
         return angle;
     }
 };

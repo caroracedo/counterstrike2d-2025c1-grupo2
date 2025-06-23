@@ -91,6 +91,8 @@ public:
     }
 
     bool has_knife_equipped() const { return current_type == WeaponModel::KNIFE; }
+
+    WeaponModel get_current_type() const { return current_type; }
 };
 
 #endif

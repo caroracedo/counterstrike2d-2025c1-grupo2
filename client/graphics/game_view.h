@@ -113,7 +113,8 @@ public:
                 players[local_id]->start_knife_animation();
                 sound_manager.play("knife_slash", 0);
             } else {
-                // handle_otro_tipo_de_ataque(); // -> reproducir sonido y animación de movimiento
+                players[local_id]->start_kickback();
+                sound_manager.play("bullet", 0);
             }
         }
     }

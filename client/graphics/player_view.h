@@ -40,6 +40,10 @@ private:
 
     float angle = 0.0f;
 
+    bool is_kicking_back = false;
+    uint32_t kick_start_time = 0;
+    const uint32_t KICKBACK_DURATION_MS = 100;
+
     SDL2pp::Rect current_frame;
 
     std::unordered_map<PlayerSkin, std::string> player_skins;
@@ -72,6 +76,11 @@ public:
     void start_knife_animation() {
         is_knife = true;
         knife_start = SDL_GetTicks();
+    }
+
+    void start_kickback() {
+        is_kicking_back = true;
+        kick_start_time = SDL_GetTicks();
     }
 
     bool update(const ObjectDTO& object) {
