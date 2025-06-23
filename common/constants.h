@@ -22,7 +22,7 @@
 #define KICKBACK_DISTANCE 5.0f
 
 #define TIME 1
-#define SHOP_TIME 2
+#define SHOP_TIME 10
 #define SNAPSHOT_TIME 33
 #define STATS_TIME 5
 #define WAIT_TIME 100

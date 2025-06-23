@@ -57,6 +57,6 @@ weapons:
     cooldown: 1.5
 
 rounds:
-  total: 2
+  total: 10
 
 # -- Client Configuration --

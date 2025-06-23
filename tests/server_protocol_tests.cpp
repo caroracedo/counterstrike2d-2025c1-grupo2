@@ -13,7 +13,7 @@
 // Para ver más detalles del protocolo observar la documentación técnica
 // Igual esto va a cambiar con el pre-lobby y el lobby
 TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 0));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 0));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -47,7 +47,7 @@ TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
 }
 
 TEST(SERVER_PROTOCOL, LOBBY_JOIN) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 2));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -78,7 +78,7 @@ TEST(SERVER_PROTOCOL, LOBBY_JOIN) {
 }
 
 TEST(SERVER_PROTOCOL, SHOP) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 4));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 4));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -118,7 +118,7 @@ TEST(SERVER_PROTOCOL, SHOP) {
 }
 
 TEST(SERVER_PROTOCOL, UPDATE) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 6));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 6));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -185,7 +185,7 @@ TEST(SERVER_PROTOCOL, UPDATE) {
 
 /* Test START QUIT y END */
 TEST(SERVER_PROTOCOL, START) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 8));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 8));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -201,7 +201,7 @@ TEST(SERVER_PROTOCOL, START) {
 }
 
 TEST(SERVER_PROTOCOL, QUIT) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 10));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -217,7 +217,7 @@ TEST(SERVER_PROTOCOL, QUIT) {
 }
 
 TEST(SERVER_PROTOCOL, END) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 12));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 12));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
