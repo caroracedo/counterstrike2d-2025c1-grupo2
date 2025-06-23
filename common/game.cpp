@@ -389,7 +389,6 @@ void Game::do_health_cheat(uint16_t id) {
     if (player_it != players.end()) {
         player_it->second->do_health_cheat();
     }
-    std::cout << "do_health_cheat" << std::endl;
 }
 
 void Game::do_ammo_cheat(uint16_t id) {
@@ -397,7 +396,6 @@ void Game::do_ammo_cheat(uint16_t id) {
     if (player_it != players.end()) {
         player_it->second->do_ammo_cheat();
     }
-    std::cout << "do_ammo_cheat" << std::endl;
 }
 
 void Game::do_money_cheat(uint16_t id) {
@@ -405,19 +403,13 @@ void Game::do_money_cheat(uint16_t id) {
     if (player_it != players.end()) {
         player_it->second->do_money_cheat();
     }
-    std::cout << "do_money_cheat" << std::endl;
 }
 
 void Game::do_win_cheat(uint16_t id) {
     auto player_it = players.find(id);
     if (player_it != players.end()) {
-        if (player_it->second->get_player_type() == PlayerType::COUNTERTERRORIST) {
-            winner_cheat = PlayerType::COUNTERTERRORIST;
-        } else if (player_it->second->get_player_type() == PlayerType::TERRORIST) {
-            winner_cheat = PlayerType::TERRORIST;
-        }
+        winner_cheat = player_it->second->get_player_type();
     }
-    std::cout << "do_win_cheat" << std::endl;
 }
 
 /*******************************************************************************************
@@ -1118,7 +1110,6 @@ void Game::set_bomb_player() {
         auto bomb_carrier_id = terrorists_ids[dis(gen)];
         auto player_it = players.find(bomb_carrier_id);
         if (player_it != players.end()) {
-            std::cout << "Player with id " << player_it->second->get_id() << " has bomb\n";
             player_it->second->set_bomb();
         }
     }
