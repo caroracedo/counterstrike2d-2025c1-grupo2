@@ -111,7 +111,10 @@ public:
 
     void handle_attack() {
         if (is_alive) {
-            if (players[local_id]->has_knife_equipped()) {
+            WeaponModel current_weapon = players[local_id]->get_current_weapon();
+            // std::cout << "Current weapon: " << static_cast<int>(current_weapon) << std::endl;
+
+            if (current_weapon == WeaponModel::KNIFE) {
                 players[local_id]->start_knife_animation();
                 sound_manager.playWithCooldown("knife_slash", 150, 0);
             } else {
@@ -120,6 +123,8 @@ public:
             }
         }
     }
+
+    bool can_player_attack() { return players[local_id]->can_attack(); }
 
     void end_game(WinnerTeamType winner) {
         stats_view.set_visible(false);

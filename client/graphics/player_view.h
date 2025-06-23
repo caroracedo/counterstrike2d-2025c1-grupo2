@@ -41,6 +41,8 @@ private:
 
     float angle = 0.0f;
 
+    uint32_t last_attack_time = 0;
+
     SDL2pp::Rect current_frame;
 
     std::vector<std::unique_ptr<VisualEffect>> active_effects;
@@ -98,6 +100,22 @@ public:
     }
 
     bool has_knife_equipped() const { return gun_view.has_knife_equipped(); }
+
+    WeaponModel get_current_weapon() const { return gun_view.get_current_type(); }
+
+    bool can_attack() {
+        uint32_t current_time = SDL_GetTicks();
+
+        uint32_t cd = gun_view.get_weapon_cooldown(get_current_weapon());
+        std::cout << "Cooldown: " << cd << " | Elapsed: " << current_time - last_attack_time
+                  << std::endl;
+
+        if (current_time - last_attack_time < cd) {
+            return false;
+        }
+        last_attack_time = current_time;
+        return true;
+    }
 };
 
 #endif
