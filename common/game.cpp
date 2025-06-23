@@ -40,6 +40,14 @@ void Game::set_ready_to_start() {
              }) >= 1);
 }
 
+void Game::initialize_stats() {
+    for (const auto& player: players) {
+        stats.kills[player.first] = 0;
+        stats.deaths[player.first] = 0;
+        stats.money[player.first] = 0;
+    }
+}
+
 std::vector<std::shared_ptr<Object>>& Game::get_objects() {
     /*
         Devuelve el vector de objetos del juego actualizado.
@@ -56,9 +64,10 @@ void Game::add_player(PlayerType player_type, PlayerSkin player_skin, uint16_t i
 
     uint8_t max_player_amount =
             (player_type == PlayerType::TERRORIST) ? number_terrorist : number_counterterrorist;
-    uint8_t actual_player_amount = std::count_if(players.begin(), players.end(), [](const auto& p) {
-        return p.second && p.second->get_player_type() == player_type;
-    });
+    uint8_t actual_player_amount =
+            std::count_if(players.begin(), players.end(), [player_type](const auto& p) {
+                return p.second && p.second->get_player_type() == player_type;
+            });
 
     if (actual_player_amount == max_player_amount) {
         std::cerr << "Maximum amount of "
@@ -315,10 +324,10 @@ void Game::switch_player_types() {
         Cambia el tipo de todos los jugadores en el juego, de terrorista a counter-terrorista y
        viceversa.
     */
-    for (auto& [id, player]: players) {
-        if (player) {
-            player->switch_player_type();
-            player->switch_player_skin();
+    for (auto& player: players) {
+        if (player.second) {
+            player.second->switch_player_type();
+            player.second->switch_player_skin();
         }
     }
 }
@@ -1155,6 +1164,10 @@ void Game::reset_players() {
         }
     }
     dead_players.clear();
+
+    if (round_number == config.get_rounds_total() / 2) {
+        switch_player_types();
+    }
 
     // Reubica los jugadores en posiciones aleatorias
     for (auto& [id, player]: players) {
