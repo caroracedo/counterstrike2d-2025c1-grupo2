@@ -16,19 +16,14 @@ public:
 
     void center_on(float target_x, float target_y);
 
-    std::vector<float> world_to_screen(float worldX, float worldY) {
-        return std::vector<float>(worldX - x, worldY - y);
-    }
+    std::vector<float> world_to_screen(float worldX, float worldY);
 
     SDL2pp::Rect get_viewport() const;
 
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    float get_x() const;
+    float get_y() const;
 
-    bool is_visible(float worldX, float worldY, float obj_width, float obj_height) const {
-        return worldX + obj_width > x && worldX < x + screen_width && worldY + obj_height > y &&
-               worldY < y + screen_height;
-    }
+    bool is_visible(float worldX, float worldY, float obj_width, float obj_height) const;
 };
 
 #endif

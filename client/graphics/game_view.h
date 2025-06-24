@@ -69,11 +69,19 @@ private:
     bool is_alive = true;
 
 
+    void init_terrains();
+
     void update_obstacles(const ObjectDTO& object);
     void update_player(const ObjectDTO& object);
     void update_bullets(const ObjectDTO& object);
     void update_drops(const ObjectDTO& object);
+    void update_bomb(const ObjectDTO& object);
+    void update_bombzone(const ObjectDTO& object);
     void render_cursor();
+
+    void handle_shop_action();
+    void handle_stats_action(const ActionDTO& action);
+
 
 public:
     GameView();
@@ -81,55 +89,25 @@ public:
 
     void render();
 
-    void set_id(uint16_t id) { local_id = id; }
+    void set_id(uint16_t id);
 
-    GameCamera& get_camera() { return camera; }
+    GameCamera& get_camera();
 
-    ShopView& get_shop() { return shop_view; }
+    ShopView& get_shop();
+
+    void pre_lobby(bool flag);
+
+    void set_terrain(TerrainType type);
+
+    void handle_attack();
+
+    bool can_player_attack();
+
+    void end_game(WinnerTeamType winner);
 
     void frame_sync();
 
-    void pre_lobby(bool flag) { show_pre_lobby = flag; }
-
-    void set_terrain(TerrainType type) { terrain = type; }
-
-    void init_terrains() {
-        terrains[TerrainType::PUEBLOAZTECA] = "aztec";
-        terrains[TerrainType::ZONAENTRENAMIENTO] = "office";
-        terrains[TerrainType::DESIERTO] = "sand1";
-    }
-
-    std::vector<uint16_t> player_position() {
-        auto it = players.find(local_id);
-        if (it != players.end() && it->second) {
-            uint16_t x = static_cast<uint16_t>(it->second->get_x());
-            uint16_t y = static_cast<uint16_t>(it->second->get_y());
-            return {x, y};
-        }
-        return {};
-    }
-
-    void handle_attack() {
-        if (is_alive) {
-            WeaponModel current_weapon = players[local_id]->get_current_weapon();
-
-            if (current_weapon == WeaponModel::KNIFE) {
-                players[local_id]->start_knife_animation();
-                sound_manager.playWithCooldown("knife_slash", 150, 0);
-            } else {
-                players[local_id]->start_kickback();
-                sound_manager.playWithCooldown("bullet", 150, 0);
-            }
-        }
-    }
-
-    bool can_player_attack() { return players[local_id]->can_attack(); }
-
-    void end_game(WinnerTeamType winner) {
-        stats_view.set_visible(false);
-        this->winner = winner;
-        game_ended = true;
-    }
+    std::vector<float> player_position();
 };
 
 #endif

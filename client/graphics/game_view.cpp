@@ -26,28 +26,51 @@ GameView::GameView():
     init_terrains();
     int diag = static_cast<int>(
             std::ceil(std::sqrt(SCREEN_WIDTH * SCREEN_WIDTH + SCREEN_HEIGHT * SCREEN_HEIGHT)));
-    fov_view.generarFOVTexture(diag, diag, 64, 90);
+    fov_view.generate_FOV_texture(diag, diag, 64, 90);
+}
+
+void GameView::init_terrains() {
+    terrains[TerrainType::PUEBLOAZTECA] = "aztec";
+    terrains[TerrainType::ZONAENTRENAMIENTO] = "office";
+    terrains[TerrainType::DESIERTO] = "sand1";
 }
 
 
+void GameView::set_id(uint16_t id) { local_id = id; }
+
+GameCamera& GameView::get_camera() { return camera; }
+
+ShopView& GameView::get_shop() { return shop_view; }
+
+void GameView::pre_lobby(bool flag) { show_pre_lobby = flag; }
+
+void GameView::set_terrain(TerrainType type) { terrain = type; }
+
+bool GameView::can_player_attack() { return players[local_id]->can_attack(); }
+
+void GameView::handle_shop_action() {
+    bomb_view.reset();
+    shop_view.set_visible(true);
+    stats_view.set_visible(false);
+    bomb_view.reset_sounds();
+    sounds_played = false;
+    is_first_update = false;
+    is_alive = true;
+}
+
+void GameView::handle_stats_action(const ActionDTO& action) {
+    stats_view.update(action.stats, types);
+    stats_view.set_visible(true);
+    stats_view.reset_sounds();
+}
 void GameView::update(const ActionDTO& action) {
     if (action.type == ActionType::SHOP) {
-        bomb_view.reset();
-        shop_view.set_visible(true);
-        stats_view.set_visible(false);
-        bomb_view.reset_sounds();
-        sounds_played = false;
-        is_first_update = false;
-        is_alive = true;
+        handle_shop_action();
+        return;
     }
 
     if (action.type == ActionType::STATS) {
-        stats_view.update(action.stats, types);
-        stats_view.set_visible(true);
-        stats_view.reset_sounds();
-    }
-
-    if (action.type != ActionType::UPDATE) {
+        handle_stats_action(action);
         return;
     }
 
@@ -60,49 +83,28 @@ void GameView::update(const ActionDTO& action) {
 
     shop_view.set_visible(false);
     stats_view.set_visible(false);
+
     if (is_alive)
         fov_view.set_visible(true);
+
     bullets.clear();
     drops.clear();
 
     std::unordered_set<uint8_t> players_in_game;
-
     for (const auto& object: action.objects) {
 
         if (object.type == ObjectType::PLAYER) {
-            update_player(object);
             players_in_game.insert(object.id);
+            update_player(object);
         } else if (object.type == ObjectType::OBSTACLE) {
             update_obstacles(object);
         } else if (object.type == ObjectType::BULLET) {
             update_bullets(object);
         } else if (object.type == ObjectType::BOMB) {
             bombs_in_match++;
-            if (object.bomb_countdown == 0) {
-                bomb_view.explode();
-            } else if (object.bomb_countdown == std::numeric_limits<uint16_t>::max()) {
-                bomb_view.set_dropped(true);
-            } else {
-                bomb_view.activate_bomb();
-                bomb_view.set_dropped(false);
-            }
-
-            hud_view.update_timer(object);
-            std::optional<std::pair<float, float>> listener_pos = std::nullopt;
-            auto it = players.find(local_id);
-            if (it != players.end() && it->second) {
-                listener_pos = std::make_pair(it->second->get_x(), it->second->get_y());
-            }
-            bomb_view.update(object.position[0], object.position[1], object.bomb_countdown,
-                             listener_pos);
-
+            update_bomb(object);
         } else if (object.type == ObjectType::BOMBZONE) {
-            SDL_Rect rect;
-            rect.x = static_cast<int>(object.position[0]);
-            rect.y = static_cast<int>(object.position[1]);
-            rect.w = static_cast<int>(object.width);
-            rect.h = static_cast<int>(object.height);
-            bomb_zones.push_back(rect);
+            update_bombzone(object);
         } else if (object.type == ObjectType::WEAPON) {
             update_drops(object);
         }
@@ -133,7 +135,7 @@ void GameView::update_player(const ObjectDTO& object) {
 
     if (players.find(id) == players.end()) {
         auto player = std::make_unique<PlayerView>(texture_manager, sound_manager, id,
-                                                   object.player_skin, renderer);
+                                                   object.player_skin);
         players[id] = std::move(player);
     }
 
@@ -176,6 +178,34 @@ void GameView::update_drops(const ObjectDTO& object) {
     drop_view.update(object.position[0], object.position[1], object.weapon_model);
 
     drops.push_back(drop_view);
+}
+
+void GameView::update_bomb(const ObjectDTO& object) {
+    if (object.bomb_countdown == 0) {
+        bomb_view.explode();
+    } else if (object.bomb_countdown == std::numeric_limits<uint16_t>::max()) {
+        bomb_view.set_dropped(true);
+    } else {
+        bomb_view.activate_bomb();
+        bomb_view.set_dropped(false);
+    }
+
+    hud_view.update_timer(object);
+    std::optional<std::pair<float, float>> listener_pos = std::nullopt;
+    auto it = players.find(local_id);
+    if (it != players.end() && it->second) {
+        listener_pos = std::make_pair(it->second->get_x(), it->second->get_y());
+    }
+    bomb_view.update(object.position[0], object.position[1], object.bomb_countdown, listener_pos);
+}
+
+void GameView::update_bombzone(const ObjectDTO& object) {
+    SDL_Rect rect;
+    rect.x = static_cast<int>(object.position[0]);
+    rect.y = static_cast<int>(object.position[1]);
+    rect.w = static_cast<int>(object.width);
+    rect.h = static_cast<int>(object.height);
+    bomb_zones.push_back(rect);
 }
 
 void GameView::render() {
@@ -260,4 +290,34 @@ void GameView::render_cursor() {
                   SDL2pp::Rect(0, 0, POINTER_WIDTH, POINTER_HEIGHT),
                   SDL2pp::Rect(mouseX - scaled_width / 2, mouseY - scaled_height / 2, scaled_width,
                                scaled_height));
+}
+
+
+void GameView::handle_attack() {
+    if (is_alive) {
+        WeaponModel current_weapon = players[local_id]->get_current_weapon();
+
+        if (current_weapon == WeaponModel::KNIFE) {
+            players[local_id]->start_knife_animation();
+            sound_manager.playWithCooldown("knife_slash", 150, 0);
+        } else {
+            players[local_id]->start_kickback();
+            sound_manager.playWithCooldown("bullet", 150, 0);
+        }
+    }
+}
+std::vector<float> GameView::player_position() {
+    auto it = players.find(local_id);
+    if (it != players.end() && it->second) {
+        float x = it->second->get_x();
+        float y = it->second->get_y();
+        return {x, y};
+    }
+    return {};
+}
+
+void GameView::end_game(WinnerTeamType winner) {
+    stats_view.set_visible(false);
+    this->winner = winner;
+    game_ended = true;
 }

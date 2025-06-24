@@ -12,30 +12,12 @@ private:
     SDL2pp::Texture& muzzle_flash;
 
 public:
-    explicit KickbackEffect(SDL2pp::Texture& texture, uint32_t duration_ms = 100):
-            muzzle_flash(texture) {
-        duration = duration_ms;
-        start_time = SDL_GetTicks();
-    }
+    explicit KickbackEffect(SDL2pp::Texture& texture, uint32_t duration_ms = 100);
 
-    void update() override {
-        if (SDL_GetTicks() - start_time > duration)
-            active = false;
-    }
-
-    bool is_active() const override { return active; }
-
-    std::pair<float, float> get_offset(float angle_deg) const override {
-        float rad = angle_deg * M_PI / 180.0f;
-        return {-KICKBACK_DISTANCE * std::cos(rad), -KICKBACK_DISTANCE * std::sin(rad)};
-    }
-
-    void draw(SDL2pp::Renderer& renderer, float x, float y, float angle) override {
-        (void)renderer;
-        (void)x;
-        (void)y;
-        (void)angle;
-    }
+    void update() override;
+    bool is_active() const override;
+    std::pair<float, float> get_offset(float angle_deg) const override;
+    void draw(SDL2pp::Renderer& renderer, float x, float y, float angle) override;
 };
 
 #endif  // KICKBACK_EFFECT_H

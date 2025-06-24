@@ -15,6 +15,7 @@
 #define POINTER_HEIGHT 46
 #define SCREEN_MARGIN 20
 #define ROW_MARGIN 24
+#define HUD_ICONS_SIZE 64
 #define WEAPON_WIDTH 32
 #define AK47_HEIGHT 17
 #define M3_HEIGHT 16

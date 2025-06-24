@@ -40,7 +40,7 @@ ActionDTO Client::lobby(ClientProtocol& protocol) {
 void Client::match_loop(InputHandler& input_handler, GameView& game_view) {
     bool stop_flag = false;
     while (!stop_flag) {
-        std::vector<ActionDTO> actions = input_handler.receive_and_parse_actions();
+        std::vector<ActionDTO> actions = input_handler.poll_actions();
         for (const auto& action: actions) {
             if (action.type != ActionType::UNKNOWN) {
                 send_queue.push(action);

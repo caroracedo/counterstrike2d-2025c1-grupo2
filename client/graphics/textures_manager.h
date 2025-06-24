@@ -27,6 +27,7 @@ public:
         load(renderer, "m3", ASSETS_PATH "/gfx/weapons/m3.bmp");
         load(renderer, "awp", ASSETS_PATH "/gfx/weapons/awp.bmp");
         load(renderer, "knife", ASSETS_PATH "/gfx/weapons/knife.bmp");
+
         load(renderer, "bomb", ASSETS_PATH "/gfx/weapons/bomb.bmp");
         load(renderer, "explotion", ASSETS_PATH "/gfx/sprites/explosion.bmp");
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
