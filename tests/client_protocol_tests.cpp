@@ -10,9 +10,6 @@
 
 #include "tests_constants.h"
 
-// TODO: Hacer una clase con el código repetido
-// TODO: Revisar los logs
-
 // Para ver más detalles del protocolo observar la documentación técnica
 TEST(CLIENT_PROTOCOL, LOBBY_CREATE) {
     std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 1));
@@ -177,8 +174,24 @@ TEST(CLIENT_PROTOCOL, QUIT) {
     protocol.kill();
 }
 
-TEST(CLIENT_PROTOCOL, END) {
+TEST(CLIENT_PROTOCOL, MESSAGE) {
     std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 13));
+    Socket socket(HOSTNAME, SERVNAME);
+    ClientProtocol protocol(socket);
+
+    // Recepción de MESSAGE
+    ActionDTO message = protocol.receive_and_deserialize_action();
+    ActionType expected_type = ActionType::MESSAGE;
+    WinnerTeamType expected_winner_team_type = WinnerTeamType::DRAW;
+    EXPECT_EQ(message.type, expected_type) << "Received type does not match expected type.";
+    EXPECT_EQ(message.winner_team_type, expected_winner_team_type)
+            << "Received winner team type does not match expected winner team type.";
+
+    protocol.kill();
+}
+
+TEST(CLIENT_PROTOCOL, END) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 15));
     Socket socket(HOSTNAME, SERVNAME);
     ClientProtocol protocol(socket);
 

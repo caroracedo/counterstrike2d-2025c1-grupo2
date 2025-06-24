@@ -223,8 +223,21 @@ TEST(SERVER_PROTOCOL, QUIT) {
     protocol.kill();
 }
 
-TEST(SERVER_PROTOCOL, END) {
+TEST(SERVER_PROTOCOL, MESSAGE) {
     std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 12));
+    Socket server_socket(SERVNAME);
+    Socket client_socket(server_socket.accept());
+    ServerProtocol protocol(client_socket, ID_1);
+
+    // Envío de MESSAGE
+    EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::MESSAGE, WinnerTeamType::DRAW}))
+            << "Sending message should succeed.";
+
+    protocol.kill();
+}
+
+TEST(SERVER_PROTOCOL, END) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME * 14));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
