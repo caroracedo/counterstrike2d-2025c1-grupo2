@@ -26,7 +26,7 @@ GameView::GameView():
     init_terrains();
     int diag = static_cast<int>(
             std::ceil(std::sqrt(SCREEN_WIDTH * SCREEN_WIDTH + SCREEN_HEIGHT * SCREEN_HEIGHT)));
-    fov_view.generate_FOV_texture(diag, diag, 64, 90);
+    fov_view.generate_FOV_texture(diag, diag, FOV_RADIUS, FOV_CONE_ANGLE);
 }
 
 void GameView::init_terrains() {

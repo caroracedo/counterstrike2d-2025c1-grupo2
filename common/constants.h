@@ -3,6 +3,9 @@
 
 /* Constantes */
 
+#define FOV_OPACITY 127
+#define FOV_RADIUS 64
+#define FOV_CONE_ANGLE 90
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 #define PLAYER_WIDTH 32

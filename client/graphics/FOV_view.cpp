@@ -67,7 +67,7 @@ void FOVView::draw(float angle_deg) {
     int w = tex_ptr->GetWidth();
     int h = tex_ptr->GetHeight();
     tex_ptr->SetBlendMode(SDL_BLENDMODE_BLEND);
-    tex_ptr->SetAlphaMod(120);
+    tex_ptr->SetAlphaMod(FOV_OPACITY);
     SDL2pp::Rect dst = {SCREEN_WIDTH / 2 - w / 2, SCREEN_HEIGHT / 2 - h / 2, w, h};
     SDL2pp::Rect src = {0, 0, w, h};
     SDL_Point center = {w / 2, h / 2};
