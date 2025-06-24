@@ -78,7 +78,7 @@ A su vez, el jugador puede apuntar la dirección con el mouse.
 
 Cada jugador cuenta con un saldo, que va aumentando en cada ronda con una suma inicial, y también cuenta con bonificaciones. Estas bonificaciones son obtenidas al ganar una ronda, o al matar a un rival. Este saldo puede usarse para obtener equipamiento. 
 
-A continuación, al clickear sobre alguna de las imágenes, se puede ver una pequeña demostración de cómo funcionan todos estos features.
+A continuación, se puede ver una pequeña demostración de cómo funcionan todos estos features.
 
 ![Ver gif1](img/gif1.gif)
 ![Ver gif2](img/gif2.gif)
