@@ -80,8 +80,9 @@ Cada jugador cuenta con un saldo, que va aumentando en cada ronda con una suma i
 
 A continuación, al clickear sobre alguna de las imágenes, se puede ver una pequeña demostración de cómo funcionan todos estos features.
 
-[![Ver primer video](img/preview1.png)](img/1.mp4)
-[![Ver segundo video](img/preview2.png)](img/2.mp4)
+![Ver gif1](img/gif1.gif)
+![Ver gif2](img/gif2.gif)
+![Ver gif3](img/gif3.gif)
 
 ### Editor
 Una vez iniciado el editor de mapas, se verá esta pantalla principal. El editor brinda la posibilidad de guardar un nuevo mapa, abrir uno ya creado o limpiar la zona de edición.
