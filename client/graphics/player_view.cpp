@@ -65,13 +65,19 @@ void PlayerView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
     float screenY = posY - camera.get_y();
     float draw_angle = angle;
 
+
     for (const auto& effect: active_effects) {
         auto [dx, dy] = effect->get_offset(angle);
         screenX += dx;
         screenY += dy;
+        draw_angle += effect->get_rotation_offset();
+
         legs_view.update(posX + dx, posY + dy);
         gun_view.update(posX + dx, posY + dy, gun_view.get_current_type());
-        draw_angle += effect->get_rotation_offset();
+
+        auto gun_tip = gun_view.get_gun_tip_screen_position(camera, draw_angle);
+
+        effect->draw(renderer, gun_tip.first, gun_tip.second, draw_angle);
     }
 
     SDL2pp::Texture& texture = *texture_manager.get_texture(player_skins[skin]);

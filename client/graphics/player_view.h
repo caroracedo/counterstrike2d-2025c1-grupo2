@@ -75,10 +75,14 @@ public:
     void update_angle(float angle) { this->angle = 360.0f - (angle - 90.0f); }
 
     void start_knife_animation() {
-        active_effects.emplace_back(std::make_unique<KnifeSwingEffect>());
+        SDL2pp::Texture& texture = *texture_manager.get_texture("slash");
+        active_effects.emplace_back(std::make_unique<KnifeSwingEffect>(texture));
     }
 
-    void start_kickback() { active_effects.emplace_back(std::make_unique<KickbackEffect>()); }
+    void start_kickback() {
+        SDL2pp::Texture& texture = *texture_manager.get_texture("muzzle_flash");
+        active_effects.emplace_back(std::make_unique<KickbackEffect>(texture));
+    }
 
 
     bool update(const ObjectDTO& object) {

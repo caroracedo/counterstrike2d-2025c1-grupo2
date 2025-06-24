@@ -13,7 +13,7 @@ protected:
 
 public:
     virtual void update() = 0;
-    // virtual void draw(SDL2pp::Renderer& renderer, float screenX, float screenY, float angle) {}
+    virtual void draw(SDL2pp::Renderer& renderer, float x, float y, float angle) = 0;
     virtual bool is_active() const = 0;
 
     virtual std::pair<float, float> get_offset(float angle_deg) const {

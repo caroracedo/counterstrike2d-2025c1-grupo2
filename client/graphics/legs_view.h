@@ -16,8 +16,6 @@ class LegsView {
 private:
     Animation walk_animation;
     float pos_x = 0, pos_y = 0;
-    bool is_knife = false;
-    Uint32 knife_start = 0;
 
     // std::vector<SDL2pp::Rect> init_rects();
 

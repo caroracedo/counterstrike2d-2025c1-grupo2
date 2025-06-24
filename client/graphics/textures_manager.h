@@ -40,6 +40,8 @@ public:
         load(renderer, "office", ASSETS_PATH "/gfx/backgrounds/office.bmp");
         load(renderer, "aztec", ASSETS_PATH "/gfx/backgrounds/aztec.bmp");
 
+        load(renderer, "slash", ASSETS_PATH "/gfx/knifeslash.bmp", true);
+
 
         for (int i = 1; i <= 5; ++i) {
             std::string name = "box_" + std::to_string(i);

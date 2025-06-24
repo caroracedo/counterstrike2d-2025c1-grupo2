@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #include <SDL2pp/SDL2pp.hh>
 
@@ -25,8 +26,6 @@ private:
     WeaponModel current_type = WeaponModel::GLOCK;
 
     float x = 0, y = 0;
-    bool is_knife = false;
-    uint32_t knife_start = 0;
 
 public:
     explicit GunView(SDL2pp::Renderer& renderer) {
@@ -74,21 +73,35 @@ public:
         float gunX = centerX + rotatedOffsetX;
         float gunY = centerY + rotatedOffsetY;
 
-        float draw_angle = angle;
-        if (is_knife) {
-            uint32_t elapsed = SDL_GetTicks() - knife_start;
-            if (elapsed < 150) {
-                draw_angle += std::sin(elapsed * 0.06f) * 25.0f;
-            } else {
-                is_knife = false;
-            }
-        }
 
         renderer.Copy(*gun_sprites[current_type], SDL2pp::Rect(0, 0, GUN_WIDTH, GUN_HEIGHT),
                       SDL2pp::Rect(static_cast<int>(gunX - GUN_WIDTH),
                                    static_cast<int>(gunY - GUN_HEIGHT), GUN_WIDTH, GUN_HEIGHT),
-                      draw_angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
+                      angle, SDL_Point{GUN_WIDTH / 2, GUN_HEIGHT / 2}, SDL_FLIP_NONE);
     }
+
+    std::pair<float, float> get_gun_tip_screen_position(const GameCamera& camera,
+                                                        float angle) const {
+        float screenX = x - camera.get_x();
+        float screenY = y - camera.get_y();
+
+        float centerX = screenX + PLAYER_WIDTH / 2.0f;
+        float centerY = screenY + PLAYER_HEIGHT / 2.0f;
+
+        const float baseOffsetX = 0.0f;
+        const float baseOffsetY = -15.0f;
+
+        float rad = angle * M_PI / 180.0f;
+
+        float rotatedOffsetX = baseOffsetX * cos(rad) - baseOffsetY * sin(rad);
+        float rotatedOffsetY = baseOffsetX * sin(rad) + baseOffsetY * cos(rad);
+
+        float gunX = centerX + rotatedOffsetX;
+        float gunY = centerY + rotatedOffsetY;
+
+        return {gunX, gunY};
+    }
+
 
     bool has_knife_equipped() const { return current_type == WeaponModel::KNIFE; }
 
