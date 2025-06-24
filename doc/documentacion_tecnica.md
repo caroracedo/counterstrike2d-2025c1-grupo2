@@ -18,16 +18,69 @@ Usen un generador como PlantUML que son basados en texto en vez de uno gráfico 
 
 La presente documentación técnica tiene como objetivo describir la implementación de la lógica y la arquitectura del proyecto.
 
-## Lógica
+> **Nota:** Los gráficos y diagramas presentados en esta documentación han sido simplificados intencionalmente para mejorar la facilidad de lectura y comprensión. No incluyen todos los detalles de implementación, sino que buscan resaltar los aspectos más relevantes de la arquitectura y la lógica del sistema.
+
+## Lógica (Clase `Game`)
 El siguiente diagrama ilustra las clases principales relacionadas a la lógica del juego.
 
 ![MapYConfig](img/map_and_config.png)
 
-La clase principal es _Game_. Es a través de esta que el jugador se comunica para realizar diversas tareas: sea la compra de armas y/o munición en la fase de tienda, o para moverse, disparar y/o levantar un arma del suelo. Esta clase se inicializa con un _Config_ y un _Map_. Mientras que la primera tiene información sobre la partida, como la cantidad de rounds y jugadores por equipo, la segunda contiene información sobre el mapa, como las zonas de bomba y armas "en el piso". Esta última puede ser configurada desde la aplicación del Editor, también proporcionada en la entrega. Tanto _Config_ como _Map_ usan archivos .yaml para cargar las correspondientes configuraciones. 
+### Propósito General
+
+La clase `Game` es el núcleo de la lógica y el estado de la partida. Se encarga de coordinar y administrar todos los elementos del juego: jugadores, armas, balas, bomba, obstáculos, estadísticas, fases de ronda y condiciones de victoria. 
+
+Es a través de esta clase que el jugador puede realizar diversas tareas: sea la compra de armas y/o munición en la fase de tienda, o para moverse, disparar y/o levantar un arma del suelo. Esta clase se inicializa con un `Config` y un `Map`. Mientras que la primera tiene información sobre la partida, como la cantidad de rounds y jugadores por equipo, la segunda contiene información sobre el mapa, como las zonas de bomba y armas "en el piso". Esta última puede ser configurada desde la aplicación del Editor, también proporcionada en la entrega. Tanto `Config` como `Map` usan archivos .yaml para cargar las correspondientes configuraciones. 
 
 ![Lógica](img/logic.png)
 
-Para simplificar el envío de datos entre el cliente y el servidor, está la clase _Object_. Esta resume la información más importante necesaria para que el cliente grafique el juego de manera acorde. De esta derivan las clases _Player_, con sus respectivas _Weapon_ y _Knife_, al igual que _Obstacle_, _Bullet_, _BombZone_, y _Bomb_. 
+Para simplificar el envío de datos entre el cliente y el servidor, está la clase `Object`. Esta resume la información más importante necesaria para que el cliente grafique el juego de manera acorde. De esta derivan las clases `Player`, con sus respectivas `Weapon` y `Knife`, al igual que `Obstacle`, `Bullet`, `BombZone`, y `Bomb`. 
+
+### Responsabilidades Principales
+
+- **Gestión de Jugadores:**  
+  Administra la creación, posicionamiento, movimiento, rotación, cambio de arma, compra de armas y munición, recogida y caída de armas, y eliminación de jugadores. Controla también la aplicación de "_cheats_" y la actualización de estadísticas individuales.
+
+- **Gestión de Objetos del Juego:**  
+  Supervisa la creación, actualización y eliminación de todos los objetos activos en el juego, incluyendo armas, balas, la bomba, obstáculos y zonas especiales del mapa.
+
+- **Lógica de Rondas y Fases:**  
+  Controla el flujo de la partida, incluyendo el inicio y fin de rondas, la asignación de la bomba, el reinicio de jugadores y objetos, el cambio de roles de los equipos y la actualización de estadísticas de ronda y partida.
+
+- **Colisiones y Movimiento:**  
+  Implementa la detección de colisiones entre jugadores, balas, obstáculos y armas, utilizando algoritmos eficientes de colisión círculo-círculo y círculo-rectángulo. Calcula la máxima posición alcanzable por un objeto sin colisionar y actualiza la matriz espacial del mapa.
+
+- **Gestión de la Bomba:**  
+  Administra la lógica de plantado, cuenta regresiva, explosión y desactivación de la bomba, así como la verificación de condiciones de victoria relacionadas con la bomba.
+
+- **Estadísticas y Condiciones de Victoria:**  
+  Lleva el registro de muertes, bajas, dinero, rondas ganadas y determina el equipo ganador de cada ronda y de la partida completa.
+
+- **Inicialización y Configuración:**  
+  Carga obstáculos, zonas de bomba y armas iniciales desde la configuración del mapa y posiciona a los jugadores en ubicaciones válidas según su equipo.
+
+### Diagramas de Secuencia: Disparo (`Game::shoot`)
+
+**Descripción:**  
+El siguiente diagrama de secuencia muestra el proceso completo cuando un jugador realiza un disparo. El usuario solicita disparar, el objeto `Game` delega la acción al `Player`, quien consulta a su `Weapon` si puede disparar (verificando munición y cooldown). Si el disparo es válido, se crea una nueva bala y se actualizan los objetos del juego según el tipo de arma.
+
+![Disparo](img/shoot_sequence.png)
+
+### Diagramas de Secuencia: Movimiento (`Game::move`)
+
+**Descripción:**  
+Este diagrama de secuencia ilustra cómo se gestiona el movimiento de un jugador. El usuario solicita moverse en una dirección; `Game` calcula la nueva posición, verifica posibles colisiones y, si el movimiento es válido, actualiza la posición del jugador y la matriz espacial del mapa.
+
+![Movimiento](img/move_sequence.png)
+
+### Consideraciones de Diseño
+
+- **Modularidad:** La clase delega la lógica específica de armas, balas y jugadores a sus respectivas clases, manteniendo la lógica de alto nivel.
+- **Extensibilidad:** Permite agregar nuevas armas, tipos de objetos y reglas de juego con cambios mínimos.
+- **Configurabilidad:** Utiliza archivos de configuración para definir parámetros de armas, rondas y mapa.
+
+### Resumen
+
+La clase `Game` es el controlador principal de la lógica del juego, coordinando la interacción entre jugadores, armas, balas, bomba y el entorno. Su diseño modular y configurable facilita la extensión y el mantenimiento del código, permitiendo implementar nuevas mecánicas y reglas de juego de manera eficiente.
 
 ## Arquitectura Cliente-Servidor
 
