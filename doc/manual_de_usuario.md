@@ -78,17 +78,10 @@ A su vez, el jugador puede apuntar la dirección con el mouse.
 
 Cada jugador cuenta con un saldo, que va aumentando en cada ronda con una suma inicial, y también cuenta con bonificaciones. Estas bonificaciones son obtenidas al ganar una ronda, o al matar a un rival. Este saldo puede usarse para obtener equipamiento. 
 
-A continuación se puede ver una pequeña demostración de cómo funcionan todos estos features.
+A continuación, al clickear sobre alguna de las imágenes, se puede ver una pequeña demostración de cómo funcionan todos estos features.
 
-<video width="640" height="360" controls>
-  <source src="img/1.mp4" type="video/mp4">
-  Tu navegador no soporta el video.
-</video>
-
-<video width="640" height="360" controls>
-  <source src="img/2.mp4" type="video/mp4">
-  Tu navegador no soporta el video.
-</video>
+[![Ver primer video](img/preview1.png)](img/1.mp4)
+[![Ver segundo video](img/preview2.png)](img/2.mp4)
 
 ### Editor
 Una vez iniciado el editor de mapas, se verá esta pantalla principal. El editor brinda la posibilidad de guardar un nuevo mapa, abrir uno ya creado o limpiar la zona de edición.
