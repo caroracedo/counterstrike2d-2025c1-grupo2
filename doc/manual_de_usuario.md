@@ -83,6 +83,7 @@ A continuación, se puede ver una pequeña demostración de cómo funcionan todo
 ![Ver gif1](img/gif1.gif)
 ![Ver gif2](img/gif2.gif)
 ![Ver gif3](img/gif3.gif)
+![Ver gif4](img/gif4.gif)
 
 ### Editor
 Una vez iniciado el editor de mapas, se verá esta pantalla principal. El editor brinda la posibilidad de guardar un nuevo mapa, abrir uno ya creado o limpiar la zona de edición.
