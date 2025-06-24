@@ -42,7 +42,7 @@ GameCamera& GameView::get_camera() { return camera; }
 
 ShopView& GameView::get_shop() { return shop_view; }
 
-void GameView::pre_lobby(bool flag) { show_pre_lobby = flag; }
+void GameView::waiting_lobby(bool flag) { show_waiting_lobby = flag; }
 
 void GameView::set_terrain(TerrainType type) { terrain = type; }
 
@@ -257,8 +257,8 @@ void GameView::render() {
     shop_view.render();
 
     stats_view.render();
-    if (show_pre_lobby)
-        stats_view.render_pre_lobby();
+    if (show_waiting_lobby)
+        stats_view.render_waiting_lobby();
 
     if (game_ended)
         stats_view.render_winner_banner(winner);
@@ -316,8 +316,13 @@ std::vector<float> GameView::player_position() {
     return {};
 }
 
-void GameView::end_game(WinnerTeamType winner) {
+void GameView::show_end_banner(WinnerTeamType winner) {
     stats_view.set_visible(false);
     this->winner = winner;
     game_ended = true;
+}
+
+bool GameView::round_active() const {
+    return !game_ended && !show_waiting_lobby && !stats_view.is_visible() &&
+           !shop_view.is_visible() && is_alive;
 }

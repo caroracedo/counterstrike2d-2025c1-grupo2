@@ -53,12 +53,12 @@ void Client::match_loop(InputHandler& input_handler, GameView& game_view) {
 
         ActionDTO update;
         while (recv_queue.try_pop(update)) {
-            game_view.pre_lobby(false);
+            game_view.waiting_lobby(false);
             if (update.type == ActionType::END || update.type == ActionType::UNKNOWN) {
                 stop_flag = true;
                 break;
             } else if (update.type == ActionType::MESSAGE) {
-                game_view.end_game(update.winner_team_type);
+                game_view.show_end_banner(update.winner_team_type);
             } else if (update.type == ActionType::UPDATE || update.type == ActionType::SHOP ||
                        update.type == ActionType::STATS) {
                 game_view.update(update);
@@ -90,7 +90,7 @@ void Client::run() {
     GameView game_view;
     game_view.set_id(configuration.id);
     game_view.set_terrain(configuration.terrain_type);
-    game_view.pre_lobby(true);
+    game_view.waiting_lobby(true);
     InputHandler input_handler(game_view);
 
     sender.start();

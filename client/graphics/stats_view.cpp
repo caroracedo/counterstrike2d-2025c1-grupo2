@@ -132,7 +132,7 @@ void StatsView::render_team_section(PlayerType team, int start_x, int start_y) {
     }
 }
 
-void StatsView::render_pre_lobby() {
+void StatsView::render_waiting_lobby() {
     SDL2pp::Color prevColor = renderer.GetDrawColor();
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
@@ -197,3 +197,5 @@ void StatsView::render_winner_banner(WinnerTeamType winner) {
     SDL_Rect dst = {center_x, center_y, text_w, text_h};
     renderer.Copy(texture, SDL2pp::NullOpt, dst);
 }
+
+bool StatsView::is_visible() const { return visible; }

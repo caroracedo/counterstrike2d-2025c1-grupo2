@@ -37,11 +37,13 @@ public:
 
     void render_team_section(PlayerType team, int start_x, int start_y);
 
-    void render_pre_lobby();
+    void render_waiting_lobby();
 
     void reset_sounds();
 
     void render_winner_banner(WinnerTeamType winner);
+
+    bool is_visible() const;
 };
 
 #endif
