@@ -31,25 +31,27 @@ Para simplificar el envío de datos entre el cliente y el servidor, está la cla
 
 ## Arquitectura Cliente-Servidor
 
-El siguiente diagrama de clases proporciona una visión general de la estructura de clases de la arquitectura cliente-servidor.
+Los siguientes diagramas de clases ofrecen una visión general de la estructura de comunicación en la arquitectura cliente-servidor.
 
 ![Arquitectura](img/architecture.png)
 
-Además, el siguiente diagrama ofrece una visión general de la estructura de comunicación en la arquitectura cliente-servidor.
-
 ![Comunicación](img/comunication.jpeg)
+
+Además, el siguiente diagrama ilustra la interacción entre la arquitectura cliente-servidor y la lógica del juego.
+
+![Arquitectura Lógica](img/logic_architecture.png)
 
 Por un lado, el _Server_ cuenta con un hilo principal que espera de forma bloqueante la entrada del carácter `QUIT_CHARACTER` por la entrada estándar para finalizar su ejecución. Paralelamente, el hilo _Acceptor_ se encarga de aceptar nuevas conexiones de forma continua, generando un nuevo hilo _ClientHandler_ por cada cliente que se conecta.
 
-Cada _ClientHandler_ comienza con un intercambio de mensajes con el cliente para definir su ingreso a una partida, coordinado mediante el **MatchesMonitor**. Este monitor administra la creación de nuevas partidas a través de hilos _Match_ o la asignación de jugadores a partidas ya existentes. Una vez completado este intercambio, el _ClientHandler_ lanza dos nuevos hilos: _ServerReceiver_ y _ServerSender_, responsables de recibir y enviar mensajes entre el cliente y la partida, a través del **ServerProtocol** (el cual utiliza su respectivo **Socket**) y comunicándose con las **Queues** correspondientes.
+Cada _ClientHandler_ comienza con un intercambio de mensajes con el cliente para definir su ingreso a una partida, coordinado mediante el **MatchesMonitor**. Este monitor gestiona la creación de nuevas partidas a través de hilos _Match_ o la asignación de jugadores a partidas existentes. Una vez completado este intercambio, el _ClientHandler_ lanza dos nuevos hilos: _ServerReceiver_ y _ServerSender_, responsables de recibir y enviar mensajes entre el cliente y la partida, a través del **ServerProtocol** (el cual utiliza el respectivo **Socket**) y comunicándose con las **Queues** correspondientes (una de recepción compartida por todos los jugadores de la partida, y otra de envío individual por cliente).
 
 A su vez, cada _Match_ se encarga de ejecutar la lógica de la partida, actualizar el estado del juego y enviar snapshots a los jugadores involucrados.
 
-Por otro lado, el _Client_, tras establecer la conexión inicial con el _Server_, también crea dos hilos: _ClientReceiver_ y _ClientSender_. Estos hilos manejan el envío y la recepción de mensajes al servidor, a través del **ClientProtocol** (el cual utiliza su respectivo **Socket**) y comunicándose con las **Queues** correspondientes.
+Por otro lado, el _Client_, tras establecer la conexión inicial con el _Server_, también crea dos hilos: _ClientReceiver_ y _ClientSender_. Estos hilos manejan el envío y la recepción de mensajes al servidor, a través del **ClientProtocol** (el cual utiliza el respectivo **Socket**) y comunicándose con las **Queues** correspondientes (una de recepción y una de envío).
 
 ### Protocolo
 
-El siguiente diagrama de secuencia proporciona una visión general de la comunicación entre el cliente y el servidor.
+El siguiente diagrama de secuencia muestra la comunicación entre el cliente y el servidor.
 
 ![Protocolo](img/protocol.png)
 
@@ -63,4 +65,4 @@ A continuación, da comienzo la partida. Cada ronda consta de tres fases:
 - La _fase de juego_, en la cual el cliente envía sus acciones, mientras que el servidor actualiza el estado interno de la partida en consecuencia y envía de forma constante _snapshots_ hacia el cliente.
 - La _fase de estadísticas_, en la cual el servidor envía las estadísticas de los jugadores una vez finalizada la ronda.
 
-Finalmente, cuando concluye la partida, se envía un mensaje de fin y se da por terminada la sesión.
+Al finalizar la partida, se envía un mensaje con el equipo ganador, seguido de un mensaje de finalización, dando cierre a la sesión.

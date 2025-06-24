@@ -8,6 +8,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "common/constants.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -54,24 +55,30 @@ private:
     bool mousePresionado = false;
     int ultimaFila = -1;
     int ultimaCol = -1;
-    Celda grilla[21][21];
+    Celda grilla[MATRIX_SIZE][MATRIX_SIZE];
 
     void dibujarGrilla();
     void inicializarGrilla();
+
     QString seleccionarImagenTerreno();
     void cargarImagenTerreno();
     void rellenarGrillaConTerreno(int index);
+
+    void limpiarMapa();
     void eliminarElemento(int fila, int col);
     void colocarElemento(int fila, int col, bool mostrarWarning);
+    Celda crearCelda(QGraphicsPixmapItem* item);
+
+    void mostrarMensajeCeldaOcupada();
     bool verificarZonaBomba();
     bool verificarZonasDeInicio();
     bool agregarZonaBomba();
 
-    void limpiarMapa();
     void guardarCajas(YAML::Emitter& out);
     void guardarArmas(YAML::Emitter& out);
     void guardarZonasBomba(YAML::Emitter& out);
     void guardarZonasInicio(YAML::Emitter& out);
+
     void guardarMapaComoYaml(const QString&);
     void abrirMapaDesdeYaml(const QString&);
 

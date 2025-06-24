@@ -125,7 +125,6 @@ std::vector<ObjectDTO> Match::process_dynamic_objects(
     return object_dtos;
 }
 
-
 /* Waiting Lobby */
 void Match::waiting_lobby() {
     std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
@@ -146,7 +145,6 @@ void Match::waiting_lobby() {
     send_initial_snapshot_to_all_clients();
     std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
-
 
 /* Match Loop */
 void Match::match_loop() {
@@ -176,6 +174,7 @@ void Match::match_loop() {
 
     send_message_to_all_clients();
     std::this_thread::sleep_for(std::chrono::seconds(MESSAGE_TIME));
+
     send_end_to_all_clients();
     std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }

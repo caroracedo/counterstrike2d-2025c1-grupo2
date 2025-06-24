@@ -13,7 +13,7 @@
 // Para ver más detalles del protocolo observar la documentación técnica
 // Igual esto va a cambiar con el pre-lobby y el lobby
 TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 0));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -30,13 +30,20 @@ TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
     std::string expected_match = MATCH_3;
     std::string expected_map = MAP_1;
     PlayerType expected_player_type = PlayerType::TERRORIST;
-    uint16_t expected_id = ID_1;
+    PlayerSkin expected_player_skin = SKIN;
+    u_int16_t expected_num_terrorists = NUM_TERRORISTS;
+    uint16_t expected_num_counters = NUM_COUNTERS;
     EXPECT_EQ(create.type, expected_type) << "Received type does not match expected type.";
     EXPECT_EQ(create.match, expected_match) << "Received match do not match expected match.";
     EXPECT_EQ(create.map, expected_map) << "Received map do not match expected map.";
     EXPECT_EQ(create.player_type, expected_player_type)
             << "Received player type do not match expected player type.";
-    EXPECT_EQ(create.id, expected_id) << "Received id does not match expected id";
+    EXPECT_EQ(create.player_skin, expected_player_skin)
+            << "Received player skin does not match expected player skin.";
+    EXPECT_EQ(create.number_terrorist, expected_num_terrorists)
+            << "Received number terrorists do not match expected number terrorists.";
+    EXPECT_EQ(create.number_counterterrorist, expected_num_counters)
+            << "Received number counters do not match expected number counters.";
 
     // Envío de CONFIGURATION: tipo de terreno y id
     EXPECT_TRUE(protocol.serialize_and_send_action(
@@ -47,7 +54,7 @@ TEST(SERVER_PROTOCOL, LOBBY_CREATE) {
 }
 
 TEST(SERVER_PROTOCOL, LOBBY_JOIN) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -62,12 +69,13 @@ TEST(SERVER_PROTOCOL, LOBBY_JOIN) {
     ActionType expected_type = ActionType::JOIN;
     std::string expected_match = MATCH_3;
     PlayerType expected_player_type = PlayerType::COUNTERTERRORIST;
-    uint16_t expected_id = ID_1;
+    PlayerSkin expected_player_skin = SKIN;
     EXPECT_EQ(join.type, expected_type) << "Received type does not match expected type.";
     EXPECT_EQ(join.match, expected_match) << "Received match do not match expected match.";
     EXPECT_EQ(join.player_type, expected_player_type)
             << "Received player type do not match expected player type.";
-    EXPECT_EQ(join.id, expected_id) << "Received id does not match expected id";
+    EXPECT_EQ(join.player_skin, expected_player_skin)
+            << "Received player skin do not match expected player skin.";
 
     // Envío de CONFIGURATION: tipo de terreno y id
     EXPECT_TRUE(protocol.serialize_and_send_action(
@@ -78,7 +86,7 @@ TEST(SERVER_PROTOCOL, LOBBY_JOIN) {
 }
 
 TEST(SERVER_PROTOCOL, SHOP) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 4));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -118,17 +126,16 @@ TEST(SERVER_PROTOCOL, SHOP) {
 }
 
 TEST(SERVER_PROTOCOL, UPDATE) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 6));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
 
-    // TODO: Ver por qué no funciona esto...
     // Envío de UPDATE: objetos
-    // std::vector<ObjectDTO> objects = {PLAYER_OBJECT, OBSTACLE_OBJECT, BOMB_OBJECT,
-    // BOMB_ZONE_OBJECT, BULLET_OBJECT, WEAPON_OBJECT};
-    // EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::UPDATE, objects}))
-    //         << "Sending update should succeed.";
+    std::vector<ObjectDTO> objects = {PLAYER_OBJECT,    OBSTACLE_OBJECT, BOMB_OBJECT,
+                                      BOMB_ZONE_OBJECT, BULLET_OBJECT,   WEAPON_OBJECT};
+    EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::UPDATE, objects}))
+            << "Sending update should succeed.";
 
     // Recepción de MOVE: dirección deseada
     ActionDTO move = protocol.receive_and_deserialize_action();
@@ -185,7 +192,7 @@ TEST(SERVER_PROTOCOL, UPDATE) {
 
 /* Test START QUIT y END */
 TEST(SERVER_PROTOCOL, START) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 8));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -201,7 +208,7 @@ TEST(SERVER_PROTOCOL, START) {
 }
 
 TEST(SERVER_PROTOCOL, QUIT) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);
@@ -216,8 +223,21 @@ TEST(SERVER_PROTOCOL, QUIT) {
     protocol.kill();
 }
 
+TEST(SERVER_PROTOCOL, MESSAGE) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME));
+    Socket server_socket(SERVNAME);
+    Socket client_socket(server_socket.accept());
+    ServerProtocol protocol(client_socket, ID_1);
+
+    // Envío de MESSAGE
+    EXPECT_TRUE(protocol.serialize_and_send_action({ActionType::MESSAGE, WinnerTeamType::DRAW}))
+            << "Sending message should succeed.";
+
+    protocol.kill();
+}
+
 TEST(SERVER_PROTOCOL, END) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME * 12));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_TIME));
     Socket server_socket(SERVNAME);
     Socket client_socket(server_socket.accept());
     ServerProtocol protocol(client_socket, ID_1);

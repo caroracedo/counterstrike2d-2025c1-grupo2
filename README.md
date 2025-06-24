@@ -41,6 +41,7 @@ Para compilar el cliente y/o el editor, se requieren las librerías de Qt. Se re
 
 - `qt6-base-dev`
 - `qt6-base-dev-tools`
+- `qt6-multimedia-dev`
 
 CMake detectará automáticamente la versión disponible en el sistema.
 
@@ -62,6 +63,18 @@ make uninstall
 
 ---
 
+## Limpieza de archivos de compilación
+
+Para eliminar todos los archivos generados durante el proceso de compilación:
+
+```sh
+make clean
+```
+
+Esto eliminará el directorio build/ y todo su contenido.
+
+---
+
 ## Compilación
 
 Para compilar el proyecto, ejecutar el siguiente comando desde la raíz del repositorio:
@@ -69,6 +82,34 @@ Para compilar el proyecto, ejecutar el siguiente comando desde la raíz del repo
 ```sh
 make compile-debug
 ```
+
+---
+
+## Ejecución de tests
+
+Una vez compilado el proyecto, se pueden ejecutar los tests automáticos con:
+
+```sh
+make run-tests
+```
+
+Esto ejecutará las pruebas del protocolo de comunicación tanto del servidor como del cliente.
+
+---
+
+## Compilación Completa
+
+El siguiente comando realiza una compilación limpia del proyecto y ejecuta automáticamente todos los tests:
+
+```sh
+make
+```
+
+Este comando ejecuta, en orden:
+
+- `make clean`
+- `make compile-debug`
+- `make run-tests`
 
 ---
 
@@ -99,15 +140,10 @@ Para ejecutar el juego, se recomienda utilizar dos terminales diferentes desde l
   ```
 
 - **Cliente**:  
-  En otra terminal, ejecutar el cliente indicando el hostname y el puerto definidos en el archivo YAML:
+  En otra terminal, ejecutar el cliente:
 
   ```sh
-  ./taller_client <hostname> <puerto>
-  ```
-  Ejemplo:
-
-  ```sh
-  ./taller_client localhost 1500
+  ./taller_client
   ```
 
 ---
