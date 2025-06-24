@@ -31,7 +31,10 @@ public:
     // background_music()
     {
         // Cargar sonidos
-        sounds.emplace("bullet", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/glock18.wav"));
+        sounds.emplace("glock", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/glock18.wav"));
+        sounds.emplace("ak47", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/ak47.wav"));
+        sounds.emplace("awp", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/awp.wav"));
+        sounds.emplace("m3", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/m3.wav"));
         sounds.emplace("hit", SDL2pp::Chunk(ASSETS_PATH "/sfx/player/hit1.wav"));
         sounds.emplace("steps_1", SDL2pp::Chunk(ASSETS_PATH "/sfx/player/pl_dirt1.wav"));
         sounds.emplace("steps_2", SDL2pp::Chunk(ASSETS_PATH "/sfx/player/pl_dirt2.wav"));
@@ -47,6 +50,7 @@ public:
         sounds.emplace("bombpl", SDL2pp::Chunk(ASSETS_PATH "/sfx/radio/bombpl.ogg"));
         sounds.emplace("knife_slash", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/knife_slash.wav"));
         sounds.emplace("knife_hit", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/knife_hit.wav"));
+        sounds.emplace("click", SDL2pp::Chunk(ASSETS_PATH "/sfx/weapons/click.wav"));
     }
 
     void play(const std::string& name, int loops = 0) {

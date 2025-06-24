@@ -35,11 +35,14 @@ private:
 
     uint16_t life = 0;
 
+    uint16_t ammo = 0;
+
     uint16_t id;
 
     float posX = 0.0f, posY = 0.0f;
 
     float angle = 0.0f;
+
 
     uint32_t last_attack_time = 0;
 
@@ -83,6 +86,8 @@ public:
     WeaponModel get_current_weapon() const;
 
     bool can_attack();
+
+    void play_weapon_sound() { gun_view.play_weapon_sound(); }
 };
 
 #endif

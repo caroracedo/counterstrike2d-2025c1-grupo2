@@ -88,6 +88,9 @@ std::vector<ActionDTO> InputHandler::poll_actions() {
                     static_cast<uint16_t>(event.button.x) + static_cast<uint16_t>(camera.get_x());
             uint16_t real_mouse_y =
                     static_cast<uint16_t>(event.button.y) + static_cast<uint16_t>(camera.get_y());
+            if (!game_view.round_active()) {
+                continue;
+            }
 
             if (!game_view.can_player_attack()) {
                 continue;

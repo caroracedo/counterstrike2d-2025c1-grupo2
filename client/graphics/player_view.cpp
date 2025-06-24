@@ -114,11 +114,13 @@ void PlayerView::update_angle(float angle) { this->angle = 360.0f - (angle - 90.
 void PlayerView::start_knife_animation() {
     SDL2pp::Texture& texture = *texture_manager.get_texture("slash");
     active_effects.emplace_back(std::make_unique<KnifeSwingEffect>(texture));
+    gun_view.play_weapon_sound();
 }
 
 void PlayerView::start_kickback() {
     SDL2pp::Texture& texture = *texture_manager.get_texture("muzzle_flash");
     active_effects.emplace_back(std::make_unique<KickbackEffect>(texture));
+    gun_view.play_weapon_sound();
 }
 
 
@@ -126,6 +128,8 @@ bool PlayerView::update(const ObjectDTO& object) {
     float new_angle = object.angle;
     float x = static_cast<float>(object.position[0]);
     float y = static_cast<float>(object.position[1]);
+
+    ammo = object.ammo;
 
     bool moved = update_position(x, y, object.health);
 
@@ -149,6 +153,9 @@ bool PlayerView::can_attack() {
     uint32_t cd = gun_view.get_weapon_cooldown(get_current_weapon());
 
     if (current_time - last_attack_time < cd) {
+        return false;
+    } else if (ammo == 0) {
+        sound_manager.playWithCooldown("click", 150, 0);
         return false;
     }
     last_attack_time = current_time;

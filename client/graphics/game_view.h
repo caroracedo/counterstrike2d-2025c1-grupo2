@@ -58,7 +58,7 @@ private:
     std::vector<SDL_Rect> bomb_zones;
 
     uint16_t local_id = 0;
-    bool show_pre_lobby = true;
+    bool show_waiting_lobby = true;
     bool game_ended = false;
     WinnerTeamType winner = WinnerTeamType::UNKNOWN;
     TerrainType terrain;
@@ -95,7 +95,7 @@ public:
 
     ShopView& get_shop();
 
-    void pre_lobby(bool flag);
+    void waiting_lobby(bool flag);
 
     void set_terrain(TerrainType type);
 
@@ -103,11 +103,13 @@ public:
 
     bool can_player_attack();
 
-    void end_game(WinnerTeamType winner);
+    void show_end_banner(WinnerTeamType winner);
 
     void frame_sync();
 
     std::vector<float> player_position();
+
+    bool round_active() const;
 };
 
 #endif
