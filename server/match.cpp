@@ -127,8 +127,6 @@ std::vector<ObjectDTO> Match::process_dynamic_objects(
 
 /* Waiting Lobby */
 void Match::waiting_lobby() {
-    std::cout << "[WAIT] Esperando a que todos los jugadores estén listos..." << std::endl;
-
     // Nota: Cuáles son las condiciones de corte?:
     //          a. Ya se puede empezar -> se debería continuar
     //          b. Se interrumpe la partida -> no se debería continuar
@@ -143,12 +141,10 @@ void Match::waiting_lobby() {
     }
 
     send_initial_snapshot_to_all_clients();
-    std::cout << "[WAIT] ¡Todos los jugadores están listos!" << std::endl;
 }
 
 /* Match Loop */
 void Match::match_loop() {
-    std::cout << "[MATCH] ¡Que comience la partida!" << std::endl;
     game.initialize_stats();
 
     // Nota: Cuáles son las condiciones para comenzar una nueva ronda?:
@@ -157,24 +153,18 @@ void Match::match_loop() {
     //          c. El juego puede seguir en curso
     for (size_t round = 1;
          round <= config.get_rounds_total() && should_keep_running() && !game.is_over(); ++round) {
-        std::cout << "[ROUND] Iniciando ronda..." << std::endl;
-
         shopping_phase();
         game_phase();
         stats_phase();
-
-        std::cout << "[ROUND] Terminando ronda..." << std::endl;
     }
 
     send_message_to_all_clients();
     std::this_thread::sleep_for(std::chrono::seconds(MESSAGE_TIME));
 
     send_end_to_all_clients();
-    std::cout << "[MATCH] ¡La partida ha finalizado!" << std::endl;
 }
 
 void Match::shopping_phase() {
-    std::cout << "[SHOP] Iniciando fase de compras..." << std::endl;
     send_shop_to_all_clients();
 
     auto shop_time = std::chrono::seconds(SHOP_TIME);
@@ -200,12 +190,9 @@ void Match::shopping_phase() {
 
         now = std::chrono::steady_clock::now();
     }
-
-    std::cout << "[SHOP] Terminando fase de compras..." << std::endl;
 }
 
 void Match::game_phase() {
-    std::cout << "[GAME] Iniciando fase de juego..." << std::endl;
     send_snapshot_to_all_clients();
     game.start_round_game_phase();
 
@@ -238,12 +225,9 @@ void Match::game_phase() {
 
     send_snapshot_to_all_clients();
     game.end_round_game_phase();
-    std::cout << "[GAME] Terminando fase de juego..." << std::endl;
 }
 
 void Match::stats_phase() {
-    std::cout << "[STATS] Iniciando fase de estadísticas..." << std::endl;
-
     send_stats_to_all_clients();
 
     auto stats_time = std::chrono::seconds(STATS_TIME);
@@ -264,8 +248,6 @@ void Match::stats_phase() {
 
         now = std::chrono::steady_clock::now();
     }
-
-    std::cout << "[STATS] Terminando fase de estadísticas..." << std::endl;
 }
 
 /* Override */
