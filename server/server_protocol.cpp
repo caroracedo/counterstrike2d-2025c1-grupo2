@@ -10,29 +10,29 @@ ServerProtocol::ServerProtocol(Socket& skt, uint16_t id): skt(skt), id(id) {}
 
 /* Envío */
 void ServerProtocol::serialize_player(const ObjectDTO& obj, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((obj.id), data);
+    byte_converter.push_uint_16_to(obj.id, data);
     data.push_back(static_cast<uint8_t>(obj.player_type));
     data.push_back(static_cast<uint8_t>(obj.player_skin));
     data.push_back(static_cast<uint8_t>(obj.weapon_model));
-    byte_converter.push_uint_16_to((obj.health), data);
-    byte_converter.push_uint_16_to((obj.money), data);
-    byte_converter.push_uint_16_to((obj.ammo), data);
+    byte_converter.push_uint_16_to(obj.health, data);
+    byte_converter.push_uint_16_to(obj.money, data);
+    byte_converter.push_uint_16_to(obj.ammo, data);
     byte_converter.push_float_to(obj.angle, data);
 }
 
 void ServerProtocol::serialize_bombzone(const ObjectDTO& obj, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((obj.width), data);
-    byte_converter.push_uint_16_to((obj.height), data);
+    byte_converter.push_uint_16_to(obj.width, data);
+    byte_converter.push_uint_16_to(obj.height, data);
 }
 
 void ServerProtocol::serialize_obstacle(const ObjectDTO& obj, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((obj.width), data);
-    byte_converter.push_uint_16_to((obj.height), data);
+    byte_converter.push_uint_16_to(obj.width, data);
+    byte_converter.push_uint_16_to(obj.height, data);
     data.push_back(static_cast<uint8_t>(obj.obstacle_type));
 }
 
 void ServerProtocol::serialize_bomb(const ObjectDTO& obj, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((obj.bomb_countdown), data);
+    byte_converter.push_uint_16_to(obj.bomb_countdown, data);
 }
 
 void ServerProtocol::serialize_weapon(const ObjectDTO& obj, std::vector<uint8_t>& data) {
@@ -43,8 +43,8 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
                                                std::vector<uint8_t>& data) {
     for (const auto& obj: action_dto.objects) {
         data.push_back(static_cast<uint8_t>(obj.type));
-        byte_converter.push_uint_16_to((obj.position[0]), data);
-        byte_converter.push_uint_16_to((obj.position[1]), data);
+        byte_converter.push_uint_16_to(obj.position[0], data);
+        byte_converter.push_uint_16_to(obj.position[1], data);
 
         switch (obj.type) {
             case ObjectType::PLAYER:
@@ -70,14 +70,14 @@ void ServerProtocol::serialize_and_send_update(const ActionDTO& action_dto,
 
 void ServerProtocol::serialize_and_send_information(const ActionDTO& action_dto,
                                                     std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((action_dto.matches.size()), data);
-    byte_converter.push_uint_16_to((action_dto.maps.size()), data);
+    byte_converter.push_uint_16_to(action_dto.matches.size(), data);
+    byte_converter.push_uint_16_to(action_dto.maps.size(), data);
     for (const auto& match: action_dto.matches) {
-        byte_converter.push_uint_16_to((match.size()), data);
+        byte_converter.push_uint_16_to(match.size(), data);
         data.insert(data.end(), match.begin(), match.end());
     }
     for (const auto& map: action_dto.maps) {
-        byte_converter.push_uint_16_to((map.size()), data);
+        byte_converter.push_uint_16_to(map.size(), data);
         data.insert(data.end(), map.begin(), map.end());
     }
 }
@@ -85,7 +85,7 @@ void ServerProtocol::serialize_and_send_information(const ActionDTO& action_dto,
 void ServerProtocol::serialize_and_send_configuration(const ActionDTO& action_dto,
                                                       std::vector<uint8_t>& data) {
     data.push_back(static_cast<uint8_t>(action_dto.terrain_type));
-    byte_converter.push_uint_16_to((action_dto.id), data);
+    byte_converter.push_uint_16_to(action_dto.id, data);
 }
 
 void ServerProtocol::serialize_and_send_shop(const ActionDTO& action_dto,
@@ -98,14 +98,14 @@ void ServerProtocol::serialize_and_send_stats(const ActionDTO& action_dto,
                                               std::vector<uint8_t>& data) {
     const Stats& stats = action_dto.stats;
     for (const auto& [player_id, kills]: stats.kills) {
-        byte_converter.push_uint_16_to((player_id), data);
-        byte_converter.push_uint_16_to((kills), data);
+        byte_converter.push_uint_16_to(player_id, data);
+        byte_converter.push_uint_16_to(kills, data);
         byte_converter.push_uint_16_to(stats.deaths.find(player_id)->second, data);
         byte_converter.push_uint_16_to(stats.money.find(player_id)->second, data);
     }
     data.push_back(static_cast<uint8_t>(stats.last_winner));
-    byte_converter.push_uint_16_to((stats.team_a_wins), data);
-    byte_converter.push_uint_16_to((stats.team_b_wins), data);
+    byte_converter.push_uint_16_to(stats.team_a_wins, data);
+    byte_converter.push_uint_16_to(stats.team_b_wins, data);
 }
 
 void ServerProtocol::serialize_and_send_message(const ActionDTO& action_dto,

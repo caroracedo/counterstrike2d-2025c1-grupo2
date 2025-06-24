@@ -224,11 +224,11 @@ ActionDTO ClientProtocol::receive_and_deserialize_action() {
 
 /* Envío */
 void ClientProtocol::serialize_create(const ActionDTO& action, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((action.match.size()), data);
+    byte_converter.push_uint_16_to(action.match.size(), data);
     data.insert(data.end(), action.match.begin(), action.match.end());
     data.insert(data.end(), action.map.begin(), action.map.end());
-    byte_converter.push_uint_16_to((action.number_terrorist), data);
-    byte_converter.push_uint_16_to((action.number_counterterrorist), data);
+    byte_converter.push_uint_16_to(action.number_terrorist, data);
+    byte_converter.push_uint_16_to(action.number_counterterrorist, data);
     data.push_back(static_cast<uint8_t>(action.player_type));
     data.push_back(static_cast<uint8_t>(action.player_skin));
 }
@@ -244,8 +244,8 @@ void ClientProtocol::serialize_move(const ActionDTO& action, std::vector<uint8_t
 }
 
 void ClientProtocol::serialize_shoot(const ActionDTO& action, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((action.desired_position[0]), data);
-    byte_converter.push_uint_16_to((action.desired_position[1]), data);
+    byte_converter.push_uint_16_to(action.desired_position[0], data);
+    byte_converter.push_uint_16_to(action.desired_position[1], data);
 }
 
 void ClientProtocol::serialize_weapon(const ActionDTO& action, std::vector<uint8_t>& data) {
@@ -253,7 +253,7 @@ void ClientProtocol::serialize_weapon(const ActionDTO& action, std::vector<uint8
 }
 
 void ClientProtocol::serialize_ammo(const ActionDTO& action, std::vector<uint8_t>& data) {
-    byte_converter.push_uint_16_to((action.ammo), data);
+    byte_converter.push_uint_16_to(action.ammo, data);
 }
 
 void ClientProtocol::serialize_rotate(const ActionDTO& action, std::vector<uint8_t>& data) {
