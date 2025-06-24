@@ -172,7 +172,7 @@ private:
 
     void update_bomb_countdown();
 
-    std::shared_ptr<Bomb> create_bomb(const std::vector<uint16_t>& position);
+    void create_bomb(const std::vector<uint16_t>& position);
 
     void delete_bomb();
 

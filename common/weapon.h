@@ -46,7 +46,6 @@ public:
     uint16_t get_range();
     std::vector<uint16_t> get_damage();
     WeaponModel get_model() const;
-    std::string get_name() const;
 
     uint16_t get_ammo() const;
     void add_ammo(uint16_t ammo_amount);

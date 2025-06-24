@@ -32,17 +32,16 @@
 #define WAIT_TIME 100
 #define MESSAGE_TIME 5
 
-// TODO: Automatizar el cálculo coherente de matrix size de lógica y editor!
-#define MATRIX_SIZE 21    // posición máxima en la matriz (celdas)
-#define MOVE_STEP 5       // paso de movimiento
-#define BULLET_STEP 10    // paso de la bala
-#define CELL_SIZE 32      // tamaño de cada celda en la matriz
-#define PLAYER_RADIUS 16  // radio del jugador
-#define BULLET_RADIUS 2   // radio de la bala
+#define MATRIX_SIZE 21
+#define MOVE_STEP 5
+#define BULLET_STEP 10
+#define CELL_SIZE 32
+#define PLAYER_RADIUS 16
+#define BULLET_RADIUS 2
 #define BOMB_SIZE 32
 #define BOMB_COUNTDOWN 30 * 15
-#define DEACTIVATION_DISTANCE 50  // distancia máxima para desactivar la bomba
-#define INITIAL_PLAYER_ANGLE 90   // ángulo inicial del jugador
+#define DEACTIVATION_DISTANCE 50
+#define INITIAL_PLAYER_ANGLE 90
 
 #define KILL_REWARD 100       // recompensa por matar a un jugador
 #define ROUND_WON_REWARD 300  // recompensa por ganar una ronda

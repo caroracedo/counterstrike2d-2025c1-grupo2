@@ -164,12 +164,6 @@ void Match::match_loop() {
         stats_phase();
 
         std::cout << "[ROUND] Terminando ronda..." << std::endl;
-
-        // Implementado a nivel lógica
-        // if (round == config.get_rounds_total() / 2) {
-        //     std::cout << "[SWITCH] Switch de equipos!" << std::endl;
-        //     game.switch_player_types();
-        // }
     }
 
     send_message_to_all_clients();

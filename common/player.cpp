@@ -1,5 +1,6 @@
 #include "player.h"
 
+#include <algorithm>
 #include <iostream>
 
 Player::Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
@@ -151,7 +152,11 @@ void Player::take_damage(uint16_t damage) {
     }
 }
 
-void Player::cure(uint16_t health_amount) { health = health_amount; }
+void Player::cure(uint16_t health_amount) {
+    uint16_t max_health = std::max(health_amount, health);
+    health = max_health;
+}
+
 
 std::vector<uint16_t> Player::get_next_position(Direction direction) const {
     uint16_t min_position = radius;
@@ -187,7 +192,6 @@ float Player::get_angle() const { return angle; }
 void Player::do_health_cheat() {
     infinite_health = true;
     health = 9999;
-    std::cout << "New health: " << health << std::endl;
 }
 
 void Player::do_ammo_cheat() {

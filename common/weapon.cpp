@@ -28,7 +28,8 @@ Weapon::Weapon():
         max_damage(0),
         precision(0.0f),
         cooldown(0.0f),
-        ammo(0) {
+        ammo(0),
+        infinite_ammo(false) {
     fix_height();
     last_shot_time = std::chrono::steady_clock::now() -
                      std::chrono::duration_cast<std::chrono::steady_clock::duration>(
@@ -43,7 +44,8 @@ Weapon::Weapon(const WeaponDTO& weapon_dto):
         max_damage(weapon_dto.max_damage),
         precision(weapon_dto.precision),
         cooldown(weapon_dto.cooldown),
-        ammo(weapon_dto.ammo) {
+        ammo(weapon_dto.ammo),
+        infinite_ammo(false) {
     fix_height();
     last_shot_time = std::chrono::steady_clock::now() -
                      std::chrono::duration_cast<std::chrono::steady_clock::duration>(
@@ -97,25 +99,6 @@ uint16_t Weapon::get_range() { return range; }
 std::vector<uint16_t> Weapon::get_damage() { return {min_damage, max_damage}; }
 
 WeaponModel Weapon::get_model() const { return model; }
-
-std::string Weapon::get_name() const {
-    switch (model) {
-        case WeaponModel::KNIFE:
-            return "Knife";
-        case WeaponModel::GLOCK:
-            return "Glock";
-        case WeaponModel::AK47:
-            return "AK-47";
-        case WeaponModel::M3:
-            return "M3";
-        case WeaponModel::AWP:
-            return "AWP";
-        case WeaponModel::BOMB:
-            return "Bomb";
-        default:
-            return "Unknown Weapon";
-    }
-}
 
 uint16_t Weapon::get_ammo() const { return ammo; }
 

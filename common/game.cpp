@@ -103,8 +103,10 @@ bool Game::move(Direction direction, const uint16_t& id) {
     if (player_it != players.end()) {
         std::vector<uint16_t> old_position = player_it->second->get_position();
         std::vector<uint16_t> new_position = player_it->second->get_next_position(direction);
+
         std::pair<bool, std::vector<uint16_t>> move_result =
                 _move(*(player_it->second), new_position);
+
         if (move_result.first) {
             // Actualizar la posición del jugador
             player_it->second->move(move_result.second);
@@ -184,29 +186,28 @@ void Game::pick_up_weapon(uint16_t id) {
     auto player_ptr = players_it->second;
 
     for (const auto& obj: adyacent_objects) {
-        if (obj->get_type() == ObjectType::WEAPON) {
-            bool is_near_weapon = circle_rectangle_collision(player_position, PLAYER_RADIUS + 1,
+        if (obj->get_type() == ObjectType::WEAPON || obj->get_type() == ObjectType::BOMB) {
+            bool is_near_enough = circle_rectangle_collision(player_position, PLAYER_RADIUS + 1,
                                                              obj->get_position(), obj->get_width(),
                                                              obj->get_height());
-            if (is_near_weapon) {
+
+            if (!is_near_enough) {
+                continue;  // No está lo suficientemente cerca
+            }
+
+            if (obj->get_type() == ObjectType::WEAPON) {
                 WeaponDTO new_weapon_dto = delete_weapon(obj->get_id());
                 WeaponDTO old_weapon_dto = player_ptr->pick_up_weapon(new_weapon_dto);
                 create_weapon(old_weapon_dto, player_position);
                 return;
-            }
-        } else if (obj->get_type() == ObjectType::BOMB) {
-            bool is_near_bomb = circle_rectangle_collision(player_position, PLAYER_RADIUS + 1,
-                                                           obj->get_position(), obj->get_width(),
-                                                           obj->get_height());
-            if (!is_near_bomb) {
-                continue;
-            }
-            WeaponDTO bomb_dto;
-            bomb_dto.model = WeaponModel::BOMB;
-            player_ptr->pick_up_weapon(bomb_dto);
-            if (player_ptr->can_plant_bomb()) {
-                delete_bomb();
-                return;
+            } else {
+                WeaponDTO bomb_dto;
+                bomb_dto.model = WeaponModel::BOMB;
+                player_ptr->pick_up_weapon(bomb_dto);
+                if (player_ptr->can_plant_bomb()) {
+                    delete_bomb();
+                    return;
+                }
             }
         }
     }
@@ -313,7 +314,6 @@ void Game::update_stats() {
         if (p->get_player_type() == stats.last_winner) {
             p->add_money(ROUND_WON_REWARD);
             stats.money[id] += ROUND_WON_REWARD;
-            std::cout << "Player " << id << " won round -- money: " << stats.money[id] << std::endl;
         }
     }
 }
@@ -556,6 +556,7 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
         ObjectType collider_type = static_cast<ObjectType>(collision_result.first);
         if (collider_type != ObjectType::UNKNOWN) {
             ObjectType obj_type = static_cast<ObjectType>(obj.get_type());
+
             if (collider_type == ObjectType::BULLET && obj_type == ObjectType::PLAYER) {
                 // Si un jugador colisiona con una bala, se mueve hasta la posición de la bala
                 max_position = test_position;
@@ -563,6 +564,7 @@ std::vector<uint16_t> Game::get_max_position(const Object& obj,
             } else if (collider_type == ObjectType::PLAYER && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un jugador, se mueve hasta la posición del jugador
                 max_position = test_position;
+
             } else if (collider_type == ObjectType::OBSTACLE && obj_type == ObjectType::BULLET) {
                 // Si una bala colisiona con un obstáculo, se mueve hasta la posición del
                 // obstáculo
@@ -736,9 +738,6 @@ bool Game::handle_bullet_player_collision(const uint16_t& bullet_id, const uint1
         stats.kills[shooter_id]++;
         stats.deaths[player_id]++;
         stats.money[shooter_id] += KILL_REWARD;
-
-        std::cout << "Player " << shooter_id
-                  << "killed another player -- money: " << stats.money[shooter_id] << std::endl;
     }
     return player_is_alive;
 }
@@ -1226,15 +1225,13 @@ bool Game::plant_bomb(const std::vector<uint16_t>& player_position) {
         Devuelve true si se planta la bomba, false si no se puede.
     */
 
-    auto bomb_ptr = create_bomb(player_position);
+    create_bomb(player_position);
 
-    if (!bomb_ptr) {
-        return false;  // No se pudo crear la bomba
+    if (bomb) {
+        bomb->start_countdown();
+        return true;
     }
-
-    bomb->start_countdown();
-
-    return true;
+    return false;
 }
 
 bool Game::deactivate_bomb(const std::vector<uint16_t>& player_position) {
@@ -1261,7 +1258,7 @@ void Game::update_bomb_countdown() {
         exploded = bomb->update_countdown();
 }
 
-std::shared_ptr<Bomb> Game::create_bomb(const std::vector<uint16_t>& position) {
+void Game::create_bomb(const std::vector<uint16_t>& position) {
     auto bomb_ptr = std::make_shared<Bomb>(position);
 
     // Agrega la bomba en la matriz
@@ -1272,8 +1269,6 @@ std::shared_ptr<Bomb> Game::create_bomb(const std::vector<uint16_t>& position) {
     objects.push_back(bomb_ptr);
 
     bomb = bomb_ptr;
-
-    return bomb_ptr;
 }
 
 void Game::delete_bomb() {
