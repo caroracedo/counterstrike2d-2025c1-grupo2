@@ -296,13 +296,10 @@ void GameView::render_cursor() {
 void GameView::handle_attack() {
     if (is_alive) {
         WeaponModel current_weapon = players[local_id]->get_current_weapon();
-
         if (current_weapon == WeaponModel::KNIFE) {
             players[local_id]->start_knife_animation();
-            sound_manager.playWithCooldown("knife_slash", 150, 0);
         } else {
             players[local_id]->start_kickback();
-            sound_manager.playWithCooldown("bullet", 150, 0);
         }
     }
 }

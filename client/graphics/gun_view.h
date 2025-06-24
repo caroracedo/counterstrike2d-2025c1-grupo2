@@ -37,6 +37,14 @@ public:
     WeaponModel get_current_type() const;
 
     uint32_t get_weapon_cooldown(WeaponModel model);
+
+    void play_weapon_sound() {
+        auto sound_name =
+                (current_type == WeaponModel::KNIFE) ? "knife_slash" : weapons[current_type];
+        auto cooldown = get_weapon_cooldown(current_type);
+        int loops = (current_type == WeaponModel::AK47) ? 3 : 0;
+        sound_manager.playWithCooldown(sound_name, cooldown, loops);
+    }
 };
 
 #endif
