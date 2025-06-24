@@ -1,45 +1,47 @@
 #ifndef CLIENT_PROTOCOL_H
 #define CLIENT_PROTOCOL_H
 
-#include <cstring>
-#include <string>
 #include <vector>
 
-#include <arpa/inet.h>
-
-#include "../common/action_DTO.h"
-#include "../common/socket.h"
-#include "../common/socket_manager.h"
+#include "common/action_DTO.h"
+#include "common/byte_converter.h"
+#include "common/socket.h"
+#include "common/socket_manager.h"
 
 class ClientProtocol {
 private:
+    /* Configuración */
     Socket& skt;
     SocketManager skt_manager;
-
-    // TODO: Abstraer esto...
-    uint16_t hex_big_endian_to_int_16(const std::vector<uint8_t>& hex_big_endian) {
-        uint16_t int_16;
-        std::memcpy(&int_16, hex_big_endian.data(), sizeof(int_16));
-        return ntohs(int_16);
-    }
-
-    std::vector<uint8_t> int_16_to_hex_big_endian(const uint16_t int_16) {
-        uint16_t htons_int_16 = htons(int_16);
-        std::vector<uint8_t> hex_big_endian(sizeof(htons_int_16));
-        std::memcpy(hex_big_endian.data(), &htons_int_16, sizeof(htons_int_16));
-        return hex_big_endian;
-    }
-
-    void push_hexa_to(const std::vector<uint8_t>& hexa, std::vector<uint8_t>& vector) {
-        vector.push_back(hexa[0]);
-        vector.push_back(hexa[1]);
-    }
+    ByteConverter byte_converter;
 
     /* Recepción */
+    ObjectDTO deserialize_player(const std::vector<uint8_t>& data, size_t& i,
+                                 const std::vector<uint16_t>& position);
+    ObjectDTO deserialize_bombzone(const std::vector<uint8_t>& data, size_t& i,
+                                   const std::vector<uint16_t>& position);
+    ObjectDTO deserialize_obstacle(const std::vector<uint8_t>& data, size_t& i,
+                                   const std::vector<uint16_t>& position);
+    ObjectDTO deserialize_bomb(const std::vector<uint8_t>& data, size_t& i,
+                               const std::vector<uint16_t>& position);
+    ObjectDTO deserialize_bullet(size_t& i, const std::vector<uint16_t>& position);
+    ObjectDTO deserialize_weapon(const std::vector<uint8_t>& data, size_t& i,
+                                 const std::vector<uint16_t>& position);
     ActionDTO deserialize_update(std::vector<uint8_t>& data);
-    ActionDTO deserialize_id(std::vector<uint8_t>& data);
-    ActionDTO deserialize_end();
+    ActionDTO deserialize_information(std::vector<uint8_t>& data);
+    ActionDTO deserialize_configuration(std::vector<uint8_t>& data);
+    ActionDTO deserialize_message(const std::vector<uint8_t>& data);
     ActionDTO deserialize_shop(std::vector<uint8_t>& data);
+    ActionDTO deserialize_stats(std::vector<uint8_t>& data);
+
+    /* Envío */
+    void serialize_create(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_join(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_move(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_shoot(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_weapon(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_ammo(const ActionDTO& action, std::vector<uint8_t>& data);
+    void serialize_rotate(const ActionDTO& action, std::vector<uint8_t>& data);
 
 public:
     /* Constructor */
@@ -50,6 +52,9 @@ public:
 
     /* Envío */
     bool serialize_and_send_action(const ActionDTO& action);
+
+    /* Cierre */
+    void kill();
 };
 
 #endif  // CLIENT_PROTOCOL_H

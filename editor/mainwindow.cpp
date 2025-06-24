@@ -20,6 +20,8 @@
 #include "ui_mainwindow.h"
 
 #define IMAGEN_BOMBA ":/imagenes/zona_bomba.png"
+#define IMAGEN_ZONA_A ":/imagenes/zonaA.png"
+#define IMAGEN_ZONA_B ":/imagenes/zonaB.png"
 #define IMAGEN_AK47 ":/imagenes/arma3.png"
 #define IMAGEN_AWP ":/imagenes/arma2.png"
 #define IMAGEN_M3 ":/imagenes/arma1.png"
@@ -28,22 +30,21 @@
 #define IMAGEN_CAJA3 ":/imagenes/bloque3.png"
 #define IMAGEN_CAJA4 ":/imagenes/bloque4.png"
 #define IMAGEN_CAJA5 ":/imagenes/bloque5.png"
-#define IMAGEN_AZTECA ":/imagenes/aztec.png";
-#define IMAGEN_ENTRENAMIENTO ":/imagenes/office.png";
-#define IMAGEN_DESIERTO ":/imagenes/sand1.jpg";
-#define FILAS 21
-#define COLUMNAS 21
-#define TAM_CELDA 32
+#define IMAGEN_AZTECA ":/imagenes/aztec.png"
+#define IMAGEN_ENTRENAMIENTO ":/imagenes/office.png"
+#define IMAGEN_DESIERTO ":/imagenes/sand1.jpg"
 
 MainWindow::MainWindow(QWidget* parent):
         QMainWindow(parent), ui(new Ui::MainWindow), scene(new QGraphicsScene(this)) {
     ui->setupUi(this);
     ui->graphicsView->setScene(scene);
 
+    ui->graphicsView->viewport()->setMouseTracking(true);
+    ui->graphicsView->viewport()->installEventFilter(this);
+
     inicializarGrilla();
 
     ui->terrenos->addItem("Choose terrain...");
-
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->terrenos->model());
     if (model) {
         QStandardItem* item = model->item(0);
@@ -51,11 +52,9 @@ MainWindow::MainWindow(QWidget* parent):
             item->setEnabled(false);
         }
     }
-
     ui->terrenos->addItem("Pueblo Azteca", QVariant("azteca"));
     ui->terrenos->addItem("Zona de entrenamiento", QVariant("entrenamiento"));
     ui->terrenos->addItem("Desierto", QVariant("desierto"));
-
     connect(ui->terrenos, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &MainWindow::rellenarGrillaConTerreno);
 
@@ -70,25 +69,19 @@ MainWindow::MainWindow(QWidget* parent):
     conectarBtnClicked(ui->arma3, IMAGEN_AK47);
 
     conectarBtnClicked(ui->zona1, IMAGEN_BOMBA);
+    conectarBtnClicked(ui->zonaA, IMAGEN_ZONA_A);
+    conectarBtnClicked(ui->zonaB, IMAGEN_ZONA_B);
 
-    conectarBtnPressed(ui->botonCaja1, IMAGEN_CAJA1);
-    conectarBtnPressed(ui->botonCaja2, IMAGEN_CAJA2);
-    conectarBtnPressed(ui->botonCaja3, IMAGEN_CAJA3);
-    conectarBtnPressed(ui->botonCaja4, IMAGEN_CAJA4);
-    conectarBtnPressed(ui->botonCaja5, IMAGEN_CAJA5);
-
-    conectarBtnPressed(ui->arma1, IMAGEN_M3);
-    conectarBtnPressed(ui->arma2, IMAGEN_AWP);
-    conectarBtnPressed(ui->arma3, IMAGEN_AK47);
-
-    conectarBtnPressed(ui->zona1, IMAGEN_BOMBA);
+    connect(ui->btnClean, &QPushButton::clicked, this, &MainWindow::limpiarMapa);
 
     connect(ui->btnGuardar, &QPushButton::clicked, this, [this]() {
         if (!verificarZonaBomba()) {
             return;
+        } else if (!verificarZonasDeInicio()) {
+            return;
         }
-        QString nombreArchivo =
-                QFileDialog::getSaveFileName(this, "Guardar mapa", "", "YAML Files (*.yaml)");
+        QString nombreArchivo = QFileDialog::getSaveFileName(
+                this, "Guardar mapa", QDir::cleanPath(MAPS_PATH), "Mapas YAML (*.yaml)");
         if (!nombreArchivo.isEmpty()) {
             if (!nombreArchivo.endsWith(".yaml", Qt::CaseInsensitive)) {
                 nombreArchivo += ".yaml";
@@ -98,8 +91,9 @@ MainWindow::MainWindow(QWidget* parent):
     });
 
     connect(ui->btnAbrir, &QPushButton::clicked, this, [this]() {
-        QString nombreArchivo = QFileDialog::getOpenFileName(this, "Abrir archivo YAML", "",
-                                                             "Archivos YAML (*.yaml *.yml)");
+        QString nombreArchivo =
+                QFileDialog::getOpenFileName(this, "Abrir archivo YAML", QDir::cleanPath(MAPS_PATH),
+                                             "Archivos YAML (*.yaml *.yml)");
         if (!nombreArchivo.isEmpty()) {
             abrirMapaDesdeYaml(nombreArchivo);
         }
@@ -109,19 +103,14 @@ MainWindow::MainWindow(QWidget* parent):
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::conectarBtnClicked(QPushButton* btn, QString imagen) {
-    connect(btn, &QPushButton::clicked, this, [=, this]() { imagenSeleccionada = imagen; });
-}
-
-void MainWindow::conectarBtnPressed(QPushButton* btn, QString imagen) {
-    connect(btn, &QPushButton::pressed, this, [=, this]() { imagenSeleccionada = imagen; });
+    connect(btn, &QPushButton::clicked, this, [this, imagen]() { imagenSeleccionada = imagen; });
 }
 
 void MainWindow::inicializarGrilla() {
     dibujarGrilla();
-    cantZonasBomba = 0;
 
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
             grilla[fila][col] = Celda();
         }
     }
@@ -131,15 +120,13 @@ void MainWindow::dibujarGrilla() {
     QPen pen(Qt::black);
     pen.setWidth(1);
 
-    for (int i = 0; i <= FILAS; i++) {
-        scene->addLine(0, i * TAM_CELDA, COLUMNAS * TAM_CELDA, i * TAM_CELDA, pen);
+    for (int i = 0; i <= MATRIX_SIZE; i++) {
+        scene->addLine(0, i * CELL_SIZE, MATRIX_SIZE * CELL_SIZE, i * CELL_SIZE, pen);
     }
-
-    for (int j = 0; j <= COLUMNAS; j++) {
-        scene->addLine(j * TAM_CELDA, 0, j * TAM_CELDA, FILAS * TAM_CELDA, pen);
+    for (int j = 0; j <= MATRIX_SIZE; j++) {
+        scene->addLine(j * CELL_SIZE, 0, j * CELL_SIZE, MATRIX_SIZE * CELL_SIZE, pen);
     }
-
-    scene->setSceneRect(0, 0, COLUMNAS * TAM_CELDA, FILAS * TAM_CELDA);
+    scene->setSceneRect(0, 0, MATRIX_SIZE * CELL_SIZE, MATRIX_SIZE * CELL_SIZE);
 }
 
 QMap<QString, TIPO_CAJA> mapaCajas = {
@@ -166,52 +153,18 @@ QMap<TIPO_ARMA, QString> mapaArmas2 = {
         {TIPO_ARMA::AK47, IMAGEN_AK47},
 };
 
-void MainWindow::mousePressEvent(QMouseEvent* event) {
-    if (!ui->graphicsView->geometry().contains(event->pos())) {
-        QMainWindow::mousePressEvent(event);
-        return;
-    }
-    mouseReleaseEvent(event);
+bool posicionValida(int fila, int col) {
+    return (fila >= 0 && fila < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE);
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
-    QPoint posViewport =
-            ui->graphicsView->viewport()->mapFromGlobal(event->globalPosition().toPoint());
+void MainWindow::mostrarMensajeCeldaOcupada() {
+    QMessageBox::warning(this, "Celda ocupada", "Ya hay un objeto en esta celda.");
+}
 
-    QPointF escenaPos = ui->graphicsView->mapToScene(posViewport);
-
-    QGraphicsScene* scene = ui->graphicsView->scene();
-
-    QPointF esqIzq = scene->sceneRect().topLeft();
-    QPointF posRelativa = escenaPos - esqIzq;
-
-    int fila = int(posRelativa.y()) / TAM_CELDA;
-    int col = int(posRelativa.x()) / TAM_CELDA;
-
-    if (fila < 0 || fila >= FILAS || col < 0 || col >= COLUMNAS)
-        return;
-
-    QPixmap pixmap(imagenSeleccionada);
-    QPixmap pixmapEscalado =
-            pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
-        grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
-        QMessageBox::warning(this, "Celda ocupada", "Ya hay un objeto en esta celda.");
-        return;
-    }
-
-    if (imagenSeleccionada.contains("zona_bomba") && !agregarZonaBomba()) {
-        return;
-    }
-
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
-
-    item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
-    scene->addItem(item);
-
+Celda MainWindow::crearCelda(QGraphicsPixmapItem* item) {
     Celda celda;
     celda.imagenElemento = imagenSeleccionada;
+    celda.item = item;
 
     if (imagenSeleccionada.contains("bloque")) {
         celda.tipoElemento = TIPO_ELEMENTO::CAJA;
@@ -227,11 +180,116 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
         cantZonasBomba++;
         celda.zona = TIPO_ZONA::BOMBA;
     }
-
-    grilla[fila][col] = celda;
+    if (imagenSeleccionada.contains("zonaA") && !hayZonaA) {
+        hayZonaA = true;
+        celda.zona = TIPO_ZONA::TERRORISTA;
+    }
+    if (imagenSeleccionada.contains("zonaB") && !hayZonaB) {
+        hayZonaB = true;
+        celda.zona = TIPO_ZONA::COUNTERTERRORISTA;
+    }
+    return celda;
 }
 
-void MainWindow::cargarImagenTerreno() {
+void MainWindow::colocarElemento(int fila, int col, bool mostrarWarning) {
+    if (!posicionValida(fila, col)) {
+        return;
+    }
+
+    QPixmap pixmap(imagenSeleccionada);
+    QPixmap pixmapEscalado =
+            pixmap.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
+        grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
+        if (mostrarWarning) {
+            mostrarMensajeCeldaOcupada();
+            mousePresionado = false;
+            return;
+        }
+    }
+    if (imagenSeleccionada.contains("zona_bomba") && !agregarZonaBomba()) {
+        return;
+    }
+    if ((imagenSeleccionada.contains("zonaA") && hayZonaA) ||
+        (imagenSeleccionada.contains("zonaB") && hayZonaB)) {
+        return;
+    }
+
+    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
+    int x = col * CELL_SIZE + (CELL_SIZE - pixmapEscalado.width()) / 2;
+    int y = fila * CELL_SIZE + (CELL_SIZE - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
+    scene->addItem(item);
+
+    grilla[fila][col] = crearCelda(item);
+}
+
+void MainWindow::mousePressEvent(QMouseEvent* event) {
+    if (!ui->graphicsView->geometry().contains(event->pos())) {
+        QMainWindow::mousePressEvent(event);
+        return;
+    }
+
+    QPoint posViewport =
+            ui->graphicsView->viewport()->mapFromGlobal(event->globalPosition().toPoint());
+    QPointF escenaPos = ui->graphicsView->mapToScene(posViewport);
+
+    int fila = int(escenaPos.y()) / CELL_SIZE;
+    int col = int(escenaPos.x()) / CELL_SIZE;
+
+    if (event->button() == Qt::RightButton) {
+        eliminarElemento(fila, col);
+        return;
+    }
+
+    mousePresionado = true;
+    ultimaFila = fila;
+    ultimaCol = col;
+
+    colocarElemento(fila, col, true);
+}
+
+bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
+    if (obj == ui->graphicsView->viewport()) {
+        if (event->type() == QEvent::MouseMove) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+
+            if (mousePresionado) {
+                if (imagenSeleccionada.contains("zona_bomba") ||
+                    imagenSeleccionada.contains("zonaA") || imagenSeleccionada.contains("zonaB")) {
+                    return true;
+                }
+                QPoint posViewport = mouseEvent->pos();
+                QPointF escenaPos = ui->graphicsView->mapToScene(posViewport);
+
+                int fila = int(escenaPos.y()) / CELL_SIZE;
+                int col = int(escenaPos.x()) / CELL_SIZE;
+
+                if (fila != ultimaFila || col != ultimaCol) {
+                    if (grilla[fila][col].tipoElemento != TIPO_ELEMENTO::NINGUNO ||
+                        grilla[fila][col].zona != TIPO_ZONA::NINGUNA) {
+                        mostrarMensajeCeldaOcupada();
+                        mousePresionado = false;
+                        return true;
+                    }
+                    colocarElemento(fila, col, false);
+                    ultimaFila = fila;
+                    ultimaCol = col;
+                }
+            }
+            return true;
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            mousePresionado = false;
+            ultimaFila = -1;
+            ultimaCol = -1;
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
+}
+
+QString MainWindow::seleccionarImagenTerreno() {
     QString imagen;
     if (terreno == "azteca") {
         imagen = IMAGEN_AZTECA;
@@ -240,27 +298,67 @@ void MainWindow::cargarImagenTerreno() {
     } else if (terreno == "desierto") {
         imagen = IMAGEN_DESIERTO;
     }
+    return imagen;
+}
 
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
+void MainWindow::cargarImagenTerreno() {
+    QString imagen = seleccionarImagenTerreno();
+
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
             QPixmap pixmap(imagen);
-            QPixmap pixmapEscalado = pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio,
+            QPixmap pixmapEscalado = pixmap.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio,
                                                    Qt::SmoothTransformation);
 
             QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
 
-            item->setPos(col * TAM_CELDA, fila * TAM_CELDA);
+            int x = col * CELL_SIZE + (CELL_SIZE - pixmapEscalado.width()) / 2;
+            int y = fila * CELL_SIZE + (CELL_SIZE - pixmapEscalado.height()) / 2;
+            item->setPos(x, y);
             scene->addItem(item);
         }
     }
 }
 
 void MainWindow::rellenarGrillaConTerreno(int index) {
+    if (index == 0) {
+        return;
+    }
     terreno = ui->terrenos->itemData(index).toString();
 
     cargarImagenTerreno();
 
     dibujarGrilla();
+}
+
+void MainWindow::eliminarElemento(int fila, int col) {
+    Celda& celda = grilla[fila][col];
+
+    if (celda.item != nullptr) {
+        scene->removeItem(celda.item);
+        delete celda.item;
+        celda.item = nullptr;
+
+        if (celda.zona == TIPO_ZONA::BOMBA) {
+            cantZonasBomba--;
+        } else if (celda.zona == TIPO_ZONA::TERRORISTA) {
+            hayZonaA = false;
+        } else if (celda.zona == TIPO_ZONA::COUNTERTERRORISTA) {
+            hayZonaB = false;
+        }
+    }
+    celda = Celda();
+    QString imagen = seleccionarImagenTerreno();
+    QPixmap pixmap(imagen);
+    QPixmap pixmapEscalado =
+            pixmap.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
+
+    int x = col * CELL_SIZE + (CELL_SIZE - pixmapEscalado.width()) / 2;
+    int y = fila * CELL_SIZE + (CELL_SIZE - pixmapEscalado.height()) / 2;
+    item->setPos(x, y);
+    item->setZValue(-1);
+    scene->addItem(item);
 }
 
 bool MainWindow::agregarZonaBomba() {
@@ -278,6 +376,27 @@ bool MainWindow::verificarZonaBomba() {
         return false;
     }
     return true;
+}
+
+bool MainWindow::verificarZonasDeInicio() {
+    if (!hayZonaA || !hayZonaB) {
+        QMessageBox::warning(this, "Error de validación", "Deben estar las zonas de inicio.");
+        return false;
+    }
+    return true;
+}
+
+void MainWindow::limpiarMapa() {
+    scene->clear();
+    terreno.clear();
+    imagenSeleccionada.clear();
+
+    cantZonasBomba = 0;
+    hayZonaA = false;
+    hayZonaB = false;
+
+    inicializarGrilla();
+    ui->terrenos->setCurrentIndex(0);
 }
 
 std::string tipoCajaToString(TIPO_CAJA tipo) {
@@ -312,17 +431,17 @@ std::string tipoArmaToString(TIPO_ARMA tipo) {
 
 void MainWindow::guardarCajas(YAML::Emitter& out) {
     out << YAML::Key << "obstacles" << YAML::Value << YAML::BeginSeq;
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
+            const Celda& celda = grilla[fila][col];
             if (celda.tipoElemento == TIPO_ELEMENTO::CAJA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoCajaToString(celda.tipoCaja);
-                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
-                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "width" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "height" << YAML::Value << CELL_SIZE;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
-                out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
-                out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
+                out << YAML::Key << "x" << YAML::Value << col * CELL_SIZE;
+                out << YAML::Key << "y" << YAML::Value << fila * CELL_SIZE;
                 out << YAML::EndMap;
                 out << YAML::EndMap;
             }
@@ -333,17 +452,17 @@ void MainWindow::guardarCajas(YAML::Emitter& out) {
 
 void MainWindow::guardarArmas(YAML::Emitter& out) {
     out << YAML::Key << "weaponsMapa" << YAML::Value << YAML::BeginSeq;
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
+            const Celda& celda = grilla[fila][col];
             if (celda.tipoElemento == TIPO_ELEMENTO::ARMA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "tipo" << YAML::Value << tipoArmaToString(celda.tipoArma);
-                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
-                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "width" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "height" << YAML::Value << CELL_SIZE;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
-                out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
-                out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
+                out << YAML::Key << "x" << YAML::Value << col * CELL_SIZE;
+                out << YAML::Key << "y" << YAML::Value << fila * CELL_SIZE;
                 out << YAML::EndMap;
                 out << YAML::EndMap;
             }
@@ -354,17 +473,49 @@ void MainWindow::guardarArmas(YAML::Emitter& out) {
 
 void MainWindow::guardarZonasBomba(YAML::Emitter& out) {
     out << YAML::Key << "bomb_zones" << YAML::Value << YAML::BeginSeq;
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
-            Celda& celda = grilla[fila][col];
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
+            const Celda& celda = grilla[fila][col];
             if (celda.zona == TIPO_ZONA::BOMBA) {
                 out << YAML::BeginMap;
                 out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
-                out << YAML::Key << "x" << YAML::Value << col * TAM_CELDA;
-                out << YAML::Key << "y" << YAML::Value << fila * TAM_CELDA;
+                out << YAML::Key << "x" << YAML::Value << col * CELL_SIZE;
+                out << YAML::Key << "y" << YAML::Value << fila * CELL_SIZE;
                 out << YAML::EndMap;
-                out << YAML::Key << "width" << YAML::Value << TAM_CELDA;
-                out << YAML::Key << "height" << YAML::Value << TAM_CELDA;
+                out << YAML::Key << "width" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "height" << YAML::Value << CELL_SIZE;
+                out << YAML::EndMap;
+            }
+        }
+    }
+    out << YAML::EndSeq;
+}
+
+void MainWindow::guardarZonasInicio(YAML::Emitter& out) {
+    out << YAML::Key << "init_zones" << YAML::Value << YAML::BeginSeq;
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
+            const Celda& celda = grilla[fila][col];
+            if (celda.zona == TIPO_ZONA::TERRORISTA) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "tipo" << YAML::Value << "Terrorist";
+                out << YAML::Key << "width" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "height" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
+                out << YAML::Key << "x" << YAML::Value << col * CELL_SIZE;
+                out << YAML::Key << "y" << YAML::Value << fila * CELL_SIZE;
+                out << YAML::EndMap;
+                out << YAML::EndMap;
+            }
+            if (celda.zona == TIPO_ZONA::COUNTERTERRORISTA) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "tipo" << YAML::Value << "CounterTerrorist";
+                out << YAML::Key << "width" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "height" << YAML::Value << CELL_SIZE;
+                out << YAML::Key << "position" << YAML::Value << YAML::BeginMap;
+                out << YAML::Key << "x" << YAML::Value << col * CELL_SIZE;
+                out << YAML::Key << "y" << YAML::Value << fila * CELL_SIZE;
+                out << YAML::EndMap;
                 out << YAML::EndMap;
             }
         }
@@ -377,77 +528,10 @@ void MainWindow::guardarMapaComoYaml(const QString& nombreArchivo) {
 
     out << YAML::BeginMap;
 
-    out << YAML::Key << "server" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "port" << YAML::Value << 1500;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "player" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "health" << YAML::Value << 100;
-    out << YAML::Key << "money" << YAML::Value << 500;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "weapons" << YAML::Value << YAML::BeginMap;
-
-    out << YAML::Key << "knife" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 0;
-    out << YAML::Key << "range" << YAML::Value << 45;
-    out << YAML::Key << "min_damage" << YAML::Value << 10;
-    out << YAML::Key << "max_damage" << YAML::Value << 20;
-    out << YAML::Key << "precision" << YAML::Value << 1;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "glock" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 0;
-    out << YAML::Key << "range" << YAML::Value << 100;
-    out << YAML::Key << "min_damage" << YAML::Value << 10;
-    out << YAML::Key << "max_damage" << YAML::Value << 20;
-    out << YAML::Key << "precision" << YAML::Value << 0.8;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "bomb" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 0;
-    out << YAML::Key << "range" << YAML::Value << 0;
-    out << YAML::Key << "min_damage" << YAML::Value << 500;
-    out << YAML::Key << "max_damage" << YAML::Value << 500;
-    out << YAML::Key << "precision" << YAML::Value << 1;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "ak47" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 100;
-    out << YAML::Key << "range" << YAML::Value << 150;
-    out << YAML::Key << "min_damage" << YAML::Value << 20;
-    out << YAML::Key << "max_damage" << YAML::Value << 30;
-    out << YAML::Key << "precision" << YAML::Value << 0.8;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "m3" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 200;
-    out << YAML::Key << "range" << YAML::Value << 125;
-    out << YAML::Key << "min_damage" << YAML::Value << 15;
-    out << YAML::Key << "max_damage" << YAML::Value << 25;
-    out << YAML::Key << "precision" << YAML::Value << 0.9;
-    out << YAML::EndMap;
-
-    out << YAML::Key << "awp" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "price" << YAML::Value << 300;
-    out << YAML::Key << "range" << YAML::Value << 200;
-    out << YAML::Key << "min_damage" << YAML::Value << 30;
-    out << YAML::Key << "max_damage" << YAML::Value << 40;
-    out << YAML::Key << "precision" << YAML::Value << 0.95;
-    out << YAML::EndMap;
-
-    out << YAML::EndMap;
-
-    out << YAML::Key << "rounds" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "total" << YAML::Value << 10;
-    out << YAML::Key << "terrorists" << YAML::Value << 1;
-    out << YAML::Key << "counterterrorists" << YAML::Value << 1;
-    out << YAML::EndMap;
-
-    // EDITOR
     guardarCajas(out);
     guardarArmas(out);
     guardarZonasBomba(out);
+    guardarZonasInicio(out);
 
     out << YAML::Key << "terreno" << YAML::Value << terreno.toStdString();
 
@@ -492,6 +576,83 @@ TIPO_ARMA stringToTipoArma(const std::string& str) {
         return TIPO_ARMA::M3;
 }
 
+void MainWindow::cargarObstaculosEnElMapa(const YAML::Node& archivo) {
+    if (archivo["obstacles"]) {
+        for (const auto& caja: archivo["obstacles"]) {
+            int x = caja["position"]["x"].as<int>();
+            int y = caja["position"]["y"].as<int>();
+            TIPO_CAJA tipoCaja = stringToTipoCaja(caja["tipo"].as<std::string>());
+            int fila = y / CELL_SIZE;
+            int col = x / CELL_SIZE;
+
+            if (fila >= 0 && fila < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE) {
+                grilla[fila][col].tipoElemento = TIPO_ELEMENTO::CAJA;
+                grilla[fila][col].tipoCaja = tipoCaja;
+                grilla[fila][col].imagenElemento = mapaCajas2[tipoCaja];
+            }
+        }
+    }
+}
+
+void MainWindow::cargarArmasEnElMapa(const YAML::Node& archivo) {
+    if (archivo["weaponsMapa"]) {
+        for (const auto& arma: archivo["weaponsMapa"]) {
+            int x = arma["position"]["x"].as<int>();
+            int y = arma["position"]["y"].as<int>();
+            TIPO_ARMA tipoArma = stringToTipoArma(arma["tipo"].as<std::string>());
+            int fila = y / CELL_SIZE;
+            int col = x / CELL_SIZE;
+
+            if (fila >= 0 && fila < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE) {
+                grilla[fila][col].tipoElemento = TIPO_ELEMENTO::ARMA;
+                grilla[fila][col].tipoArma = tipoArma;
+                grilla[fila][col].imagenElemento = mapaArmas2[tipoArma];
+            }
+        }
+    }
+}
+
+void MainWindow::cargarZonasBombasEnElMapa(const YAML::Node& archivo) {
+    if (archivo["bomb_zones"]) {
+        for (const auto& zona: archivo["bomb_zones"]) {
+            int x = zona["position"]["x"].as<int>();
+            int y = zona["position"]["y"].as<int>();
+            int fila = y / CELL_SIZE;
+            int col = x / CELL_SIZE;
+
+            if (fila >= 0 && fila < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE) {
+                cantZonasBomba++;
+                grilla[fila][col].zona = TIPO_ZONA::BOMBA;
+                grilla[fila][col].imagenElemento = IMAGEN_BOMBA;
+            }
+        }
+    }
+}
+
+void MainWindow::cargarZonasDeInicioEnElMapa(const YAML::Node& archivo) {
+    if (archivo["init_zones"]) {
+        for (const auto& zona: archivo["init_zones"]) {
+            int x = zona["position"]["x"].as<int>();
+            int y = zona["position"]["y"].as<int>();
+            int fila = y / CELL_SIZE;
+            int col = x / CELL_SIZE;
+
+            if (fila >= 0 && fila < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE) {
+                if (zona["tipo"].as<std::string>() == "Terrorist") {
+                    hayZonaA = true;
+                    grilla[fila][col].zona = TIPO_ZONA::TERRORISTA;
+                    grilla[fila][col].imagenElemento = IMAGEN_ZONA_A;
+                }
+                if (zona["tipo"].as<std::string>() == "CounterTerrorist") {
+                    hayZonaB = true;
+                    grilla[fila][col].zona = TIPO_ZONA::COUNTERTERRORISTA;
+                    grilla[fila][col].imagenElemento = IMAGEN_ZONA_B;
+                }
+            }
+        }
+    }
+}
+
 void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
     YAML::Node archivo = YAML::LoadFile(nombreArchivo.toStdString());
 
@@ -500,73 +661,31 @@ void MainWindow::abrirMapaDesdeYaml(const QString& nombreArchivo) {
     }
 
     cargarImagenTerreno();
-
     inicializarGrilla();
 
-    if (archivo["obstacles"]) {
-        for (const auto& caja: archivo["obstacles"]) {
-            int x = caja["position"]["x"].as<int>();
-            int y = caja["position"]["y"].as<int>();
-            TIPO_CAJA tipoCaja = stringToTipoCaja(caja["tipo"].as<std::string>());
-            int fila = y / TAM_CELDA;
-            int col = x / TAM_CELDA;
+    cargarObstaculosEnElMapa(archivo);
+    cargarArmasEnElMapa(archivo);
+    cargarZonasBombasEnElMapa(archivo);
+    cargarZonasDeInicioEnElMapa(archivo);
 
-            if (fila >= 0 && fila < FILAS && col >= 0 && col < COLUMNAS) {
-                grilla[fila][col].tipoElemento = TIPO_ELEMENTO::CAJA;
-                grilla[fila][col].tipoCaja = tipoCaja;
-                grilla[fila][col].imagenElemento = mapaCajas2[tipoCaja];
-            }
-        }
-    }
-
-    if (archivo["weaponsMapa"]) {
-        for (const auto& arma: archivo["weaponsMapa"]) {
-            int x = arma["position"]["x"].as<int>();
-            int y = arma["position"]["y"].as<int>();
-            TIPO_ARMA tipoArma = stringToTipoArma(arma["tipo"].as<std::string>());
-            int fila = y / TAM_CELDA;
-            int col = x / TAM_CELDA;
-
-            if (fila >= 0 && fila < FILAS && col >= 0 && col < COLUMNAS) {
-                grilla[fila][col].tipoElemento = TIPO_ELEMENTO::ARMA;
-                grilla[fila][col].tipoArma = tipoArma;
-                grilla[fila][col].imagenElemento = mapaArmas2[tipoArma];
-            }
-        }
-    }
-
-    if (archivo["bomb_zones"]) {
-        for (const auto& zona: archivo["bomb_zones"]) {
-            int x = zona["position"]["x"].as<int>();
-            int y = zona["position"]["y"].as<int>();
-            int fila = y / TAM_CELDA;
-            int col = x / TAM_CELDA;
-
-            if (fila >= 0 && fila < FILAS && col >= 0 && col < COLUMNAS) {
-                cantZonasBomba++;
-                grilla[fila][col].zona = TIPO_ZONA::BOMBA;
-                grilla[fila][col].imagenElemento = IMAGEN_BOMBA;
-            }
-        }
-    }
-
-    QGraphicsScene* scene = ui->graphicsView->scene();
-    for (int fila = 0; fila < FILAS; fila++) {
-        for (int col = 0; col < COLUMNAS; col++) {
+    QGraphicsScene* localScene = ui->graphicsView->scene();
+    for (int fila = 0; fila < MATRIX_SIZE; fila++) {
+        for (int col = 0; col < MATRIX_SIZE; col++) {
             Celda& celda = grilla[fila][col];
-            int x = col * TAM_CELDA;
-            int y = fila * TAM_CELDA;
 
             if (!celda.imagenElemento.isEmpty()) {
                 QPixmap pixmap(celda.imagenElemento);
                 if (pixmap.isNull()) {
                     continue;
                 }
-                QPixmap pixmapEscalado = pixmap.scaled(TAM_CELDA, TAM_CELDA, Qt::KeepAspectRatio,
+                QPixmap pixmapEscalado = pixmap.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio,
                                                        Qt::SmoothTransformation);
                 QGraphicsPixmapItem* item = new QGraphicsPixmapItem(pixmapEscalado);
+                celda.item = item;
+                int x = col * CELL_SIZE + (CELL_SIZE - pixmapEscalado.width()) / 2;
+                int y = fila * CELL_SIZE + (CELL_SIZE - pixmapEscalado.height()) / 2;
                 item->setPos(x, y);
-                scene->addItem(item);
+                localScene->addItem(item);
             }
         }
     }

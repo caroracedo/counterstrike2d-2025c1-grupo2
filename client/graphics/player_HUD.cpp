@@ -1,5 +1,7 @@
 #include "player_HUD.h"
 
+#include <limits>
+
 PlayerHUD::PlayerHUD(SDL2pp::Renderer& renderer, SDL2pp::Texture& numbers_texture,
                      SDL2pp::Texture& life_texture, SDL2pp::Texture& money_texture):
         renderer(renderer),
@@ -28,14 +30,14 @@ void PlayerHUD::render_number_string(const std::string& text, int x_pos, int y_p
 
 void PlayerHUD::render_icon(int x_pos, int y_pos, float scale, bool show_life) {
     if (show_life) {
-        SDL2pp::Rect src(0, 0, 64, 64);
-        SDL2pp::Rect dst(x_pos, y_pos, 64 * scale, 64 * scale);
+        SDL2pp::Rect src(0, 0, HUD_ICONS_SIZE, HUD_ICONS_SIZE);
+        SDL2pp::Rect dst(x_pos, y_pos, HUD_ICONS_SIZE * scale, HUD_ICONS_SIZE * scale);
         life_texture.SetAlphaMod(127);
         life_texture.SetColorMod(255, 255, 0);  // amarillo
         renderer.Copy(life_texture, src, dst);
     } else {
-        SDL2pp::Rect src(0, 0, 64, 64);
-        SDL2pp::Rect dst(x_pos, y_pos, 64 * scale, 64 * scale);
+        SDL2pp::Rect src(0, 0, HUD_ICONS_SIZE, HUD_ICONS_SIZE);
+        SDL2pp::Rect dst(x_pos, y_pos, HUD_ICONS_SIZE * scale, HUD_ICONS_SIZE * scale);
         money_texture.SetColorMod(255, 255, 0);  // amarillo
         money_texture.SetAlphaMod(127);
         renderer.Copy(money_texture, src, dst);
@@ -57,18 +59,18 @@ void PlayerHUD::draw(bool is_bomb_active) {
     std::string timer_str = std::to_string(timer);
     float scale = 0.5f;
 
-    // render health
+    // health
     int health_x = 0;
     int health_y = SCREEN_HEIGHT - digit_height * scale;
     render_icon(health_x, health_y, scale, true);
     render_number_string(health_str, health_x + digit_width * scale, health_y, scale, true);
 
-    // render bullets
+    // bullets
     int bullet_x = SCREEN_WIDTH - digit_width * bullets_str.size() * scale;
     int bullet_y = SCREEN_HEIGHT - digit_height * scale;
     render_number_string(bullets_str, bullet_x, bullet_y, scale, true);
 
-    // render money
+    // money
     int money_x = SCREEN_WIDTH - digit_width * (money_str.size() + 1) * scale;
     int money_y = bullet_y - digit_height * scale - 5;
     render_icon(money_x, money_y, scale, false);
@@ -77,7 +79,7 @@ void PlayerHUD::draw(bool is_bomb_active) {
     // when bomb planted, render time remaining
     int timer_x = SCREEN_WIDTH / 2 - digit_width * timer_str.size() * scale;
 
-    if (timer > 0 && is_bomb_active) {
+    if (timer > 0 && is_bomb_active && timer != std::numeric_limits<uint16_t>::max()) {
         render_number_string(timer_str, timer_x, 0, scale, false);
     }
 }

@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.24)
 
+project(taller_tp
+    VERSION 1.0
+    HOMEPAGE_URL "https://github.com/URL-HERE"
+    LANGUAGES CXX
+)
+
+# --- Políticas y configuración global ---
 if (POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
 endif()
@@ -10,57 +17,43 @@ endif()
 
 set(CMAKE_CXX_EXTENSIONS ON)
 
-project(taller_tp
-    VERSION 1.0
-    HOMEPAGE_URL "https://github.com/URL-HERE"
-    LANGUAGES CXX
-    )
-
+# --- Opciones del proyecto ---
 option(TALLER_TESTS "Enable / disable tests." ON)
 option(TALLER_CLIENT "Enable / disable client program." ON)
 option(TALLER_SERVER "Enable / disable server program." ON)
 option(TALLER_EDITOR "Enable / disable editor program." ON)
 option(TALLER_MAKE_WARNINGS_AS_ERRORS "Enable / disable warnings as errors." ON)
 
-message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
-
-# Define target: lib common between client, server and editor programs
-# HEY TODO XXX: change the name to something that you like
-add_library(taller_common STATIC)
-
-# add the source files that make the lib
-# HEY!! TODO XXX: add more subfolders here
-add_subdirectory(common/)
-
+# --- Paths globales ---
 set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/assets")
-
-include(FetchContent)
-
 if(DEFINED CUSTOM_ASSETS_PATH)
     set(ASSETS_PATH "${CUSTOM_ASSETS_PATH}")
 endif()
-
 add_definitions(-DASSETS_PATH="${ASSETS_PATH}")
 
+set(MAPS_PATH "${PROJECT_SOURCE_DIR}/editor/maps/")
+if(DEFINED CUSTOM_MAPS_PATH)
+    set(MAPS_PATH "${CUSTOM_MAPS_PATH}")
+endif()
+add_definitions(-DMAPS_PATH="${MAPS_PATH}")
+
+message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER_ID}")
+
+# --- Warnings ---
+# set compiler warnings to the targets
+include(cmake/CompilerWarnings.cmake)
+
+# --- Dependencias de terceros ---
+include(FetchContent)
+
+# yaml-cpp
 FetchContent_Declare(
     yaml-cpp
     GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
     GIT_TAG yaml-cpp-0.7.0
     GIT_SHALLOW TRUE
 )
-
 FetchContent_MakeAvailable(yaml-cpp)
-
-# set compiler warnings to the targets
-include(cmake/CompilerWarnings.cmake)
-set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
-
-# Say where the headers will be found required by library target
-# Make this PUBLIC so any dependant linking lib will inherit this
-# location (so our dependants will not have to explicitly request this)
-target_include_directories(taller_common PUBLIC .)
-
-target_link_libraries(taller_common PUBLIC yaml-cpp)
 
 # HEY!! TODO XXX: you need to install some runtime and dev libraries *before*
 # compiling the client/editor code.
@@ -72,9 +65,8 @@ target_link_libraries(taller_common PUBLIC yaml-cpp)
 
 # Install libSDL2 and libSDL2pp (for client or editor)
 # HEY!! TODO XXX: add more dependendies (either for client, server or editor)
+# SDL y SDL2pp
 if(TALLER_CLIENT OR TALLER_EDITOR)
-    include(FetchContent)
-
     set(SDL2PP_WITH_MIXER YES)
     set(SDL2PP_WITH_TTF YES)
 
@@ -120,21 +112,48 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
         URL https://github.com/libSDL2pp/libSDL2pp/archive/cc198c9a5657048bee67ece82de620b2d5661084.zip
     )
 
-    FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
+    FetchContent_Declare(
+        SDL2_gfx
+        GIT_REPOSITORY https://github.com/ferzkopp/SDL2_gfx.git
+        GIT_TAG origin
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+    )
+
+    FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp SDL2_gfx)
 endif()
 
-# Program section
-# ---------------
+# --- Biblioteca común ---
+# Define target: lib common between client, server and editor programs
+# HEY TODO XXX: change the name to something that you like
+add_library(taller_common STATIC)
+
+# add the source files that make the lib
+# HEY!! TODO XXX: add more subfolders here
+add_subdirectory(common/)
+
+# Say where the headers will be found required by library target
+# Make this PUBLIC so any dependant linking lib will inherit this
+# location (so our dependants will not have to explicitly request this)
+target_include_directories(taller_common PUBLIC .)
+
+target_link_libraries(taller_common PUBLIC yaml-cpp)
+
+set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
+
+# --- Cliente ---
 if(TALLER_CLIENT)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
-    # Buscar Qt
-    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
 
-    # Habilitar UIC, MOC, RCC automáticos
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
+
+    qt_add_resources(RESOURCES
+        qrc/resources.qrc
+    )
 
     add_executable(taller_client)
 
@@ -149,11 +168,12 @@ if(TALLER_CLIENT)
 
     # add libSDL2pp's headers
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR} ${Qt${QT_VERSION_MAJOR}_INCLUDE_DIRS})
-
+    
     # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp yaml-cpp Qt${QT_VERSION_MAJOR}::Widgets)
+    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia SDL2_gfx)
 endif()
 
+# --- Servidor ---
 if(TALLER_SERVER)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_server)
@@ -164,27 +184,24 @@ if(TALLER_SERVER)
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(server)
-
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # Link the taller_common lib target
     target_link_libraries(taller_server taller_common)
 endif()
 
+# --- Editor ---
 if(TALLER_EDITOR)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
-    # Buscar Qt
     find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-    # Habilitar UIC, MOC, RCC automáticos
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
 
-    #Agregar recursos Qt
     qt_add_resources(RESOURCES
-        editor/resources.qrc
+        qrc/resources.qrc
     )
 
     add_executable(taller_editor)
@@ -211,12 +228,11 @@ endif()
 
 if(TALLER_TESTS)
     # Let's use google test
-    include(FetchContent)
     FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
     )
-
+    
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     # (borrowed from https://google.github.io/googletest/quickstart-cmake.html)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -225,25 +241,34 @@ if(TALLER_TESTS)
 
     # target for testing
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
-    add_executable(taller_tests)
+    add_executable(taller_server_tests)
+    add_executable(taller_client_tests)
 
     # HEY!! TODO XXX: I'm assuming that the code under testing is in taller_common
     # Change this if you have to.
-    add_dependencies(taller_tests taller_common)
+    add_dependencies(taller_server_tests taller_common)
+    add_dependencies(taller_client_tests taller_common)
 
     # Say where to find the xoz headers
     # HEY!! TODO XXX: add more subfolders here
-    target_include_directories(taller_tests PUBLIC .)
+    target_include_directories(taller_server_tests PUBLIC .)
+    target_include_directories(taller_client_tests PUBLIC .)
 
     # Add the source files to the taller_tests target
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(tests/)
 
     # Set the compiler warnings to the tests target (but be a little lesser strict)
-    set_project_warnings(taller_tests ${TALLER_MAKE_WARNINGS_AS_ERRORS} TRUE)
+    set_project_warnings(taller_server_tests ${TALLER_MAKE_WARNINGS_AS_ERRORS} TRUE)
+    set_project_warnings(taller_client_tests ${TALLER_MAKE_WARNINGS_AS_ERRORS} TRUE)
 
     # Say where googletest headers can be found
-    target_include_directories(taller_tests
+    target_include_directories(taller_server_tests
+        PUBLIC
+        ${gtest_SOURCE_DIR}/include
+        ${gmock_SOURCE_DIR}/include
+        )
+    target_include_directories(taller_client_tests
         PUBLIC
         ${gtest_SOURCE_DIR}/include
         ${gmock_SOURCE_DIR}/include
@@ -251,7 +276,11 @@ if(TALLER_TESTS)
 
     # HEY!! TODO XXX: I'm assuming that the code under testing is in taller_common
     # Change this if you have to.
-    target_link_libraries(taller_tests
+    target_link_libraries(taller_server_tests
+        taller_common
+        GTest::gtest_main
+    )
+    target_link_libraries(taller_client_tests
         taller_common
         GTest::gtest_main
     )

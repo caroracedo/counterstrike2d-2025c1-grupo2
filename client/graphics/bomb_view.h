@@ -1,6 +1,7 @@
 #ifndef BOMB_VIEW_H
 #define BOMB_VIEW_H
 
+#include <utility>
 #include <vector>
 
 #include <SDL2pp/SDL2pp.hh>
@@ -26,6 +27,10 @@ private:
 
     bool active = false;
 
+    bool dropped = false;
+
+    bool sounds_played = false;
+
     SoundManager& sounds;
 
     std::vector<SDL2pp::Rect> get_rects();
@@ -33,7 +38,8 @@ private:
 public:
     BombView(SDL2pp::Texture& bomb_texture, SDL2pp::Texture& explotion, SoundManager& sm);
 
-    void update(float px, float py);
+    void update(float px, float py, uint16_t time_to_explode,
+                std::optional<std::pair<float, float>> listener_position = std::nullopt);
 
     void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
 
@@ -48,6 +54,12 @@ public:
     bool is_exploding() const;
 
     bool is_active() const;
+
+    void reset_sounds() { sounds_played = false; }
+
+    bool is_dropped() const { return dropped; }
+
+    void set_dropped(bool dropped) { this->dropped = dropped; }
 };
 
 #endif

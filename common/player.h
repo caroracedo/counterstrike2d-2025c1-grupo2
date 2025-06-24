@@ -2,10 +2,12 @@
 #define PLAYER_H
 
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "action_DTO.h"
+#include "constants.h"
 #include "object.h"
 #include "weapon.h"
 #include "weapon_DTO.h"
@@ -14,69 +16,61 @@
 class Player: public Object {
 private:
     PlayerType player_type;
+    PlayerSkin player_skin;
     uint16_t health;
+    bool infinite_health;
     uint16_t money;
-    uint16_t radius = PLAYER_RADIUS;
+    bool infinite_money;
+    const uint16_t radius;
+    float angle;
 
     WeaponShop& weapon_shop;
-
     Weapon knife;
     Weapon primary_weapon;
     Weapon secondary_weapon;
-    bool has_bomb = false;
-
+    bool has_bomb;
     Weapon* current;
 
+    WeaponDTO drop_primary_weapon();
+
 public:
-    /* Constructor */
-    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type, uint8_t health,
-           uint16_t initial_money, WeaponShop& weapon_shop);
+    Player(uint16_t id, const std::vector<uint16_t>& position, PlayerType type,
+           PlayerSkin player_skin, uint8_t health, uint16_t initial_money, WeaponShop& weapon_shop);
 
-    /* Auxiliar */
-    Weapon initial_buy(WeaponModel weapon_model);
-
-    /* Virtual puro */
     ObjectDTO get_dto() const override;
 
-    /* Verificaciones */
     bool is_alive() const;
 
-    /* Getters */
     WeaponDTO get_current_weapon() const;
+    void change_weapon();
+    std::pair<WeaponDTO, bool> drop_weapons();
+    WeaponDTO pick_up_weapon(const WeaponDTO& weapon_dto);
+
+    WeaponDTO buy_weapon(const WeaponModel& weapon_model);
+    bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
+    void add_money(uint16_t amount);
 
     bool shoot();
 
-    PlayerType get_player_type() const;
-
-    /* Funcionalidades */
-    /* Daño */
-    void take_damage(uint16_t damage);
-
-    void cure(uint16_t health_amount);
-
-    void switch_player_type();
-
-    /* Cambio de arma */
-    void change_weapon();
-
     bool can_plant_bomb() const;
-
     void plant_bomb();
-
-    /* Setters */
     void set_bomb();
 
-    std::string get_current_weapon_name() const;
+    PlayerSkin get_player_skin() const;
+    PlayerType get_player_type() const;
+    void switch_player_type();
+    void switch_player_skin();
+
+    void take_damage(uint16_t damage);
+    void cure(uint16_t health_amount);
 
     std::vector<uint16_t> get_next_position(Direction direction) const;
+    void rotate(float new_angle);
+    float get_angle() const;
 
-    /* Comprar Weapon */
-    bool buy_weapon(const WeaponModel& weapon_model);
-
-    /* Comprar Ammo */
-    bool buy_ammo(WeaponType weapon, uint16_t ammo_amount);
-
-    void add_money(uint16_t amount);
+    void do_health_cheat();
+    void do_ammo_cheat();
+    void do_money_cheat();
 };
 
 #endif  // PLAYER

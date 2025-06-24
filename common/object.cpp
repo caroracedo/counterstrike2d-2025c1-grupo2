@@ -9,11 +9,14 @@ Object::Object(): object_type(ObjectType::UNKNOWN), id(0), position({0, 0}), wid
 
 /* Getters */
 ObjectType Object::get_type() const { return object_type; }
-uint16_t Object::get_id() const { return id; }
-uint16_t Object::get_width() const { return width; }
-uint16_t Object::get_height() const { return height; }
-std::vector<uint16_t> Object::get_position() const { return position; }
 
+uint16_t Object::get_id() const { return id; }
+
+uint16_t Object::get_width() const { return width; }
+
+uint16_t Object::get_height() const { return height; }
+
+std::vector<uint16_t> Object::get_position() const { return position; }
 
 /* Funcionalidad */
 void Object::move(const std::vector<uint16_t>& new_position) { position = new_position; }

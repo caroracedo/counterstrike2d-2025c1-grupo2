@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "object_DTO.h"
+#include "stats.h"
 #include "types.h"
 
 enum class ActionType : uint8_t {
@@ -14,7 +15,9 @@ enum class ActionType : uint8_t {
     BOMB = 0x66,
     QUIT = 0x71,
     UPDATE = 0x75,
-    PLAYERID = 0x69,
+    INFORMATION = 0x70,
+    CONFIGURATION = 0x69,
+    PICKUP = 0x70,
     END = 0x59,
     SHOP = 0x57,
     WEAPON = 0x56,
@@ -23,6 +26,15 @@ enum class ActionType : uint8_t {
     CREATE = 0x42,
     JOIN = 0x43,
     CHANGE = 0x40,
+    STATS = 0x9D,
+    START = 0x3D,
+    ROTATE = 0x2D,
+    INIT = 0x10,
+    HEALTHCHEAT = 0xFE,
+    AMMOCHEAT = 0xFD,
+    MONEYCHEAT = 0xFC,
+    WINCHEAT = 0xFB,
+    MESSAGE = 0xEE,
     UNKNOWN = 0x00
 };
 
@@ -37,9 +49,18 @@ enum class Direction : uint8_t {
 struct ActionDTO {
     ActionType type;
 
+    /* Init */
+    std::string hostname;
+    std::string servname;
+
     /* Partida */
     std::string match;
+    std::string map;
+    uint16_t number_terrorist;
+    uint16_t number_counterterrorist;
     PlayerType player_type;
+    PlayerSkin player_skin;
+    TerrainType terrain_type;
     /* Mover */
     Direction direction;
     /* Disparar */
@@ -49,11 +70,20 @@ struct ActionDTO {
     /* Comprar Ammo */
     uint16_t ammo;
     WeaponType weapon_type;
+    /* Rotar */
+    float angle;
 
+    /* Configuration */
+    std::vector<std::string> matches;
+    std::vector<std::string> maps;
     /* Update */
     std::vector<ObjectDTO> objects;
     /* Shop */
     std::vector<WeaponModel> weapons;
+    /* Stats */
+    Stats stats;
+    /* End */
+    WinnerTeamType winner_team_type;
 
     /* Id */
     uint16_t id;
@@ -69,21 +99,19 @@ struct ActionDTO {
     ActionDTO(ActionType action, uint16_t value);
 
     /* client -> server */
-    /* Partida */
-    ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type);
-    /* Partida con id (en server) */
+    /* Init */
+    ActionDTO(const ActionType& action, const std::string& hostname, const std::string& servname);
+    /* Crear Partida */
+    ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
+              uint16_t number_terrorist, uint16_t number_counterterrorist,
+              const PlayerType& player_type, const PlayerSkin& player_skin);
+
+    /* Unirse a una Partida */
     ActionDTO(const ActionType& action, const std::string& match, const PlayerType& player_type,
-              uint16_t id);
-
-    /* Tipo de Jugador */
-    ActionDTO(const ActionType& action, const PlayerType& player_type);
-
-    /* Tipo de Jugador con id (en server) */
-    ActionDTO(const ActionType& action, const PlayerType& player_type, uint16_t id);
+              const PlayerSkin& player_skin);
 
     /* Mover */
     ActionDTO(const ActionType& action, const Direction& direction);
-
     /* Mover con id (en server)*/
     ActionDTO(const ActionType& action, const Direction& direction, uint16_t id);
 
@@ -97,17 +125,32 @@ struct ActionDTO {
     /* Comprar Weapon con id (en server)*/
     ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id);
 
-    /* Comprar Ammo */
-    ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type);
     /* Comprar Ammo con id (en server)*/
     ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id);
 
+    /* Rotar */
+    ActionDTO(const ActionType& action, float angle);
+    /* Rotar con id (en server)*/
+    ActionDTO(const ActionType& action, float angle, uint16_t id);
+
     /* server -> client */
+    /* Information */
+    ActionDTO(const ActionType& action, const std::vector<std::string>& matches,
+              const std::vector<std::string>& maps);
+    /* Configuration */
+    ActionDTO(const ActionType& action, const TerrainType& terrain_type, uint16_t id);
+
     /* Update */
     ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects);
 
     /* Shop */
     ActionDTO(const ActionType& action, const std::vector<WeaponModel>& weapons);
+
+    /* Stats */
+    ActionDTO(const ActionType& action, const Stats& stats);
+
+    /* Message */
+    ActionDTO(const ActionType& action, const WinnerTeamType& winner_team_type);
 };
 
 #endif  // ACTION_DTO_H

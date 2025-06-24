@@ -6,3 +6,5 @@ target_sources(taller_client
         ${GRAPHIC_SOURCES}
         ${GRAPHIC_HEADERS}
 )
+
+add_subdirectory(vfx)

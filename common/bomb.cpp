@@ -1,12 +1,16 @@
 #include "bomb.h"
 
 Bomb::Bomb(const std::vector<uint16_t>& position):
-        Object(ObjectType::BOMB, 0, position, BOMB_RADIUS, BOMB_RADIUS) {}
+        Object(ObjectType::BOMB, 0, position, BOMB_SIZE, BOMB_SIZE), bomb_countdown(-1) {}
 
 ObjectDTO Bomb::get_dto() const {
-    return ObjectDTO(object_type, position, std::floor(bomb_countdown / 30));
+    return ObjectDTO(object_type, position,
+                     static_cast<uint16_t>(bomb_countdown >= 0 ? std::floor(bomb_countdown / 30) :
+                                                                 bomb_countdown));
 }
 
 void Bomb::start_countdown() { bomb_countdown = BOMB_COUNTDOWN; }
 
 bool Bomb::update_countdown() { return bomb_countdown >= 0 && --bomb_countdown == 0; }
+
+bool Bomb::is_active() const { return bomb_countdown > 0; }

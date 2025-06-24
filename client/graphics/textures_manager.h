@@ -23,13 +23,26 @@ public:
         load(renderer, "hud_money", ASSETS_PATH "/gfx/money.bmp", true);
 
         load(renderer, "glock", ASSETS_PATH "/gfx/weapons/glock.bmp");
-        load(renderer, "ak-47", ASSETS_PATH "/gfx/weapons/ak47.bmp");
+        load(renderer, "ak47", ASSETS_PATH "/gfx/weapons/ak47.bmp");
         load(renderer, "m3", ASSETS_PATH "/gfx/weapons/m3.bmp");
         load(renderer, "awp", ASSETS_PATH "/gfx/weapons/awp.bmp");
         load(renderer, "knife", ASSETS_PATH "/gfx/weapons/knife.bmp");
+
         load(renderer, "bomb", ASSETS_PATH "/gfx/weapons/bomb.bmp");
         load(renderer, "explotion", ASSETS_PATH "/gfx/sprites/explosion.bmp");
         load(renderer, "bomb_zone", ASSETS_PATH "/gfx/tiles/bomb_zone.bmp");
+        load(renderer, "pointer", ASSETS_PATH "/gfx/player/pointer.bmp", true, {255, 0, 255, 0});
+
+        load(renderer, "ak47_d", ASSETS_PATH "/gfx/weapons/ak47_m.bmp", true, {255, 0, 255, 0});
+        load(renderer, "m3_d", ASSETS_PATH "/gfx/weapons/m3_m.bmp", true, {255, 0, 255, 0});
+        load(renderer, "awp_d", ASSETS_PATH "/gfx/weapons/awp_m.bmp", true, {255, 0, 255, 0});
+
+        load(renderer, "sand1", ASSETS_PATH "/gfx/backgrounds/sand1.bmp");
+        load(renderer, "office", ASSETS_PATH "/gfx/backgrounds/office.bmp");
+        load(renderer, "aztec", ASSETS_PATH "/gfx/backgrounds/aztec.bmp");
+
+        load(renderer, "slash", ASSETS_PATH "/gfx/knifeslash.bmp", true);
+
 
         for (int i = 1; i <= 5; ++i) {
             std::string name = "box_" + std::to_string(i);
@@ -37,10 +50,20 @@ public:
                     std::string(ASSETS_PATH) + "/gfx/tiles/caja" + std::to_string(i) + ".bmp";
             load(renderer, name, path);
         }
+
+        for (int i = 1; i <= 4; i++) {
+            std::string ter_name = "t" + std::to_string(i);
+            std::string ct_name = "ct" + std::to_string(i);
+
+            std::string ter_path = std::string(ASSETS_PATH) + "/gfx/player/" + ter_name + ".bmp";
+            std::string ct_path = std::string(ASSETS_PATH) + "/gfx/player/" + ct_name + ".bmp";
+            load(renderer, ter_name, ter_path);
+            load(renderer, ct_name, ct_path);
+        }
     }
 
     void load(SDL2pp::Renderer& renderer, const std::string& name, const std::string& path,
-              bool colorkey = false) {
+              bool colorkey = false, SDL_Color key_color = {0, 0, 0, 0}) {
         SDL_Surface* surface = SDL_LoadBMP(path.c_str());
         if (!surface) {
             std::cerr << "[ERROR] Failed to load texture '" << name << "' from '" << path
@@ -50,7 +73,8 @@ public:
 
         SDL2pp::Surface wrapped(surface);
         if (colorkey) {
-            wrapped.SetColorKey(true, 0);
+            Uint32 key = SDL_MapRGB(wrapped.Get()->format, key_color.r, key_color.g, key_color.b);
+            wrapped.SetColorKey(true, key);
         }
 
         textures[name] = std::make_shared<SDL2pp::Texture>(renderer, wrapped);

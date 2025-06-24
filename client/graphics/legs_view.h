@@ -24,6 +24,6 @@ public:
 
     void update(float x, float y);
 
-    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera);
+    void draw(SDL2pp::Renderer& renderer, const GameCamera& camera, float angle);
 };
 #endif

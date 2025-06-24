@@ -1,6 +1,16 @@
-target_sources(taller_tests
+target_sources(taller_server_tests
     PRIVATE
-    # .cpp files
+        server_protocol_tests.cpp
+        ../server/server_protocol.cpp
     PUBLIC
-    # .h files
-    )
+        ../server/server_protocol.h
+        tests_constants.h
+)
+target_sources(taller_client_tests
+    PRIVATE
+        ../client/client_protocol.cpp
+        client_protocol_tests.cpp
+    PUBLIC
+        ../client/client_protocol.h
+        tests_constants.h
+)

@@ -3,33 +3,45 @@
 
 #include <atomic>
 #include <memory>
+#include <utility>
 
-#include "../common/queue.h"
-#include "../common/socket.h"
-#include "../common/thread.h"
+#include "common/queue.h"
+#include "common/socket.h"
+#include "common/thread.h"
 
+#include "map_loader.h"
+#include "matches_monitor.h"
 #include "server_protocol.h"
 #include "server_receiver.h"
 #include "server_sender.h"
 
 class ClientHandler: public Thread {
 private:
+    /* Configuración */
     Socket client_socket;
     ServerProtocol protocol;
     ServerReceiver receiver;
     ServerSender sender;
-    std::atomic<bool> stop_flag;
+    MatchesMonitor& matches_monitor;
+    MapLoader& map_loader;
     uint16_t id;
+    std::atomic<bool> stop_flag = false;
+
+    /* Lobby */
+    std::pair<bool, std::pair<std::shared_ptr<Queue<ActionDTO>>, std::shared_ptr<Queue<ActionDTO>>>>
+            lobby();
 
 public:
-    ClientHandler(Socket&& socket, std::shared_ptr<Queue<ActionDTO>> initial_recv_queue,
+    /* Constructor */
+    ClientHandler(Socket&& socket, MatchesMonitor& matches_monitor, MapLoader& map_loader,
                   uint16_t id);
 
+    /* Override */
     void run() override;
-    void hard_kill();
     bool is_alive() const override;
-    void bind_queues(std::shared_ptr<Queue<ActionDTO>> recv_queue,
-                     std::shared_ptr<Queue<ActionDTO>> send_queue);
+
+    /* Cierre */
+    void hard_kill();
 };
 
 #endif  // CLIENT_HANDLER_H

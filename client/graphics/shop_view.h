@@ -9,8 +9,7 @@
 
 #include "common/constants.h"
 
-#define SCREEN_MARGIN 20
-
+#include "sound_manager.h"
 
 struct Button {
     SDL2pp::Rect rect;
@@ -26,20 +25,23 @@ private:
 
     SDL2pp::Renderer& renderer;
 
+
     std::vector<Button> buttons;
 
     SDL2pp::Rect overlay_rect;
 
     SDL2pp::Font font;
 
-    bool visible = true;
+    SoundManager& sound_manager;
+
+    bool visible = false;
 
     void init_buttons();
 
     void init_resources();
 
 public:
-    explicit ShopView(SDL2pp::Renderer& renderer);
+    ShopView(SDL2pp::Renderer& renderer, SoundManager& sound_manager);
 
     void render();
 

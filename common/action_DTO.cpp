@@ -4,52 +4,50 @@
 /* Unknown */
 ActionDTO::ActionDTO():
         type(ActionType::UNKNOWN),
+        hostname(),
+        servname(),
         match(),
+        map(),
+        number_terrorist(),
+        number_counterterrorist(),
         player_type(),
+        player_skin(),
+        terrain_type(),
         direction(),
         desired_position(),
         weapon(),
         ammo(),
         weapon_type(),
+        angle(),
+        matches(),
+        maps(),
         objects(),
         weapons(),
+        stats(),
+        winner_team_type(),
         id() {}
 
 /* Action */
-ActionDTO::ActionDTO(const ActionType& action):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
+ActionDTO::ActionDTO(const ActionType& action): ActionDTO() { this->type = action; }
+
 /* Action con uint16_t */
-ActionDTO::ActionDTO(ActionType action, uint16_t value):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {
+ActionDTO::ActionDTO(ActionType action, uint16_t value): ActionDTO() {
+    this->type = action;
     switch (type) {
-        case ActionType::PLAYERID:
         case ActionType::BOMB:
         case ActionType::CHANGE:
-            id = value;
+        case ActionType::PICKUP:
+        case ActionType::QUIT:
+        case ActionType::START:
+        case ActionType::HEALTHCHEAT:
+        case ActionType::AMMOCHEAT:
+        case ActionType::MONEYCHEAT:
+        case ActionType::WINCHEAT:
+            this->id = value;
             break;
         case ActionType::AMMOPRIMARY:
         case ActionType::AMMOSECONDARY:
-            ammo = value;
+            this->ammo = value;
             break;
         default:
             break;
@@ -57,200 +55,140 @@ ActionDTO::ActionDTO(ActionType action, uint16_t value):
 }
 
 /* client -> server */
-/* Partida */
-ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
-                     const PlayerType& player_type):
-        type(action),
-        match(match),
-        player_type(player_type),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
-/* Partida con id (en server) */
-ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
-                     const PlayerType& player_type, uint16_t id):
-        type(action),
-        match(match),
-        player_type(player_type),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id(id) {}
+/* Init */
+ActionDTO::ActionDTO(const ActionType& action, const std::string& hostname,
+                     const std::string& servname):
+        ActionDTO() {
+    this->type = action;
+    this->hostname = hostname;
+    this->servname = servname;
+}
 
-/* Tipo de Jugador */
-ActionDTO::ActionDTO(const ActionType& action, const PlayerType& player_type):
-        type(action),
-        match(),
-        player_type(player_type),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
-/* Tipo de Jugador con id (en server) */
-ActionDTO::ActionDTO(const ActionType& action, const PlayerType& player_type, uint16_t id):
-        type(action),
-        match(),
-        player_type(player_type),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id(id) {}
+/* Crear Partida */
+ActionDTO::ActionDTO(const ActionType& action, const std::string& match, const std::string& map,
+                     uint16_t number_terrorist, uint16_t number_counterterrorist,
+                     const PlayerType& player_type, const PlayerSkin& player_skin):
+        ActionDTO() {
+    this->type = action;
+    this->match = match;
+    this->map = map;
+    this->number_terrorist = number_terrorist;
+    this->number_counterterrorist = number_counterterrorist;
+    this->player_type = player_type;
+    this->player_skin = player_skin;
+}
 
+/* Unirse a una Partida */
+ActionDTO::ActionDTO(const ActionType& action, const std::string& match,
+                     const PlayerType& player_type, const PlayerSkin& player_skin):
+        ActionDTO() {
+    this->type = action;
+    this->match = match;
+    this->player_type = player_type;
+    this->player_skin = player_skin;
+}
 
 /* Mover */
-ActionDTO::ActionDTO(const ActionType& action, const Direction& direction):
-        type(action),
-        match(),
-        player_type(),
-        direction(direction),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
+ActionDTO::ActionDTO(const ActionType& action, const Direction& direction): ActionDTO() {
+    this->type = action;
+    this->direction = direction;
+}
 /* Mover con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, const Direction& direction, uint16_t id):
-        type(action),
-        match(),
-        player_type(),
-        direction(direction),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id(id) {}
-
+        ActionDTO() {
+    this->type = action;
+    this->direction = direction;
+    this->id = id;
+}
 
 /* Disparar */
 ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desired_position):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(desired_position),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
+        ActionDTO() {
+    this->type = action;
+    this->desired_position = desired_position;
+}
 /* Disparar con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, const std::vector<uint16_t>& desired_position,
                      uint16_t id):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(desired_position),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id(id) {}
-
+        ActionDTO() {
+    this->type = action;
+    this->desired_position = desired_position;
+    this->id = id;
+}
 
 /* Comprar Weapon */
-ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(weapon),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id() {}
+ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon): ActionDTO() {
+    this->type = action;
+    this->weapon = weapon;
+}
 /* Comprar Weapon con id (en server)*/
-ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(weapon),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(),
-        id(id) {}
+ActionDTO::ActionDTO(const ActionType& action, WeaponModel weapon, uint16_t id): ActionDTO() {
+    this->type = action;
+    this->weapon = weapon;
+    this->id = id;
+}
 
-/* Comprar Ammo */
-ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(ammo),
-        weapon_type(weapon_type),
-        objects(),
-        weapons(),
-        id() {}
 /* Comprar Ammo con id (en server)*/
 ActionDTO::ActionDTO(const ActionType& action, uint16_t ammo, WeaponType weapon_type, uint16_t id):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(ammo),
-        weapon_type(weapon_type),
-        objects(),
-        weapons(),
-        id(id) {}
+        ActionDTO() {
+    this->type = action;
+    this->ammo = ammo;
+    this->weapon_type = weapon_type;
+    this->id = id;
+}
 
+/* Rotar */
+ActionDTO::ActionDTO(const ActionType& action, float angle): ActionDTO() {
+    this->type = action;
+    this->angle = angle;
+}
+/* Rotar con id (en server)*/
+ActionDTO::ActionDTO(const ActionType& action, float angle, uint16_t id): ActionDTO() {
+    this->type = action;
+    this->angle = angle;
+    this->id = id;
+}
 
 /* server -> client */
+/* Information */
+ActionDTO::ActionDTO(const ActionType& action, const std::vector<std::string>& matches,
+                     const std::vector<std::string>& maps):
+        ActionDTO() {
+    this->type = action;
+    this->matches = matches;
+    this->maps = maps;
+}
+
+/* Configuration */
+ActionDTO::ActionDTO(const ActionType& action, const TerrainType& terrain_type, uint16_t id):
+        ActionDTO() {
+    this->type = action;
+    this->terrain_type = terrain_type;
+    this->id = id;
+}
+
 /* Update */
-ActionDTO::ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(objects),
-        weapons(),
-        id() {}
+ActionDTO::ActionDTO(const ActionType& action, const std::vector<ObjectDTO>& objects): ActionDTO() {
+    this->type = action;
+    this->objects = objects;
+}
 
 /* Shop */
 ActionDTO::ActionDTO(const ActionType& action, const std::vector<WeaponModel>& weapons):
-        type(action),
-        match(),
-        player_type(),
-        direction(),
-        desired_position(),
-        weapon(),
-        ammo(),
-        weapon_type(),
-        objects(),
-        weapons(weapons),
-        id() {}
+        ActionDTO() {
+    this->type = action;
+    this->weapons = weapons;
+}
+
+/* Stats */
+ActionDTO::ActionDTO(const ActionType& action, const Stats& stats): ActionDTO() {
+    this->type = action;
+    this->stats = stats;
+}
+
+/* End */
+ActionDTO::ActionDTO(const ActionType& action, const WinnerTeamType& winner_team_type):
+        ActionDTO() {
+    this->type = action;
+    this->winner_team_type = winner_team_type;
+}

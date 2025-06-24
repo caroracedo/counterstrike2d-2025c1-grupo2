@@ -8,6 +8,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "common/constants.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,6 +30,7 @@ struct Celda {
     TIPO_CAJA tipoCaja = TIPO_CAJA::NINGUNO;
     TIPO_ARMA tipoArma = TIPO_ARMA::NINGUNO;
     QString imagenElemento;
+    QGraphicsPixmapItem* item = nullptr;
 };
 
 class MainWindow: public QMainWindow {
@@ -40,30 +42,51 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
-    virtual void mouseReleaseEvent(QMouseEvent*) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     Ui::MainWindow* ui;
     QGraphicsScene* scene;
     QString imagenSeleccionada;
     QString terreno;
-    int cantZonasBomba;
-    Celda grilla[21][21];
+    int cantZonasBomba = 0;
+    bool hayZonaA = false;
+    bool hayZonaB = false;
+    bool mousePresionado = false;
+    int ultimaFila = -1;
+    int ultimaCol = -1;
+    Celda grilla[MATRIX_SIZE][MATRIX_SIZE];
 
     void dibujarGrilla();
     void inicializarGrilla();
+
+    QString seleccionarImagenTerreno();
     void cargarImagenTerreno();
     void rellenarGrillaConTerreno(int index);
+
+    void limpiarMapa();
+    void eliminarElemento(int fila, int col);
+    void colocarElemento(int fila, int col, bool mostrarWarning);
+    Celda crearCelda(QGraphicsPixmapItem* item);
+
+    void mostrarMensajeCeldaOcupada();
     bool verificarZonaBomba();
+    bool verificarZonasDeInicio();
     bool agregarZonaBomba();
 
     void guardarCajas(YAML::Emitter& out);
     void guardarArmas(YAML::Emitter& out);
     void guardarZonasBomba(YAML::Emitter& out);
+    void guardarZonasInicio(YAML::Emitter& out);
+
     void guardarMapaComoYaml(const QString&);
     void abrirMapaDesdeYaml(const QString&);
 
+    void cargarObstaculosEnElMapa(const YAML::Node& archivo);
+    void cargarArmasEnElMapa(const YAML::Node& archivo);
+    void cargarZonasBombasEnElMapa(const YAML::Node& archivo);
+    void cargarZonasDeInicioEnElMapa(const YAML::Node& archivo);
+
     void conectarBtnClicked(QPushButton* btn, QString imagen);
-    void conectarBtnPressed(QPushButton* btn, QString imagen);
 };
 #endif  // MAINWINDOW_H

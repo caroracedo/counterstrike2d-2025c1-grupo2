@@ -19,9 +19,37 @@ std::vector<SDL2pp::Rect> BombView::get_rects() {
     return rects;
 }
 
-void BombView::update(float px, float py) {
+void BombView::update(float px, float py, uint16_t time_to_explode,
+                      std::optional<std::pair<float, float>> listener_position) {
     x = px;
     y = py;
+
+    if (time_to_explode == 14) {
+        sounds.play_with_distance("bombpl", 0, 1000, std::make_pair(x, y), listener_position);
+    }
+
+    if (time_to_explode == 0 && sounds_played == false) {
+        explode();
+        sounds.play("explotion");
+        sounds_played = true;
+        return;
+    }
+
+    uint32_t beep_interval_ms;
+    if (time_to_explode > 10) {
+        beep_interval_ms = 1200;
+    } else if (time_to_explode > 5) {
+        beep_interval_ms = 1000;
+    } else if (time_to_explode > 3) {
+        beep_interval_ms = 500;
+    } else {
+        beep_interval_ms = 150;
+    }
+
+    if (!dropped) {
+        sounds.play_with_distance("beep", 0, beep_interval_ms, std::make_pair(x, y),
+                                  listener_position);
+    }
 }
 
 void BombView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
@@ -36,6 +64,8 @@ void BombView::draw(SDL2pp::Renderer& renderer, const GameCamera& camera) {
 }
 
 void BombView::drawExplosion(SDL2pp::Renderer& renderer, const GameCamera& camera) {
+    if (!camera.is_visible(x, y, BOMB_WIDTH, BOMB_HEIGHT))
+        return;
     float screenX = x - camera.get_x();
     float screenY = y - camera.get_y();
 

@@ -1,14 +1,18 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "match_manager.h"
+#include "acceptor.h"
 
 class Server {
 private:
-    MatchManager match_manager;
+    /* Configuración */
+    Acceptor acceptor;
 
 public:
+    /* Constructor */
     explicit Server(const char* yaml_path);
+
+    /* Override */
     void run();
 };
 
